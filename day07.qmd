@@ -172,6 +172,70 @@ perceptron really can't solve XOR — but it was a limitation of a
 exactly this thread once you've seen, in today's notebook, a hidden layer
 solve the problem Minsky and Papert showed a single perceptron cannot.
 
+## Check your understanding
+
+Immediate-feedback questions covering the sections above — the same style
+used for this course's live in-class peer-instruction quizzes (see
+`quizzes/day07.md` in the repository for the full question bank).
+
+```{=html}
+<div id="day07-quiz"></div>
+<script>
+renderQuiz("day07-quiz", [
+  {
+    question: "In a perceptron's weighted sum z = w&#8321;x&#8321; + ... + w&#8345;x&#8345; + b, what does the bias term b let the model do?",
+    choices: [
+      "Let the decision threshold sit somewhere other than zero, instead of being forced through the origin",
+      "Scale the learning rate up or down during training",
+      "Act as the activation function itself",
+      "Set a hard upper limit on how large z can get"
+    ],
+    correctIndex: 0,
+    explanation: "Without a bias, the decision boundary is forced through the origin no matter how the other weights are chosen."
+  },
+  {
+    question: "A perceptron has one input, no bias (z = wx), an initial weight w&#8320; = 0, a training example (x, y) = (3, 9), a squared-error loss L(w) = (wx - y)&sup2;, and a learning rate &eta; = 0.02. Using dL/dw = 2(wx - y)x, what is w&#8321; after one gradient descent step?",
+    choices: ["1.08", "0.54", "-1.08", "9.0"],
+    correctIndex: 0,
+    explanation: "At w=0: dL/dw = 2(0-9)(3) = -54, so w&#8321; = 0 - 0.02&times;(-54) = 1.08."
+  },
+  {
+    question: "Geometrically, why can no single perceptron represent the XOR function?",
+    choices: [
+      "XOR's two \"1\" outputs sit on opposite corners of the input square, and no single straight line can separate both of them from both \"0\" outputs",
+      "XOR requires three or more inputs to even be defined",
+      "A perceptron's sign activation function can only ever output positive numbers",
+      "XOR's inputs and outputs are not integers"
+    ],
+    correctIndex: 0,
+    explanation: "This is exactly why XOR is called not linearly separable."
+  },
+  {
+    question: "Bulyk, Johnson &amp; Church's protein-binding microarray study found something about a zinc-finger transcription factor's binding site that directly violates the assumption behind a simple profile/perceptron score. What was it?",
+    choices: [
+      "Binding-site positions do not contribute independently &mdash; the effect of one position's identity depends on what's at another position",
+      "Transcription factors never bind DNA in a sequence-specific way",
+      "All positions in a binding site contribute exactly equally to binding",
+      "Binding affinity is unrelated to the nucleotide sequence"
+    ],
+    correctIndex: 0,
+    explanation: "A profile/perceptron score assumes each position's contribution simply adds to the others &mdash; this finding is exactly the XOR-shaped exception to that assumption."
+  },
+  {
+    question: "What later development made it practical to train multi-layer networks, resolving the XOR limitation Minsky and Papert identified?",
+    choices: [
+      "Backpropagation &mdash; an efficient way to apply the chain rule through a network with hidden layers",
+      "A new activation function that only single perceptrons could use",
+      "Increasing the bias term to a very large fixed value",
+      "Removing the sign function from the perceptron entirely"
+    ],
+    correctIndex: 0,
+    explanation: "Backpropagation, popularized by Rumelhart, Hinton &amp; Williams in 1986, is Day 1's chain rule applied through a network with hidden layers."
+  }
+]);
+</script>
+```
+
 ## Further watching
 
 Two videos from 3Blue1Brown's Deep Learning series, animating exactly the

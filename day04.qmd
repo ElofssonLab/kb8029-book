@@ -212,6 +212,65 @@ described. Open it in
 via the badge at the top of the notebook page to edit and run it
 yourself.
 
+## Check your understanding
+
+Immediate-feedback questions covering the sections above — the same style
+used for this course's live in-class peer-instruction quizzes (see
+`quizzes/day04.md` in the repository for the full question bank).
+
+```{=html}
+<div id="day04-quiz"></div>
+<script>
+renderQuiz("day04-quiz", [
+  {
+    question: "Human hemoglobin and human myoglobin arose from an ancient gene duplication within the same genome. What relationship do they have?",
+    choices: ["Orthologs", "Paralogs", "Analogs", "They are not homologous"],
+    correctIndex: 1,
+    explanation: "Homologs arising from a duplication within the same genome are paralogs; orthologs would be the same gene found across different species."
+  },
+  {
+    question: "For two sequences of length around 100, why is it infeasible to try every possible alignment and keep the best one?",
+    choices: [
+      "The number of possible alignments grows so fast (around 10^59 for n=100) that exhaustive search is impossible",
+      "Computers cannot store sequences longer than 100 characters",
+      "Substitution matrices are only defined for sequences shorter than 50 residues",
+      "Alignment scores are undefined once gaps are allowed"
+    ],
+    correctIndex: 0,
+    explanation: "The real number is around 10^59 possible alignments for n=100 &mdash; dynamic programming avoids ever checking most of them."
+  },
+  {
+    question: "Smith-Waterman turns Needleman-Wunsch's global algorithm into a local one with one specific change to the DP matrix. What is that change?",
+    choices: [
+      "Negative values in the matrix are reset to zero, and traceback starts from the highest-scoring cell anywhere and stops at a zero",
+      "The substitution matrix is replaced with a different one",
+      "The gap penalty is changed from linear to affine",
+      "The matrix's rows and columns are transposed"
+    ],
+    correctIndex: 0,
+    explanation: "This single change &mdash; flooring the matrix at zero &mdash; is what turns global alignment into local alignment."
+  },
+  {
+    question: "With an affine gap penalty g(n) = g_open + (n-1) &times; g_ext, using g_open = -10 and g_ext = -1, what is the total penalty for a single gap of length 4?",
+    choices: ["-13", "-40", "-11", "-4"],
+    correctIndex: 0,
+    explanation: "-10 + (4-1) &times; (-1) = -10 - 3 = -13."
+  },
+  {
+    question: "Which pairing correctly describes how PAM and BLOSUM numbering relate to evolutionary distance?",
+    choices: [
+      "A higher PAM number means a more distant comparison; a higher BLOSUM number means a more similar comparison",
+      "A higher PAM number means a more similar comparison; a higher BLOSUM number means a more distant comparison",
+      "Both a higher PAM number and a higher BLOSUM number mean a more distant comparison",
+      "Neither PAM nor BLOSUM numbering relates to evolutionary distance"
+    ],
+    correctIndex: 0,
+    explanation: "The two families' numbering runs in opposite directions &mdash; a common source of confusion."
+  }
+]);
+</script>
+```
+
 ## The lab
 
 A light, tool-based exercise rather than a full lab (Day 5 gets the full
