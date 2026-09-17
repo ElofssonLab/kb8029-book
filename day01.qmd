@@ -275,7 +275,11 @@ practice problem above in code — the dot product, the gradient (checked
 two ways: by hand and via automatic differentiation), and the die-roll
 probabilities (checked two ways: exactly, and by simulating a few hundred
 thousand rolls) — so you can confirm code and math agree before Day 2
-introduces the code side properly.
+introduces the code side properly. The version below is a static,
+read-only copy; open it in
+[Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day01-math-in-code.ipynb)
+via the badge at the top of the notebook page to edit and run it
+yourself.
 
 ## What's next
 

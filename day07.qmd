@@ -180,7 +180,11 @@ gradient descent successfully learns AND (a linearly separable function,
 like the logic gates from earlier in the course), the same model is then
 trained on XOR and visibly fails to converge, and finally a small network
 with one hidden layer succeeds where the linear model couldn't — with a
-plot showing exactly why.
+plot showing exactly why. The version below is a static, read-only copy;
+open it in
+[Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day07-gradient-descent-xor.ipynb)
+via the badge at the top of the notebook page to edit and run it
+yourself.
 
 ## What's next
 

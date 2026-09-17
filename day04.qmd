@@ -1,7 +1,9 @@
 ::: {.callout-note}
 **Sources for this page:** Petras Kundrotas's KB8029 lecture "Sequence
 Alignment" (Feb 2026) — this page follows its structure and worked
-examples, adapted and shortened for this book, not copied verbatim;
+examples, adapted and shortened for this book, not copied verbatim; the
+two figures below (orthologs/paralogs; the completed Needleman-Wunsch
+traceback) are taken directly from that lecture's slides;
 Dayhoff, Schwartz & Orcutt (1978), *Atlas of Protein Sequence and
 Structure*, pp. 345-352 (origin of the PAM matrices); Henikoff & Henikoff
 (1992), *PNAS* 89:10915-10919 (origin of the BLOSUM matrices); Wikipedia,
@@ -29,7 +31,12 @@ the fraction of positions with the exact same residue; similarity is
 looser, also counting positions with residues that share physicochemical
 properties (e.g. two hydrophobic residues). Homologous proteins found in
 different species are **orthologs**; homologous proteins found within the
-same genome (arising from gene duplication) are **paralogs**.
+same genome (arising from gene duplication) are **paralogs**. Orthologous
+myoglobins across mammals, and the family of paralogous human globins
+(hemoglobin, myoglobin, neuroglobin, and others, all descended from gene
+duplications), are the standard example:
+
+![](figs/day04-orthologs-paralogs.png){width=90%}
 
 When two sequences happen to be the same length, measuring identity is
 trivial — just place one under the other and count matches. Real
@@ -82,6 +89,12 @@ G - A C
 — G matches G, C is deleted, A matches A, and T is (mis)matched to C, for
 a total score of $1 - 1 + 1 - 1 = 0$.
 
+The same idea, at the scale it's actually used: two 12-13 residue protein
+sequences, with the completed matrix and its full traceback path
+highlighted:
+
+![](figs/day04-nw-traceback.png){width=95%}
+
 This particular algorithm — **Needleman-Wunsch** — produces a *global*
 alignment: the entire length of both sequences is forced into the result,
 gaps and all. **Smith-Waterman** is the same idea adapted for *local*
@@ -97,16 +110,19 @@ The scores $s(x_i, y_j)$ above aren't arbitrary — they come from
 observing real evolutionary substitutions. Two families dominate:
 
 - **PAM** (Point Accepted Mutations; Dayhoff, Schwartz & Orcutt, 1978)
-  is built from an *explicit* evolutionary model: closely related
-  sequences are arranged into phylogenetic trees, ancestral sequences are
-  inferred, and substitutions are counted along the tree's branches. A
-  PAM1 matrix (calibrated so 99% of residues are unchanged) can be
-  raised to higher "PAM" distances by repeated matrix multiplication —
-  PAM250, for a very distant comparison, is $\mathbf{M}^{250}$.
+  is based on **global** alignments of **closely related** proteins, built
+  from an *explicit* evolutionary model: sequences are arranged into
+  phylogenetic trees, ancestral sequences are inferred, and substitutions
+  are counted along the tree's branches. Only PAM1 (calibrated so 99% of
+  residues are unchanged over that evolutionary distance) is derived
+  directly from data — every other PAM matrix is extrapolated from it by
+  repeated matrix multiplication ($\mathbf{M}^{250}$ for PAM250, etc.).
 - **BLOSUM** (BLOcks SUbstitution Matrix; Henikoff & Henikoff, 1992) is
-  built from an *implicit* model instead: substitution frequencies are
-  counted directly from ungapped, highly conserved blocks of real
-  multiple alignments, with no phylogenetic tree involved.
+  based on **local**, ungapped alignments of **distantly related**
+  proteins instead: substitution frequencies are counted directly from
+  conserved blocks of real multiple alignments, with no phylogenetic tree
+  and no extrapolation — each BLOSUM matrix (BLOSUM45, BLOSUM62, BLOSUM80,
+  ...) is derived independently from the others.
 
 One easy source of confusion: the two families' numbering runs in
 *opposite* directions. A **higher** PAM number means a **more distant**
@@ -119,12 +135,17 @@ more similar sequences than BLOSUM45) — the opposite trend.
 Extending pairwise alignment to more than two sequences at once has four
 main strategies:
 
-| Approach | Idea | Limitation |
-|---|---|---|
-| **Exact** | Extend the same dynamic-programming idea to $N$ dimensions | Only feasible for $N \le 5$ sequences |
-| **Progressive** | Align the most similar pair first, then progressively add sequences/profiles, guided by a tree built from all pairwise distances | Fast, but an early mistake in the guide tree propagates forward with no later correction |
-| **Iterative** | Start from a progressive alignment, then repeatedly re-score and re-align subsets to improve it (e.g. MUSCLE) | More accurate, more computationally expensive |
-| **Consistency-based** | Favor alignments that agree with each other transitively — if A aligns with B and B aligns with C, prefer an alignment where A also aligns with C accordingly (e.g. T-Coffee) | Most accurate for distant sequences, but the most expensive |
+| Approach | Programs | Speed | Accuracy | Guide-tree dependence | Refinement |
+|---|---|---|---|---|---|
+| **Exact** — extend dynamic programming to $N$ dimensions; only feasible for $N \le 5$ sequences | — | — | Optimal (for small $N$) | None | — |
+| **Progressive** — align the most similar pair first, then progressively add sequences/profiles, guided by a tree built from all pairwise distances | ClustalW | Fast | Moderate | High | No |
+| **Iterative** — start from a progressive alignment, then repeatedly re-score and re-align subsets to improve it | MUSCLE | Medium | High | Moderate | Yes |
+| **Consistency-based** — favor alignments that agree with each other transitively (if A aligns with B and B aligns with C, prefer an alignment where A also aligns with C accordingly) | T-Coffee | Slow | Very high | Low | Yes |
+
+The pattern is a genuine speed/accuracy tradeoff: progressive is fast but
+an early mistake in the guide tree propagates forward uncorrected;
+iterative and consistency-based methods spend more computation to correct
+exactly that weakness.
 
 Building the guide tree for progressive alignment uses exactly the kind
 of hierarchical clustering you'd use on any distance matrix: treat every
