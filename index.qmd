@@ -1,0 +1,67 @@
+# Welcome {.unnumbered}
+
+This is an open, interactive companion to the redesigned KB8029
+Bioinformatics course. Rather than teaching classical bioinformatics and
+machine learning as two separate blocks, this book follows the course's
+integrated day-by-day structure — see the [Course Schedule](schedule.qmd)
+for the full plan, or `course-redesign.md` in the repository root for the
+rationale behind it.
+
+**This is not a copy of any textbook.** The course previously assigned
+copyrighted textbooks (Magnus Ekman's *Learning Deep Learning* for the
+machine-learning half, Jonathan Pevsner's *Bioinformatics and Functional
+Genomics* for the classical half). Nothing from either is reproduced here.
+Every page is written from scratch, drawing on fully open sources —
+none restricted to non-commercial use — that cover the same material:
+
+- **[Dive into Deep Learning](https://d2l.ai)** (Zhang, Lipton, Li & Smola)
+  — [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
+  Primary source for every machine-learning session.
+- **[Wikipedia](https://en.wikipedia.org)** —
+  [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
+  Conceptual and algorithmic depth for the bioinformatics sessions.
+- **[EMBL-EBI Training](https://www.ebi.ac.uk/training/)** —
+  [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). The
+  practical, tool-use layer for databases and alignment.
+- **[NCBI Bookshelf](https://www.ncbi.nlm.nih.gov/books/)** — public
+  domain (US government work). BLAST and database practicalities.
+- **[RCSB PDB-101](https://pdb101.rcsb.org/)** —
+  [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) (educational
+  tier only). Protein structure.
+- **[*A Byte of Python*](https://python.swaroopch.com/)** —
+  [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Python
+  fundamentals and object-oriented programming.
+
+Every page names which source(s) it draws on, and because of the CC BY-SA
+license, pages adapted from *Dive into Deep Learning* or Wikipedia are
+themselves shared here under CC BY-SA 4.0.
+
+**Students are never pointed at raw source material directly** — Wikipedia
+in particular is written to be browsed outward via its own links, which
+makes "how far should I read?" an unanswerable question. Every session
+gets one bounded, authored page instead, with sources listed for further
+reading, never as an inline dependency.
+
+## How to use this alongside the course
+
+Most session pages have three parts:
+
+1. **The idea** — a short, from-scratch explanation of the session's core
+   concept, written to match what's covered in the lecture.
+2. **The notebook** — for sessions with a full lab, the actual lab
+   notebook, embedded with its saved output so you can read it here or run
+   it yourself.
+3. **What's next** — an explicit pointer to where this session's ideas
+   resurface later in the course. The redesign is built around several
+   continuous threads (most centrally, secondary-structure prediction)
+   rather than disconnected topics, and each page names the connection
+   rather than leaving it implicit.
+
+## Status
+
+Work in progress. Day 1 (math prerequisites) and Day 7 (linear models,
+gradient descent, and the XOR problem) are drafted as complete examples —
+Day 7 in particular showcases the course's central design idea: machine
+learning is motivated from inside the bioinformatics material (a profile
+score turns out to already be a linear model) rather than introduced as an
+unrelated new topic. The remaining days will follow the same pattern.

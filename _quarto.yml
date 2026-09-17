@@ -1,0 +1,29 @@
+project:
+  type: book
+
+book:
+  title: "Bioinformatics & Deep Learning — Course Notes"
+  subtitle: "An open-access companion for the redesigned KB8029 course"
+  author: "Arne Elofsson"
+  date: today
+  chapters:
+    - index.qmd
+    - schedule.qmd
+    - day01.qmd
+    - href: notebooks/day01-math-in-code.ipynb
+      text: "Day 1 — Notebook"
+    - day04.qmd
+    - day07.qmd
+    - href: notebooks/day07-gradient-descent-xor.ipynb
+      text: "Day 7 — Notebook"
+    - references.qmd
+
+format:
+  html:
+    theme: cosmo
+    number-sections: true
+    code-fold: false
+    toc: true
+
+execute:
+  enabled: false   # notebooks already contain saved outputs from class; don't re-run them at build time

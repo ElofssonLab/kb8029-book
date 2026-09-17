@@ -1,0 +1,191 @@
+::: {.callout-note}
+**Sources for this page:** d2l.ai, *Dive into Deep Learning*, [Linear
+Neural Networks for Regression](https://d2l.ai/chapter_linear-regression/index.html)
+— CC BY-SA 4.0; Wikipedia, [Perceptron](https://en.wikipedia.org/wiki/Perceptron)
+and [*Perceptrons* (book)](https://en.wikipedia.org/wiki/Perceptrons_(book))
+— CC BY-SA 4.0; Bulyk, Johnson & Church (2002), *Nucleic Acids Research*
+30(5):1255-1261, [PubMed](https://pubmed.ncbi.nlm.nih.gov/11861919/). Text
+below is written from scratch, not copied, following these ideas.
+:::
+
+# Day 7: Linear Models, Gradient Descent, and the XOR Problem
+
+## Learning goals
+
+By the end of this session you should be able to recognize a perceptron
+as a formal version of Day 6's profile score, explain how such a model's
+weights can be *learned* from labelled examples rather than derived from
+alignment statistics, and explain — using a real biological example — why
+some patterns cannot be captured by any linear model, no matter how its
+weights are chosen.
+
+## A profile score, formalized
+
+Day 6 introduced the profile score: to check how well a sequence matches
+a known family, you multiply each position's observed value by a
+position-specific weight and add the results up — a dot product, in Day
+1's terms. Today we give that computation a name and generalize it. A
+**perceptron** computes exactly this weighted sum,
+
+$$
+z = w_1 x_1 + w_2 x_2 + \dots + w_n x_n + b
+$$
+
+(the extra term $b$, a **bias**, just shifts the whole thing by a
+constant amount, letting the model's decision threshold sit somewhere
+other than zero) and then passes $z$ through an **activation function** to
+produce an output. There is nothing biological or sequence-specific left
+in this definition — it's the same computation Day 6 used for scoring
+motifs, stripped down to its general-purpose form.
+
+## Learning the weights, instead of deriving them
+
+A profile's weights come from counting: look at a multiple alignment,
+count how often each residue appears at each position, and turn those
+counts into log-odds scores. That works well when you already have a
+trustworthy alignment to count from.
+
+The alternative — and the one the rest of this course builds on — is to
+**learn** the weights directly from labelled examples, using gradient
+descent (Day 1). Start with arbitrary weights, measure how wrong the
+model's current predictions are with a loss function, compute the
+gradient of that loss with respect to each weight, and nudge every weight
+a small step in the direction that reduces the loss. Repeat. No alignment,
+no hand-counting — just examples and a lot of small corrections.
+
+In this session's lab, this is implemented directly with raw tensors and
+automatic differentiation (Day 2), deliberately without the higher-level
+`nn.Module`/training-loop tools that Day 9 introduces — the point today is
+to see every step of the mechanics, not to use a convenient shortcut
+around them.
+
+**Worked example.** Take a perceptron with one input, no bias yet
+($z = wx$), an initial weight $w_0 = 0$, a training example $(x, y) =
+(2, 6)$, a squared-error loss $L(w) = (wx - y)^2$, and a learning rate
+$\eta = 0.05$. Day 1's chain rule gives
+
+$$
+\frac{dL}{dw} = 2(wx - y) \cdot x
+$$
+
+Two iterations of gradient descent, $w_{n+1} = w_n - \eta \, dL/dw$:
+
+| $n$ | $w_n$ | prediction $w_n x$ | $dL/dw$ | $w_{n+1} = w_n - 0.05 \, dL/dw$ |
+|---|---|---|---|---|
+| 0 | 0.00 | 0.00 | $2(0-6)(2) = -24.0$ | 0.00 − 0.05 × (−24.0) = 1.20 |
+| 1 | 1.20 | 2.40 | $2(2.4-6)(2) = -14.4$ | 1.20 − 0.05 × (−14.4) = 1.92 |
+| 2 | 1.92 | 3.84 | $2(3.84-6)(2) = -8.64$ | 1.92 − 0.05 × (−8.64) = 2.35 |
+
+The weight is climbing toward $w = 3$, where the prediction $wx = 3 \times
+2 = 6$ would exactly match the target — and, just as in Day 1's
+one-variable example, the size of each correction ($dL/dw$) shrinks on its
+own as the prediction gets closer, with no manual adjustment to $\eta$
+required.
+
+## When linear scoring fails
+
+A model built purely from weighted sums has a real limitation: there's a
+whole class of patterns it can never represent, no matter how its weights
+are chosen. The classic illustration is the **XOR problem**: a function of
+two binary inputs that outputs `1` when its inputs *differ* and `0` when
+they're the *same*.
+
+| $x_1$ | $x_2$ | XOR |
+|---|---|---|
+| 0 | 0 | 0 |
+| 0 | 1 | 1 |
+| 1 | 0 | 1 |
+| 1 | 1 | 0 |
+
+Try to find weights $w_1, w_2, b$ that reproduce this table through a
+weighted sum, and you'll find you can't: the two "1" outputs sit on
+opposite corners of the input square from each other, and no straight
+line can put both of them on one side while leaving both "0" outputs on
+the other.
+
+That geometric argument can be turned into a short algebraic proof, which
+is worth seeing once. A perceptron with a sign-style activation outputs 1
+when $z = w_1 x_1 + w_2 x_2 + b > 0$ and 0 otherwise. Reproducing the XOR
+table requires all four of:
+
+$$
+b \le 0, \qquad w_1 + b > 0, \qquad w_2 + b > 0, \qquad w_1 + w_2 + b \le 0
+$$
+
+(the first and last come from the two "0" rows, the middle two from the
+"1" rows). Adding the second and third inequalities gives $w_1 + w_2 + 2b
+> 0$, i.e. $w_1 + w_2 + b > -b \ge 0$ (using $b \le 0$ from the first
+inequality) — but the fourth inequality says $w_1 + w_2 + b \le 0$
+directly. No values of $w_1$, $w_2$, $b$ can satisfy both at once, so no
+such weights exist. This is exactly the same fact the geometric picture
+showed, just derived without needing to draw anything.
+
+This isn't just a toy puzzle for logic gates — the same structure shows up
+in real sequence motifs. Bulyk, Johnson & Church (2002) used
+protein-binding microarrays to measure how a zinc-finger transcription
+factor's binding affinity depended on the nucleotides at different
+positions of its binding site, and found that positions do **not**
+contribute independently: the effect of one position's identity depends
+on what's at another position. That directly violates the assumption a
+profile score depends on — that each position's contribution can simply
+be added to the others.
+
+To see why that specific kind of dependency is an XOR-shaped problem,
+consider a deliberately simplified, illustrative version (not the actual
+data from the paper, which involves more positions and continuous binding
+affinities — but the same qualitative shape): suppose a two-position motif
+binds strongly only when the two positions are **different** purine/
+pyrimidine classes (one R, one Y), and binds weakly when they're the
+**same**:
+
+| Position 1 | Position 2 | Binding |
+|---|---|---|
+| Y | Y | weak |
+| Y | R | strong |
+| R | Y | strong |
+| R | R | weak |
+
+Relabel "weak" as 0 and "strong" as 1, and this is the XOR table above.
+Neither position predicts binding on its own — only their combination
+does — and that is precisely what no profile score, and no single
+perceptron, can represent. Resolving this requires combining more than
+one linear unit, which is exactly what a hidden layer does, and exactly
+where Day 10 picks this up again.
+
+## A brief history: why this problem mattered so much
+
+The XOR limitation isn't just a textbook exercise — it's a real episode in
+the history of the field. Marvin Minsky and Seymour Papert's 1969 book
+*Perceptrons* proved this limitation rigorously and generalized it well
+beyond XOR, to a broad class of problems single-layer perceptrons cannot
+solve. The book's pessimism about perceptrons is widely credited with
+contributing to a sharp drop in funding and interest in neural-network
+research through the 1970s — a period often called the first "AI winter."
+
+The resolution came later, once **backpropagation** (an efficient way to
+apply Day 1's chain rule through a network with hidden layers,
+popularized by Rumelhart, Hinton & Williams in 1986) made it practical to
+*train* multi-layer networks rather than just prove, in principle, that
+they were more powerful. Minsky and Papert's proof was correct — a single
+perceptron really can't solve XOR — but it was a limitation of a
+*one-layer* model, not of neural networks generally. Day 10 picks up
+exactly this thread once you've seen, in today's notebook, a hidden layer
+solve the problem Minsky and Papert showed a single perceptron cannot.
+
+## The notebook
+
+The lab notebook for today (`notebooks/day07-gradient-descent-xor.ipynb`)
+works through this progression concretely: a linear model trained by
+gradient descent successfully learns AND (a linearly separable function,
+like the logic gates from earlier in the course), the same model is then
+trained on XOR and visibly fails to converge, and finally a small network
+with one hidden layer succeeds where the linear model couldn't — with a
+plot showing exactly why.
+
+## What's next
+
+Day 8 returns to protein structure and previews, narratively, the
+historical method (Rost & Sander's PHD) that combines Day 6's profiles
+with the hidden-layer idea from today. Day 10 comes back to deliver that
+method in full, once Day 9 has introduced how to build a real network the
+idiomatic way.

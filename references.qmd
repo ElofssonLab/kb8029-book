@@ -1,0 +1,80 @@
+# Sources and licensing {.unnumbered}
+
+This book draws its narrative content from fully open sources, supplemented
+by original writing. None of the sources below restrict commercial use —
+an earlier draft of this book used Michael Nielsen's *Neural Networks and
+Deep Learning* for some early sessions, but it's licensed CC BY-**NC**, so
+it was dropped in favor of *Dive into Deep Learning* throughout, keeping
+one consistent license across the whole book. Every page names which of
+these sources it used.
+
+## Dive into Deep Learning
+
+Zhang, A., Lipton, Z. C., Li, M., & Smola, A. J. *Dive into Deep Learning*.
+<https://d2l.ai>
+
+[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Primary
+source for every machine-learning session. Adapted material from this
+source is, per that license, shared here under the same terms.
+
+## Wikipedia
+
+<https://en.wikipedia.org>
+
+[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
+Conceptual and algorithmic depth for the bioinformatics sessions, and
+occasional historical notes elsewhere. Never assigned as reading directly
+— synthesized into this book's own bounded pages instead (see the Welcome
+page for why).
+
+## EMBL-EBI Training
+
+<https://www.ebi.ac.uk/training/>
+
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). The practical,
+tool-use layer for databases and sequence alignment.
+
+## NCBI Bookshelf
+
+<https://www.ncbi.nlm.nih.gov/books/>
+
+Public domain (US government work). Used for the BLAST algorithm and
+database practicalities, including the BLAST® Help manual.
+
+## RCSB PDB-101
+
+<https://pdb101.rcsb.org/>
+
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) — the PDB-101
+educational/training tier specifically; general rcsb.org article text is
+separately copyrighted and is not used here.
+
+## A Byte of Python
+
+Swaroop, C. H. *A Byte of Python*. <https://python.swaroopch.com/>
+
+[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), with
+commercial use explicitly permitted. Python fundamentals and its
+Object-Oriented Programming chapter.
+
+## What isn't reused, and why
+
+- **Magnus Ekman's *Learning Deep Learning*** and **Jonathan Pevsner's
+  *Bioinformatics and Functional Genomics*** were this course's previously
+  assigned textbooks. Both are under conventional copyright. Nothing from
+  either is reproduced here; any resemblance in topic ordering is because
+  all of these books teach the same standard material, not because text
+  was copied.
+- **Goodfellow, Bengio & Courville's *Deep Learning*** is free to read
+  online (in the publisher's own HTML viewer) but not licensed for reuse
+  or redistribution — same treatment as the two textbooks above.
+- **Michael Nielsen's *Neural Networks and Deep Learning*** is CC BY-
+  **NC** — freely reusable for non-commercial teaching, but dropped anyway
+  so this book can carry one single, simpler license (CC BY-SA 4.0)
+  throughout rather than mixed licensing across pages.
+- **OpenStax's *Introduction to Python Programming*** turned out, on
+  checking, to also be CC BY-**NC**-SA — ruled out for the same reason.
+- ***Python for Bioinformatics* (BPB Publications)**: its GitHub
+  repository is MIT-licensed, but that covers only the code samples — it's
+  the companion repo for a commercially sold, fully copyrighted book, not
+  an open text itself.
