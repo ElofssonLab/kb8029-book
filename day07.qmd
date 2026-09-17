@@ -46,6 +46,14 @@ motifs, stripped down to its general-purpose form.
 article covers other activation functions and the original biological
 motivation, beyond the general-purpose version above.)*
 
+**Further watching** — [*But what is a neural network?*](https://www.youtube.com/watch?v=aircAruvnKk) (3Blue1Brown, Deep Learning ch. 1), animating exactly what a weighted sum + activation is doing:
+
+```{=html}
+<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
+<iframe src="https://www.youtube.com/embed/aircAruvnKk" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="But what is a neural network?, 3Blue1Brown"></iframe>
+</div>
+```
+
 ## Learning the weights, instead of deriving them
 
 A profile's weights come from counting: look at a multiple alignment,
@@ -93,6 +101,14 @@ required.
 *(Further reading: Wikipedia's [Gradient descent](https://en.wikipedia.org/wiki/Gradient_descent)
 article covers variants — momentum, stochastic gradient descent, and
 more — used throughout the rest of this course but not needed yet.)*
+
+**Further watching** — [*Gradient descent, how neural networks learn*](https://www.youtube.com/watch?v=IHZwWFHWa-w) (3Blue1Brown, Deep Learning ch. 2):
+
+```{=html}
+<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
+<iframe src="https://www.youtube.com/embed/IHZwWFHWa-w" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="Gradient descent, how neural networks learn, 3Blue1Brown"></iframe>
+</div>
+```
 
 ## When linear scoring fails
 
@@ -255,27 +271,6 @@ renderQuiz("day07-quiz", [
   }
 ]);
 </script>
-```
-
-## Further watching
-
-Two videos from 3Blue1Brown's Deep Learning series, animating exactly the
-two ideas this page is built on:
-
-**On what a weighted sum + activation is actually doing** — [*But what is a neural network?*](https://www.youtube.com/watch?v=aircAruvnKk) (Deep Learning, ch. 1):
-
-```{=html}
-<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
-<iframe src="https://www.youtube.com/embed/aircAruvnKk" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="But what is a neural network?, 3Blue1Brown"></iframe>
-</div>
-```
-
-**On gradient descent itself** — [*Gradient descent, how neural networks learn*](https://www.youtube.com/watch?v=IHZwWFHWa-w) (Deep Learning, ch. 2):
-
-```{=html}
-<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
-<iframe src="https://www.youtube.com/embed/IHZwWFHWa-w" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="Gradient descent, how neural networks learn, 3Blue1Brown"></iframe>
-</div>
 ```
 
 ## The notebook
