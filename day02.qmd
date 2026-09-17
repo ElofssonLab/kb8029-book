@@ -1,0 +1,125 @@
+::: {.callout-note}
+**Sources for this page:** Swaroop, C. H., *A Byte of Python*,
+<https://python.swaroopch.com/> — CC BY-SA 4.0, commercial use permitted.
+Python fundamentals and its Object-Oriented Programming chapter. The
+notebook's tensor/autograd sections are reused from this course's own
+existing teaching material (`notebooks/pytorch_bio_intro.ipynb`), not
+newly written.
+:::
+
+# Day 2: Programming Prerequisites
+
+## Learning goals
+
+By the end of this session you should be able to write and use your own
+Python functions and classes, explain what a tensor is and how it
+generalizes the vectors and matrices from Day 1, create and manipulate
+tensors (indexing, slicing, reshaping), and explain what automatic
+differentiation computes and why it matters for everything from Day 7
+onward.
+
+## Why classes, and why now
+
+The previous run of this course covered Python syntax but never object-
+oriented programming — a gap several students flagged directly ("we were
+never taught classes") when the material later assumed familiarity with
+it. This session treats functions and classes as new material, not
+review.
+
+A **function** bundles a sequence of steps under a name so it can be
+reused without repeating the steps:
+
+```python
+def gc_content(sequence):
+    sequence = sequence.upper()
+    gc = sum(1 for base in sequence if base in "GC")
+    return gc / len(sequence)
+
+gc_content("ATGCGATACG")  # 0.5
+```
+
+A **class** goes one step further, bundling *data* and the *functions
+that operate on that data* together into a single object. Where a
+function takes data and returns a result, a class lets you create many
+independent objects that each carry their own data and know how to
+compute things about themselves:
+
+```python
+class DnaSequence:
+    def __init__(self, name, bases):
+        self.name = name
+        self.bases = bases.upper()
+
+    def gc_content(self):
+        gc = sum(1 for base in self.bases if base in "GC")
+        return gc / len(self.bases)
+
+seq = DnaSequence("my_gene", "ATGCGATACG")
+seq.gc_content()  # 0.5, but now seq also remembers its own name and bases
+```
+
+`__init__` is a special method Python calls automatically when a new
+object is created — it's where you set up whatever data that object
+should carry (here, `name` and `bases`). Every other method takes `self`
+as its first argument, which just refers to "the particular object this
+method was called on." This pattern — an object that owns its data and
+the operations on that data — is exactly what you'll see again in Day 9,
+where a neural network is itself a class that owns its weights and knows
+how to compute a prediction from them.
+
+## Tensors: the data structure underneath everything from here on
+
+Day 1 worked with vectors (a list of numbers) and matrices (a grid of
+numbers). A **tensor** is the general version of both: a container for
+numbers with any number of dimensions — a single number (a 0-dimensional
+tensor), a vector (1-dimensional), a matrix (2-dimensional), or higher
+still (a stack of matrices, and so on). Every deep-learning framework,
+including PyTorch, represents all of its data — inputs, weights,
+gradients — as tensors, precisely so that the same operations (add,
+multiply, reshape, ...) work regardless of how many dimensions the data
+happens to have.
+
+The notebook below builds tensors out of a small DNA-encoded toy
+dataset, then works through indexing, slicing, and reshaping — the same
+operations you already used on Day 1's vectors and matrices, just
+generalized.
+
+## Automatic differentiation
+
+Day 1 introduced the gradient and worked it out by hand using the chain
+rule. Doing that by hand does not scale to a function with thousands or
+millions of variables — which is exactly what a neural network's weights
+are. **Automatic differentiation** (autograd) is the mechanism that
+makes this practical: PyTorch tracks every operation performed on a
+tensor, and when you ask for the gradient of some final result, it
+replays those operations backward, applying the chain rule automatically
+at every step. You never write a derivative by hand again after this
+point in the course — you only ever call `.backward()`.
+
+## The notebook
+
+`notebooks/day02-tensors-and-a-first-class.ipynb` reuses this course's
+own existing introductory PyTorch material almost unchanged — tensor
+creation, dtypes, indexing/slicing/reshaping, and a first autograd
+example, all built around a small DNA-encoded toy dataset — then adds two
+new sections: a `DnaSequence` class exercise applying today's OOP
+material to a real biological object (previewing Day 3), and a
+recomputation of Day 1's own worked examples (a dot product and a
+gradient) in code, confirming the by-hand answers match. Open it in
+[Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day02-tensors-and-a-first-class.ipynb)
+via the badge at the top of the notebook page to edit and run it
+yourself.
+
+## The lab
+
+A full lab session: work through the notebook above, then extend the
+`DnaSequence` class with a reverse-complement method (the notebook's
+"try it yourself" exercise) and use it on a real sequence you'll
+retrieve from a database in Day 3.
+
+## What's next
+
+Day 3 puts these programming tools to use immediately: retrieving and
+working with real sequences from biological databases. The tensor and
+autograd mechanics introduced here resurface directly in Day 7's
+gradient-descent lab.

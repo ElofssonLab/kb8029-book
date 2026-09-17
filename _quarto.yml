@@ -12,6 +12,9 @@ book:
     - day01.qmd
     - href: notebooks/day01-math-in-code.ipynb
       text: "Day 1 — Notebook"
+    - day02.qmd
+    - href: notebooks/day02-tensors-and-a-first-class.ipynb
+      text: "Day 2 — Notebook"
     - day04.qmd
     - href: notebooks/day04-alignment-in-code.ipynb
       text: "Day 4 — Notebook"
