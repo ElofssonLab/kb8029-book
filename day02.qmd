@@ -4,7 +4,10 @@
 Python fundamentals and its Object-Oriented Programming chapter. The
 notebook's tensor/autograd sections are reused from this course's own
 existing teaching material (`notebooks/pytorch_bio_intro.ipynb`), not
-newly written.
+newly written. The scientific-stack section names Biopython, NumPy,
+pandas, Matplotlib, seaborn, SciPy, and scikit-learn as tools, with
+usage demonstrated in original example code — no text is reused from
+any of their documentation.
 :::
 
 # Day 2: Programming Prerequisites
@@ -96,16 +99,54 @@ replays those operations backward, applying the chain rule automatically
 at every step. You never write a derivative by hand again after this
 point in the course — you only ever call `.backward()`.
 
+## The scientific Python stack
+
+Beyond PyTorch, a handful of libraries recur throughout the rest of this
+course, and are worth a first look now rather than being introduced
+piecemeal later.
+
+**Biopython** is what you'd actually reach for instead of writing your
+own `DnaSequence` class — it already implements sequence objects (with
+translation, reverse complementation, and much more), file parsing, and
+database access, all used throughout real bioinformatics pipelines. Day
+3's database work builds directly on it.
+
+**NumPy** is the array library underneath almost everything else here,
+including PyTorch tensors — you've effectively been using NumPy-style
+thinking since the tensor section above. **pandas** builds a labeled,
+tabular data structure (the `DataFrame`) on top of NumPy arrays: the
+natural format for a table of many sequences and their properties, rather
+than one sequence at a time.
+
+**Matplotlib** is the base plotting library; **seaborn** builds a
+higher-level, statistics-oriented interface on top of it that plugs
+directly into pandas DataFrames — both are used for essentially every
+figure in this book's later notebooks.
+
+**SciPy** extends NumPy with ready-made scientific routines — statistical
+tests, optimization, and more — sparing you from re-implementing standard
+methods by hand.
+
+**scikit-learn** provides ready-made, well-tested implementations of
+standard machine-learning models. Day 7 deliberately builds a linear
+model "by hand" with raw tensors and gradient descent, precisely so you
+see every step of the mechanics — but for a plain linear regression, in
+practice you would normally just call scikit-learn's implementation
+directly, as the notebook below demonstrates.
+
 ## The notebook
 
 `notebooks/day02-tensors-and-a-first-class.ipynb` reuses this course's
 own existing introductory PyTorch material almost unchanged — tensor
 creation, dtypes, indexing/slicing/reshaping, and a first autograd
-example, all built around a small DNA-encoded toy dataset — then adds two
-new sections: a `DnaSequence` class exercise applying today's OOP
-material to a real biological object (previewing Day 3), and a
-recomputation of Day 1's own worked examples (a dot product and a
-gradient) in code, confirming the by-hand answers match. Open it in
+example, all built around a small DNA-encoded toy dataset — then adds
+several new sections: a `DnaSequence` class exercise applying today's OOP
+material to a real biological object, Biopython's equivalent of that same
+class, a synthetic table of "genes" used to demonstrate NumPy, pandas,
+Matplotlib, seaborn, SciPy, and a scikit-learn linear regression that
+recovers the synthetic data's known ground-truth relationship, and
+finally a recomputation of Day 1's own worked examples (a dot product and
+a gradient) in code, confirming the by-hand answers match. Open it in
 [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day02-tensors-and-a-first-class.ipynb)
 via the badge at the top of the notebook page to edit and run it
 yourself.
