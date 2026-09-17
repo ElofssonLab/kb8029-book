@@ -135,13 +135,14 @@ renderQuiz("day01-quiz-1", [
 </script>
 ```
 
-**Further reading:** Wikipedia's [Dot product](https://en.wikipedia.org/wiki/Dot_product)
-article covers the algebra in more generality than needed here (complex
-vectors, function spaces); d2l.ai's
-[Linear Algebra](https://d2l.ai/chapter_preliminaries/linear-algebra.html)
-section covers matrices and norms at the same level as above, with code.
+### Further reading
 
-**Further watching** — [*Dot products and duality*](https://www.youtube.com/watch?v=LyGKycYT2v0) (3Blue1Brown, Essence of Linear Algebra, ch. 9), animating the geometric picture above:
+- Wikipedia, [Dot product](https://en.wikipedia.org/wiki/Dot_product) — the algebra in more generality than needed here (complex vectors, function spaces)
+- d2l.ai, [Linear Algebra](https://d2l.ai/chapter_preliminaries/linear-algebra.html) — matrices and norms at the same level as above, with code
+
+### Further watching
+
+[*Dot products and duality*](https://www.youtube.com/watch?v=LyGKycYT2v0) (3Blue1Brown, Essence of Linear Algebra, ch. 9), animating the geometric picture above:
 
 ```{=html}
 <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
@@ -268,14 +269,14 @@ renderQuiz("day01-quiz-2", [
 </script>
 ```
 
-**Further reading:** Wikipedia's [Gradient](https://en.wikipedia.org/wiki/Gradient)
-and [Chain rule](https://en.wikipedia.org/wiki/Chain_rule) articles go
-further into multivariate calculus (Jacobians, the generalized chain
-rule) than this course needs; d2l.ai's
-[Calculus](https://d2l.ai/chapter_preliminaries/calculus.html) section
-covers the same gradient-descent idea with code.
+### Further reading
 
-**Further watching** — [*Visualizing the chain rule and product rule*](https://www.youtube.com/watch?v=YG15m2VwSjA) (3Blue1Brown, Essence of Calculus, ch. 4):
+- Wikipedia, [Gradient](https://en.wikipedia.org/wiki/Gradient) and [Chain rule](https://en.wikipedia.org/wiki/Chain_rule) — further into multivariate calculus (Jacobians, the generalized chain rule) than this course needs
+- d2l.ai, [Calculus](https://d2l.ai/chapter_preliminaries/calculus.html) — the same gradient-descent idea, with code
+
+### Further watching
+
+[*Visualizing the chain rule and product rule*](https://www.youtube.com/watch?v=YG15m2VwSjA) (3Blue1Brown, Essence of Calculus, ch. 4):
 
 ```{=html}
 <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
@@ -372,14 +373,14 @@ renderQuiz("day01-quiz-3", [
 </script>
 ```
 
-**Further reading:** Wikipedia's [Bayes' theorem](https://en.wikipedia.org/wiki/Bayes%27_theorem)
-article has more worked examples and the different interpretations of
-probability behind it; d2l.ai's
-[Probability and Statistics](https://d2l.ai/chapter_preliminaries/probability.html)
-section connects this directly to how machine-learning models are
-evaluated.
+### Further reading
 
-**Further watching** — [*Bayes theorem, the geometry of changing beliefs*](https://www.youtube.com/watch?v=HZGCoVF3YvM) (3Blue1Brown):
+- Wikipedia, [Bayes' theorem](https://en.wikipedia.org/wiki/Bayes%27_theorem) — more worked examples and the different interpretations of probability behind it
+- d2l.ai, [Probability and Statistics](https://d2l.ai/chapter_preliminaries/probability.html) — connects this directly to how machine-learning models are evaluated
+
+### Further watching
+
+[*Bayes theorem, the geometry of changing beliefs*](https://www.youtube.com/watch?v=HZGCoVF3YvM) (3Blue1Brown):
 
 ```{=html}
 <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">

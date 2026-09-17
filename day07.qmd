@@ -42,11 +42,13 @@ produce an output. There is nothing biological or sequence-specific left
 in this definition — it's the same computation Day 6 used for scoring
 motifs, stripped down to its general-purpose form.
 
-*(Further reading: Wikipedia's [Perceptron](https://en.wikipedia.org/wiki/Perceptron)
-article covers other activation functions and the original biological
-motivation, beyond the general-purpose version above.)*
+### Further reading
 
-**Further watching** — [*But what is a neural network?*](https://www.youtube.com/watch?v=aircAruvnKk) (3Blue1Brown, Deep Learning ch. 1), animating exactly what a weighted sum + activation is doing:
+- Wikipedia, [Perceptron](https://en.wikipedia.org/wiki/Perceptron) — other activation functions and the original biological motivation, beyond the general-purpose version above
+
+### Further watching
+
+[*But what is a neural network?*](https://www.youtube.com/watch?v=aircAruvnKk) (3Blue1Brown, Deep Learning ch. 1), animating exactly what a weighted sum + activation is doing:
 
 ```{=html}
 <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
@@ -98,11 +100,13 @@ one-variable example, the size of each correction ($dL/dw$) shrinks on its
 own as the prediction gets closer, with no manual adjustment to $\eta$
 required.
 
-*(Further reading: Wikipedia's [Gradient descent](https://en.wikipedia.org/wiki/Gradient_descent)
-article covers variants — momentum, stochastic gradient descent, and
-more — used throughout the rest of this course but not needed yet.)*
+### Further reading
 
-**Further watching** — [*Gradient descent, how neural networks learn*](https://www.youtube.com/watch?v=IHZwWFHWa-w) (3Blue1Brown, Deep Learning ch. 2):
+- Wikipedia, [Gradient descent](https://en.wikipedia.org/wiki/Gradient_descent) — variants (momentum, stochastic gradient descent, and more) used throughout the rest of this course but not needed yet
+
+### Further watching
+
+[*Gradient descent, how neural networks learn*](https://www.youtube.com/watch?v=IHZwWFHWa-w) (3Blue1Brown, Deep Learning ch. 2):
 
 ```{=html}
 <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
@@ -180,9 +184,9 @@ perceptron, can represent. Resolving this requires combining more than
 one linear unit, which is exactly what a hidden layer does, and exactly
 where Day 10 picks this up again.
 
-*(Further reading: Wikipedia's [Linear separability](https://en.wikipedia.org/wiki/Linear_separability)
-article generalizes the geometric argument above beyond the two-input
-case shown here.)*
+### Further reading
+
+- Wikipedia, [Linear separability](https://en.wikipedia.org/wiki/Linear_separability) — generalizes the geometric argument above beyond the two-input case shown here
 
 ## A brief history: why this problem mattered so much
 
@@ -204,10 +208,10 @@ perceptron really can't solve XOR — but it was a limitation of a
 exactly this thread once you've seen, in today's notebook, a hidden layer
 solve the problem Minsky and Papert showed a single perceptron cannot.
 
-*(Further reading: Wikipedia's [AI winter](https://en.wikipedia.org/wiki/AI_winter)
-article covers the broader funding/research history; the
-[Backpropagation](https://en.wikipedia.org/wiki/Backpropagation) article
-gives the full derivation Day 10 builds on.)*
+### Further reading
+
+- Wikipedia, [AI winter](https://en.wikipedia.org/wiki/AI_winter) — the broader funding/research history
+- Wikipedia, [Backpropagation](https://en.wikipedia.org/wiki/Backpropagation) — the full derivation Day 10 builds on
 
 ## Check your understanding
 
