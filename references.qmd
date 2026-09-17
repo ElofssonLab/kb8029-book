@@ -34,6 +34,14 @@ page for why).
 [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). The practical,
 tool-use layer for databases and sequence alignment.
 
+## bibook
+
+Käll, L. *bibook*. <https://github.com/statisticalbiotechnology/bibook>
+
+[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Source for
+notebook code implementing classical bioinformatics algorithms (pairwise
+alignment, MSA, and more) — adapted with attribution, not copied wholesale.
+
 ## NCBI Bookshelf
 
 <https://www.ncbi.nlm.nih.gov/books/>

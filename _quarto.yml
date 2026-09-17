@@ -13,6 +13,8 @@ book:
     - href: notebooks/day01-math-in-code.ipynb
       text: "Day 1 — Notebook"
     - day04.qmd
+    - href: notebooks/day04-alignment-in-code.ipynb
+      text: "Day 4 — Notebook"
     - day07.qmd
     - href: notebooks/day07-gradient-descent-xor.ipynb
       text: "Day 7 — Notebook"

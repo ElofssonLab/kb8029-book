@@ -23,6 +23,10 @@ none restricted to non-commercial use — that cover the same material:
 - **[EMBL-EBI Training](https://www.ebi.ac.uk/training/)** —
   [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). The
   practical, tool-use layer for databases and alignment.
+- **[*bibook*](https://github.com/statisticalbiotechnology/bibook)**
+  (Lukas Käll) — [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+  Notebook code for the algorithmic bioinformatics sessions (alignment,
+  MSA, and more).
 - **[NCBI Bookshelf](https://www.ncbi.nlm.nih.gov/books/)** — public
   domain (US government work). BLAST and database practicalities.
 - **[RCSB PDB-101](https://pdb101.rcsb.org/)** —

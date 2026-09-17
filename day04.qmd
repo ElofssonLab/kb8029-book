@@ -11,7 +11,9 @@ Structure*, pp. 345-352 (origin of the PAM matrices); Henikoff & Henikoff
 [Needleman–Wunsch algorithm](https://en.wikipedia.org/wiki/Needleman%E2%80%93Wunsch_algorithm),
 [Smith–Waterman algorithm](https://en.wikipedia.org/wiki/Smith%E2%80%93Waterman_algorithm),
 [Gap penalty](https://en.wikipedia.org/wiki/Gap_penalty)
-— CC BY-SA 4.0.
+— CC BY-SA 4.0; the notebook's core algorithm code is adapted from Lukas
+Käll's [*bibook*](https://github.com/statisticalbiotechnology/bibook)
+— CC BY 4.0.
 :::
 
 # Day 4: Sequence Alignment
@@ -194,6 +196,21 @@ of hierarchical clustering you'd use on any distance matrix: treat every
 sequence as its own cluster, repeatedly merge the closest pair of
 clusters, and stop once only one cluster remains — the merge order *is*
 the order sequences get aligned in.
+
+## The notebook
+
+`notebooks/day04-alignment-in-code.ipynb` implements Needleman-Wunsch and
+Smith-Waterman from scratch (adapted from Lukas Käll's open-access
+[*bibook*](https://github.com/statisticalbiotechnology/bibook), CC BY
+4.0), reproduces the $\texttt{GCAT}$/$\texttt{GAC}$ matrix above exactly,
+and visualizes both algorithms' matrices with the traceback path
+highlighted — including a global-vs-local comparison on two sequences
+that share one strong region but differ elsewhere, making the practical
+difference between the two algorithms directly visible rather than just
+described. Open it in
+[Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day04-alignment-in-code.ipynb)
+via the badge at the top of the notebook page to edit and run it
+yourself.
 
 ## The lab
 
