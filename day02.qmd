@@ -70,6 +70,13 @@ the operations on that data — is exactly what you'll see again in Day 9,
 where a neural network is itself a class that owns its weights and knows
 how to compute a prediction from them.
 
+**Further reading:** the official Python tutorial's
+[Classes](https://docs.python.org/3/tutorial/classes.html) chapter covers
+inheritance, class vs. instance variables, and more than this course
+needs; *A Byte of Python*'s own
+[Object Oriented Programming](https://python.swaroopch.com/oop.html)
+chapter covers the same ground as above, at the same level.
+
 ## Tensors: the data structure underneath everything from here on
 
 Day 1 worked with vectors (a list of numbers) and matrices (a grid of
@@ -98,6 +105,13 @@ tensor, and when you ask for the gradient of some final result, it
 replays those operations backward, applying the chain rule automatically
 at every step. You never write a derivative by hand again after this
 point in the course — you only ever call `.backward()`.
+
+**Further reading:** PyTorch's own
+[A Gentle Introduction to torch.autograd](https://pytorch.org/tutorials/beginner/blitz/autograd_tutorial.html)
+covers the same idea with more detail on how the computation graph is
+built and freed; NumPy's
+[quickstart](https://numpy.org/doc/stable/user/quickstart.html) is the
+standard reference for the array operations tensors generalize.
 
 ## The scientific Python stack
 
@@ -133,6 +147,14 @@ model "by hand" with raw tensors and gradient descent, precisely so you
 see every step of the mechanics — but for a plain linear regression, in
 practice you would normally just call scikit-learn's implementation
 directly, as the notebook below demonstrates.
+
+**Further reading:** pandas'
+[10 minutes to pandas](https://pandas.pydata.org/docs/user_guide/10min.html),
+scikit-learn's [Linear Models](https://scikit-learn.org/stable/modules/linear_model.html)
+user guide, and Biopython's
+[Tutorial and Cookbook](https://biopython.org/docs/latest/Tutorial/index.html)
+are each library's own standard starting point for going beyond what's
+shown here.
 
 ## The notebook
 

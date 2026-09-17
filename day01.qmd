@@ -22,6 +22,11 @@ feels like disconnected math-for-its-own-sake. There's no coding today;
 that's Day 2 — though the notebook linked at the bottom lets you check
 today's by-hand answers in code if you're curious.
 
+The session is in three parts, matching how it's actually taught: vectors
+and the dot product, then derivatives and gradient descent, then
+probability and Bayes' rule. Each part ends with a practice problem, a
+quick self-check, and a short video if you'd like the idea animated.
+
 ## Learning goals
 
 By the end of this session you should be able to compute a dot product
@@ -30,7 +35,7 @@ simple multivariable function and use it to run a step of gradient
 descent, and apply Bayes' rule to a concrete conditional-probability
 problem.
 
-## Vectors, matrices, and the dot product
+## Part 1: Vectors, matrices, and the dot product
 
 A vector is just an ordered list of numbers, and a matrix is a
 rectangular grid of them. You already know how to add two vectors (add
@@ -101,7 +106,50 @@ $$
 above; the second is a new dot product between the matrix's second row
 and the same vector $\mathbf{x}$.
 
-## Derivatives and the gradient
+**Practice problem.** Compute $(2, -1, 3) \cdot (1, 4, 0)$.
+
+::: {.callout-note collapse="true"}
+## Solution
+$(2)(1) + (-1)(4) + (3)(0) = 2 - 4 + 0 = -2$.
+:::
+
+**Check your understanding:**
+
+```{=html}
+<div id="day01-quiz-1"></div>
+<script>
+renderQuiz("day01-quiz-1", [
+  {
+    question: "What is the dot product of (3, 2) and (-1, 4)?",
+    choices: ["-11", "5", "11", "-5"],
+    correctIndex: 1,
+    explanation: "(3)(-1) + (2)(4) = -3 + 8 = 5."
+  },
+  {
+    question: "Two nonzero vectors point in broadly opposite directions (the angle between them exceeds 90°). Without computing anything, what can you say about their dot product?",
+    choices: ["It must be positive", "It must be negative", "It must be exactly zero", "Its sign can't be determined from the angle alone"],
+    correctIndex: 1,
+    explanation: "cos(&theta;) is negative for any angle past 90°, so the whole dot product is negative."
+  }
+]);
+</script>
+```
+
+**Further reading:** Wikipedia's [Dot product](https://en.wikipedia.org/wiki/Dot_product)
+article covers the algebra in more generality than needed here (complex
+vectors, function spaces); d2l.ai's
+[Linear Algebra](https://d2l.ai/chapter_preliminaries/linear-algebra.html)
+section covers matrices and norms at the same level as above, with code.
+
+**Further watching** — [*Dot products and duality*](https://www.youtube.com/watch?v=LyGKycYT2v0) (3Blue1Brown, Essence of Linear Algebra, ch. 9), animating the geometric picture above:
+
+```{=html}
+<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
+<iframe src="https://www.youtube.com/embed/LyGKycYT2v0" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="Dot products and duality, 3Blue1Brown"></iframe>
+</div>
+```
+
+## Part 2: Derivatives, the gradient, and gradient descent
 
 A derivative tells you how much a function's output changes for a small
 change in its input — the slope of the tangent line at a point. If you've
@@ -184,7 +232,58 @@ weights, and the chain rule is what lets us compute how each weight,
 however deeply buried, should change, by multiplying together the
 derivatives of every function it passes through on the way to the output.
 
-## Probability basics
+**Practice problem.** For $f(x_0, x_1) = 3x_0^2 + 2x_0 x_1$, compute
+$\nabla f$ at the point $(1, 2)$.
+
+::: {.callout-note collapse="true"}
+## Solution
+$\partial f/\partial x_0 = 6x_0 + 2x_1 = 6(1) + 2(2) = 10$;
+$\partial f/\partial x_1 = 2x_0 = 2(1) = 2$. So $\nabla f(1,2) = (10, 2)$.
+:::
+
+**Check your understanding:**
+
+```{=html}
+<div id="day01-quiz-2"></div>
+<script>
+renderQuiz("day01-quiz-2", [
+  {
+    question: "For f(x&#8320;, x&#8321;) = x&#8320;&sup2;x&#8321; + 3x&#8321;, what is the gradient at the point (2, 1)?",
+    choices: ["(4, 7)", "(2, 7)", "(4, 3)", "(7, 4)"],
+    correctIndex: 0,
+    explanation: "&part;f/&part;x&#8320; = 2x&#8320;x&#8321; = 2(2)(1) = 4; &part;f/&part;x&#8321; = x&#8320;&sup2; + 3 = 4 + 3 = 7."
+  },
+  {
+    question: "In the gradient descent worked example, x_n moves toward the minimum in ever-smaller steps, even though the learning rate &eta; never changes. Why?",
+    choices: [
+      "Because the derivative itself shrinks as x_n approaches the minimum, so &eta; times a smaller number is a smaller step",
+      "Because &eta; automatically decays after each step behind the scenes",
+      "Because the function f(x) changes shape near the minimum",
+      "Because gradient descent always takes geometrically decreasing steps, regardless of the function"
+    ],
+    correctIndex: 0,
+    explanation: "f'(x) = 2(x-3) gets smaller as x approaches 3, and the update is always &eta; times that shrinking value."
+  }
+]);
+</script>
+```
+
+**Further reading:** Wikipedia's [Gradient](https://en.wikipedia.org/wiki/Gradient)
+and [Chain rule](https://en.wikipedia.org/wiki/Chain_rule) articles go
+further into multivariate calculus (Jacobians, the generalized chain
+rule) than this course needs; d2l.ai's
+[Calculus](https://d2l.ai/chapter_preliminaries/calculus.html) section
+covers the same gradient-descent idea with code.
+
+**Further watching** — [*Visualizing the chain rule and product rule*](https://www.youtube.com/watch?v=YG15m2VwSjA) (3Blue1Brown, Essence of Calculus, ch. 4):
+
+```{=html}
+<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
+<iframe src="https://www.youtube.com/embed/YG15m2VwSjA" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="Visualizing the chain rule and product rule, 3Blue1Brown"></iframe>
+</div>
+```
+
+## Part 3: Probability basics
 
 A **random variable** takes on different values with different
 probabilities — a discrete one (like a die roll) has a countable list of
@@ -246,67 +345,23 @@ everywhere from Day 7 onward: minimizing a loss function during training
 is, in most of the models in this course, equivalent to finding the model
 parameters that make the observed data most probable.
 
-## Practice problems
-
-Work through these by hand first, then check your answers.
-
-1. Compute $(2, -1, 3) \cdot (1, 4, 0)$.
-2. For $f(x_0, x_1) = 3x_0^2 + 2x_0 x_1$, compute $\nabla f$ at the point
-   $(1, 2)$.
-3. A fair six-sided die is rolled once. What is $P(\text{even} \mid X >
-   3)$ — the probability of an even result, given that the result
-   exceeds 3?
+**Practice problem.** A fair six-sided die is rolled once. What is
+$P(\text{even} \mid X > 3)$ — the probability of an even result, given
+that the result exceeds 3?
 
 ::: {.callout-note collapse="true"}
-## Solutions
-
-1. $(2)(1) + (-1)(4) + (3)(0) = 2 - 4 + 0 = -2$.
-2. $\partial f/\partial x_0 = 6x_0 + 2x_1 = 6(1) + 2(2) = 10$;
-   $\partial f/\partial x_1 = 2x_0 = 2(1) = 2$. So $\nabla f(1,2) = (10, 2)$.
-3. $X > 3$ means the outcome is 4, 5, or 6 — three equally likely
-   outcomes. Of those, 4 and 6 are even: two out of three. So
-   $P(\text{even} \mid X > 3) = 2/3$.
+## Solution
+$X > 3$ means the outcome is 4, 5, or 6 — three equally likely
+outcomes. Of those, 4 and 6 are even: two out of three. So
+$P(\text{even} \mid X > 3) = 2/3$.
 :::
 
-## Check your understanding
-
-Immediate-feedback questions covering the sections above — the same style
-used for this course's live in-class peer-instruction quizzes (see
-`quizzes/day01.md` in the repository for the full question bank).
+**Check your understanding:**
 
 ```{=html}
-<div id="day01-quiz"></div>
+<div id="day01-quiz-3"></div>
 <script>
-renderQuiz("day01-quiz", [
-  {
-    question: "What is the dot product of (3, 2) and (-1, 4)?",
-    choices: ["-11", "5", "11", "-5"],
-    correctIndex: 1,
-    explanation: "(3)(-1) + (2)(4) = -3 + 8 = 5."
-  },
-  {
-    question: "Two nonzero vectors point in broadly opposite directions (the angle between them exceeds 90°). Without computing anything, what can you say about their dot product?",
-    choices: ["It must be positive", "It must be negative", "It must be exactly zero", "Its sign can't be determined from the angle alone"],
-    correctIndex: 1,
-    explanation: "cos(&theta;) is negative for any angle past 90°, so the whole dot product is negative."
-  },
-  {
-    question: "For f(x&#8320;, x&#8321;) = x&#8320;&sup2;x&#8321; + 3x&#8321;, what is the gradient at the point (2, 1)?",
-    choices: ["(4, 7)", "(2, 7)", "(4, 3)", "(7, 4)"],
-    correctIndex: 0,
-    explanation: "&part;f/&part;x&#8320; = 2x&#8320;x&#8321; = 2(2)(1) = 4; &part;f/&part;x&#8321; = x&#8320;&sup2; + 3 = 4 + 3 = 7."
-  },
-  {
-    question: "In the gradient descent worked example, x_n moves toward the minimum in ever-smaller steps, even though the learning rate &eta; never changes. Why?",
-    choices: [
-      "Because the derivative itself shrinks as x_n approaches the minimum, so &eta; times a smaller number is a smaller step",
-      "Because &eta; automatically decays after each step behind the scenes",
-      "Because the function f(x) changes shape near the minimum",
-      "Because gradient descent always takes geometrically decreasing steps, regardless of the function"
-    ],
-    correctIndex: 0,
-    explanation: "f'(x) = 2(x-3) gets smaller as x approaches 3, and the update is always &eta; times that shrinking value."
-  },
+renderQuiz("day01-quiz-3", [
   {
     question: "A diagnostic test for a disease affecting 2% of a population is 90% accurate on people who have it, and gives a false positive 10% of the time on people who don't. If someone tests positive, is the probability they actually have the disease closest to 90%, 68%, 15%, or 2%?",
     choices: ["90%", "68%", "15%", "2%"],
@@ -317,30 +372,14 @@ renderQuiz("day01-quiz", [
 </script>
 ```
 
-## Further watching
+**Further reading:** Wikipedia's [Bayes' theorem](https://en.wikipedia.org/wiki/Bayes%27_theorem)
+article has more worked examples and the different interpretations of
+probability behind it; d2l.ai's
+[Probability and Statistics](https://d2l.ai/chapter_preliminaries/probability.html)
+section connects this directly to how machine-learning models are
+evaluated.
 
-Three short videos from 3Blue1Brown, each covering exactly one of the
-sections above with the geometric intuition animated — none of this is
-required, but if a picture would help more than the equations above did,
-these are as good as it gets.
-
-**On the dot product** — [*Dot products and duality*](https://www.youtube.com/watch?v=LyGKycYT2v0) (Essence of Linear Algebra, ch. 9):
-
-```{=html}
-<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
-<iframe src="https://www.youtube.com/embed/LyGKycYT2v0" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="Dot products and duality, 3Blue1Brown"></iframe>
-</div>
-```
-
-**On the chain rule** — [*Visualizing the chain rule and product rule*](https://www.youtube.com/watch?v=YG15m2VwSjA) (Essence of Calculus, ch. 4):
-
-```{=html}
-<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
-<iframe src="https://www.youtube.com/embed/YG15m2VwSjA" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="Visualizing the chain rule and product rule, 3Blue1Brown"></iframe>
-</div>
-```
-
-**On Bayes' rule** — [*Bayes theorem, the geometry of changing beliefs*](https://www.youtube.com/watch?v=HZGCoVF3YvM):
+**Further watching** — [*Bayes theorem, the geometry of changing beliefs*](https://www.youtube.com/watch?v=HZGCoVF3YvM) (3Blue1Brown):
 
 ```{=html}
 <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">

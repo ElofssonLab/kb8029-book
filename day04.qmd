@@ -13,7 +13,11 @@ Structure*, pp. 345-352 (origin of the PAM matrices); Henikoff & Henikoff
 [Gap penalty](https://en.wikipedia.org/wiki/Gap_penalty),
 [Dot plot (bioinformatics)](https://en.wikipedia.org/wiki/Dot_plot_(bioinformatics)),
 [Standard score](https://en.wikipedia.org/wiki/Standard_score),
-[Kullback–Leibler divergence](https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence)
+[Kullback–Leibler divergence](https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence),
+[Sequence homology](https://en.wikipedia.org/wiki/Sequence_homology),
+[Point accepted mutation](https://en.wikipedia.org/wiki/Point_accepted_mutation),
+[BLOSUM](https://en.wikipedia.org/wiki/BLOSUM),
+[Multiple sequence alignment](https://en.wikipedia.org/wiki/Multiple_sequence_alignment)
 — CC BY-SA 4.0; the notebook's core algorithm code is adapted from Lukas
 Käll's [*bibook*](https://github.com/statisticalbiotechnology/bibook)
 — CC BY 4.0. The guide-tree worked-example figure is original to this
@@ -65,6 +69,10 @@ why **dynamic programming** algorithms exist for this problem: they find
 the guaranteed-optimal alignment without ever checking most of the
 possibilities.
 
+*(Further reading: Wikipedia's [Sequence homology](https://en.wikipedia.org/wiki/Sequence_homology)
+article covers orthology, paralogy, and the other relatedness terms in
+more depth than needed here.)*
+
 ## Visualizing alignments: dot plots
 
 Before reaching for an algorithm, there's a simple visual check worth
@@ -78,6 +86,10 @@ alignment here, just a fast qualitative screen — but it's still used
 today for visualizing the output of a real alignment (BLAST's web
 output includes one), precisely because a picture answers "is there
 even a match here, roughly where?" faster than reading a score.
+
+*(Further reading: Wikipedia's [Dot plot (bioinformatics)](https://en.wikipedia.org/wiki/Dot_plot_(bioinformatics))
+article covers filtering/windowing techniques for noisy real sequences,
+beyond the simple version above.)*
 
 ## Dynamic programming: Needleman-Wunsch and Smith-Waterman
 
@@ -138,6 +150,11 @@ reset to zero, and the traceback starts from the highest-scoring cell
 anywhere in the matrix (not necessarily the bottom-right corner) and stops
 as soon as it hits a zero.
 
+*(Further reading: Wikipedia's [Needleman–Wunsch algorithm](https://en.wikipedia.org/wiki/Needleman%E2%80%93Wunsch_algorithm)
+and [Smith–Waterman algorithm](https://en.wikipedia.org/wiki/Smith%E2%80%93Waterman_algorithm)
+articles include pseudocode and complexity analysis beyond what's needed
+here.)*
+
 ## Gap penalties: linear vs. affine
 
 So far $g$ has been a single flat number charged per gap position, but
@@ -194,6 +211,10 @@ comparison (PAM250 suits more divergent sequences than PAM100); a
 **higher** BLOSUM number means a **closer** comparison (BLOSUM80 suits
 more similar sequences than BLOSUM45) — the opposite trend.
 
+*(Further reading: Wikipedia's [Point accepted mutation](https://en.wikipedia.org/wiki/Point_accepted_mutation)
+and [BLOSUM](https://en.wikipedia.org/wiki/BLOSUM) articles give the full
+derivation of each matrix family, beyond the conceptual level above.)*
+
 ## Statistical significance of an alignment score
 
 A high alignment score alone doesn't prove two sequences are homologous
@@ -224,6 +245,11 @@ the significance of the whole alignment rather than one comparison. Day
 own — the **E-value** — built on exactly this kind of reasoning about
 what you'd expect to see by chance.
 
+*(Further reading: Wikipedia's [Standard score](https://en.wikipedia.org/wiki/Standard_score)
+and [Kullback–Leibler divergence](https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence)
+articles cover both concepts in their general statistical form, beyond
+their specific use here.)*
+
 ## Multiple sequence alignment
 
 Extending pairwise alignment to more than two sequences at once has four
@@ -252,6 +278,10 @@ notice how sequence 4 doesn't merge in until the very last step, exactly
 reflecting how clearly separate it is from the other four:
 
 ![](figs/day04-guidetree-worked-example.png){width=90%}
+
+*(Further reading: Wikipedia's [Multiple sequence alignment](https://en.wikipedia.org/wiki/Multiple_sequence_alignment)
+article covers additional methods and applications, e.g. profile HMMs,
+which Day 6 picks up in full.)*
 
 ## The notebook
 
