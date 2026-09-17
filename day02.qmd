@@ -151,6 +151,70 @@ a gradient) in code, confirming the by-hand answers match. Open it in
 via the badge at the top of the notebook page to edit and run it
 yourself.
 
+## Check your understanding
+
+Immediate-feedback questions covering the sections above — the same style
+used for this course's live in-class peer-instruction quizzes (see
+`quizzes/day02.md` in the repository for the full question bank).
+
+```{=html}
+<div id="day02-quiz"></div>
+<script>
+renderQuiz("day02-quiz", [
+  {
+    question: "Inside a class's method, what does <code>self</code> refer to?",
+    choices: [
+      "The particular object the method was called on",
+      "The class itself, shared by every object",
+      "The module the class is defined in",
+      "Nothing &mdash; <code>self</code> is optional and can be left out"
+    ],
+    correctIndex: 0,
+    explanation: "Each object created from a class has its own data; self is how a method reaches that specific object's data."
+  },
+  {
+    question: "What is <code>__init__</code> for, in a Python class?",
+    choices: [
+      "It's called automatically when a new object is created, to set up that object's initial data",
+      "It's called every time any method on the object is called",
+      "It converts the object to a string for printing",
+      "It deletes the object when it's no longer needed"
+    ],
+    correctIndex: 0,
+    explanation: "__init__ runs once, at creation time, which is why it's where you set attributes like name and bases."
+  },
+  {
+    question: "What does calling <code>.backward()</code> on a PyTorch tensor actually do?",
+    choices: [
+      "It computes gradients by replaying the tensor's recorded operations backward and applying the chain rule",
+      "It undoes the last operation performed on the tensor",
+      "It reverses the order of the elements stored in the tensor",
+      "It converts the tensor back into a plain Python list"
+    ],
+    correctIndex: 0,
+    explanation: "Autograd tracks every operation as it happens, then applies Day 1's chain rule automatically when you call backward()."
+  },
+  {
+    question: "What does a pandas DataFrame add on top of a plain NumPy array?",
+    choices: [
+      "Labeled rows and columns, so a table's columns can be referred to by name instead of position",
+      "GPU acceleration that NumPy arrays lack",
+      "Automatic differentiation of every stored value",
+      "The ability to store more than two dimensions of data"
+    ],
+    correctIndex: 0,
+    explanation: "genes[\"length\"] works because pandas labels columns by name; the underlying numbers are still a NumPy array."
+  },
+  {
+    question: "Without running it: what does <code>gc_content(\"ttttaaaa\")</code> return, given the function defined in the notebook?",
+    choices: ["0.0", "0.5", "1.0", "It raises an error, because the input isn't uppercase"],
+    correctIndex: 0,
+    explanation: "The function upper-cases its input first, so lowercase is fine; there are no G's or C's in this sequence, so the result is 0.0."
+  }
+]);
+</script>
+```
+
 ## The lab
 
 A full lab session: work through the notebook above, then extend the

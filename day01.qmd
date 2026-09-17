@@ -268,6 +268,55 @@ Work through these by hand first, then check your answers.
    $P(\text{even} \mid X > 3) = 2/3$.
 :::
 
+## Check your understanding
+
+Immediate-feedback questions covering the sections above — the same style
+used for this course's live in-class peer-instruction quizzes (see
+`quizzes/day01.md` in the repository for the full question bank).
+
+```{=html}
+<div id="day01-quiz"></div>
+<script>
+renderQuiz("day01-quiz", [
+  {
+    question: "What is the dot product of (3, 2) and (-1, 4)?",
+    choices: ["-11", "5", "11", "-5"],
+    correctIndex: 1,
+    explanation: "(3)(-1) + (2)(4) = -3 + 8 = 5."
+  },
+  {
+    question: "Two nonzero vectors point in broadly opposite directions (the angle between them exceeds 90°). Without computing anything, what can you say about their dot product?",
+    choices: ["It must be positive", "It must be negative", "It must be exactly zero", "Its sign can't be determined from the angle alone"],
+    correctIndex: 1,
+    explanation: "cos(&theta;) is negative for any angle past 90°, so the whole dot product is negative."
+  },
+  {
+    question: "For f(x&#8320;, x&#8321;) = x&#8320;&sup2;x&#8321; + 3x&#8321;, what is the gradient at the point (2, 1)?",
+    choices: ["(4, 7)", "(2, 7)", "(4, 3)", "(7, 4)"],
+    correctIndex: 0,
+    explanation: "&part;f/&part;x&#8320; = 2x&#8320;x&#8321; = 2(2)(1) = 4; &part;f/&part;x&#8321; = x&#8320;&sup2; + 3 = 4 + 3 = 7."
+  },
+  {
+    question: "In the gradient descent worked example, x_n moves toward the minimum in ever-smaller steps, even though the learning rate &eta; never changes. Why?",
+    choices: [
+      "Because the derivative itself shrinks as x_n approaches the minimum, so &eta; times a smaller number is a smaller step",
+      "Because &eta; automatically decays after each step behind the scenes",
+      "Because the function f(x) changes shape near the minimum",
+      "Because gradient descent always takes geometrically decreasing steps, regardless of the function"
+    ],
+    correctIndex: 0,
+    explanation: "f'(x) = 2(x-3) gets smaller as x approaches 3, and the update is always &eta; times that shrinking value."
+  },
+  {
+    question: "A diagnostic test for a disease affecting 2% of a population is 90% accurate on people who have it, and gives a false positive 10% of the time on people who don't. If someone tests positive, is the probability they actually have the disease closest to 90%, 68%, 15%, or 2%?",
+    choices: ["90%", "68%", "15%", "2%"],
+    correctIndex: 2,
+    explanation: "P(positive) = 0.9×0.02 + 0.10×0.98 = 0.116; P(disease|positive) = 0.018/0.116 &asymp; 15%."
+  }
+]);
+</script>
+```
+
 ## Further watching
 
 Three short videos from 3Blue1Brown, each covering exactly one of the

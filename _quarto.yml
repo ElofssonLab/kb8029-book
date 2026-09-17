@@ -1,5 +1,7 @@
 project:
   type: book
+  resources:
+    - js/quiz-widget.js
 
 book:
   title: "Bioinformatics & Deep Learning — Course Notes"
@@ -29,6 +31,8 @@ format:
     number-sections: true
     code-fold: false
     toc: true
+    include-in-header:
+      - text: <script src="js/quiz-widget.js"></script>
 
 execute:
   enabled: false   # notebooks already contain saved outputs from class; don't re-run them at build time
