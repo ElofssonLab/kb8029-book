@@ -10,10 +10,14 @@ Structure*, pp. 345-352 (origin of the PAM matrices); Henikoff & Henikoff
 (1992), *PNAS* 89:10915-10919 (origin of the BLOSUM matrices); Wikipedia,
 [Needleman–Wunsch algorithm](https://en.wikipedia.org/wiki/Needleman%E2%80%93Wunsch_algorithm),
 [Smith–Waterman algorithm](https://en.wikipedia.org/wiki/Smith%E2%80%93Waterman_algorithm),
-[Gap penalty](https://en.wikipedia.org/wiki/Gap_penalty)
+[Gap penalty](https://en.wikipedia.org/wiki/Gap_penalty),
+[Dot plot (bioinformatics)](https://en.wikipedia.org/wiki/Dot_plot_(bioinformatics)),
+[Standard score](https://en.wikipedia.org/wiki/Standard_score),
+[Kullback–Leibler divergence](https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence)
 — CC BY-SA 4.0; the notebook's core algorithm code is adapted from Lukas
 Käll's [*bibook*](https://github.com/statisticalbiotechnology/bibook)
-— CC BY 4.0.
+— CC BY 4.0. The guide-tree worked-example figure is original to this
+book, not from the lecture.
 :::
 
 # Day 4: Sequence Alignment
@@ -24,8 +28,10 @@ By the end of this session you should be able to explain why sequence
 alignment needs a dedicated algorithm rather than brute-force comparison,
 work a small global alignment by hand using dynamic programming, explain
 the difference between global and local alignment, explain why an affine
-gap penalty is usually preferred over a linear one, and explain what
-distinguishes the PAM and BLOSUM families of substitution matrices.
+gap penalty is usually preferred over a linear one, explain what
+distinguishes the PAM and BLOSUM families of substitution matrices, and
+explain what it means for an alignment score to be statistically
+significant rather than just high.
 
 ## Why alignment needs an algorithm
 
@@ -58,6 +64,20 @@ $10^{59}$ — utterly infeasible to search exhaustively. This is exactly
 why **dynamic programming** algorithms exist for this problem: they find
 the guaranteed-optimal alignment without ever checking most of the
 possibilities.
+
+## Visualizing alignments: dot plots
+
+Before reaching for an algorithm, there's a simple visual check worth
+knowing: a **dot plot**. Put one sequence along each axis of a grid, and
+mark a dot wherever the row and column residues match. A run of matches
+lines up as a diagonal line, which the eye picks out immediately — a
+long alignment shows up as one long diagonal, a repeat shows up as
+several parallel diagonals, and an inversion shows up as a diagonal
+running the opposite direction. There's no score and no optimal
+alignment here, just a fast qualitative screen — but it's still used
+today for visualizing the output of a real alignment (BLAST's web
+output includes one), precisely because a picture answers "is there
+even a match here, roughly where?" faster than reading a score.
 
 ## Dynamic programming: Needleman-Wunsch and Smith-Waterman
 
@@ -174,6 +194,36 @@ comparison (PAM250 suits more divergent sequences than PAM100); a
 **higher** BLOSUM number means a **closer** comparison (BLOSUM80 suits
 more similar sequences than BLOSUM45) — the opposite trend.
 
+## Statistical significance of an alignment score
+
+A high alignment score alone doesn't prove two sequences are homologous
+— some genuinely homologous pairs are easy to call from their score,
+others aren't, and a score computed from a substitution matrix has no
+built-in sense of "good enough." One way to calibrate it: shuffle one of
+the two sequences many times, realign it against the other each time,
+and build up a distribution of scores you'd expect from unrelated
+sequences by chance alone. Comparing the real score to that background
+distribution gives a **Z-score** (standardized score),
+
+$$
+Z = \frac{\text{real score} - \text{mean of random scores}}{\text{standard deviation of random scores}}
+$$
+
+which tells you how many standard deviations above pure chance the real
+alignment sits — assuming, reasonably well in practice, that the random
+scores are roughly normally distributed.
+
+The catch is cost: building a good random-score background this way
+means realigning many shuffled copies for *every* comparison, which
+doesn't scale to comparing one sequence against an entire database.
+**Relative entropy** offers a more principled and efficient alternative
+— it's the same log-odds idea already used to build the substitution
+matrix itself (Section "Substitution matrices" above), applied to score
+the significance of the whole alignment rather than one comparison. Day
+5's BLAST uses a related, highly efficient significance measure of its
+own — the **E-value** — built on exactly this kind of reasoning about
+what you'd expect to see by chance.
+
 ## Multiple sequence alignment
 
 Extending pairwise alignment to more than two sequences at once has four
@@ -195,7 +245,13 @@ Building the guide tree for progressive alignment uses exactly the kind
 of hierarchical clustering you'd use on any distance matrix: treat every
 sequence as its own cluster, repeatedly merge the closest pair of
 clusters, and stop once only one cluster remains — the merge order *is*
-the order sequences get aligned in.
+the order sequences get aligned in. A small worked example: five toy
+sequences, almost identical except for sequence 4, and the pairwise
+Hamming-distance matrix and resulting guide tree computed from them —
+notice how sequence 4 doesn't merge in until the very last step, exactly
+reflecting how clearly separate it is from the other four:
+
+![](figs/day04-guidetree-worked-example.png){width=90%}
 
 ## The notebook
 
