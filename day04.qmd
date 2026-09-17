@@ -2,13 +2,15 @@
 **Sources for this page:** Petras Kundrotas's KB8029 lecture "Sequence
 Alignment" (Feb 2026) — this page follows its structure and worked
 examples, adapted and shortened for this book, not copied verbatim; the
-two figures below (orthologs/paralogs; the completed Needleman-Wunsch
-traceback) are taken directly from that lecture's slides;
+four figures below (orthologs/paralogs; filling one DP cell; the
+completed Needleman-Wunsch traceback; linear vs. affine gap penalties)
+are taken directly from that lecture's slides;
 Dayhoff, Schwartz & Orcutt (1978), *Atlas of Protein Sequence and
 Structure*, pp. 345-352 (origin of the PAM matrices); Henikoff & Henikoff
 (1992), *PNAS* 89:10915-10919 (origin of the BLOSUM matrices); Wikipedia,
 [Needleman–Wunsch algorithm](https://en.wikipedia.org/wiki/Needleman%E2%80%93Wunsch_algorithm),
-[Smith–Waterman algorithm](https://en.wikipedia.org/wiki/Smith%E2%80%93Waterman_algorithm)
+[Smith–Waterman algorithm](https://en.wikipedia.org/wiki/Smith%E2%80%93Waterman_algorithm),
+[Gap penalty](https://en.wikipedia.org/wiki/Gap_penalty)
 — CC BY-SA 4.0.
 :::
 
@@ -19,7 +21,8 @@ Structure*, pp. 345-352 (origin of the PAM matrices); Henikoff & Henikoff
 By the end of this session you should be able to explain why sequence
 alignment needs a dedicated algorithm rather than brute-force comparison,
 work a small global alignment by hand using dynamic programming, explain
-the difference between global and local alignment, and explain what
+the difference between global and local alignment, explain why an affine
+gap penalty is usually preferred over a linear one, and explain what
 distinguishes the PAM and BLOSUM families of substitution matrices.
 
 ## Why alignment needs an algorithm
@@ -67,8 +70,17 @@ V(i,j) = \max \begin{cases} V(i-1,j-1) + s(x_i, y_j) \\ V(i-1,j) + g \\ V(i,j-1)
 $$
 
 where $s(x_i, y_j)$ is a substitution score (see below) and $g$ is a gap
-penalty. **Worked example**: align $x = \texttt{GCAT}$ against $y =
-\texttt{GAC}$, with match $= +1$, mismatch $= -1$, gap $= -1$:
+penalty. Concretely, filling one cell means computing all three
+candidates and keeping the largest — here's cell $V(1,1)$ for a pair of
+13/12-residue sequences, with a gap penalty of $g=1$:
+
+![](figs/day04-cell-fill.png){width=90%}
+
+Every other cell is filled the exact same way; the only thing that
+changes is which numbers go into the three candidates. **Worked
+example**, small enough to do completely by hand: align $x =
+\texttt{GCAT}$ against $y = \texttt{GAC}$, with match $= +1$, mismatch $=
+-1$, gap $= -1$:
 
 |       |   | G  | A  | C  |
 |---|---|---|---|---|
@@ -103,6 +115,36 @@ end-to-end — achieved with one change: negative values in the matrix are
 reset to zero, and the traceback starts from the highest-scoring cell
 anywhere in the matrix (not necessarily the bottom-right corner) and stops
 as soon as it hits a zero.
+
+## Gap penalties: linear vs. affine
+
+So far $g$ has been a single flat number charged per gap position, but
+that choice matters more than it might seem. A **linear** gap penalty —
+$g(n) = n \times g_{\text{op}}$ for $n$ consecutive gaps — charges exactly
+the same total whether those gaps are spread out or bunched together.
+Since insertions/deletions in real evolution tend to happen as one event
+removing/adding a whole stretch at once, a linear penalty can produce
+biologically implausible alignments that scatter single gaps throughout,
+breaking up motifs that are actually conserved as a block.
+
+The fix is an **affine** gap penalty: a larger cost $g_{\text{op}}$ to
+*open* a new gap, plus a much smaller cost $g_{\text{ext}}$ to *extend*
+an already-open one ($g_{\text{ext}} \ll g_{\text{op}}$):
+
+$$
+g(n) = g_{\text{op}} + (n-1) \times g_{\text{ext}}
+$$
+
+This makes a single long gap cheaper than the same number of gaps
+scattered as many separate short ones, which is exactly the behavior you
+want. The example below makes this concrete: the same two sequences,
+aligned once with a linear penalty (top pair — gaps scattered, breaking up
+the shared "QQW" motif) and once with an affine penalty (bottom pair —
+gaps consolidated into contiguous stretches, keeping "QQW" together):
+
+![](figs/day04-gap-penalty.png){width=90%}
+
+*(Further reading: Wikipedia's [Gap penalty](https://en.wikipedia.org/wiki/Gap_penalty) article covers this in more depth, including the position-dependent variant shown at the bottom of the figure above, which is beyond what this course needs.)*
 
 ## Substitution matrices: PAM and BLOSUM
 

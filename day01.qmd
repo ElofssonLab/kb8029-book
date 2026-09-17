@@ -268,6 +268,37 @@ Work through these by hand first, then check your answers.
    $P(\text{even} \mid X > 3) = 2/3$.
 :::
 
+## Further watching
+
+Three short videos from 3Blue1Brown, each covering exactly one of the
+sections above with the geometric intuition animated — none of this is
+required, but if a picture would help more than the equations above did,
+these are as good as it gets.
+
+**On the dot product** — [*Dot products and duality*](https://www.youtube.com/watch?v=LyGKycYT2v0) (Essence of Linear Algebra, ch. 9):
+
+```{=html}
+<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
+<iframe src="https://www.youtube.com/embed/LyGKycYT2v0" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="Dot products and duality, 3Blue1Brown"></iframe>
+</div>
+```
+
+**On the chain rule** — [*Visualizing the chain rule and product rule*](https://www.youtube.com/watch?v=YG15m2VwSjA) (Essence of Calculus, ch. 4):
+
+```{=html}
+<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
+<iframe src="https://www.youtube.com/embed/YG15m2VwSjA" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="Visualizing the chain rule and product rule, 3Blue1Brown"></iframe>
+</div>
+```
+
+**On Bayes' rule** — [*Bayes theorem, the geometry of changing beliefs*](https://www.youtube.com/watch?v=HZGCoVF3YvM):
+
+```{=html}
+<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
+<iframe src="https://www.youtube.com/embed/HZGCoVF3YvM" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="Bayes theorem, the geometry of changing beliefs, 3Blue1Brown"></iframe>
+</div>
+```
+
 ## The notebook
 
 `notebooks/day01-math-in-code.ipynb` recomputes every worked example and
