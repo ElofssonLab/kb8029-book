@@ -148,10 +148,10 @@ came out negative:
 Why does this one specific computation deserve a whole session's worth of
 attention before we've even started the course proper? Because it
 reappears, unchanged, in two very different-looking places later in this
-course. A **profile score** (Day 6) — the standard way of asking "how well
+course. A **profile score** (Day 5) — the standard way of asking "how well
 does this sequence match a known family?" — is computed by multiplying
 each position's observed value by a position-specific weight and summing.
-And a **perceptron** (Day 7), the simplest kind of artificial neuron,
+And a **perceptron** (Day 6), the simplest kind of artificial neuron,
 computes its output the exact same way: a dot product between a weight
 vector and an input vector. When we get there, you'll already know the
 arithmetic *and* the geometric intuition; the only new part will be what
@@ -431,7 +431,7 @@ Geometrically, the gradient at a point tells you two things at once: the
 downhill as fast as possible from where you're standing.
 
 That last sentence is the entire idea behind **gradient descent**, which
-Day 7 uses to train the perceptron introduced above. Given a function
+Day 6 uses to train the perceptron introduced above. Given a function
 that measures how wrong a model's predictions are (a *loss function*),
 repeatedly step a small amount in the direction opposite its gradient,
 and the error goes down. Concretely, the update rule is
@@ -456,7 +456,7 @@ Notice two things: $x_n$ is closing in on 3 (the true minimum, where
 $f'(x) = 0$), and the *steps themselves* shrink as it gets closer, purely
 because the derivative shrinks — nobody had to manually decrease $\eta$.
 This exact table-of-iterations idea is what you'll watch happen inside a
-real model's training loop, starting Day 7, except with many weights
+real model's training loop, starting Day 6, except with many weights
 being updated at once via the gradient vector instead of one number via a
 single derivative.
 
@@ -470,7 +470,7 @@ $$
 
 — the derivative of a function of a function is the product of their
 individual derivatives. It looks unremarkable written down, but it is,
-quite literally, the one idea backpropagation (Day 10) is built from: a
+quite literally, the one idea backpropagation (Day 9) is built from: a
 neural network's output is a function of a function of a function of its
 weights, and the chain rule is what lets us compute how each weight,
 however deeply buried, should change, by multiplying together the
@@ -552,7 +552,7 @@ is a long-run average, not a prediction of any one result.
 **Conditional probability** — the probability of one event given that
 another has occurred, written $P(A \mid B)$ — and **Bayes' rule**, which
 lets you flip a conditional probability around, are worth having solid
-before Day 6, where they're exactly the machinery underneath a Hidden
+before Day 5, where they're exactly the machinery underneath a Hidden
 Markov Model. Bayes' rule follows directly from the definition of
 conditional probability ($P(A \mid B) = P(A \cap B)/P(B)$, applied both
 ways round) and reads:
@@ -585,7 +585,7 @@ chance of actually having the condition — because the condition is rare,
 false positives from the large healthy population outnumber true
 positives from the small affected one. This kind of reasoning — combining
 a prior probability with new evidence — underpins the loss functions used
-everywhere from Day 7 onward: minimizing a loss function during training
+everywhere from Day 6 onward: minimizing a loss function during training
 is, in most of the models in this course, equivalent to finding the model
 parameters that make the observed data most probable.
 
@@ -698,7 +698,7 @@ $$
 $$
 
 This is exactly why substitution-matrix scores (Day 4) and profile
-scores (Day 6) are **sums** of per-position log-odds terms rather than
+scores (Day 5) are **sums** of per-position log-odds terms rather than
 products of odds ratios — adding numbers is easier to reason about (and
 far less prone to numerical underflow) than multiplying many small
 probabilities together, and the log turns one into the other without
@@ -711,7 +711,7 @@ more-positive bars.
 
 The exponential function shows up just as often, usually to turn an
 unbounded number into a positive one (since $e^x > 0$ for every $x$) or
-into a probability. Day 7's perceptron uses exactly this: the **sigmoid
+into a probability. Day 6's perceptron uses exactly this: the **sigmoid
 function**, $\sigma(z) = 1/(1+e^{-z})$, squashes any real-valued $z$
 into the range $(0, 1)$, turning a weighted sum into something that can
 be read as a probability.

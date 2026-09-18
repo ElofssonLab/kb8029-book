@@ -12,12 +12,12 @@ Neural Networks for Regression](https://d2l.ai/chapter_linear-regression/index.h
 below is written from scratch, not copied, following these ideas.
 :::
 
-# Day 7: Linear Models, Gradient Descent, and the XOR Problem
+# Day 6: Linear Models, Gradient Descent, and the XOR Problem
 
 ## Learning goals
 
 By the end of this session you should be able to recognize a perceptron
-as a formal version of Day 6's profile score, explain how such a model's
+as a formal version of Day 5's profile score, explain how such a model's
 weights can be *learned* from labelled examples rather than derived from
 alignment statistics, and explain — using a real biological example — why
 some patterns cannot be captured by any linear model, no matter how its
@@ -25,7 +25,7 @@ weights are chosen.
 
 ## A profile score, formalized
 
-Day 6 introduced the profile score: to check how well a sequence matches
+Day 5 introduced the profile score: to check how well a sequence matches
 a known family, you multiply each position's observed value by a
 position-specific weight and add the results up — a dot product, in Day
 1's terms. Today we give that computation a name and generalize it. A
@@ -39,7 +39,7 @@ $$
 constant amount, letting the model's decision threshold sit somewhere
 other than zero) and then passes $z$ through an **activation function** to
 produce an output. There is nothing biological or sequence-specific left
-in this definition — it's the same computation Day 6 used for scoring
+in this definition — it's the same computation Day 5 used for scoring
 motifs, stripped down to its general-purpose form.
 
 ### Further reading
@@ -73,7 +73,7 @@ no hand-counting — just examples and a lot of small corrections.
 
 In this session's lab, this is implemented directly with raw tensors and
 automatic differentiation (Day 2), deliberately without the higher-level
-`nn.Module`/training-loop tools that Day 9 introduces — the point today is
+`nn.Module`/training-loop tools that Day 8 introduces — the point today is
 to see every step of the mechanics, not to use a convenient shortcut
 around them.
 
@@ -182,7 +182,7 @@ Neither position predicts binding on its own — only their combination
 does — and that is precisely what no profile score, and no single
 perceptron, can represent. Resolving this requires combining more than
 one linear unit, which is exactly what a hidden layer does, and exactly
-where Day 10 picks this up again.
+where Day 9 picks this up again.
 
 ### Further reading
 
@@ -204,25 +204,25 @@ popularized by Rumelhart, Hinton & Williams in 1986) made it practical to
 *train* multi-layer networks rather than just prove, in principle, that
 they were more powerful. Minsky and Papert's proof was correct — a single
 perceptron really can't solve XOR — but it was a limitation of a
-*one-layer* model, not of neural networks generally. Day 10 picks up
+*one-layer* model, not of neural networks generally. Day 9 picks up
 exactly this thread once you've seen, in today's notebook, a hidden layer
 solve the problem Minsky and Papert showed a single perceptron cannot.
 
 ### Further reading
 
 - Wikipedia, [AI winter](https://en.wikipedia.org/wiki/AI_winter) — the broader funding/research history
-- Wikipedia, [Backpropagation](https://en.wikipedia.org/wiki/Backpropagation) — the full derivation Day 10 builds on
+- Wikipedia, [Backpropagation](https://en.wikipedia.org/wiki/Backpropagation) — the full derivation Day 9 builds on
 
 ## Check your understanding
 
 Immediate-feedback questions covering the sections above — the same style
 used for this course's live in-class peer-instruction quizzes (see
-`quizzes/day07.md` in the repository for the full question bank).
+`quizzes/day06.md` in the repository for the full question bank).
 
 ```{=html}
-<div id="day07-quiz"></div>
+<div id="day06-quiz"></div>
 <script>
-renderQuiz("day07-quiz", [
+renderQuiz("day06-quiz", [
   {
     question: "In a perceptron's weighted sum z = w&#8321;x&#8321; + ... + w&#8345;x&#8345; + b, what does the bias term b let the model do?",
     choices: [
@@ -279,7 +279,7 @@ renderQuiz("day07-quiz", [
 
 ## The notebook
 
-The lab notebook for today (`notebooks/day07-gradient-descent-xor.ipynb`)
+The lab notebook for today (`notebooks/day06-gradient-descent-xor.ipynb`)
 works through this progression concretely: a linear model trained by
 gradient descent successfully learns AND (a linearly separable function,
 like the logic gates from earlier in the course), the same model is then
@@ -287,14 +287,14 @@ trained on XOR and visibly fails to converge, and finally a small network
 with one hidden layer succeeds where the linear model couldn't — with a
 plot showing exactly why. The version below is a static, read-only copy;
 open it in
-[Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day07-gradient-descent-xor.ipynb)
+[Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day06-gradient-descent-xor.ipynb)
 via the badge at the top of the notebook page to edit and run it
 yourself.
 
 ## What's next
 
-Day 8 returns to protein structure and previews, narratively, the
-historical method (Rost & Sander's PHD) that combines Day 6's profiles
-with the hidden-layer idea from today. Day 10 comes back to deliver that
-method in full, once Day 9 has introduced how to build a real network the
+Day 7 returns to protein structure and previews, narratively, the
+historical method (Rost & Sander's PHD) that combines Day 5's profiles
+with the hidden-layer idea from today. Day 9 comes back to deliver that
+method in full, once Day 8 has introduced how to build a real network the
 idiomatic way.

@@ -18,7 +18,7 @@ By the end of this session you should be able to write and use your own
 Python functions and classes, explain what a tensor is and how it
 generalizes the vectors and matrices from Day 1, create and manipulate
 tensors (indexing, slicing, reshaping), and explain what automatic
-differentiation computes and why it matters for everything from Day 7
+differentiation computes and why it matters for everything from Day 6
 onward.
 
 ## Why classes, and why now
@@ -66,7 +66,7 @@ object is created — it's where you set up whatever data that object
 should carry (here, `name` and `bases`). Every other method takes `self`
 as its first argument, which just refers to "the particular object this
 method was called on." This pattern — an object that owns its data and
-the operations on that data — is exactly what you'll see again in Day 9,
+the operations on that data — is exactly what you'll see again in Day 8,
 where a neural network is itself a class that owns its weights and knows
 how to compute a prediction from them.
 
@@ -138,7 +138,7 @@ tests, optimization, and more — sparing you from re-implementing standard
 methods by hand.
 
 **scikit-learn** provides ready-made, well-tested implementations of
-standard machine-learning models. Day 7 deliberately builds a linear
+standard machine-learning models. Day 6 deliberately builds a linear
 model "by hand" with raw tensors and gradient descent, precisely so you
 see every step of the mechanics — but for a plain linear regression, in
 practice you would normally just call scikit-learn's implementation
@@ -245,5 +245,5 @@ retrieve from a database in Day 3.
 
 Day 3 puts these programming tools to use immediately: retrieving and
 working with real sequences from biological databases. The tensor and
-autograd mechanics introduced here resurface directly in Day 7's
+autograd mechanics introduced here resurface directly in Day 6's
 gradient-descent lab.

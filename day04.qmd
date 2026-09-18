@@ -281,7 +281,7 @@ reflecting how clearly separate it is from the other four:
 
 ### Further reading
 
-- Wikipedia, [Multiple sequence alignment](https://en.wikipedia.org/wiki/Multiple_sequence_alignment) — additional methods and applications, e.g. profile HMMs, which Day 6 picks up in full
+- Wikipedia, [Multiple sequence alignment](https://en.wikipedia.org/wiki/Multiple_sequence_alignment) — additional methods and applications, e.g. profile HMMs, which Day 5 picks up in full
 
 ## The notebook
 
@@ -360,15 +360,15 @@ renderQuiz("day04-quiz", [
 ## The lab
 
 A light, tool-based exercise rather than a full lab (Day 5 gets the full
-lab, once BLAST is covered too): use EMBL-EBI's pairwise and multiple
-alignment tools on real sequences, and confirm that a tool's reported
-score and alignment match what the dynamic-programming matrix above would
-predict for a small case.
+lab, once BLAST and profile methods are covered too): use EMBL-EBI's
+pairwise and multiple alignment tools on real sequences, and confirm that
+a tool's reported score and alignment match what the dynamic-programming
+matrix above would predict for a small case.
 
 ## What's next
 
 Day 5 asks a different question about the same underlying problem: exact
 dynamic programming like Needleman-Wunsch doesn't scale to searching a
 new sequence against an entire database — that's what BLAST's heuristic
-is for. Day 6 goes a step further and asks what to do once you have many
-aligned sequences rather than two: build a *profile*.
+is for. The same session then goes a step further and asks what to do
+once you have many aligned sequences rather than two: build a *profile*.

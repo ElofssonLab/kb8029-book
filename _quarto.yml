@@ -20,9 +20,9 @@ book:
     - day04.qmd
     - href: notebooks/day04-alignment-in-code.ipynb
       text: "Day 4 — Notebook"
-    - day07.qmd
-    - href: notebooks/day07-gradient-descent-xor.ipynb
-      text: "Day 7 — Notebook"
+    - day06.qmd
+    - href: notebooks/day06-gradient-descent-xor.ipynb
+      text: "Day 6 — Notebook"
     - references.qmd
 
 format:
