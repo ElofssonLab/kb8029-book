@@ -9,11 +9,17 @@ Linear Algebra, §2.5 Calculus, §2.6 Probability and Statistics) — CC BY-SA
 [Tensor](https://en.wikipedia.org/wiki/Tensor),
 [Gradient](https://en.wikipedia.org/wiki/Gradient),
 [Chain rule](https://en.wikipedia.org/wiki/Chain_rule),
-[Bayes' theorem](https://en.wikipedia.org/wiki/Bayes%27_theorem) — CC
+[Bayes' theorem](https://en.wikipedia.org/wiki/Bayes%27_theorem),
+[P-value](https://en.wikipedia.org/wiki/P-value),
+[Student's t-test](https://en.wikipedia.org/wiki/Student%27s_t-test),
+[Multiple comparisons problem](https://en.wikipedia.org/wiki/Multiple_comparisons_problem),
+[False discovery rate](https://en.wikipedia.org/wiki/False_discovery_rate),
+[Volcano plot (statistics)](https://en.wikipedia.org/wiki/Volcano_plot_(statistics)) — CC
 BY-SA 4.0. Text below is written from scratch, not copied, following
 these ideas; standard results (the geometric dot-product formula, the
-chain rule, Bayes' theorem) are stated in the conventional way found in
-any of these sources.
+chain rule, Bayes' theorem, the t-test formula) are stated in the
+conventional way found in any of these sources. The volcano-plot figure
+uses simulated data, generated for this book.
 :::
 
 # Day 1: Math Prerequisites
@@ -38,8 +44,10 @@ By the end of this session you should be able to compute a dot product
 by hand and interpret it geometrically, normalize a vector and compute a
 cross product, find the eigenvalues of a small matrix by hand, take a
 partial derivative of a simple multivariable function and use it to run
-a step of gradient descent, and apply Bayes' rule to a concrete
-conditional-probability problem.
+a step of gradient descent, apply Bayes' rule to a concrete
+conditional-probability problem, explain what a p-value does and doesn't
+mean, run a two-sample t-test, and explain why testing thousands of
+genes at once requires correcting for multiple testing.
 
 ## Part 1: Vectors and matrices
 
@@ -517,15 +525,113 @@ everywhere from Day 7 onward: minimizing a loss function during training
 is, in most of the models in this course, equivalent to finding the model
 parameters that make the observed data most probable.
 
-**Practice problem.** A fair six-sided die is rolled once. What is
-$P(\text{even} \mid X > 3)$ — the probability of an even result, given
-that the result exceeds 3?
+### p-values and hypothesis testing
+
+Statistical testing starts from a **null hypothesis** ($H_0$) — the
+assumption that there's no real effect, and any difference you observe
+is just chance. A **p-value** is the probability of seeing a result at
+least as extreme as what you actually observed, *if the null hypothesis
+were true*. By convention, $p < 0.05$ is often treated as "statistically
+significant," but that threshold is a convention, not a law of nature.
+
+This is a genuinely easy idea to misread, and worth contrasting directly
+with the disease-test example above: a p-value is $P(\text{data this
+extreme} \mid H_0)$, *not* $P(H_0 \mid \text{data})$ — exactly the same
+kind of "backwards" conditional-probability confusion. A small p-value
+tells you the data would be surprising if there were truly no effect; it
+does not, by itself, tell you the probability that there's no effect.
+
+### Student's t-test
+
+The most common way to test whether two groups' means genuinely differ
+is **Student's t-test**:
+
+$$
+t = \frac{\bar{x}_1 - \bar{x}_2}{s_p \sqrt{1/n_1 + 1/n_2}}
+$$
+
+where $\bar{x}_1, \bar{x}_2$ are the two sample means, $n_1, n_2$ their
+sample sizes, and $s_p$ a pooled estimate of their standard deviation.
+Larger differences between the means, or less noisy data (smaller
+$s_p$), push $|t|$ up; a bigger $|t|$ gives a smaller p-value.
+
+**Worked example.** Four expression measurements in a control condition,
+$(5.1, 4.9, 5.3, 5.0)$, and four in a treatment condition, $(7.2, 6.8,
+7.5, 7.0)$:
+
+$$
+\bar{x}_{\text{control}} = 5.075, \qquad \bar{x}_{\text{treatment}} = 7.125, \qquad t \approx -11.9, \qquad p \approx 0.00002
+$$
+
+With means this far apart relative to how little the four replicates in
+each group vary, the difference is extremely unlikely to be chance —
+matching the tiny p-value.
+
+### The multiple testing problem
+
+A p-value threshold of 0.05 means: even when the null hypothesis is
+exactly true, there's a 5% chance of a false positive *for that one
+test*. That's a fine risk to accept once. It's a very different story
+once the same test runs on every gene in a genome. Simulate 2000 genes,
+none of which are actually differentially expressed, test each one at
+$p<0.05$, and you get roughly $2000 \times 0.05 = 100$ "significant"
+genes purely by chance — a wall of false positives, not a list of real
+findings.
+
+The fix is a **multiple testing correction**. Bonferroni's is the
+simplest — divide the significance threshold by the number of tests —
+but it's often needlessly conservative for genomics, where thousands of
+tests are routine. The standard alternative is the **false discovery
+rate (FDR)**, typically estimated with the Benjamini-Hochberg procedure:
+rather than controlling the chance of *any* false positive, it controls
+the *expected proportion* of false positives among everything called
+significant, which stays informative even with tens of thousands of
+tests.
+
+### Worked example: RNA-seq differential expression and the volcano plot
+
+Put all three ideas together on a realistic-shaped problem: comparing
+gene expression between a treatment and a control condition across 2000
+genes, of which 50 are simulated to be genuinely differentially
+expressed and the rest are pure noise. For each gene, a t-test gives a
+p-value, and the **fold change** — how many-fold higher or lower its
+expression is in treatment vs. control, usually reported as $\log_2$ of
+that ratio — measures the size of the effect, independently of its
+statistical significance.
+
+A **volcano plot** shows both at once: $\log_2$ fold change on the
+x-axis, $-\log_{10}(p\text{-value})$ on the y-axis (so smaller p-values —
+stronger evidence — plot higher up). Genes that are both far from the
+centre (a big effect) and high up (strong evidence) are the interesting
+ones — the shape that gives the plot its name:
+
+![](figs/day01-volcano-plot.png){width=85%}
+
+Applying just the naive $p<0.05$ threshold to this simulated data flags
+140 genes as "significant" — but 90 of those are false positives among
+the 1950 genes with no real effect, almost exactly the ~97.5 expected by
+chance. Applying Benjamini-Hochberg FDR correction at 5% instead brings
+that down to 48 flagged genes, of which 47 are correctly among the 50
+real differentially expressed genes and only 1 is a false positive —
+recovering the large majority of the true effects while controlling the
+false-positive flood the naive threshold let straight through.
+
+**Practice problems.**
+
+1. A fair six-sided die is rolled once. What is $P(\text{even} \mid X >
+   3)$ — the probability of an even result, given that the result
+   exceeds 3?
+2. If you test 100 genes with no real difference at $p<0.05$ and apply
+   no correction, about how many false positives should you expect by
+   chance alone?
 
 ::: {.callout-note collapse="true"}
-## Solution
-$X > 3$ means the outcome is 4, 5, or 6 — three equally likely
-outcomes. Of those, 4 and 6 are even: two out of three. So
-$P(\text{even} \mid X > 3) = 2/3$.
+## Solutions
+1. $X > 3$ means the outcome is 4, 5, or 6 — three equally likely
+   outcomes. Of those, 4 and 6 are even: two out of three. So
+   $P(\text{even} \mid X > 3) = 2/3$.
+2. $100 \times 0.05 = 5$ false positives expected, even though every one
+   of the 100 genes is truly non-differentially-expressed.
 :::
 
 **Check your understanding:**
@@ -539,6 +645,45 @@ renderQuiz("day01-quiz-3", [
     choices: ["90%", "68%", "15%", "2%"],
     correctIndex: 2,
     explanation: "P(positive) = 0.9×0.02 + 0.10×0.98 = 0.116; P(disease|positive) = 0.018/0.116 &asymp; 15%."
+  },
+  {
+    question: "What does a p-value actually represent?",
+    choices: [
+      "P(data at least this extreme | the null hypothesis is true)",
+      "P(the null hypothesis is true | the data)",
+      "The probability that the null hypothesis is false",
+      "The probability the experiment was conducted correctly"
+    ],
+    correctIndex: 0,
+    explanation: "A p-value is a statement about how surprising the data would be under the null hypothesis -- not a statement about the probability the null hypothesis itself is true."
+  },
+  {
+    question: "You test 1000 genes, and in truth NONE of them are differentially expressed. Using p&lt;0.05 with no correction, about how many will appear 'significant' just by chance?",
+    choices: ["0", "5", "50", "1000"],
+    correctIndex: 2,
+    explanation: "1000 &times; 0.05 = 50 false positives expected, even with zero real effects anywhere in the data."
+  },
+  {
+    question: "In a volcano plot (log2 fold change vs. -log10(p-value)), which genes are the most interesting?",
+    choices: [
+      "Genes far from the center (large effect) AND high up (strong statistical evidence)",
+      "Only genes far from the center, regardless of height",
+      "Only genes high up, regardless of horizontal position",
+      "Genes exactly at the center of the plot"
+    ],
+    correctIndex: 0,
+    explanation: "Being far out on the x-axis alone can just mean noisy data with few replicates; being high on the y-axis alone can mean a tiny, unimportant effect measured very precisely. The interesting genes are both."
+  },
+  {
+    question: "Why is Benjamini-Hochberg FDR correction usually preferred over Bonferroni correction when testing thousands of genes at once?",
+    choices: [
+      "FDR controls the expected proportion of false discoveries rather than the chance of any single false positive, giving more power to detect real effects among many tests",
+      "FDR ignores the multiple-testing problem entirely, which is simpler",
+      "Bonferroni correction only works for continuous-valued data",
+      "FDR requires testing fewer genes than Bonferroni does"
+    ],
+    correctIndex: 0,
+    explanation: "Bonferroni's stricter guarantee (controlling any false positive at all) becomes extremely conservative at genome-scale; FDR's weaker, more useful guarantee stays informative with thousands of tests."
   }
 ]);
 </script>
@@ -547,6 +692,8 @@ renderQuiz("day01-quiz-3", [
 ### Further reading
 
 - Wikipedia, [Bayes' theorem](https://en.wikipedia.org/wiki/Bayes%27_theorem) — more worked examples and the different interpretations of probability behind it
+- Wikipedia, [P-value](https://en.wikipedia.org/wiki/P-value) and [Student's t-test](https://en.wikipedia.org/wiki/Student%27s_t-test)
+- Wikipedia, [Multiple comparisons problem](https://en.wikipedia.org/wiki/Multiple_comparisons_problem), [False discovery rate](https://en.wikipedia.org/wiki/False_discovery_rate), and [Volcano plot (statistics)](https://en.wikipedia.org/wiki/Volcano_plot_(statistics))
 - d2l.ai, [Probability and Statistics](https://d2l.ai/chapter_preliminaries/probability.html) — connects this directly to how machine-learning models are evaluated
 
 ### Further watching
@@ -559,13 +706,32 @@ renderQuiz("day01-quiz-3", [
 </div>
 ```
 
+[*P Values, clearly explained*](https://www.youtube.com/watch?v=5Z9OIYA8He8) (StatQuest with Josh Starmer):
+
+```{=html}
+<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
+<iframe src="https://www.youtube.com/embed/5Z9OIYA8He8" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="P Values, clearly explained, StatQuest with Josh Starmer"></iframe>
+</div>
+```
+
+[*False Discovery Rates, FDR, clearly explained*](https://www.youtube.com/watch?v=L3nlGfSyHV0) (StatQuest with Josh Starmer):
+
+```{=html}
+<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
+<iframe src="https://www.youtube.com/embed/L3nlGfSyHV0" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="False Discovery Rates, FDR, clearly explained, StatQuest with Josh Starmer"></iframe>
+</div>
+```
+
 ## The notebook
 
 `notebooks/day01-math-in-code.ipynb` recomputes every worked example and
-practice problem above in code — the dot product, the gradient (checked
-two ways: by hand and via automatic differentiation), and the die-roll
+practice problem above in code — the dot product, cross product, and
+normalization, the eigenvalues of a small matrix, the gradient (checked
+two ways: by hand and via automatic differentiation), the die-roll
 probabilities (checked two ways: exactly, and by simulating a few hundred
-thousand rolls) — so you can confirm code and math agree before Day 2
+thousand rolls), the t-test worked example, and the full simulated
+RNA-seq/volcano-plot analysis (reproducing the figure above from
+scratch) — so you can confirm code and math agree before Day 2
 introduces the code side properly. The version below is a static,
 read-only copy; open it in
 [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day01-math-in-code.ipynb)
