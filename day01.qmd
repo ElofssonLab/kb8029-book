@@ -3,6 +3,8 @@
 [Preliminaries](https://d2l.ai/chapter_preliminaries/index.html) (§2.3
 Linear Algebra, §2.5 Calculus, §2.6 Probability and Statistics) — CC BY-SA
 4.0; Wikipedia, [Dot product](https://en.wikipedia.org/wiki/Dot_product),
+[Norm (mathematics)](https://en.wikipedia.org/wiki/Norm_(mathematics)),
+[Matrix norm](https://en.wikipedia.org/wiki/Matrix_norm),
 [Cross product](https://en.wikipedia.org/wiki/Cross_product),
 [Unit vector](https://en.wikipedia.org/wiki/Unit_vector),
 [Eigenvalues and eigenvectors](https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors),
@@ -14,7 +16,10 @@ Linear Algebra, §2.5 Calculus, §2.6 Probability and Statistics) — CC BY-SA
 [Student's t-test](https://en.wikipedia.org/wiki/Student%27s_t-test),
 [Multiple comparisons problem](https://en.wikipedia.org/wiki/Multiple_comparisons_problem),
 [False discovery rate](https://en.wikipedia.org/wiki/False_discovery_rate),
-[Volcano plot (statistics)](https://en.wikipedia.org/wiki/Volcano_plot_(statistics)) — CC
+[Volcano plot (statistics)](https://en.wikipedia.org/wiki/Volcano_plot_(statistics)),
+[Exponential function](https://en.wikipedia.org/wiki/Exponential_function),
+[Logarithm](https://en.wikipedia.org/wiki/Logarithm),
+[Sigmoid function](https://en.wikipedia.org/wiki/Sigmoid_function) — CC
 BY-SA 4.0. Text below is written from scratch, not copied, following
 these ideas; standard results (the geometric dot-product formula, the
 chain rule, Bayes' theorem, the t-test formula) are stated in the
@@ -40,21 +45,60 @@ if you'd like the idea animated.
 
 ## Learning goals
 
-By the end of this session you should be able to compute a dot product
-by hand and interpret it geometrically, normalize a vector and compute a
-cross product, find the eigenvalues of a small matrix by hand, take a
-partial derivative of a simple multivariable function and use it to run
-a step of gradient descent, apply Bayes' rule to a concrete
+By the end of this session you should be able to compute the length of a
+vector and the Frobenius norm of a matrix, compute a dot product by hand
+and interpret it geometrically, normalize a vector and compute a cross
+product, find the eigenvalues of a small matrix by hand, take a partial
+derivative of a simple multivariable function and use it to run a step
+of gradient descent, apply Bayes' rule to a concrete
 conditional-probability problem, explain what a p-value does and doesn't
-mean, run a two-sample t-test, and explain why testing thousands of
-genes at once requires correcting for multiple testing.
+mean, run a two-sample t-test, explain why testing thousands of genes at
+once requires correcting for multiple testing, and explain why
+logarithms turn multiplication into addition and what the sigmoid
+function does.
 
 ## Part 1: Vectors and matrices
 
 A vector is just an ordered list of numbers. You already know how to add
 two vectors (add corresponding entries) and how to scale one (multiply
-every entry by the same number). The one operation worth slowing down on
-is the **dot product**:
+every entry by the same number).
+
+### Length, absolute value, and size
+
+For a single number, $|x|$ measures its distance from zero — how big it
+is, ignoring sign. Vectors and matrices generalize this the same way
+they generalize everything else in this session.
+
+For a vector, the natural generalization is its **length** (also called
+its **norm**), written $\lVert \mathbf{v} \rVert$: a direct extension of
+the Pythagorean theorem to more than two dimensions,
+
+$$
+\lVert \mathbf{v} \rVert = \sqrt{v_1^2 + v_2^2 + \dots + v_n^2}
+$$
+
+**Worked example.** For $\mathbf{v} = (3, 4)$:
+
+$$
+\lVert \mathbf{v} \rVert = \sqrt{3^2 + 4^2} = \sqrt{25} = 5
+$$
+
+— literally the hypotenuse of a 3-4-5 right triangle.
+
+Matrices generalize the same idea once more: treat every entry as part
+of one long vector, and the same formula gives the matrix's **Frobenius
+norm**,
+
+$$
+\lVert A \rVert_F = \sqrt{\textstyle\sum_{i,j} a_{ij}^2}
+$$
+
+a single number measuring how "big" a matrix is overall. This turns out
+to be useful throughout the rest of this course — for instance, for
+measuring how much two matrices differ (the norm of their difference),
+or how large a set of learned weights has grown during training.
+
+The one operation worth slowing down on next is the **dot product**:
 
 $$
 \mathbf{w} \cdot \mathbf{x} = w_1 x_1 + w_2 x_2 + \dots + w_n x_n
@@ -78,8 +122,8 @@ $$
 \mathbf{w} \cdot \mathbf{x} = \lVert \mathbf{w} \rVert \, \lVert \mathbf{x} \rVert \cos\theta
 $$
 
-where $\theta$ is the angle between the two vectors and $\lVert
-\cdot \rVert$ denotes a vector's length. This tells you the *sign* of a
+where $\theta$ is the angle between the two vectors and $\lVert \cdot
+\rVert$ is the length defined above. This tells you the *sign* of a
 dot product for free, without computing anything: it's positive when the
 angle between the vectors is less than 90° (they point in broadly the
 same direction), zero when they're exactly perpendicular, and negative
@@ -111,8 +155,8 @@ $$
 \hat{\mathbf{w}} = \frac{\mathbf{w}}{\lVert \mathbf{w} \rVert}
 $$
 
-**Worked example.** For $\mathbf{w} = (2, -1)$ from above, $\lVert
-\mathbf{w} \rVert = \sqrt{2^2 + (-1)^2} = \sqrt{5} \approx 2.236$, so
+**Worked example.** For $\mathbf{w} = (2, -1)$ from above, the length
+formula gives $\lVert \mathbf{w} \rVert = \sqrt{5} \approx 2.236$, so
 
 $$
 \hat{\mathbf{w}} = \left( \frac{2}{\sqrt{5}}, \frac{-1}{\sqrt{5}} \right) \approx (0.894, -0.447)
@@ -226,17 +270,19 @@ number of dimensions.
 
 **Practice problems.**
 
-1. Compute $(2, -1, 3) \cdot (1, 4, 0)$.
-2. Normalize $\mathbf{v} = (3, 4)$.
-3. Compute $(1, 2, 0) \times (0, 1, 3)$.
-4. Find the eigenvalues of $A = \begin{pmatrix} 1 & 2 \\ 2 & 1 \end{pmatrix}$.
+1. Compute the length of $\mathbf{v} = (1, 2, 2)$ and the Frobenius norm of $A = \begin{pmatrix} 1 & 0 \\ 0 & 1 \end{pmatrix}$.
+2. Compute $(2, -1, 3) \cdot (1, 4, 0)$.
+3. Normalize $\mathbf{v} = (3, 4)$.
+4. Compute $(1, 2, 0) \times (0, 1, 3)$.
+5. Find the eigenvalues of $A = \begin{pmatrix} 1 & 2 \\ 2 & 1 \end{pmatrix}$.
 
 ::: {.callout-note collapse="true"}
 ## Solutions
-1. $(2)(1) + (-1)(4) + (3)(0) = 2 - 4 + 0 = -2$.
-2. $\lVert \mathbf{v} \rVert = \sqrt{3^2+4^2} = 5$, so $\hat{\mathbf{v}} = (0.6, 0.8)$.
-3. $\big((2)(3)-(0)(1),\ (0)(0)-(1)(3),\ (1)(1)-(2)(0)\big) = (6, -3, 1)$.
-4. $(1-\lambda)^2 - 4 = 0 \Rightarrow 1-\lambda = \pm 2 \Rightarrow \lambda = 3$ or $\lambda = -1$.
+1. $\lVert \mathbf{v} \rVert = \sqrt{1^2+2^2+2^2} = \sqrt{9} = 3$; $\lVert A \rVert_F = \sqrt{1^2+0^2+0^2+1^2} = \sqrt{2} \approx 1.414$.
+2. $(2)(1) + (-1)(4) + (3)(0) = 2 - 4 + 0 = -2$.
+3. $\lVert \mathbf{v} \rVert = \sqrt{3^2+4^2} = 5$, so $\hat{\mathbf{v}} = (0.6, 0.8)$.
+4. $\big((2)(3)-(0)(1),\ (0)(0)-(1)(3),\ (1)(1)-(2)(0)\big) = (6, -3, 1)$.
+5. $(1-\lambda)^2 - 4 = 0 \Rightarrow 1-\lambda = \pm 2 \Rightarrow \lambda = 3$ or $\lambda = -1$.
 :::
 
 **Check your understanding:**
@@ -245,6 +291,12 @@ number of dimensions.
 <div id="day01-quiz-1"></div>
 <script>
 renderQuiz("day01-quiz-1", [
+  {
+    question: "What is the length (norm) of the vector (0, 3, 4)?",
+    choices: ["7", "5", "25", "3.5"],
+    correctIndex: 1,
+    explanation: "‖(0,3,4)‖ = &radic;(0² + 3² + 4²) = &radic;25 = 5."
+  },
   {
     question: "What is the dot product of (3, 2) and (-1, 4)?",
     choices: ["-11", "5", "11", "-5"],
@@ -297,6 +349,7 @@ renderQuiz("day01-quiz-1", [
 
 ### Further reading
 
+- Wikipedia, [Norm (mathematics)](https://en.wikipedia.org/wiki/Norm_(mathematics)) and [Matrix norm](https://en.wikipedia.org/wiki/Matrix_norm)
 - Wikipedia, [Dot product](https://en.wikipedia.org/wiki/Dot_product) — the algebra in more generality than needed here (complex vectors, function spaces)
 - Wikipedia, [Unit vector](https://en.wikipedia.org/wiki/Unit_vector) and [Cross product](https://en.wikipedia.org/wiki/Cross_product)
 - Wikipedia, [Eigenvalues and eigenvectors](https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors) — diagonalization and the general N×N case, beyond the 2×2 worked example above
@@ -616,6 +669,42 @@ real differentially expressed genes and only 1 is a false positive —
 recovering the large majority of the true effects while controlling the
 false-positive flood the naive threshold let straight through.
 
+### Logarithms and exponential functions
+
+Two more functions are worth having solid, since they appear constantly
+from here on: the **exponential function** $e^x$ (where $e \approx
+2.718$), and its inverse, the **logarithm** $\log(x)$ — asking "$e$ to
+what power gives $x$?" Different bases are common: $\log_{10}$ (used
+just above, for the volcano plot's y-axis) and $\log_2$ (used for the
+volcano plot's fold change) are the same idea with a different base,
+related to the natural log by a constant factor.
+
+The property that matters most: logarithms turn multiplication into
+addition,
+
+$$
+\log(xy) = \log(x) + \log(y)
+$$
+
+This is exactly why substitution-matrix scores (Day 4) and profile
+scores (Day 6) are **sums** of per-position log-odds terms rather than
+products of odds ratios — adding numbers is easier to reason about (and
+far less prone to numerical underflow) than multiplying many small
+probabilities together, and the log turns one into the other without
+changing which alignment or match scores best.
+
+**Worked example.** $\log_{10}(0.001) = -3$, since $10^{-3} = 0.001$ —
+exactly why a p-value of 0.001 gives $-\log_{10}(p) = 3$ on the volcano
+plot's y-axis: smaller p-values (stronger evidence) become larger,
+more-positive bars.
+
+The exponential function shows up just as often, usually to turn an
+unbounded number into a positive one (since $e^x > 0$ for every $x$) or
+into a probability. Day 7's perceptron uses exactly this: the **sigmoid
+function**, $\sigma(z) = 1/(1+e^{-z})$, squashes any real-valued $z$
+into the range $(0, 1)$, turning a weighted sum into something that can
+be read as a probability.
+
 **Practice problems.**
 
 1. A fair six-sided die is rolled once. What is $P(\text{even} \mid X >
@@ -624,6 +713,8 @@ false-positive flood the naive threshold let straight through.
 2. If you test 100 genes with no real difference at $p<0.05$ and apply
    no correction, about how many false positives should you expect by
    chance alone?
+3. A gene has a p-value of $10^{-6}$. What is its height on a volcano
+   plot's y-axis, $-\log_{10}(p)$?
 
 ::: {.callout-note collapse="true"}
 ## Solutions
@@ -632,6 +723,7 @@ false-positive flood the naive threshold let straight through.
    $P(\text{even} \mid X > 3) = 2/3$.
 2. $100 \times 0.05 = 5$ false positives expected, even though every one
    of the 100 genes is truly non-differentially-expressed.
+3. $-\log_{10}(10^{-6}) = 6$.
 :::
 
 **Check your understanding:**
@@ -684,6 +776,29 @@ renderQuiz("day01-quiz-3", [
     ],
     correctIndex: 0,
     explanation: "Bonferroni's stricter guarantee (controlling any false positive at all) becomes extremely conservative at genome-scale; FDR's weaker, more useful guarantee stays informative with thousands of tests."
+  },
+  {
+    question: "What is log&#8321;&#8320;(0.0001)?",
+    choices: ["-4", "4", "0.0001", "-0.0001"],
+    correctIndex: 0,
+    explanation: "10&#8315;&#8308; = 0.0001, so log&#8321;&#8320;(0.0001) = -4."
+  },
+  {
+    question: "Why are substitution-matrix and profile scores computed as SUMS of log-odds terms rather than PRODUCTS of odds ratios?",
+    choices: [
+      "Because log(xy) = log(x) + log(y), so summing logs is equivalent to multiplying the underlying probabilities, while avoiding numerical underflow",
+      "Because sums are always more biologically meaningful than products",
+      "Because logarithms make small probabilities larger",
+      "Because addition is only possible for positive numbers"
+    ],
+    correctIndex: 0,
+    explanation: "Multiplying many small probabilities together quickly underflows to zero; taking logs turns that product into a sum, which is numerically stable and picks out the same best-scoring alignment or match."
+  },
+  {
+    question: "What range of values does the sigmoid function &sigma;(z) = 1/(1+e&#8315;&#7611;) always produce, no matter what z is?",
+    choices: ["(0, 1)", "(-1, 1)", "(0, &infin;)", "Any real number"],
+    correctIndex: 0,
+    explanation: "The sigmoid squashes any real-valued input into the open interval (0, 1), which is exactly why it can be read as a probability."
   }
 ]);
 </script>
@@ -694,6 +809,7 @@ renderQuiz("day01-quiz-3", [
 - Wikipedia, [Bayes' theorem](https://en.wikipedia.org/wiki/Bayes%27_theorem) — more worked examples and the different interpretations of probability behind it
 - Wikipedia, [P-value](https://en.wikipedia.org/wiki/P-value) and [Student's t-test](https://en.wikipedia.org/wiki/Student%27s_t-test)
 - Wikipedia, [Multiple comparisons problem](https://en.wikipedia.org/wiki/Multiple_comparisons_problem), [False discovery rate](https://en.wikipedia.org/wiki/False_discovery_rate), and [Volcano plot (statistics)](https://en.wikipedia.org/wiki/Volcano_plot_(statistics))
+- Wikipedia, [Exponential function](https://en.wikipedia.org/wiki/Exponential_function), [Logarithm](https://en.wikipedia.org/wiki/Logarithm), and [Sigmoid function](https://en.wikipedia.org/wiki/Sigmoid_function)
 - d2l.ai, [Probability and Statistics](https://d2l.ai/chapter_preliminaries/probability.html) — connects this directly to how machine-learning models are evaluated
 
 ### Further watching
@@ -725,15 +841,15 @@ renderQuiz("day01-quiz-3", [
 ## The notebook
 
 `notebooks/day01-math-in-code.ipynb` recomputes every worked example and
-practice problem above in code — the dot product, cross product, and
-normalization, the eigenvalues of a small matrix, the gradient (checked
-two ways: by hand and via automatic differentiation), the die-roll
-probabilities (checked two ways: exactly, and by simulating a few hundred
-thousand rolls), the t-test worked example, and the full simulated
-RNA-seq/volcano-plot analysis (reproducing the figure above from
-scratch) — so you can confirm code and math agree before Day 2
-introduces the code side properly. The version below is a static,
-read-only copy; open it in
+practice problem above in code — vector length and the Frobenius norm,
+the dot product, cross product, and normalization, the eigenvalues of a
+small matrix, the gradient (checked two ways: by hand and via automatic
+differentiation), the die-roll probabilities (checked two ways: exactly,
+and by simulating a few hundred thousand rolls), the t-test worked
+example, the full simulated RNA-seq/volcano-plot analysis (reproducing
+the figure above from scratch), and logarithms/the sigmoid function — so
+you can confirm code and math agree before Day 2 introduces the code
+side properly. The version below is a static, read-only copy; open it in
 [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day01-math-in-code.ipynb)
 via the badge at the top of the notebook page to edit and run it
 yourself.
