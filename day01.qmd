@@ -3,6 +3,10 @@
 [Preliminaries](https://d2l.ai/chapter_preliminaries/index.html) (§2.3
 Linear Algebra, §2.5 Calculus, §2.6 Probability and Statistics) — CC BY-SA
 4.0; Wikipedia, [Dot product](https://en.wikipedia.org/wiki/Dot_product),
+[Cross product](https://en.wikipedia.org/wiki/Cross_product),
+[Unit vector](https://en.wikipedia.org/wiki/Unit_vector),
+[Eigenvalues and eigenvectors](https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors),
+[Tensor](https://en.wikipedia.org/wiki/Tensor),
 [Gradient](https://en.wikipedia.org/wiki/Gradient),
 [Chain rule](https://en.wikipedia.org/wiki/Chain_rule),
 [Bayes' theorem](https://en.wikipedia.org/wiki/Bayes%27_theorem) — CC
@@ -22,26 +26,27 @@ feels like disconnected math-for-its-own-sake. There's no coding today;
 that's Day 2 — though the notebook linked at the bottom lets you check
 today's by-hand answers in code if you're curious.
 
-The session is in three parts, matching how it's actually taught: vectors
-and the dot product, then derivatives and gradient descent, then
-probability and Bayes' rule. Each part ends with a practice problem, a
-quick self-check, and a short video if you'd like the idea animated.
+The session is in four parts: vectors and the dot product, matrices
+(including eigenvalues, and a first look ahead to tensors), derivatives
+and gradient descent, then probability and Bayes' rule. Each part ends
+with a practice problem, a quick self-check, and a short video if you'd
+like the idea animated.
 
 ## Learning goals
 
 By the end of this session you should be able to compute a dot product
-by hand and interpret it geometrically, take a partial derivative of a
-simple multivariable function and use it to run a step of gradient
-descent, and apply Bayes' rule to a concrete conditional-probability
-problem.
+by hand and interpret it geometrically, normalize a vector and compute a
+cross product, find the eigenvalues of a small matrix by hand, take a
+partial derivative of a simple multivariable function and use it to run
+a step of gradient descent, and apply Bayes' rule to a concrete
+conditional-probability problem.
 
-## Part 1: Vectors, matrices, and the dot product
+## Part 1: Vectors and the dot product
 
-A vector is just an ordered list of numbers, and a matrix is a
-rectangular grid of them. You already know how to add two vectors (add
-corresponding entries) and how to scale one (multiply every entry by the
-same number). The one operation worth slowing down on is the **dot
-product**:
+A vector is just an ordered list of numbers. You already know how to add
+two vectors (add corresponding entries) and how to scale one (multiply
+every entry by the same number). The one operation worth slowing down on
+is the **dot product**:
 
 $$
 \mathbf{w} \cdot \mathbf{x} = w_1 x_1 + w_2 x_2 + \dots + w_n x_n
@@ -89,28 +94,71 @@ vector and an input vector. When we get there, you'll already know the
 arithmetic *and* the geometric intuition; the only new part will be what
 to *do* with the result.
 
-Matrix–vector and matrix–matrix multiplication are the same idea done many
-times at once: a matrix–vector product is just a batch of dot products,
-one per row of the matrix. For example,
+### Normalization
+
+Dividing a vector by its own length produces a **unit vector** — a
+vector pointing the same direction, but with length exactly 1:
 
 $$
-\begin{pmatrix} 2 & -1 \\ 0 & 3 \end{pmatrix}
-\begin{pmatrix} 1 \\ 4 \end{pmatrix}
-=
-\begin{pmatrix} (2)(1) + (-1)(4) \\ (0)(1) + (3)(4) \end{pmatrix}
-=
-\begin{pmatrix} -2 \\ 12 \end{pmatrix}
+\hat{\mathbf{w}} = \frac{\mathbf{w}}{\lVert \mathbf{w} \rVert}
 $$
 
-— the first entry of the result is exactly the dot product worked out
-above; the second is a new dot product between the matrix's second row
-and the same vector $\mathbf{x}$.
+**Worked example.** For $\mathbf{w} = (2, -1)$ from above, $\lVert
+\mathbf{w} \rVert = \sqrt{2^2 + (-1)^2} = \sqrt{5} \approx 2.236$, so
 
-**Practice problem.** Compute $(2, -1, 3) \cdot (1, 4, 0)$.
+$$
+\hat{\mathbf{w}} = \left( \frac{2}{\sqrt{5}}, \frac{-1}{\sqrt{5}} \right) \approx (0.894, -0.447)
+$$
+
+Normalizing is exactly what removes the $\lVert \mathbf{w} \rVert$
+factor from the geometric dot-product formula above, leaving only the
+angle behind. This matters in practice: two "profile" weight vectors
+that point in the same direction but were written down at different
+scales — say, one is exactly ten times the other — give wildly
+different raw dot products, even though they represent the same
+underlying match; normalizing both to unit vectors first makes their
+scores directly comparable. (This is exactly the surprise in this
+session's in-class discussion problem, if you've done it.)
+
+### Cross product
+
+The dot product isn't the only way to combine two vectors. For vectors
+in three dimensions specifically, the **cross product** $\mathbf{a}
+\times \mathbf{b}$ produces a *new vector* — not a number — perpendicular
+to both $\mathbf{a}$ and $\mathbf{b}$:
+
+$$
+\mathbf{a} \times \mathbf{b} = \begin{pmatrix} a_2 b_3 - a_3 b_2 \\ a_3 b_1 - a_1 b_3 \\ a_1 b_2 - a_2 b_1 \end{pmatrix}
+$$
+
+**Worked example.** For $\mathbf{a} = (2, -1, 3)$ and $\mathbf{b} = (1,
+4, 0)$:
+
+$$
+\mathbf{a} \times \mathbf{b} = \big((-1)(0) - (3)(4),\ \ (3)(1) - (2)(0),\ \ (2)(4) - (-1)(1)\big) = (-12,\ 3,\ 9)
+$$
+
+Its length equals $\lVert \mathbf{a} \rVert \, \lVert \mathbf{b} \rVert
+\sin\theta$ — the *sine*, where the dot product uses *cosine* — so the
+cross product is largest when the two vectors are perpendicular and zero
+when they're parallel, the opposite pattern from the dot product. Unlike
+the dot product, the cross product doesn't generalize to arbitrary
+dimensions the same way — it's specifically a 3-dimensional operation.
+It shows up in structural biology whenever a direction perpendicular to
+a plane is needed, e.g. the normal to the plane defined by three
+backbone atoms.
+
+**Practice problems.**
+
+1. Compute $(2, -1, 3) \cdot (1, 4, 0)$.
+2. Normalize $\mathbf{v} = (3, 4)$.
+3. Compute $(1, 2, 0) \times (0, 1, 3)$.
 
 ::: {.callout-note collapse="true"}
-## Solution
-$(2)(1) + (-1)(4) + (3)(0) = 2 - 4 + 0 = -2$.
+## Solutions
+1. $(2)(1) + (-1)(4) + (3)(0) = 2 - 4 + 0 = -2$.
+2. $\lVert \mathbf{v} \rVert = \sqrt{3^2+4^2} = 5$, so $\hat{\mathbf{v}} = (0.6, 0.8)$.
+3. $\big((2)(3)-(0)(1),\ (0)(0)-(1)(3),\ (1)(1)-(2)(0)\big) = (6, -3, 1)$.
 :::
 
 **Check your understanding:**
@@ -130,6 +178,23 @@ renderQuiz("day01-quiz-1", [
     choices: ["It must be positive", "It must be negative", "It must be exactly zero", "Its sign can't be determined from the angle alone"],
     correctIndex: 1,
     explanation: "cos(&theta;) is negative for any angle past 90°, so the whole dot product is negative."
+  },
+  {
+    question: "What is the unit vector in the same direction as (3, 4)?",
+    choices: ["(0.6, 0.8)", "(3, 4)", "(1, 1)", "(0.8, 0.6)"],
+    correctIndex: 0,
+    explanation: "‖(3,4)‖ = 5, so the unit vector is (3/5, 4/5) = (0.6, 0.8)."
+  },
+  {
+    question: "For two vectors in 3D, what does their cross product a × b represent, geometrically?",
+    choices: [
+      "A new vector perpendicular to both a and b",
+      "The angle between a and b",
+      "The projection of a onto b",
+      "A scalar equal to ‖a‖‖b‖cos(&theta;)"
+    ],
+    correctIndex: 0,
+    explanation: "Unlike the dot product (a number), the cross product produces a new vector, perpendicular to both inputs."
   }
 ]);
 </script>
@@ -138,6 +203,7 @@ renderQuiz("day01-quiz-1", [
 ### Further reading
 
 - Wikipedia, [Dot product](https://en.wikipedia.org/wiki/Dot_product) — the algebra in more generality than needed here (complex vectors, function spaces)
+- Wikipedia, [Unit vector](https://en.wikipedia.org/wiki/Unit_vector) and [Cross product](https://en.wikipedia.org/wiki/Cross_product)
 - d2l.ai, [Linear Algebra](https://d2l.ai/chapter_preliminaries/linear-algebra.html) — matrices and norms at the same level as above, with code
 
 ### Further watching
@@ -150,7 +216,133 @@ renderQuiz("day01-quiz-1", [
 </div>
 ```
 
-## Part 2: Derivatives, the gradient, and gradient descent
+[*Cross products*](https://www.youtube.com/watch?v=eu6i7WJeinw) (3Blue1Brown, Essence of Linear Algebra, ch. 10):
+
+```{=html}
+<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
+<iframe src="https://www.youtube.com/embed/eu6i7WJeinw" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="Cross products, 3Blue1Brown"></iframe>
+</div>
+```
+
+## Part 2: Matrices
+
+A matrix is a rectangular grid of numbers — you can think of it as a
+table, or as a stack of vectors (its rows, or equally its columns).
+Matrix–vector and matrix–matrix multiplication are the dot product done
+many times at once: a matrix–vector product is just a batch of dot
+products, one per row of the matrix. For example,
+
+$$
+\begin{pmatrix} 2 & -1 \\ 0 & 3 \end{pmatrix}
+\begin{pmatrix} 1 \\ 4 \end{pmatrix}
+=
+\begin{pmatrix} (2)(1) + (-1)(4) \\ (0)(1) + (3)(4) \end{pmatrix}
+=
+\begin{pmatrix} -2 \\ 12 \end{pmatrix}
+$$
+
+— the first entry of the result is exactly Part 1's worked-example dot
+product; the second is a new dot product between the matrix's second row
+and the same vector.
+
+### Eigenvalues and eigenvectors
+
+A matrix $A$ transforms any vector it multiplies — usually changing both
+its length and its direction. For most matrices, though, a handful of
+special directions are left *unchanged in orientation* by the
+transformation — only stretched or shrunk. Such a vector $\mathbf{v}$ is
+an **eigenvector** of $A$, and the factor it's scaled by is the
+corresponding **eigenvalue** $\lambda$:
+
+$$
+A \mathbf{v} = \lambda \mathbf{v}
+$$
+
+**Worked example.** For $A = \begin{pmatrix} 2 & 1 \\ 1 & 2 \end{pmatrix}$,
+solving $\det(A - \lambda I) = 0$:
+
+$$
+(2-\lambda)^2 - 1 = 0 \quad\Rightarrow\quad 2 - \lambda = \pm 1 \quad\Rightarrow\quad \lambda = 1 \text{ or } 3
+$$
+
+For $\lambda = 3$: $(A - 3I)\mathbf{v} = 0$ gives $\mathbf{v} = (1, 1)$
+(any scalar multiple works just as well — eigenvectors are only defined
+up to scale, which is exactly why normalizing them, as in Part 1, is
+standard practice: $\hat{\mathbf{v}} = (1/\sqrt2,\, 1/\sqrt2)$). For
+$\lambda = 1$: $\mathbf{v} = (1, -1)$.
+
+Geometrically: multiplying any vector along the direction $(1,1)$ by $A$
+just stretches it by 3; multiplying any vector along $(1,-1)$ stretches
+it by only 1. Every other vector gets rotated toward $(1,1)$ as well as
+stretched, because it's some mixture of both eigenvectors. Eigenvalues
+and eigenvectors turn up throughout data analysis and machine learning
+wherever you need to understand what a matrix *does* to space — for
+instance, dimensionality-reduction methods like PCA find the directions
+of greatest variance in a dataset by finding the eigenvectors of its
+covariance matrix.
+
+### A first look ahead: tensors
+
+Vectors and matrices are the first two members of a bigger family called
+**tensors**: a single number is a 0-dimensional tensor, a vector is
+1-dimensional, a matrix is 2-dimensional, and a tensor can keep going to
+3 dimensions (a stack of matrices) or higher still. Day 2 introduces
+tensors properly — as the one data structure PyTorch uses for
+everything, precisely because the same operations used throughout this
+page (addition, scaling, the dot product) generalize cleanly to any
+number of dimensions.
+
+**Practice problem.** Find the eigenvalues of $A = \begin{pmatrix} 1 & 2
+\\ 2 & 1 \end{pmatrix}$.
+
+::: {.callout-note collapse="true"}
+## Solution
+$(1-\lambda)^2 - 4 = 0 \Rightarrow 1-\lambda = \pm 2 \Rightarrow \lambda = 3$ or $\lambda = -1$.
+:::
+
+**Check your understanding:**
+
+```{=html}
+<div id="day01-quiz-2"></div>
+<script>
+renderQuiz("day01-quiz-2", [
+  {
+    question: "For A = [[2,1],[1,2]], which of the following is an eigenvector of A?",
+    choices: ["(1, 1)", "(1, 0)", "(0, 1)", "(2, 1)"],
+    correctIndex: 0,
+    explanation: "A(1,1) = (2+1, 1+2) = (3,3) = 3×(1,1) — same direction, scaled by 3."
+  },
+  {
+    question: "If Av = λv for some nonzero vector v, what does λ represent?",
+    choices: [
+      "The factor v is scaled by under the transformation A, with its direction unchanged",
+      "The determinant of A",
+      "The number of dimensions of v",
+      "The angle between v and Av"
+    ],
+    correctIndex: 0,
+    explanation: "That's the definition of an eigenvalue — v is an eigenvector, λ is how much A stretches or shrinks it."
+  }
+]);
+</script>
+```
+
+### Further reading
+
+- Wikipedia, [Eigenvalues and eigenvectors](https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors) — diagonalization and the general N×N case, beyond the 2×2 worked example above
+- Wikipedia, [Tensor](https://en.wikipedia.org/wiki/Tensor) — the general mathematical object; Day 2 covers the practical, code-first version
+
+### Further watching
+
+[*Eigenvectors and eigenvalues*](https://www.youtube.com/watch?v=PFDu9oVAE-g) (3Blue1Brown, Essence of Linear Algebra, ch. 14):
+
+```{=html}
+<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
+<iframe src="https://www.youtube.com/embed/PFDu9oVAE-g" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="Eigenvectors and eigenvalues, 3Blue1Brown"></iframe>
+</div>
+```
+
+## Part 3: Derivatives, the gradient, and gradient descent
 
 A derivative tells you how much a function's output changes for a small
 change in its input — the slope of the tangent line at a point. If you've
@@ -245,9 +437,9 @@ $\partial f/\partial x_1 = 2x_0 = 2(1) = 2$. So $\nabla f(1,2) = (10, 2)$.
 **Check your understanding:**
 
 ```{=html}
-<div id="day01-quiz-2"></div>
+<div id="day01-quiz-3"></div>
 <script>
-renderQuiz("day01-quiz-2", [
+renderQuiz("day01-quiz-3", [
   {
     question: "For f(x&#8320;, x&#8321;) = x&#8320;&sup2;x&#8321; + 3x&#8321;, what is the gradient at the point (2, 1)?",
     choices: ["(4, 7)", "(2, 7)", "(4, 3)", "(7, 4)"],
@@ -284,7 +476,7 @@ renderQuiz("day01-quiz-2", [
 </div>
 ```
 
-## Part 3: Probability basics
+## Part 4: Probability basics
 
 A **random variable** takes on different values with different
 probabilities — a discrete one (like a die roll) has a countable list of
@@ -360,9 +552,9 @@ $P(\text{even} \mid X > 3) = 2/3$.
 **Check your understanding:**
 
 ```{=html}
-<div id="day01-quiz-3"></div>
+<div id="day01-quiz-4"></div>
 <script>
-renderQuiz("day01-quiz-3", [
+renderQuiz("day01-quiz-4", [
   {
     question: "A diagnostic test for a disease affecting 2% of a population is 90% accurate on people who have it, and gives a false positive 10% of the time on people who don't. If someone tests positive, is the probability they actually have the disease closest to 90%, 68%, 15%, or 2%?",
     choices: ["90%", "68%", "15%", "2%"],
