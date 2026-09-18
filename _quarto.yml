@@ -23,6 +23,9 @@ book:
     - day04.qmd
     - href: notebooks/day04-alignment-in-code.ipynb
       text: "Day 4 — Notebook"
+    - day05.qmd
+    - href: notebooks/day05-blast-and-profiles-in-code.ipynb
+      text: "Day 5 — Notebook"
     - day06.qmd
     - href: notebooks/day06-gradient-descent-xor.ipynb
       text: "Day 6 — Notebook"
