@@ -59,6 +59,17 @@ function does.
 
 ## Part 1: Vectors and matrices
 
+::: {.callout-tip icon="false"}
+## A more villainous definition
+
+> "It's a mathematical term, represented by an arrow with both direction
+> and magnitude. Vector! That's me, because I commit crimes with both
+> direction and magnitude." — Vector, in *Despicable Me* (2010)
+
+He's not wrong — that's exactly the geometric picture of a vector this
+session builds on.
+:::
+
 A vector is just an ordered list of numbers. You already know how to add
 two vectors (add corresponding entries) and how to scale one (multiply
 every entry by the same number).
