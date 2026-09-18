@@ -20,7 +20,7 @@ notebook. Text below is written from scratch, not copied, following
 these ideas.
 :::
 
-# Day 6: Linear Models, Gradient Descent, and the XOR Problem
+# Day 6: Linear Models, Gradient Descent, the XOR Problem & Secondary Structure Prediction
 
 ## Learning goals
 

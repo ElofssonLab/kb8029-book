@@ -64,7 +64,8 @@ Most session pages have three parts:
 ## Status
 
 Work in progress. Day 1 (math prerequisites) and Day 6 (linear models,
-gradient descent, and the XOR problem) are drafted as complete examples —
+gradient descent, the XOR problem, and secondary structure prediction)
+are drafted as complete examples —
 Day 6 in particular showcases the course's central design idea: machine
 learning is motivated from inside the bioinformatics material (a profile
 score turns out to already be a linear model) rather than introduced as an
