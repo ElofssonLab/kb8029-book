@@ -6,10 +6,18 @@ Neural Networks for Regression](https://d2l.ai/chapter_linear-regression/index.h
 [Gradient descent](https://en.wikipedia.org/wiki/Gradient_descent),
 [Linear separability](https://en.wikipedia.org/wiki/Linear_separability),
 [AI winter](https://en.wikipedia.org/wiki/AI_winter),
-[Backpropagation](https://en.wikipedia.org/wiki/Backpropagation)
+[Backpropagation](https://en.wikipedia.org/wiki/Backpropagation),
+[Protein secondary structure](https://en.wikipedia.org/wiki/Protein_secondary_structure),
+[Alpha helix](https://en.wikipedia.org/wiki/Alpha_helix),
+[Beta sheet](https://en.wikipedia.org/wiki/Beta_sheet)
 — CC BY-SA 4.0; Bulyk, Johnson & Church (2002), *Nucleic Acids Research*
-30(5):1255-1261, [PubMed](https://pubmed.ncbi.nlm.nih.gov/11861919/). Text
-below is written from scratch, not copied, following these ideas.
+30(5):1255-1261, [PubMed](https://pubmed.ncbi.nlm.nih.gov/11861919/); Rost
+& Sander (1993), "Prediction of protein secondary structure at better
+than 70% accuracy," *Journal of Molecular Biology* 232:584-599. The real
+secondary-structure counts for *HBB* below were fetched live from EBI's
+[PDBe API](https://www.ebi.ac.uk/pdbe/api/doc/) — CC BY 4.0 — see the
+notebook. Text below is written from scratch, not copied, following
+these ideas.
 :::
 
 # Day 6: Linear Models, Gradient Descent, and the XOR Problem
@@ -19,9 +27,11 @@ below is written from scratch, not copied, following these ideas.
 By the end of this session you should be able to recognize a perceptron
 as a formal version of Day 5's profile score, explain how such a model's
 weights can be *learned* from labelled examples rather than derived from
-alignment statistics, and explain — using a real biological example — why
+alignment statistics, explain — using a real biological example — why
 some patterns cannot be captured by any linear model, no matter how its
-weights are chosen.
+weights are chosen, and describe, using the historical PHD method, how
+combining Day 5's profile input with a hidden layer resolved exactly this
+kind of limitation for real protein secondary structure prediction.
 
 ## A profile score, formalized
 
@@ -213,6 +223,56 @@ solve the problem Minsky and Papert showed a single perceptron cannot.
 - Wikipedia, [AI winter](https://en.wikipedia.org/wiki/AI_winter) — the broader funding/research history
 - Wikipedia, [Backpropagation](https://en.wikipedia.org/wiki/Backpropagation) — the full derivation Day 9 builds on
 
+## Secondary structure prediction: a real historical example
+
+Bulyk et al.'s zinc-finger microarrays make the XOR-shaped limitation
+concrete on a small, hand-built example. A much larger, real prediction
+problem hit exactly the same wall — and its resolution is a genuine
+historical instance of the fix this session has been building toward:
+add a hidden layer.
+
+**What secondary structure is.** A protein's *secondary structure* is the
+local, repeating shape its backbone folds into, well short of the full
+3D fold (its *tertiary* structure, which Day 7 covers properly). Two
+patterns dominate: the **alpha helix**, a right-handed coil held together
+by hydrogen bonds between backbone atoms four residues apart, and the
+**beta sheet**, made of extended strands lying alongside each other,
+hydrogen-bonded edge to edge. Everything that's neither is usually just
+called **coil** (or loop/turn). Predicting secondary structure means
+labelling every residue in a sequence with one of these three classes —
+a per-residue classification problem, not a single yes/no like XOR, but
+built from the same kind of position-by-position scoring this whole
+course has been using.
+
+**Why a profile score alone wasn't enough.** For decades, predicting
+secondary structure from a single sequence — essentially a
+position-specific linear score, exactly like Day 5's PSSM — plateaued
+around 60-65% three-state accuracy. Rost & Sander (1993) broke past that
+wall with their **PHD** method, and the two changes that mattered most
+map directly onto this session's own arc: they fed the network a
+*profile* built from a multiple alignment of homologs (Day 5's
+representation, not a single sequence), and — critically — they used a
+neural network **with a hidden layer**, not a single linear unit. Profile
+input without a hidden layer, or a hidden layer without profile input,
+both fell short; combining them pushed accuracy past 70% for the first
+time, precisely because a hidden layer can represent the kind of
+positional interdependence a single linear score — PSSM or perceptron —
+provably cannot, the exact limitation demonstrated above.
+
+**A concrete example: *HBB*.** Secondary structure isn't an abstraction —
+it's a real, measurable property of a real structure. The crystal
+structure of human hemoglobin (PDB entry `2HHB`) shows that *HBB*
+(beta-globin, this course's running example) is almost entirely one
+secondary structure type: of its 147 residues, **117 (about 80%)** sit in
+one of 12 separate alpha helices, and **none** are part of a beta strand
+— the rest is coil connecting the helices together. The notebook fetches
+this exact breakdown live from EBI's PDBe API.
+
+### Further reading
+
+- Wikipedia, [Protein secondary structure](https://en.wikipedia.org/wiki/Protein_secondary_structure), [Alpha helix](https://en.wikipedia.org/wiki/Alpha_helix), and [Beta sheet](https://en.wikipedia.org/wiki/Beta_sheet)
+- Rost & Sander (1993), *Journal of Molecular Biology* 232:584-599 — the original PHD paper
+
 ## Check your understanding
 
 Immediate-feedback questions covering the sections above — the same style
@@ -272,6 +332,28 @@ renderQuiz("day06-quiz", [
     ],
     correctIndex: 0,
     explanation: "Backpropagation, popularized by Rumelhart, Hinton &amp; Williams in 1986, is Day 1's chain rule applied through a network with hidden layers."
+  },
+  {
+    question: "For decades, predicting secondary structure from a single sequence with a linear, PSSM-style score plateaued around 60-65% three-state accuracy. What two changes did Rost &amp; Sander's PHD method combine to push past 70%?",
+    choices: [
+      "Profile input (a multiple-alignment-derived representation, not a single sequence) together with a neural network that has a hidden layer",
+      "A much larger single-sequence database, with no change to the linear scoring model",
+      "Removing the bias term from the perceptron entirely",
+      "Switching from BLOSUM62 to PAM250 as the scoring matrix"
+    ],
+    correctIndex: 0,
+    explanation: "Profile input alone, or a hidden layer alone, both fell short on their own — combining them is what mattered, mirroring the exact profile+hidden-layer story built up earlier in this session."
+  },
+  {
+    question: "HBB's real crystal structure (PDB 2HHB) shows 117 of its 147 residues in alpha helices and none in beta strands. What does this tell you about HBB specifically?",
+    choices: [
+      "HBB is an almost entirely alpha-helical protein, with the remaining ~20% classified as coil connecting the helices",
+      "HBB has no secondary structure at all",
+      "HBB is roughly half helix and half sheet, a typical mixed protein",
+      "Secondary structure cannot be determined from a real crystal structure, only predicted"
+    ],
+    correctIndex: 0,
+    explanation: "117/147 &asymp; 80% helix and 0% strand is about as clean an all-alpha example as real proteins get."
   }
 ]);
 </script>
@@ -285,16 +367,17 @@ gradient descent successfully learns AND (a linearly separable function,
 like the logic gates from earlier in the course), the same model is then
 trained on XOR and visibly fails to converge, and finally a small network
 with one hidden layer succeeds where the linear model couldn't — with a
-plot showing exactly why. The version below is a static, read-only copy;
-open it in
+plot showing exactly why. It closes by fetching *HBB*'s real secondary
+structure breakdown live from EBI's PDBe API, confirming the 80%-helix,
+0%-strand figure quoted above. The version below is a static, read-only
+copy; open it in
 [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day06-gradient-descent-xor.ipynb)
 via the badge at the top of the notebook page to edit and run it
 yourself.
 
 ## What's next
 
-Day 7 returns to protein structure and previews, narratively, the
-historical method (Rost & Sander's PHD) that combines Day 5's profiles
-with the hidden-layer idea from today. Day 9 comes back to deliver that
-method in full, once Day 8 has introduced how to build a real network the
-idiomatic way.
+Day 7 picks up the *structure* side of today's PHD example properly —
+tertiary structure, PyMOL, and what a real 3D fold actually looks like.
+Day 9 comes back to deliver PHD's actual network in full, once Day 8 has
+introduced how to build a real network the idiomatic way.
