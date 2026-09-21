@@ -61,10 +61,40 @@ Skipping this split, or tuning a choice based on test-set performance,
 silently inflates how good a model looks — it has, in effect, been
 allowed to "see the exam" before being graded on it.
 
+Applied to today's case study (700 proteins, 5 balanced classes): a
+stratified 70/15/15 split gives 490 training, 105 validation, and 105
+test proteins, each split keeping the same 5-way class balance
+(**stratification**) — see the notebook for the exact numbers.
+
+### How much can you trust one split?
+
+105 validation proteins is not a lot. Refitting a fast baseline
+classifier (logistic regression on the same one-hot features — not the
+deep network above, which stays untrained until Day 9) across ten
+different random 70/15/15 splits, the validation accuracy it measures
+ranges from 0.505 to 0.610 (mean 0.561, std 0.031) — the *same* model
+and data, just a different arbitrary draw of which proteins land in
+which split. A single split's number is really a sample from a
+distribution, not a fixed truth.
+
+**K-fold cross-validation** addresses this directly: partition the
+training+validation data into $k$ roughly equal, class-stratified
+folds, train $k$ times (holding out a different fold each time), and
+average — so every example serves as validation data exactly once,
+rather than the final number depending on one arbitrary split. It costs
+$k\times$ the fitting time. On this same data with $k=5$, the notebook
+measures a mean accuracy of 0.565 with a fold-to-fold std of 0.039 —
+*not* smaller than the ten-single-splits' std of 0.031 above, since
+with only 5 folds that standard deviation is itself a noisy quantity on
+a dataset this small. Cross-validation's real benefit here isn't a
+guaranteed lower variance in a demo this size — it's that the estimate
+no longer depends on which one split you happened to draw.
+
 ### Further reading
 
 - Wikipedia, [Training, validation, and test data sets](https://en.wikipedia.org/wiki/Training,_validation,_and_test_data_sets)
 - Wikipedia, [Supervised learning](https://en.wikipedia.org/wiki/Supervised_learning) and [Unsupervised learning](https://en.wikipedia.org/wiki/Unsupervised_learning)
+- Wikipedia, [Cross-validation (statistics)](https://en.wikipedia.org/wiki/Cross-validation_(statistics))
 
 ## From the perceptron's step function to smooth activations
 
@@ -91,6 +121,26 @@ large $|x|$ — the root cause of the vanishing-gradient problem Day 9
 tackles directly. ReLU stays unbounded for positive inputs, avoiding
 saturation on that side, which is why it's the default choice for hidden
 layers in most modern networks.
+
+**The trade-offs, concretely** (derivatives plotted alongside the
+functions themselves in the notebook): sigmoid's derivative peaks at
+just $0.25$ (at $x=0$) and is already below $0.01$ by $|x|=6$ — small to
+begin with, and vanishing fast. Tanh's derivative peaks higher, at
+$1.0$, and tanh is **zero-centered** ($(-1,1)$ rather than sigmoid's
+$(0,1)$), which historically made it the preferred choice for *hidden*
+layers — sigmoid remained standard for a binary *output* layer, where a
+$(0,1)$ range is exactly what's needed. ReLU's derivative is either
+exactly $0$ or exactly $1$: cheap to compute, and it never shrinks for
+positive inputs, avoiding saturation on that side entirely — Day 9's
+own vanishing-gradient measurement shows exactly how much this matters
+across several layers. That same all-or-nothing shape is also ReLU's
+weakness, known as **dying ReLU**: a unit whose weights land it in
+$x<0$ territory for every training example gets a permanent zero
+gradient and can never recover, no matter how training continues.
+Modern practice often reaches for **Leaky ReLU** ($f(x) = \max(0.01x,
+x)$, a small nonzero slope for $x<0$) or **GELU** (a smooth ReLU-like
+curve used in transformer models) specifically to fix this — mentioned
+here as pointers; this course's own networks use plain ReLU throughout.
 
 ### Further reading
 
@@ -216,8 +266,11 @@ renderQuiz("day08-quiz", [
 ## The notebook
 
 `notebooks/day08-ml-foundations-and-pytorch.ipynb` works through all of
-the above concretely: a train/val/test split demo, plots of sigmoid,
-tanh, and ReLU, and the case study — five subcellular-localization
+the above concretely: a train/val/test split demo followed by the
+single-split-vs-cross-validation comparison above (ten random splits,
+then real 5-fold cross-validation, both on a fast logistic-regression
+baseline), plots of sigmoid, tanh, and ReLU *and their derivatives*
+side by side, and the case study — five subcellular-localization
 classes (cytoplasm, nucleus, mitochondrion, secreted, cell membrane)
 fetched live from UniProt (424, 497, 140, 488, and 338 unambiguous
 single-location human entries respectively, balanced down to 140 per
