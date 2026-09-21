@@ -1,0 +1,107 @@
+::: {.callout-note}
+**Sources for this page:** adapted from an earlier year's own course-intro
+slide deck (`slides/Bioinformatics Intro 2026 KB8029.pptx`) — an internal
+source, not an external one, so no license/copyright question applies.
+Every instance-specific date, room, deadline, and staff name from that
+deck has been deliberately stripped out here; see the callout below.
+:::
+
+# Course Information & Logistics {.unnumbered}
+
+::: {.callout-important}
+**This page describes how the course is structured, not when things
+happen this year.** Specific dates, deadlines, room numbers, and
+this year's teaching-staff names live in Canvas (and, eventually, a
+proper per-year scheduling system this book will link to) — not here.
+Nothing on this page should need editing just because a new year's
+calendar or staffing changed.
+:::
+
+## Goals
+
+Four threads, running through the whole course: biological databases and
+the basic tools built on them; neural networks and deep learning, hands
+on; recent machine-learning methods for protein structure prediction; and
+a capstone project — see [Capstone](capstone.qmd) — that applies all of
+it to secondary structure prediction.
+
+## People
+
+The course has two teachers — one covering the machine-learning half, one
+covering classical bioinformatics — and several teaching assistants (TAs)
+who run the lab sessions. Who's teaching in any given year is a Canvas
+matter, not a book matter; a handful of pages later in this book do credit
+a specific person's own lecture material by name (Petras Kundrotas's
+decks are cited that way on several days) — that's a separate, deliberate
+citation, not the same thing as this page's staffing description.
+
+## How grading works
+
+- **Project: 30% of the final grade** (see [Capstone](capstone.qmd)) —
+  needs at least 40% on its own to count toward passing.
+- **Exam: 70% of the final grade** — also needs at least 40% on its own.
+- **Both together need to reach 50%** to pass the course overall.
+- The exam is **in person, on paper**, with a stated limit on how many
+  pages of personal notes you're allowed to bring (check the current
+  year's exam announcement for the exact number).
+- If you fail the exam but passed everything else, a re-exam is normally
+  offered; if you already passed (grade E or higher), there's no retake
+  just to try for a better grade.
+
+## Lab quizzes
+
+Each day with a lab (see the [Course Schedule](schedule.qmd)) has a short
+online lab-report quiz, graded pass/fail against a **50% correct**
+threshold. A few things about how these work, unchanged from year to
+year:
+
+- **Mandatory** — every lab quiz needs to be passed, not just attempted.
+- **Same deadline for every lab** in a given run of the course, rather
+  than one deadline per lab — check Canvas for what that date actually
+  is this year.
+- **Available as soon as published** — you don't have to wait for the
+  matching lecture to start a lab quiz if it's already up.
+- **One redo chance** if you fail — normally only at the *next* time the
+  course runs, and the lab itself may have changed by then, so passing it
+  the first time is worth the effort.
+- You may discuss *methods and approaches* with your peers, but the
+  actual answer you submit needs to be your own.
+
+## Lectures: come prepared
+
+Every lecture has an **at-home preparation part** before you show up —
+in this rebuilt book, that's literally what each day's own on-page
+"Check your understanding" quiz widget and pre-lecture discussion
+notebooks are for (see `CONTRIBUTING.md`'s authoring recipe if you're
+looking at how these get built, not just how to use them). **Lectures are
+not recorded** — past experience is that recording lectures measurably
+reduces how many students actually show up, which defeats a course this
+interactive.
+
+## Coding environment
+
+- **Visual Studio Code** is the recommended editor, but any editor you're
+  comfortable with works.
+- Most labs run fine on your own laptop. A few need a shared course
+  server instead — for those, you'll be asked to generate a public SSH
+  key and send it in, so it can be added to the server's authorized
+  keys.
+- For anything that needs a GPU, **Google Colab** is the recommended
+  fallback (every notebook in this book has a "Open in Colab" badge for
+  exactly this reason) — it's free up to some usage limits, needs a
+  Google account, and disconnects a session left idle too long, so don't
+  leave one open and walk away.
+- **PyMOL** is the recommended protein-structure viewer for the
+  structure-focused labs (Day 7's lab already assumes you have it
+  installed) — it's free for students and runs on most platforms. If you
+  don't have a computer that can run it, ask early rather than the day
+  of the lab.
+
+## Plagiarism
+
+This has been a real problem in past years, not a hypothetical one. If
+you signed a plagiarism-policy form for this course, that's the actual
+policy in force — read it. Discussing approaches with classmates is
+fine and expected (see the lab-quiz note above); submitting someone
+else's actual answers as your own is not. If you're ever unsure where
+that line is on a specific assignment, ask before submitting, not after.

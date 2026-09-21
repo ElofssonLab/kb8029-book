@@ -5,6 +5,8 @@ The full day-by-day plan for the redesigned course. This mirrors
 licensing notes, and open questions behind this structure. Days already
 written link to their page; the rest are still to come — the pattern is
 established on Days 1, 2, 4, and 6 and the remaining days will follow it.
+See [Course Information & Logistics](course-info.qmd) for grading, lab
+policy, and how the course actually runs.
 
 Three phases: bioinformatics foundations build up to profiles (Days 3-5);
 a convergence zone (Days 6-9) where the classical material directly

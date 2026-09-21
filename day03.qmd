@@ -400,11 +400,14 @@ renderQuiz("day03-quiz", [
 
 ## The lab
 
-A light guided exercise rather than a full lab: retrieve the *HBB* gene
-record from NCBI (or its ENA equivalent), follow its cross-reference to
-the protein product in UniProt, and build a PubMed search using Boolean
-operators and quotation marks to answer a specific literature question.
-Deliverable is a short worksheet, not a report.
+A real worksheet, adapted from a previous run of this course:
+[**Day 3 Lab: Biological Databases**](../labs/day03-databases.md) — a
+17-question tour through ENA/DDBJ/GenBank, the UCSC Genome Browser, the
+PDB↔GenBank connection, GenBank↔RNAcentral, Entrez, PubMed/PMC, UniProt,
+Pfam/InterPro, and the PDB↔AlphaFoldDB connection, using real genes,
+proteins, and structures throughout (a bacteriophage genome accession
+lookup, an archaeal exosome structure, *S. cerevisiae*'s *CDC28*/CDK1,
+and more) rather than abstract descriptions of each database.
 
 ### Submitting this lab
 
