@@ -29,6 +29,9 @@ book:
     - day06.qmd
     - href: notebooks/day06-gradient-descent-xor.ipynb
       text: "Day 6 — Notebook"
+    - day07.qmd
+    - href: notebooks/day07-protein-structure-in-code.ipynb
+      text: "Day 7 — Notebook"
     - references.qmd
 
 format:

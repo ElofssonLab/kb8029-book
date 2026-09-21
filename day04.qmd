@@ -288,12 +288,19 @@ reflecting how clearly separate it is from the other four:
 `notebooks/day04-alignment-in-code.ipynb` implements Needleman-Wunsch and
 Smith-Waterman from scratch (adapted from Lukas Käll's open-access
 [*bibook*](https://github.com/statisticalbiotechnology/bibook), CC BY
-4.0), reproduces the $\texttt{GCAT}$/$\texttt{GAC}$ matrix above exactly,
-and visualizes both algorithms' matrices with the traceback path
-highlighted — including a global-vs-local comparison on two sequences
-that share one strong region but differ elsewhere, making the practical
-difference between the two algorithms directly visible rather than just
-described. Open it in
+4.0), this time using amino-acid sequences with a simple identity scoring
+scheme (a match scores +1, any mismatch or gap −1 — the same idea as the
+$V(i,j)$ recurrence above, just with the identity matrix standing in for
+$s(x_i, y_j)$). Rather than presenting a finished matrix, it fills a small
+worked example (a real HBB fragment against a hypothetical mutated
+variant of it) one cell at a time with the reasoning printed out, gives
+you a partially-filled matrix to complete yourself before revealing the
+real one, and then walks the traceback the same step-by-step way — making
+both halves of the algorithm visible as a sequence of small decisions
+rather than a finished picture. A global-vs-local comparison on two real
+globin fragments (from HBB and myoglobin) that share one conserved motif
+but differ elsewhere makes the practical difference between the two
+algorithms directly visible too. Open it in
 [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day04-alignment-in-code.ipynb)
 via the badge at the top of the notebook page to edit and run it
 yourself.

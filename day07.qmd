@@ -1,0 +1,263 @@
+::: {.callout-note}
+**Sources for this page:** Petras Kundrotas's KB8029 lecture "Protein
+Structure" (Feb 2026) — this page follows its structure for the levels-
+of-structure and structure-prediction material, adapted and substantially
+shortened, not copied verbatim (the lecture's later material on
+structure-comparison metrics and classification databases is beyond this
+session's scope and not covered here); Wikipedia,
+[Protein structure](https://en.wikipedia.org/wiki/Protein_structure),
+[Alpha helix](https://en.wikipedia.org/wiki/Alpha_helix),
+[Beta sheet](https://en.wikipedia.org/wiki/Beta_sheet),
+[Anfinsen's dogma](https://en.wikipedia.org/wiki/Anfinsen%27s_dogma),
+[Homology modeling](https://en.wikipedia.org/wiki/Homology_modeling),
+[Threading (protein sequence)](https://en.wikipedia.org/wiki/Threading_(protein_sequence)),
+[Root-mean-square deviation of atomic positions](https://en.wikipedia.org/wiki/Root-mean-square_deviation_of_atomic_positions),
+[Template modeling score](https://en.wikipedia.org/wiki/Template_modeling_score)
+— CC BY-SA 4.0; RCSB [PDB-101](https://pdb101.rcsb.org/) — CC BY 4.0;
+Baldwin & Chothia (1979), "Haemoglobin: the structural changes related to
+ligand binding and its allosteric mechanism," *Journal of Molecular
+Biology* 129:175-220 ([PubMed](https://pubmed.ncbi.nlm.nih.gov/39173/)).
+The two real crystal structures used below and in the notebook, PDB
+entries [2HHB](https://www.rcsb.org/structure/2HHB) (deoxy hemoglobin)
+and [1HHO](https://www.rcsb.org/structure/1HHO) (oxy hemoglobin), were
+fetched live from the PDB archive — structure coordinate data is
+[CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) (public
+domain). All secondary-structure counts, distances, and the rendered
+figure below were computed fresh for this page and its notebook using
+[Biopython](https://biopython.org/) and a locally-run
+[PyMOL](https://pymol.org/) (open-source), not taken from the lecture's
+own numbers or images.
+:::
+
+# Day 7: Protein Structure
+
+## Learning goals
+
+By the end of this session you should be able to describe the four
+levels of protein structure, use PyMOL to load and inspect a real
+structure, and explain why predicting the tertiary (3D) fold from
+sequence alone is a harder problem than the secondary-structure
+prediction Day 6 already introduced.
+
+## The four levels of protein structure
+
+A protein starts as a **polypeptide chain**: a linear polymer of amino
+acids, connected head-to-tail, that only becomes a functional protein
+once it folds up in water. Structural biology describes that folded
+result at four increasingly complex levels:
+
+- **Primary structure** — the sequence of amino acids itself, exactly
+  the object Days 1-6 have been aligning, scoring, and classifying. No
+  3D information yet.
+- **Secondary structure** — local, repeating backbone shapes, already
+  introduced narratively on Day 6: the **alpha helix**, a coil held
+  together by hydrogen bonds between backbone N-H and C=O groups four
+  residues apart, and the **beta sheet**, built from extended **beta
+  strands** hydrogen-bonded edge to edge with their neighbors. Anything
+  that's neither is usually just called **coil**.
+- **Tertiary structure** — how those secondary-structure elements, and
+  everything connecting them, pack together into one compact 3D shape
+  for a single chain. This is held together mostly by the
+  **hydrophobic effect** (water excludes non-polar side chains from its
+  surface, driving them to bury themselves inside the fold) plus
+  weaker non-covalent forces between atoms of the backbone and side
+  chains (hydrogen bonds, electrostatic attraction between charged side
+  chains, and van der Waals contacts).
+- **Quaternary structure** — how multiple, separately-folded chains
+  arrange themselves with respect to each other into one functional
+  assembly. Not every protein has this level at all (many function as
+  a single chain); those that do can range from two chains up to,
+  in some experimentally solved structures, hundreds.
+
+**A real example, continuing this course's running case study.**
+Hemoglobin is a **heterotetramer**: two copies of an alpha-globin chain
+(141 residues) and two copies of *HBB*, beta-globin (146 residues, this
+course's running example since Day 3), each chain independently folded
+and each carrying its own oxygen-binding heme group. The notebook
+re-derives — independently of Day 6's PDBe API lookup, using a different
+tool (PyMOL's own `dss` algorithm) — that one beta chain is **118 of 146
+residues (80.8%) alpha helix, 0% beta strand**, confirming Day 6's number
+by a second, unrelated computational method rather than just repeating
+it. Rendering all four chains together, colored separately, with the
+four hemes shown as spheres, makes tertiary and quaternary structure
+directly visible at once:
+
+![PDB entry `2HHB`, human deoxyhemoglobin: two alpha chains (blue/cyan),
+two beta chains (salmon/pink), four heme iron atoms (orange spheres).
+Rendered from the real structure with PyMOL, not
+illustrated.](figs/day07-hemoglobin-tetramer.png){width=85%}
+
+### Further reading
+
+- Wikipedia, [Protein structure](https://en.wikipedia.org/wiki/Protein_structure) — a fuller treatment of all four levels
+- RCSB [PDB-101](https://pdb101.rcsb.org/) — short, illustrated explainers on structure and specific proteins, aimed at newcomers
+
+## Why predicting the fold from sequence is hard
+
+A given amino acid sequence reliably folds into the same 3D structure
+every time under normal cellular conditions — this observation is often
+called **Anfinsen's dogma**, after Christian Anfinsen's experiments
+showing a denatured (unfolded) protein could refold correctly entirely on
+its own, with no other machinery needed. That implies all the
+information needed to determine the fold is, in principle, already
+present in the sequence.
+
+In principle is the operative phrase: reliably *predicting* that fold
+computationally, starting from sequence alone, has been one of
+biology's hardest open problems for decades. Three classical strategies
+were developed, each with a real limitation:
+
+- **De novo (ab initio) modeling** — simulate the physics directly:
+  fold the chain by searching for the arrangement with the lowest free
+  energy. The most rigorous approach in principle, but computationally
+  so expensive it was, for a long time, only practical for small
+  proteins (under roughly 100 residues).
+- **Comparative modeling (homology modeling / threading)** — if a
+  protein of known structure is similar enough in sequence, assume the
+  new protein folds the same way and build a model from that template.
+  Cheap and reliable when a good template exists, but structurally
+  useless for a genuinely new fold with no close relative already
+  solved.
+- **Evolutionary (contact-based) methods** — infer which residue pairs
+  are likely to be physically close in the folded structure from
+  patterns of co-evolution across many homologous sequences in a
+  multiple alignment. This is the same evolutionary information Day 5's
+  profiles and PSSMs are built from, now used for a 3D geometric
+  question rather than a purely sequence-based score — a second,
+  independent instance of "evolutionary information helps," one level up
+  in structural complexity from Day 6's secondary-structure example.
+
+None of these three classical strategies solved the general problem
+reliably. The real breakthrough came from a fourth strategy — deep
+learning, most famously AlphaFold (2020) — which Day 12 covers properly,
+once this course has built up the neural-network machinery (Days 6-9)
+that made it possible.
+
+Structures also need to be **compared** to each other quantitatively,
+not just predicted — e.g. to check how close a predicted structure is to
+the real one. The most common such measure, root-mean-square deviation
+(RMSD) between corresponding atoms after optimally superimposing the two
+structures, and a length-independent alternative, the TM-score, are
+outside this session's scope but worth knowing exist.
+
+### Further reading
+
+- Wikipedia, [Anfinsen's dogma](https://en.wikipedia.org/wiki/Anfinsen%27s_dogma)
+- Wikipedia, [Homology modeling](https://en.wikipedia.org/wiki/Homology_modeling) and [Threading (protein sequence)](https://en.wikipedia.org/wiki/Threading_(protein_sequence))
+- Wikipedia, [Root-mean-square deviation of atomic positions](https://en.wikipedia.org/wiki/Root-mean-square_deviation_of_atomic_positions) and [Template modeling score](https://en.wikipedia.org/wiki/Template_modeling_score) — the two most common structure-comparison measures, not needed until they come up again with AlphaFold on Day 12
+
+## Structure visualization: PyMOL
+
+[PyMOL](https://pymol.org/) is one of the two most widely used molecular
+visualization programs in structural biology (alongside ChimeraX),
+free and open-source. It loads a structure directly from a PDB entry,
+renders it in several standard representations — **cartoon** (secondary
+structure as ribbons/arrows/coils, used for the figure above), **sticks**
+(every bond drawn explicitly, useful for a single side chain or ligand),
+and **spheres** (every atom as a ball, useful for packing/space-filling
+views) — and can measure real geometric quantities (distances, angles)
+directly from the loaded coordinates by clicking on atoms or via its
+command line. Today's lab uses it hands-on; the notebook drives the same
+program headlessly from Python to make its figures and measurements
+reproducible outside the interactive GUI.
+
+## The notebook
+
+`notebooks/day07-protein-structure-in-code.ipynb` fetches two real
+hemoglobin structures — deoxygenated `2HHB` and oxygenated `1HHO` — and
+uses them to make every level of structure concrete: primary and
+quaternary structure from simply parsing chains, secondary structure
+independently cross-checked against Day 6's number using PyMOL's own
+algorithm, and a real measured quaternary-structure distance (the
+iron-to-iron distance between the two beta hemes) that changes by about
+5 Å between the two states — a genuine, measured instance of
+hemoglobin's textbook allosteric mechanism (Baldwin & Chothia, 1979), not
+just a diagram. Open it in
+[Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day07-protein-structure-in-code.ipynb)
+via the badge at the top of the notebook page to edit and run it
+yourself.
+
+## Check your understanding
+
+Immediate-feedback questions covering the sections above — the same style
+used for this course's live in-class peer-instruction quizzes (see
+`quizzes/day07.md` in the repository for the full question bank).
+
+```{=html}
+<div id="day07-quiz"></div>
+<script>
+renderQuiz("day07-quiz", [
+  {
+    question: "What information does primary structure describe?",
+    choices: [
+      "The sequence of amino acids in the polypeptide chain, with no 3D information",
+      "The 3D arrangement of multiple separately-folded chains",
+      "Only the alpha-helix and beta-strand content of a protein",
+      "The chemical bonds holding side chains together"
+    ],
+    correctIndex: 0,
+    explanation: "Primary structure is just the sequence &mdash; the same object Days 1-6 have been aligning and scoring."
+  },
+  {
+    question: "What mainly holds a single protein chain's tertiary structure together?",
+    choices: [
+      "Mostly the hydrophobic effect, plus weaker non-covalent forces between backbone and side-chain atoms",
+      "Only hydrogen bonds between backbone N-H and C=O groups",
+      "Covalent peptide bonds along the backbone",
+      "Electrostatic repulsion between identical residues"
+    ],
+    correctIndex: 0,
+    explanation: "The hydrophobic effect (burying non-polar side chains away from water) is the dominant driving force, supplemented by hydrogen bonds, electrostatics, and van der Waals contacts."
+  },
+  {
+    question: "Hemoglobin's four chains (two alpha, two beta), each already independently folded, arranged with respect to each other is an example of which level of structure?",
+    choices: ["Quaternary structure", "Primary structure", "Secondary structure", "There is no name for this level"],
+    correctIndex: 0,
+    explanation: "Quaternary structure describes how multiple separately-folded chains are arranged relative to each other."
+  },
+  {
+    question: "Anfinsen's dogma states that a protein's sequence, in principle, determines its fold. Given that, why is predicting the fold from sequence still considered a hard, largely unsolved-until-recently problem?",
+    choices: [
+      "Because the information being present in the sequence doesn't make it computationally easy to extract; classical methods (ab initio, homology modeling, evolutionary contacts) each had real, distinct limitations",
+      "Because Anfinsen's dogma has since been experimentally disproven",
+      "Because only quaternary structures are hard to predict, not tertiary ones",
+      "Because sequence information is insufficient in principle, not just in practice"
+    ],
+    correctIndex: 0,
+    explanation: "The dogma is about what information exists in principle, not about how easy it is to compute the answer &mdash; that gap is exactly why decades of classical methods, each with real limitations, were needed before deep learning changed things."
+  },
+  {
+    question: "The notebook measures the distance between the two beta-chain heme iron atoms in both deoxyhemoglobin (2HHB) and oxyhemoglobin (1HHO), finding it about 5 &Aring; shorter in the oxy state. What does this real, measured change represent?",
+    choices: [
+      "A concrete geometric signature of hemoglobin's quaternary allosteric transition (the T-to-R shift) between its two functional states",
+      "An experimental error, since a protein's quaternary structure cannot change",
+      "The distance between two alpha chains, not two beta chains",
+      "A change in hemoglobin's primary structure upon oxygen binding"
+    ],
+    correctIndex: 0,
+    explanation: "This is exactly the T (tense, deoxy) to R (relaxed, oxy) quaternary shift Baldwin & Chothia (1979) described &mdash; a real, measurable change in quaternary structure, not primary structure."
+  }
+]);
+</script>
+```
+
+## The lab
+
+**Full lab, PyMOL-first:** load hemoglobin (PDB `2HHB`, continuing the
+*HBB* thread from Days 3 and 6) directly in PyMOL, use its cartoon
+representation to identify the same alpha helices Day 6 already
+quantified from the PDBe API, and use PyMOL's built-in distance
+measurement to reproduce, hands-on in the GUI, the beta-beta heme
+iron-to-iron distance the notebook computes in code — then compare it
+against the oxygenated structure (`1HHO`) to see the same allosteric
+shift found in the notebook.
+
+## What's next
+
+Day 8 moves from a single yes/no output (Day 6's XOR problem) to
+multi-class prediction — softmax regression — and from raw
+tensors to a properly structured PyTorch model, using a real multi-class
+biological problem (subcellular localization) as the case study. Day 9
+comes back to deliver Rost & Sander's PHD method in full, now that both
+the hidden-layer motivation (Day 6) and the tools to build one properly
+(Day 8) are in place.
