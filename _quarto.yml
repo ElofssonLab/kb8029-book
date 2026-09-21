@@ -3,7 +3,6 @@ project:
   resources:
     - js/quiz-widget.js
     - exams/*
-    - labs/*
 
 book:
   title: "Bioinformatics & Deep Learning — Course Notes"

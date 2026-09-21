@@ -400,20 +400,17 @@ renderQuiz("day03-quiz", [
 
 ## The lab
 
-A real worksheet, adapted from a previous run of this course:
-[**Day 3 Lab: Biological Databases**](../labs/day03-databases.md) — a
-17-question tour through ENA/DDBJ/GenBank, the UCSC Genome Browser, the
-PDB↔GenBank connection, GenBank↔RNAcentral, Entrez, PubMed/PMC, UniProt,
-Pfam/InterPro, and the PDB↔AlphaFoldDB connection, using real genes,
-proteins, and structures throughout (a bacteriophage genome accession
-lookup, an archaeal exosome structure, *S. cerevisiae*'s *CDC28*/CDK1,
-and more) rather than abstract descriptions of each database.
+A light, tool-based exercise: a hands-on tour through ENA/DDBJ/GenBank,
+the UCSC Genome Browser, the PDB↔GenBank connection, Entrez, PubMed/PMC,
+UniProt, Pfam/InterPro, and the PDB↔AlphaFoldDB connection, using real
+genes, proteins, and structures rather than abstract descriptions of
+each database.
 
 ### Submitting this lab
 
-Hand-in/grading for this lab isn't set up yet. It will likely run
-through a Canvas assignment — check the course's Canvas page for the
-actual submission mechanism before this session runs.
+This lab is administered through Canvas, not this book — see the
+course's Canvas page for the current worksheet, deadline, and
+submission mechanism.
 
 ## What's next
 
