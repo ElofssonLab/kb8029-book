@@ -1,0 +1,254 @@
+::: {.callout-note}
+**Sources for this page:** d2l.ai, *Dive into Deep Learning*,
+[Multilayer Perceptrons](https://d2l.ai/chapter_multilayer-perceptrons/index.html)
+— CC BY-SA 4.0; Wikipedia,
+[Backpropagation](https://en.wikipedia.org/wiki/Backpropagation),
+[Overfitting](https://en.wikipedia.org/wiki/Overfitting),
+[Vanishing gradient problem](https://en.wikipedia.org/wiki/Vanishing_gradient_problem),
+[Regularization (mathematics)](https://en.wikipedia.org/wiki/Regularization_(mathematics)),
+[Dropout (neural networks)](https://en.wikipedia.org/wiki/Dropout_(neural_networks)),
+[Early stopping](https://en.wikipedia.org/wiki/Early_stopping)
+— CC BY-SA 4.0; Ioffe & Szegedy (2015), "Batch Normalization,"
+[arXiv:1502.03167](https://arxiv.org/abs/1502.03167); Rost & Sander
+(1993), "Prediction of protein secondary structure at better than 70%
+accuracy," *Journal of Molecular Biology* 232:584-599 (already cited on
+Day 6). The vanishing-gradient demonstration, and the dropout/L2/
+initialization material, are mined for ideas from Magnus Ekman's
+*Learning Deep Learning* (slide decks `Chapter-3`, `Chapter-5`,
+`Chapter-6` in `slides/`) — a copyrighted, not openly-licensed textbook
+(the one this course rebuild is replacing), credited here as an internal
+source, not linked as further reading. Every number below (training/
+validation accuracy, gradient magnitudes, the trained model's metrics)
+was computed in code and verified by reading the notebook's actual
+output, not transcribed or assumed.
+:::
+
+# Day 9: Backpropagation, Training, and Regularization
+
+## Learning goals
+
+By the end of this session you should be able to explain
+backpropagation as the chain rule applied layer by layer; implement and
+run the standard PyTorch training loop; explain the vanishing-gradient
+problem and why activation choice, weight initialization, and batch
+normalization address it; apply dropout, L2 regularization, and early
+stopping against overfitting; and describe, end-to-end, how Rost &
+Sander's PHD method combines every piece of this course's Day 5-9 arc.
+
+## Backpropagation: the chain rule, layer by layer
+
+Day 1 introduced the chain rule; a network with a hidden layer is
+exactly a composition of functions, $\hat y = f_2(f_1(x))$, so training
+it needs the loss's derivative with respect to *every* weight in *both*
+layers. **Backpropagation is not a different algorithm from the chain
+rule — it is the chain rule**, applied systematically from the output
+layer backward to the input layer, reusing each layer's already-computed
+derivative rather than recomputing it from scratch for every weight
+individually. PyTorch's `loss.backward()` does exactly this
+automatically for a computation graph of any depth — automation that
+becomes essential the moment a model has more than one layer, which is
+why Day 6's from-scratch gradient descent doesn't scale past a single
+linear layer by hand.
+
+### Further reading
+
+- Wikipedia, [Backpropagation](https://en.wikipedia.org/wiki/Backpropagation)
+
+## The standard PyTorch training loop
+
+Four steps, repeated once per batch (or, for a small dataset, once per
+epoch over the whole training set): **forward pass** (compute
+predictions), **compute loss**, **`loss.backward()`** (backpropagation —
+fills in every weight's gradient), **`optimizer.step()`** (updates every
+weight using its own gradient). Running this, unmodified, on Day 8's
+subcellular-localization network: training accuracy reaches 1.000 while
+validation accuracy plateaus at 0.543 — a textbook case of
+**overfitting**. With 490 training examples against a 3000-dimensional
+input and roughly 190,000 parameters, the network has far more freedom
+than data, and happily memorizes idiosyncrasies of the specific training
+sequences rather than learning the general signal. This is exactly the
+problem the rest of today's session addresses.
+
+### Further reading
+
+- Wikipedia, [Overfitting](https://en.wikipedia.org/wiki/Overfitting)
+
+## Vanishing gradients: why activation choice matters for depth
+
+Sigmoid and tanh saturate for large $|x|$ (Day 8) — their derivative
+there is near zero. In a deep network, the chain rule *multiplies*
+these derivatives together across layers, and a handful of small
+numbers multiplied together compounds fast. A concrete check: a
+6-hidden-layer network, freshly initialized, one backward pass, sigmoid
+vs. ReLU — the mean gradient magnitude reaching the layer closest to the
+input, compared to the layer closest to the output:
+
+| Activation | Layer near input | Layer near output | Ratio |
+|---|---|---|---|
+| Sigmoid | $8.3\times10^{-9}$ | $2.6\times10^{-2}$ | ~3,100,000× |
+| ReLU | $4.2\times10^{-6}$ | $5.5\times10^{-4}$ | ~130× |
+
+With sigmoid, the earliest layer's gradient is roughly **three million
+times smaller** than the last layer's — that layer's weights would
+barely move under gradient descent, even though it still needs to learn
+something useful. ReLU's gradients shrink far less across the same
+depth, which is why it (or a variant of it) is the default choice for
+hidden layers in modern networks.
+
+Three further tools against this, alongside activation choice: **weight
+initialization** schemes that start each layer's weights at a scale
+matched to its size, avoiding saturation from the very first forward
+pass; **input standardization** (centering/scaling inputs so no single
+feature dominates — matters most for raw continuous inputs, less for
+this course's already-binary one-hot encoded case study); and **batch
+normalization** (Ioffe & Szegedy, 2015), which normalizes the
+*activations* between layers during training so later layers aren't
+constantly adapting to a shifting input distribution from the layers
+before them.
+
+### Further reading
+
+- Wikipedia, [Vanishing gradient problem](https://en.wikipedia.org/wiki/Vanishing_gradient_problem)
+- Ioffe & Szegedy (2015), [Batch Normalization](https://arxiv.org/abs/1502.03167)
+
+## Regularization: dropout, L2, and early stopping
+
+Three practical tools against the overfitting demonstrated above:
+
+- **Dropout** randomly zeroes a fraction of a layer's activations during
+  each training step, preventing the network from relying too heavily
+  on any single unit.
+- **L2 regularization** (weight decay) penalizes the *square* of the
+  weights, discouraging any single weight from growing large; PyTorch
+  applies it via the optimizer's `weight_decay` argument rather than a
+  separate loss term. **L1 regularization** (Lasso) uses the *absolute
+  value* instead, and tends to push some weights to exactly zero rather
+  than just shrinking all of them.
+- **Early stopping** — simply not training past the epoch where
+  validation performance peaks — costs nothing extra to implement and
+  is often the single most effective fix.
+
+Applied to the case study: dropout + L2 alone give only a modest
+improvement (training accuracy still reaches 1.000 — with ~190,000
+parameters and 490 examples, the model has enough capacity to memorize
+regardless). **Early stopping** is what actually captures the real
+improvement — rolling back to the epoch with the best validation
+accuracy (epoch 29 of 100) gives a validation accuracy of 0.590, clearly
+better than the unregularized run's 0.543. Reported honestly:
+regularization helps here, but it is not a substitute for having enough
+data relative to model size — a real limitation of this small,
+deliberately simple case study, part of why production tools for this
+exact problem (e.g. DeepLoc) use much larger training sets and more
+parameter-efficient input representations than a flattened one-hot
+encoding.
+
+### Further reading
+
+- Wikipedia, [Regularization (mathematics)](https://en.wikipedia.org/wiki/Regularization_(mathematics)), [Dropout (neural networks)](https://en.wikipedia.org/wiki/Dropout_(neural_networks)), [Early stopping](https://en.wikipedia.org/wiki/Early_stopping)
+
+## The result: training this network for real
+
+The same four metrics from Day 8, now on the trained, early-stopped
+model, directly comparable to Day 8's untrained baseline:
+
+| Metric | Day 8 (untrained) | Day 9 (trained) |
+|---|---|---|
+| Accuracy | 0.248 | 0.590 |
+| Macro F1 | 0.176 | 0.584 |
+| MCC | 0.086 | 0.492 |
+| Macro AUROC | 0.542 | 0.828 |
+
+Every metric improves substantially — real training, on a real
+biological dataset, doing real work.
+
+## Check your understanding
+
+```{=html}
+<div id="day09-quiz"></div>
+<script>
+renderQuiz("day09-quiz", [
+  {
+    question: "What is backpropagation, precisely?",
+    choices: [
+      "The chain rule (from calculus), applied systematically layer by layer from output back to input",
+      "A completely different algorithm from the chain rule, used only in deep learning",
+      "A method for choosing which activation function to use",
+      "A way to initialize a network's weights before training starts"
+    ],
+    correctIndex: 0,
+    explanation: "Backpropagation is the chain rule applied systematically, reusing each layer's derivative rather than recomputing everything from scratch for every weight."
+  },
+  {
+    question: "Training Day 8's subcellular-localization network with no regularization reaches 100% training accuracy but only 54.3% validation accuracy. What does this gap indicate?",
+    choices: [
+      "Overfitting -- the model has memorized training-set idiosyncrasies rather than learning the general signal",
+      "The model has learned the task perfectly and the validation set is mislabeled",
+      "A bug in the forward pass",
+      "The learning rate is too low"
+    ],
+    correctIndex: 0,
+    explanation: "A large train/validation gap, especially with far more parameters than training examples, is the classic signature of overfitting."
+  },
+  {
+    question: "In the vanishing-gradient demonstration, why does the sigmoid network's earliest layer receive a gradient roughly 3 million times smaller than its last layer's, while ReLU's gradients shrink far less across the same depth?",
+    choices: [
+      "Sigmoid saturates (flattens) for large |x|, so its near-zero derivatives multiply together across layers via the chain rule; ReLU's derivative doesn't saturate on the positive side",
+      "ReLU networks have fewer layers",
+      "Sigmoid networks always have more parameters than ReLU networks",
+      "The gradient calculation is only implemented correctly for ReLU in PyTorch"
+    ],
+    correctIndex: 0,
+    explanation: "Saturating activations produce near-zero local derivatives, and the chain rule multiplies these across every layer -- a handful of small numbers compounds fast."
+  },
+  {
+    question: "For Day 8's subcellular-localization network, which regularization technique gives the biggest real improvement in validation accuracy, and why?",
+    choices: [
+      "Early stopping -- rolling back to the epoch with peak validation accuracy, since dropout+L2 alone don't prevent the model from eventually memorizing the small training set",
+      "L1 regularization, because it always outperforms L2",
+      "Batch normalization, because the input is continuous-valued",
+      "None of them help; more training data is the only real fix"
+    ],
+    correctIndex: 0,
+    explanation: "Dropout and L2 give a modest improvement, but early stopping (epoch 29 vs. the full 100-epoch run) is what actually captures the real gain here."
+  },
+  {
+    question: "How does Rost & Sander's PHD method combine the pieces introduced across Days 5-9?",
+    choices: [
+      "Profile input (Day 5) feeds a hidden layer (Day 6's fix for XOR-like limitations) inside a properly-built PyTorch model (Day 8) trained with real backpropagation (Day 9), with a 3-class softmax output for helix/sheet/coil",
+      "It replaces profile input entirely with raw one-hot sequence encoding",
+      "It uses only a single perceptron with no hidden layer",
+      "It is unrelated to the profile/PSSM methods introduced on Day 5"
+    ],
+    correctIndex: 0,
+    explanation: "PHD is exactly this combination, at the scale that mattered historically -- pushing secondary-structure prediction past 70% accuracy in the early 1990s."
+  }
+]);
+</script>
+```
+
+## The notebook
+
+`notebooks/day09-backprop-training-regularization.ipynb` rebuilds Day
+8's exact dataset and model (self-contained, so it runs on its own),
+then does what Day 8 stopped short of: runs the standard training loop
+unregularized (showing the overfitting above), demonstrates the
+vanishing-gradient effect on a 6-layer sigmoid vs. ReLU network, applies
+dropout + L2 + early stopping, and reports the trained model's real
+metrics against Day 8's baseline. Open it in
+[Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day09-backprop-training-regularization.ipynb)
+via the badge at the top of the notebook page to edit and run it
+yourself.
+
+## The lab
+
+**Full lab:** implement the training loop, reproduce the overfitting
+result, then apply regularization and early stopping to recover a real
+improvement in validation accuracy — following the notebook.
+
+## What's next
+
+Day 10 moves from a plain fully-connected network to **convolutional**
+networks — weight sharing suited to spatially or sequentially local
+patterns — applied to protein contact prediction, continuing the
+secondary-structure-prediction thread from a different architectural
+angle.

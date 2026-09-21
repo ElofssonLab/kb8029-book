@@ -32,6 +32,12 @@ book:
     - day07.qmd
     - href: notebooks/day07-protein-structure-in-code.ipynb
       text: "Day 7 — Notebook"
+    - day08.qmd
+    - href: notebooks/day08-ml-foundations-and-pytorch.ipynb
+      text: "Day 8 — Notebook"
+    - day09.qmd
+    - href: notebooks/day09-backprop-training-regularization.ipynb
+      text: "Day 9 — Notebook"
     - references.qmd
 
 format:
