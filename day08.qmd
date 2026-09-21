@@ -116,14 +116,19 @@ $$
 \text{ReLU: } f(x) = \max(0, x)
 $$
 
+![](figs/day08-activation-functions.png){width=85%}
+
 Sigmoid and tanh both **saturate** (flatten, gradient near zero) for
 large $|x|$ — the root cause of the vanishing-gradient problem Day 9
 tackles directly. ReLU stays unbounded for positive inputs, avoiding
 saturation on that side, which is why it's the default choice for hidden
 layers in most modern networks.
 
-**The trade-offs, concretely** (derivatives plotted alongside the
-functions themselves in the notebook): sigmoid's derivative peaks at
+**The trade-offs, concretely:**
+
+![](figs/day08-activation-derivatives.png){width=85%}
+
+Sigmoid's derivative peaks at
 just $0.25$ (at $x=0$) and is already below $0.01$ by $|x|=6$ — small to
 begin with, and vanishing fast. Tanh's derivative peaks higher, at
 $1.0$, and tanh is **zero-centered** ($(-1,1)$ rather than sigmoid's

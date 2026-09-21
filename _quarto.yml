@@ -38,6 +38,9 @@ book:
     - day09.qmd
     - href: notebooks/day09-backprop-training-regularization.ipynb
       text: "Day 9 — Notebook"
+    - day10.qmd
+    - href: notebooks/day10-cnns-in-code.ipynb
+      text: "Day 10 — Notebook"
     - references.qmd
 
 format:

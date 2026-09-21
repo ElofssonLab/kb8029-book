@@ -1,0 +1,311 @@
+::: {.callout-note}
+**Sources for this page:** d2l.ai, *Dive into Deep Learning*,
+[Convolutional Neural Networks](https://d2l.ai/chapter_convolutional-neural-networks/index.html)
+and [Modern Convolutional Neural Networks](https://d2l.ai/chapter_convolutional-modern/index.html)
+— CC BY-SA 4.0; Wikipedia, [AlexNet](https://en.wikipedia.org/wiki/AlexNet),
+[Residual neural network](https://en.wikipedia.org/wiki/Residual_neural_network)
+— CC BY-SA 4.0 (used to independently verify the AlexNet/ResNet figures
+below, not just transcribe Ekman's slide); 3Blue1Brown,
+["But what is a convolution?"](https://www.youtube.com/watch?v=KuXjwB4LzSA)
+— the mechanical, math-first view of convolution used further below.
+The "why fully connected fails for images," weight-sharing, and
+classic-architecture material (AlexNet/VGGNet/GoogLeNet/ResNet) is mined
+for ideas from Magnus Ekman's *Learning Deep Learning* (slide decks
+`Chapter-7`, `Chapter-8` in `slides/`, and the accompanying
+`notebooks/ch07.ipynb`/`ch08.ipynb`) — a copyrighted, not openly-licensed
+textbook (the one this course rebuild is replacing), credited here as an
+internal source, not linked as further reading. The subcellular-
+localization CNN case study reuses the exact dataset, encoding, and
+train/val/test split from Days 8-9 (re-fetched live from UniProt with
+the same fixed random seed — every count below was verified to match).
+The protein-contact-prediction case study mentioned below
+(`notebooks/protein_contact_prediction.ipynb`) uses **synthetic** contact
+data, not a real experimentally-derived dataset — flagged explicitly
+where it's discussed. Every number on this page was computed in code and
+verified by reading the notebook's actual output, not transcribed or
+assumed.
+:::
+
+# Day 10: CNNs, Classic & Modern
+
+## Learning goals
+
+By the end of this session you should be able to explain why a fully
+connected layer is a poor fit for image- or sequence-like data; explain
+convolution as a small, shared, sliding weighted sum, and why weight
+sharing gives translation equivariance and (combined with pooling)
+invariance; place AlexNet, VGGNet, GoogLeNet, and ResNet on a rough
+timeline of the "deep learning era" of computer vision; and describe how
+convolutional ideas extend from 2D images to 1D biological sequences and
+2D contact maps.
+
+## Why a fully connected layer fails for images (and long sequences)
+
+Every model so far in this course — the perceptron, the softmax
+classifier, the flat MLP that classified subcellular localization in
+Days 8-9 — treats its input as one long, unstructured vector: every
+input position gets its own independent weight, with no notion that
+some positions are *near* each other. For a small 150-residue one-hot
+sequence (Day 8-9's case study) that's already 3,000 weights per hidden
+unit; for a modest $224 \times 224 \times 3$ color image it would be
+over 150,000. Two real problems follow. First, **parameter explosion**:
+a fully connected layer wastes enormous numbers of weights on
+essentially the same task learned independently at every position.
+Second, and more fundamentally, **no structural notion of locality or
+position-independence**: a cat in the top-left corner of an image and
+the same cat shifted to the bottom-right corner look, to a flat
+fully-connected layer, like two completely unrelated inputs — every one
+of its weights is tied to an absolute position, so nothing it learned
+about "cat features here" transfers to "the same features shifted
+somewhere else." A convolutional layer fixes both at once with one idea:
+use a small kernel, and *slide the same kernel* across every position
+instead of learning a separate weight per position.
+
+### Weight sharing gives equivariance, and — with pooling — invariance
+
+A 1D convolution applies the same small kernel at every position of its
+input. If the input is shifted, the kernel sees the same local pattern,
+just later — so the output feature map shifts by exactly the same
+amount. This is **translation equivariance**, and it is a structural
+property of weight sharing itself: it holds even for a completely
+untrained, randomly-initialized kernel. The notebook demonstrates this
+directly — a random 1D kernel applied to a signal, and to the same
+signal shifted by 10 positions, produces outputs that agree to floating-
+point precision once you account for the shift:
+
+![A random, untrained 1D convolution applied to a signal and to the same signal shifted by 10 positions. The shifted input's output (green) matches the original output shifted by the same amount (orange dashed) almost exactly — equivariance is a property of the shared kernel, not something learned.](figs/day10-conv-equivariance.png){width=90%}
+
+Equivariance alone still leaves the detected feature at a
+position-dependent spot in the output. Adding **global pooling** (taking
+the max, or the mean, over the whole feature map) removes the remaining
+position information: the *value* found is preserved under a shift, so
+its maximum is too. Weight-shared convolution (equivariant) followed by
+position-independent pooling is exactly what gives a convolutional
+network **translation invariance** — verified directly in the notebook,
+where the max-pooled output is numerically identical for the original
+and the shifted signal.
+
+### Further watching
+
+- 3Blue1Brown, ["But what is a convolution?"](https://www.youtube.com/watch?v=KuXjwB4LzSA) — the general mathematical view of discrete convolution (probability, image processing, FFTs), a level below the CNN-specific weight-sharing/equivariance argument above
+
+## From images to biological data
+
+The same idea generalizes past 2D images. A protein sequence is a 1D
+signal over a 20-letter alphabet — exactly the kind of data where a
+**1D convolution** (a kernel that slides along the sequence rather than
+across a 2D grid) makes sense, for the same reason it makes sense for
+images: a short motif (a binding site, a transmembrane segment, a
+signal peptide) should be detected the same way regardless of *where*
+in the sequence it occurs. Two amino acids' spatial proximity in a
+folded structure can likewise be represented as a **contact map** — an
+$L \times L$ image-like grid, one pixel per residue pair, where the
+value marks whether that pair is in contact in the folded protein — a
+natural fit for an ordinary 2D convolution, the same kind used on
+photographs.
+
+## Case study: subcellular localization, revisited with a 1D CNN
+
+Days 8-9 built a flat, fully-connected classifier for the same
+150-residue, 5-class subcellular-localization dataset used throughout
+this section (700 proteins, balanced to 140 per class, one-hot encoded,
+490/105/105 train/val/test split — the notebook re-fetches the exact
+same data live from UniProt and confirms every one of those counts
+matches before continuing). Here, the identical dataset and split feed a
+small 1D-CNN instead: two convolutional layers (kernel size 7 — each
+filter looks at a 7-residue window at a time) with global average
+pooling before a final linear layer to the 5 classes.
+
+That single architectural change has a real, measured effect on model
+size: the 1D-CNN has **19,237** trainable parameters, versus the flat
+MLP's **192,389** — a 10x reduction, entirely from weight sharing across
+positions instead of learning an independent weight for each of the
+150 positions.
+
+Trained the same way as Day 9 (Adam, early stopping on validation
+accuracy) and evaluated on the identical held-out test set:
+
+| Metric | Day 8: untrained MLP | Day 9: trained MLP | Day 10: trained 1D-CNN |
+|---|---|---|---|
+| Accuracy | 0.248 | 0.590 | 0.562 |
+| Macro F1 | 0.176 | 0.584 | 0.568 |
+| MCC | 0.086 | 0.492 | 0.456 |
+| Macro AUROC | 0.542 | 0.828 | 0.844 |
+
+Reported honestly, not spun: the 1D-CNN does **not** clearly beat the
+flat MLP on raw accuracy/F1/MCC here — it's slightly behind on all
+three, though slightly ahead on AUROC. With only 700 short sequences and
+a task where the *combination* of many distributed positions (not one
+local, translatable motif) may carry most of the signal, weight sharing
+doesn't obviously help accuracy on this particular dataset. What it
+reliably buys, independent of whether accuracy improves, is the 10x
+parameter reduction above — the same predictive signal (if anything,
+slightly higher AUROC) from a far smaller number of weights. That
+parameter efficiency, not a guaranteed accuracy win, is convolution's
+real, general argument — and it becomes decisive on the much longer,
+genuinely locally-structured inputs (full-length images, long
+sequences) where a flat fully-connected layer would be completely
+impractical to fit in memory at all.
+
+## Classic architectures: AlexNet and the 2012 ImageNet moment
+
+Convolutional networks existed well before 2012, but a single result
+that year is widely credited with starting the current deep-learning
+era: **AlexNet** (Krizhevsky, Sutskever & Hinton, 2012), an 8-layer CNN,
+won the ImageNet Large Scale Visual Recognition Challenge with a top-5
+error of **15.3%** — more than **10.8 percentage points** ahead of the
+runner-up, a margin large enough that it changed what the field
+considered worth trying. The years that followed pushed the same
+convolution-and-weight-sharing idea deeper and pushed the error down
+further:
+
+| Network | Year | Depth | Top-5 error |
+|---|---|---|---|
+| AlexNet | 2012 | 8 layers | 15.3% |
+| VGGNet | 2014 | 16-19 layers | 7.3% |
+| GoogLeNet (Inception) | 2014 | 22 layers | 6.7% |
+| ResNet | 2015 | up to 152 layers | 3.6% |
+
+(Figures cross-checked against Wikipedia's AlexNet and ResNet pages, not
+taken from a single source.) Two ideas made networks this deep trainable
+at all, worth knowing by name rather than in full mechanical detail:
+**1×1 convolutions** (GoogLeNet/Inception) let a layer cheaply change
+its number of channels without touching spatial structure, controlling
+parameter growth as networks got wider; and **skip connections**
+(ResNet) let a layer's input skip past it unchanged, which is what
+finally made stacking over 100 layers trainable at all — before ResNet,
+simply adding more layers to a plain CNN made training *harder*, not
+better (the "degradation problem"), because gradients had to pass
+through every intervening layer just as Day 9's vanishing-gradient
+discussion described for a much smaller network.
+
+### Modern practice: transfer learning
+
+Training a network this deep from scratch is expensive (VGG-16's
+original training took 2-3 weeks on a single GPU). In practice, almost
+nobody does that for a new task: instead, a network pretrained on
+ImageNet is reused as a fixed feature extractor, with only a small new
+head trained for the new task — **transfer learning**. This is possible
+because the early layers of an image classifier tend to learn generic,
+reusable features (edges, textures, simple shapes) regardless of what
+the network was ultimately trained to classify; only the later layers
+are task-specific. `notebooks/ch08.ipynb` demonstrates this pattern
+directly with pretrained `torchvision` models (VGG16, GoogLeNet,
+ResNet-50) — worth knowing as an idiom even though this course doesn't
+run a multi-week ImageNet training itself.
+
+## Case study: protein contact prediction
+
+`notebooks/protein_contact_prediction.ipynb` (in this repository)
+demonstrates the 2D-convolution idea from the section above concretely:
+a U-Net-style encoder-decoder CNN, with skip connections in the same
+spirit as ResNet's, predicting a full $L \times L$ contact map from a
+sequence's per-position features — a dense, pixel-to-pixel prediction
+task rather than the single-label classification this page's other
+case study uses. **Important caveat, stated plainly**: that notebook
+trains on synthetic, randomly-generated protein sequences and synthetic
+contact labels, not a real experimentally-derived contact dataset — it
+demonstrates the architecture and the mechanics, not a claim about real
+predictive accuracy. Real systems solving this problem for actual
+protein structures (trRosetta, and later AlphaFold2) add multiple
+sequence alignments for evolutionary signal and attention mechanisms for
+long-range dependencies on top of the same basic convolutional idea.
+
+### Further reading
+
+- Wikipedia, [AlexNet](https://en.wikipedia.org/wiki/AlexNet) and [Residual neural network](https://en.wikipedia.org/wiki/Residual_neural_network) — more detail on the specific architectures above
+- d2l.ai, [Modern Convolutional Neural Networks](https://d2l.ai/chapter_convolutional-modern/index.html) — VGGNet, GoogLeNet/Inception, ResNet and more, in full mechanical detail
+
+## Check your understanding
+
+```{=html}
+<div id="day10-quiz"></div>
+<script>
+renderQuiz("day10-quiz", [
+  {
+    question: "Why does a convolutional layer use far fewer parameters than a fully connected layer processing the same input?",
+    choices: [
+      "It uses the same small kernel at every position (weight sharing), instead of a separate independent weight per position",
+      "It only looks at half of the input",
+      "It automatically discards the least useful input positions",
+      "It uses 16-bit instead of 32-bit weights"
+    ],
+    correctIndex: 0,
+    explanation: "Weight sharing -- reusing the same kernel across every position -- is exactly what cuts the parameter count, as measured directly in Day 10's notebook (19,237 vs. 192,389 for the same task)."
+  },
+  {
+    question: "A randomly-initialized (untrained) 1D convolution is applied to a signal, and separately to the same signal shifted by 10 positions. What does the notebook show about the two outputs?",
+    choices: [
+      "They match exactly (away from the edges) once you shift one of them by 10 positions -- equivariance is structural, not learned",
+      "They are completely unrelated, since the kernel was never trained",
+      "They only match after training the kernel for many epochs",
+      "They match only if the kernel size equals the shift amount"
+    ],
+    correctIndex: 0,
+    explanation: "Translation equivariance comes from weight sharing itself and holds even for an untrained kernel, exactly as demonstrated."
+  },
+  {
+    question: "On Day 10's real measured comparison, how did the 1D-CNN's test accuracy compare to Day 9's trained flat MLP, on the identical held-out test set?",
+    choices: [
+      "Slightly lower (0.562 vs. 0.590) despite using about 10x fewer parameters",
+      "Substantially higher, proving CNNs always beat flat networks",
+      "Identical to 3 decimal places",
+      "The CNN could not be trained on this data at all"
+    ],
+    correctIndex: 0,
+    explanation: "Reported honestly: the CNN did not win on accuracy here, though it used far fewer parameters and had slightly higher AUROC -- a real, non-spun result."
+  },
+  {
+    question: "What specifically made it possible to train networks over 100 layers deep (ResNet, 2015), where plain stacking of more layers had previously made training worse, not better?",
+    choices: [
+      "Skip connections, letting a layer's input pass through unchanged alongside its transformed output",
+      "Using a bigger GPU",
+      "Removing all activation functions",
+      "Training for 10x more epochs"
+    ],
+    correctIndex: 0,
+    explanation: "ResNet's skip (residual) connections are the specific fix for the degradation problem that plain deep CNNs ran into before 2015."
+  },
+  {
+    question: "Why is transfer learning (fine-tuning a pretrained ImageNet model) the practical default rather than training a deep CNN from scratch for most new image tasks?",
+    choices: [
+      "Early layers of an image classifier learn generic, reusable features (edges, textures) regardless of the original task, so only a small new head needs training",
+      "Training from scratch is technically impossible for CNNs",
+      "Pretrained models automatically work perfectly on any new dataset with zero adaptation",
+      "It removes the need for any labeled data at all"
+    ],
+    correctIndex: 0,
+    explanation: "Transfer learning works because most of a pretrained network's learned features are generic and reusable, not because training from scratch is impossible -- it's mainly a matter of the multi-week training cost."
+  }
+]);
+</script>
+```
+
+## The notebook
+
+`notebooks/day10-cnns-in-code.ipynb` has two parts: a from-scratch,
+no-training-required demonstration of convolution's translation
+equivariance (and, with pooling, invariance) on a random 1D kernel; and
+the subcellular-localization case study above, re-fetching Day 8-9's
+exact dataset and re-running its exact split, this time through a real
+1D-CNN classifier, with every parameter count and metric in the table
+above computed and verified there, not asserted. Open it in
+[Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day10-cnns-in-code.ipynb)
+via the badge at the top of the notebook page to edit and run it
+yourself.
+
+## The lab
+
+A light, tool-based exercise: work through
+`notebooks/protein_contact_prediction.ipynb`'s synthetic contact-map
+case study, then compare its 2D-convolutional U-Net architecture against
+Day 10's own 1D-CNN — same underlying idea (weight-shared convolution
+plus skip-connection-style architecture choices), applied to a denser,
+pixel-to-pixel prediction task instead of single-label classification.
+
+## What's next
+
+Day 11 asks what happens when position isn't fixed-length and local at
+all, but sequential and open-ended: RNNs and LSTMs process one position
+at a time, carrying a hidden state forward, rather than looking at a
+fixed-size local window the way a convolution does.
