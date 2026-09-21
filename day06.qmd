@@ -16,8 +16,16 @@ Neural Networks for Regression](https://d2l.ai/chapter_linear-regression/index.h
 than 70% accuracy," *Journal of Molecular Biology* 232:584-599. The real
 secondary-structure counts for *HBB* below were fetched live from EBI's
 [PDBe API](https://www.ebi.ac.uk/pdbe/api/doc/) — CC BY 4.0 — see the
-notebook. Text below is written from scratch, not copied, following
-these ideas.
+notebook. The by-hand AND/OR/NAND perceptron weights, the closed-form
+vs. iterative linear-regression comparison, and the "solve XOR by
+engineering a feature" example below are mined for ideas from Magnus
+Ekman's *Learning Deep Learning* (slide decks `Chapter-1`, `Chapter-2`,
+`Appendix-A` in `slides/`) — a copyrighted, not openly-licensed textbook
+(the very one this course rebuild is replacing), credited here as an
+internal source the way Petras Kundrotas's own lecture decks are on other
+days, not linked as further reading. Every number below was independently
+recomputed and verified in code, not transcribed. Text below is written
+from scratch, not copied, following these ideas.
 :::
 
 # Day 6: Linear Models, Gradient Descent, the XOR Problem & Secondary Structure Prediction
@@ -51,6 +59,15 @@ other than zero) and then passes $z$ through an **activation function** to
 produce an output. There is nothing biological or sequence-specific left
 in this definition — it's the same computation Day 5 used for scoring
 motifs, stripped down to its general-purpose form.
+
+Geometrically, $z = 0$ is a line (in two dimensions — a plane, or
+hyperplane, in higher ones): the model's **decision boundary**. Solving
+$w_1 x_1 + w_2 x_2 + b = 0$ for $x_2$ gives $x_2 = -\frac{w_1}{w_2} x_1 -
+\frac{b}{w_2}$ — exactly the familiar $y = mx + c$ form of a line, with
+the bias $b$ playing the role of the intercept $c$ (scaled by $-1/w_2$):
+change $b$ and the whole line slides sideways, without changing its
+slope. That's the same role the intercept $b_0$ plays in ordinary linear
+regression, a connection the next section makes precise.
 
 ### Further reading
 
@@ -110,6 +127,31 @@ one-variable example, the size of each correction ($dL/dw$) shrinks on its
 own as the prediction gets closer, with no manual adjustment to $\eta$
 required.
 
+**Deriving vs. learning, on the simplest possible model.** Ordinary
+linear regression — fitting a line $\hat y = b_0 + b_1 x$ to data — is a
+useful sanity check here, because unlike a perceptron's classification
+loss, its squared-error loss has an exact **closed-form** solution: the
+**normal equations**. Stack the inputs into a matrix $X$ (a column of 1s
+for $b_0$, alongside the $x$ values) and solve
+
+$$
+\hat{\boldsymbol\beta} = (X^\top X)^{-1} X^\top \mathbf{y}
+$$
+
+**Worked example.** Five noisy points roughly following $y \approx 2x$:
+$x = (1,2,3,4,5)$, $y = (2.1, 3.9, 6.2, 7.8, 10.1)$. Solving the normal
+equations directly gives $\hat b_0 = 0.05$, $\hat b_1 = 1.99$ — computed
+in one step, no iteration. Running gradient descent on the exact same
+data (learning rate $\eta = 0.01$, squared-error loss, thousands of small
+steps) converges to $b_0 = 0.050$, $b_1 = 1.990$ — the same answer,
+reached the slow way. This is the same distinction as Day 5's PSSM
+(weights *derived* directly from alignment counts, like the normal
+equations here) versus today's gradient descent (weights *learned*
+iteratively): when a closed form exists, deriving it is exact and
+instant; gradient descent is the fallback for exactly the cases — a
+perceptron's classification loss included — where no such closed form
+exists.
+
 ### Further reading
 
 - Wikipedia, [Gradient descent](https://en.wikipedia.org/wiki/Gradient_descent) — variants (momentum, stochastic gradient descent, and more) used throughout the rest of this course but not needed yet
@@ -123,6 +165,46 @@ required.
 <iframe src="https://www.youtube.com/embed/IHZwWFHWa-w" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="Gradient descent, how neural networks learn, 3Blue1Brown"></iframe>
 </div>
 ```
+
+## Perceptrons can compute logical functions
+
+Before seeing what a perceptron *can't* do, it's worth seeing concretely
+what it can. A single perceptron with a step activation (output 1 if $z >
+0$, else 0) can implement basic logic gates directly — no training
+required, just weights chosen by hand:
+
+| Gate | $w_1$ | $w_2$ | $b$ |
+|---|---|---|---|
+| AND  | 1 | 1 | −1.5 |
+| OR   | 1 | 1 | −0.5 |
+| NAND | −1 | −1 | 1.5 |
+
+Checking AND, for instance: at $(1,1)$, $z = 1+1-1.5 = 0.5 > 0 \to 1$; at
+every other corner, $z \le -0.5 \to 0$ — exactly AND's truth table.
+(NAND is just AND with both weights and the bias negated, flipping every
+output.) All three check out exactly against their truth tables in the
+notebook.
+
+Combining more than one perceptron goes further than any single one can.
+**OR** and **NAND**, computed separately from the same two inputs, then
+fed as the two inputs to an **AND** perceptron, reproduces **XOR**
+exactly:
+
+| $x_1$ | $x_2$ | OR | NAND | AND(OR, NAND) | XOR |
+|---|---|---|---|---|---|
+| 0 | 0 | 0 | 1 | 0 | 0 |
+| 0 | 1 | 1 | 1 | 1 | 1 |
+| 1 | 0 | 1 | 1 | 1 | 1 |
+| 1 | 1 | 1 | 0 | 0 | 0 |
+
+Two perceptrons computing OR and NAND form a **hidden layer**; a third
+perceptron combining their outputs is the model's final output — this is
+exactly the shape (two hidden units feeding one output unit) that the
+notebook's own hidden-layer network below finds by gradient descent,
+rather than by hand. Seeing both — a hand-built exact solution here, a
+learned approximate one later — makes clear that gradient descent isn't
+discovering some exotic new trick; it's finding weights for a structure
+that could, in principle, be written down directly.
 
 ## When linear scoring fails
 
@@ -194,6 +276,28 @@ perceptron, can represent. Resolving this requires combining more than
 one linear unit, which is exactly what a hidden layer does, and exactly
 where Day 9 picks this up again.
 
+A hidden layer isn't the only possible fix, though — it's worth seeing an
+older one to appreciate why the hidden-layer version is actually better.
+For 0/1-valued $x_1, x_2$, it happens that
+
+$$
+\text{XOR}(x_1, x_2) = x_1 + x_2 - 2\,x_1 x_2
+$$
+
+exactly (check all four rows: $(0,0) \to 0$, $(0,1) \to 1$, $(1,0) \to
+1$, $(1,1) \to 1+1-2 = 0$). That right-hand side is *linear* — in the
+three inputs $x_1$, $x_2$, and the hand-engineered feature $x_1 x_2$.
+Adding that one extra, human-chosen feature turns an unsolvable problem
+back into an exactly-solvable linear regression, with weights $(1, 1,
+-2)$ and bias $0$. This is a real, older alternative to a hidden layer —
+and it works — but it required a person to notice, in advance, that
+$x_1 x_2$ was the interaction that mattered. For Bulyk et al.'s real
+binding-site data, or for the secondary-structure problem below, nobody
+knows the useful interaction terms in advance. A hidden layer's real
+advantage is that it *learns* useful nonlinear features like this one
+directly from data, instead of requiring someone to engineer them by
+hand — exactly what the notebook's hidden-layer network below does.
+
 ### Further reading
 
 - Wikipedia, [Linear separability](https://en.wikipedia.org/wiki/Linear_separability) — generalizes the geometric argument above beyond the two-input case shown here
@@ -201,7 +305,13 @@ where Day 9 picks this up again.
 ## A brief history: why this problem mattered so much
 
 The XOR limitation isn't just a textbook exercise — it's a real episode in
-the history of the field. Marvin Minsky and Seymour Papert's 1969 book
+the history of the field. The perceptron itself predates this session's
+generic gradient-descent framing: Frank Rosenblatt's original 1958
+algorithm updated each weight only when a training example was
+misclassified, by a fixed rule $\Delta w_i = \eta (y - \hat y) x_i$
+(update in the direction that would have fixed *this* mistake, nothing
+more elaborate) — a special case of, not a replacement for, what "Learning
+the weights" above describes in general. Marvin Minsky and Seymour Papert's 1969 book
 *Perceptrons* proved this limitation rigorously and generalized it well
 beyond XOR, to a broad class of problems single-layer perceptrons cannot
 solve. The book's pessimism about perceptrons is widely credited with
@@ -354,6 +464,28 @@ renderQuiz("day06-quiz", [
     ],
     correctIndex: 0,
     explanation: "117/147 &asymp; 80% helix and 0% strand is about as clean an all-alpha example as real proteins get."
+  },
+  {
+    question: "A single perceptron can implement AND, OR, and NAND by hand-chosen weights. What does combining an OR perceptron and a NAND perceptron, then feeding both outputs into an AND perceptron, compute?",
+    choices: [
+      "XOR, exactly — this is a hand-built version of the same hidden-layer shape used later in the notebook",
+      "AND, since the final perceptron is an AND gate",
+      "Nothing meaningful; the outputs of OR and NAND cannot be combined",
+      "NOR"
+    ],
+    correctIndex: 0,
+    explanation: "AND(OR(x&#8321;,x&#8322;), NAND(x&#8321;,x&#8322;)) reproduces XOR's truth table exactly on all four input pairs."
+  },
+  {
+    question: "Adding the engineered feature x&#8321;x&#8322; alongside x&#8321; and x&#8322; lets an ordinary linear model solve XOR exactly, using weights (1, 1, -2) and bias 0. What's the real limitation of this fix compared to a hidden layer?",
+    choices: [
+      "A person has to notice in advance which interaction feature (like x&#8321;x&#8322;) to engineer, whereas a hidden layer learns useful features like this directly from data",
+      "It doesn't actually reproduce XOR's truth table",
+      "It only works for inputs other than 0 and 1",
+      "It requires more training data than a hidden layer does"
+    ],
+    correctIndex: 0,
+    explanation: "The linear-algebra is exact once you've chosen x&#8321;x&#8322; as a feature -- the catch is knowing to choose it, which for real data (Bulyk et al.'s binding sites, secondary structure) nobody knows in advance."
   }
 ]);
 </script>
@@ -362,14 +494,19 @@ renderQuiz("day06-quiz", [
 ## The notebook
 
 The lab notebook for today (`notebooks/day06-gradient-descent-xor.ipynb`)
-works through this progression concretely: a linear model trained by
-gradient descent successfully learns AND (a linearly separable function,
-like the logic gates from earlier in the course), the same model is then
-trained on XOR and visibly fails to converge, and finally a small network
-with one hidden layer succeeds where the linear model couldn't — with a
-plot showing exactly why. It closes by fetching *HBB*'s real secondary
-structure breakdown live from EBI's PDBe API, confirming the 80%-helix,
-0%-strand figure quoted above. The version below is a static, read-only
+works through this progression concretely: it opens by comparing the
+linear-regression closed form against gradient descent on the same tiny
+dataset, confirming they agree; a linear model trained by gradient
+descent then successfully learns AND (a linearly separable function),
+and the same model trained on XOR visibly fails to converge; a hand-built
+version of AND/OR/NAND (verified against their truth tables) shows XOR
+being solved exactly by combining two perceptrons, and a second
+hand-built version solves it again by engineering the $x_1 x_2$ feature
+directly; finally, a small network with one hidden layer succeeds at
+learning XOR where the linear model couldn't — with a plot showing
+exactly why. It closes by fetching *HBB*'s real secondary structure
+breakdown live from EBI's PDBe API, confirming the 80%-helix, 0%-strand
+figure quoted above. The version below is a static, read-only
 copy; open it in
 [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day06-gradient-descent-xor.ipynb)
 via the badge at the top of the notebook page to edit and run it

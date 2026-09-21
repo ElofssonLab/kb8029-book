@@ -232,6 +232,13 @@ $$
 product from above; the second is a new dot product between the
 matrix's second row and the same vector.
 
+This "many dot products in one operation" view is exactly how Day 6's
+perceptron code is written: instead of looping over training examples one
+at a time and computing $w_1 x_1 + w_2 x_2 + b$ by hand for each, stacking
+every example as a row of a matrix $X$ and computing `X @ w` performs all
+of those weighted sums — one matrix-vector product, no explicit loop.
+Same arithmetic as above, just applied to many rows at once.
+
 ### Eigenvalues and eigenvectors
 
 A matrix $A$ transforms any vector it multiplies — usually changing both
