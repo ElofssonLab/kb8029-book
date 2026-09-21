@@ -297,10 +297,14 @@ variant of it) one cell at a time with the reasoning printed out, gives
 you a partially-filled matrix to complete yourself before revealing the
 real one, and then walks the traceback the same step-by-step way — making
 both halves of the algorithm visible as a sequence of small decisions
-rather than a finished picture. A global-vs-local comparison on two real
+rather than a finished picture. It then switches from that flat identity
+scheme to a real substitution matrix — the PAM250 matrix introduced in
+the "Substitution matrices" section above, loaded from Biopython rather
+than typed in by hand — for a global-vs-local comparison on two real
 globin fragments (from HBB and myoglobin) that share one conserved motif
-but differ elsewhere makes the practical difference between the two
-algorithms directly visible too. Open it in
+but differ elsewhere, making both the practical difference between the
+two algorithms, and the effect of a graded substitution matrix versus a
+flat identity scheme, directly visible. Open it in
 [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day04-alignment-in-code.ipynb)
 via the badge at the top of the notebook page to edit and run it
 yourself.
