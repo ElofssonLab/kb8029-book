@@ -41,6 +41,12 @@ book:
     - day10.qmd
     - href: notebooks/day10-cnns-in-code.ipynb
       text: "Day 10 — Notebook"
+    - day11.qmd
+    - href: notebooks/day11-rnns-lstm-gru-in-code.ipynb
+      text: "Day 11 — Notebook"
+    - day12.qmd
+    - href: notebooks/day12-attention-and-transformers-in-code.ipynb
+      text: "Day 12 — Notebook"
     - references.qmd
 
 format:
