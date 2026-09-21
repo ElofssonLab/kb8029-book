@@ -286,6 +286,12 @@ the point): explore the notebook's ESM-2 embeddings for a protein of
 your choice — fetch a real UniProt sequence, compute its embedding, and
 compare it against the three globins already there.
 
+### Submitting this lab
+
+Hand-in/grading for this lab isn't set up yet. It will likely run
+through a Canvas assignment — check the course's Canvas page for the
+actual submission mechanism before this session runs.
+
 ## What's next
 
 Day 13 (if it runs) picks up the *generative* thread this course hasn't

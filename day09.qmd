@@ -314,6 +314,12 @@ yourself.
 result, then apply regularization and early stopping to recover a real
 improvement in validation accuracy — following the notebook.
 
+### Submitting this lab
+
+Hand-in/grading for this lab isn't set up yet. It will likely run
+through a Canvas assignment — check the course's Canvas page for the
+actual submission mechanism before this session runs.
+
 ## What's next
 
 Day 10 moves from a plain fully-connected network to **convolutional**

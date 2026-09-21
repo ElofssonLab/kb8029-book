@@ -303,6 +303,12 @@ Day 10's own 1D-CNN — same underlying idea (weight-shared convolution
 plus skip-connection-style architecture choices), applied to a denser,
 pixel-to-pixel prediction task instead of single-label classification.
 
+### Submitting this lab
+
+Hand-in/grading for this lab isn't set up yet. It will likely run
+through a Canvas assignment — check the course's Canvas page for the
+actual submission mechanism before this session runs.
+
 ## What's next
 
 Day 11 asks what happens when position isn't fixed-length and local at

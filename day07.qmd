@@ -252,6 +252,12 @@ iron-to-iron distance the notebook computes in code — then compare it
 against the oxygenated structure (`1HHO`) to see the same allosteric
 shift found in the notebook.
 
+### Submitting this lab
+
+Hand-in/grading for this lab isn't set up yet. It will likely run
+through a Canvas assignment — check the course's Canvas page for the
+actual submission mechanism before this session runs.
+
 ## What's next
 
 Day 8 moves from a single yes/no output (Day 6's XOR problem) to

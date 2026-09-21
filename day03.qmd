@@ -406,6 +406,12 @@ the protein product in UniProt, and build a PubMed search using Boolean
 operators and quotation marks to answer a specific literature question.
 Deliverable is a short worksheet, not a report.
 
+### Submitting this lab
+
+Hand-in/grading for this lab isn't set up yet. It will likely run
+through a Canvas assignment — check the course's Canvas page for the
+actual submission mechanism before this session runs.
+
 ## What's next
 
 Day 4 picks up exactly where the *HBB* cross-references above leave off:

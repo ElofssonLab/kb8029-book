@@ -7,7 +7,11 @@ existing teaching material (`notebooks/pytorch_bio_intro.ipynb`), not
 newly written. The scientific-stack section names Biopython, NumPy,
 pandas, Matplotlib, seaborn, SciPy, and scikit-learn as tools, with
 usage demonstrated in original example code — no text is reused from
-any of their documentation.
+any of their documentation. Which of those tools get a light refresher
+versus fuller treatment here is informed by `slides/course_compendium
+(2).pdf`, the prerequisite DA7066 course's own compendium (Arvestad,
+Helanow, Mörtberg & Sahlin) — an internal planning reference, not
+excerpted or linked as further reading.
 :::
 
 # Day 2: Programming Prerequisites
@@ -117,21 +121,31 @@ piecemeal later.
 
 **Biopython** is what you'd actually reach for instead of writing your
 own `DnaSequence` class — it already implements sequence objects (with
-translation, reverse complementation, and much more), file parsing, and
-database access, all used throughout real bioinformatics pipelines. Day
-3's database work builds directly on it.
+translation, reverse complementation, and much more), FASTA/GenBank file
+parsing via `Bio.SeqIO`, and database access, all used throughout real
+bioinformatics pipelines. This is the one library on this page you
+haven't seen before in any prerequisite course, and it's the one that
+matters most going forward: Day 3's database work, and most later labs'
+data loading, build directly on it. The notebook below goes beyond a
+single sequence object to actually parse a small FASTA file with
+`Bio.SeqIO` — the exact mechanism Day 3 uses at real database scale.
 
 **NumPy** is the array library underneath almost everything else here,
 including PyTorch tensors — you've effectively been using NumPy-style
 thinking since the tensor section above. **pandas** builds a labeled,
 tabular data structure (the `DataFrame`) on top of NumPy arrays: the
 natural format for a table of many sequences and their properties, rather
-than one sequence at a time.
+than one sequence at a time. If you've taken DA7066 ("Programming
+techniques for Life Sciences"), both of these will already be familiar
+from its NumPy/pandas/SciPy chapter — treat this as a quick refresher,
+not new material, and move on to the Biopython and zip-archive sections
+below.
 
 **Matplotlib** is the base plotting library; **seaborn** builds a
 higher-level, statistics-oriented interface on top of it that plugs
 directly into pandas DataFrames — both are used for essentially every
-figure in this book's later notebooks.
+figure in this book's later notebooks. Also already covered in DA7066 —
+same advice: skim it.
 
 **SciPy** extends NumPy with ready-made scientific routines — statistical
 tests, optimization, and more — sparing you from re-implementing standard
@@ -152,6 +166,23 @@ directly, as the notebook below demonstrates.
 
 Each is that library's own standard starting point for going beyond
 what's shown here.
+
+## Opening zip archives
+
+One practical gap, worth closing now rather than mid-crisis later:
+downloaded datasets — including this course's own capstone project data
+(see `capstone.qmd`) — routinely arrive as a single `.zip` archive
+holding many files, and past students have specifically gotten stuck on
+opening and extracting these. Python's built-in `zipfile` module handles
+it in three lines: open the archive with `zipfile.ZipFile(path)`, list
+what's inside with `.namelist()`, and pull everything out with
+`.extractall()` (or a single named file with `.extract(name)`). No
+separate unzip program required — it's part of the standard library, and
+works the same way on Windows, macOS, and Linux.
+
+### Further reading
+
+- Python docs, [`zipfile` — Work with ZIP archives](https://docs.python.org/3/library/zipfile.html)
 
 ## The notebook
 
@@ -240,6 +271,12 @@ A full lab session: work through the notebook above, then extend the
 `DnaSequence` class with a reverse-complement method (the notebook's
 "try it yourself" exercise) and use it on a real sequence you'll
 retrieve from a database in Day 3.
+
+### Submitting this lab
+
+Hand-in/grading for this lab isn't set up yet. It will likely run
+through a Canvas assignment — check the course's Canvas page for the
+actual submission mechanism before this session runs.
 
 ## What's next
 

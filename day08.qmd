@@ -296,6 +296,12 @@ data, one-hot encode it, define the `nn.Module` class, and confirm the
 forward pass's output shape and the untrained baseline metrics. Stop
 there; Day 9 is where this model actually learns.
 
+### Submitting this lab
+
+Hand-in/grading for this lab isn't set up yet. It will likely run
+through a Canvas assignment — check the course's Canvas page for the
+actual submission mechanism before this session runs.
+
 ## What's next
 
 Day 9 takes this exact model and dataset and implements

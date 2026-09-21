@@ -1,0 +1,120 @@
+::: {.callout-note}
+**Sources for this page:** the project brief and grading rubric are
+adapted from `slides/Secondary_structure_prediction_project_2025.pdf`
+(Arne's own assignment text, reused directly since it's this course's
+own material, not an external source); the dataset structure below was
+verified by downloading and inspecting the real training data linked
+below (1,200 real entries, three file formats, checked directly — not
+assumed from a folder name).
+:::
+
+# Capstone: Secondary Structure Prediction Project {.unnumbered}
+
+## Framing
+
+This project is not a new topic. It's the same problem posed
+descriptively on Day 7, using the tools built up from Day 5 (profiles)
+through Day 12 (attention): design, train, and evaluate your own
+secondary-structure predictor. There is no single correct architecture —
+part of the assignment is deciding how to build the model yourself,
+informed by what the course covered (a linear/profile score → a
+perceptron → a hidden layer → a proper PyTorch model → convolutions →
+recurrence → attention) and by your own reading of the literature.
+
+## The task
+
+You are given real protein data and asked to predict, for every residue,
+one of three secondary-structure classes: **H** (helix), **E** (strand),
+or **C** (coil) — exactly the three-class problem Day 6 and Day 9
+introduced with Rost & Sander's PHD method as the historical example.
+Your model should be able to use **both** of the input representations
+provided (raw sequence and PSSM profile) — comparing what each one buys
+you is itself a natural thing to report on.
+
+### Training data
+
+A real, verified dataset of 1,200 protein domains, provided as three
+parallel folders sharing the same base filename per entry:
+
+```
+dataset/
+├── fasta/   # 1,200 files — plain amino-acid sequence, FASTA format
+├── dssp/    # 1,200 files — per-residue H/E/C label string (DSSP-derived)
+└── pssm/    # 1,200 files — CSV, one row per residue, one column per
+             # amino acid (order: A,R,N,D,C,Q,E,G,H,I,L,K,M,F,P,S,T,W,Y,V),
+             # values are the position-specific scoring matrix's
+             # weighted observed percentages
+```
+
+Example entry (`d1g2ra_`): a 96-residue domain, its FASTA sequence, a
+DSSP label string of matching length (`CCCCCC...HHHHHHHHHH...`), and a
+96-row × 20-column PSSM CSV — all three files verified to correspond to
+the same protein.
+
+**[Download the dataset](https://drive.google.com/drive/folders/1gnxfXXYysCk4L4FYztzeejPVXJaMnxQw?usp=sharing)**
+(Google Drive — `dataset.zip`, ~3 MB, 1,200 entries × 3 formats).
+
+## Deliverables
+
+1. **A public Colab notebook** containing the code that produces your
+   results — reproducibility (does it actually rerun and reproduce your
+   numbers, with a fixed random seed) is graded explicitly.
+2. **A short written report as a single PDF**, structured as a research
+   paper: introduction, materials/methods, results, conclusion/discussion,
+   supplementary material if needed. **Maximum 1000 words** (including
+   supplementary). The results section must include:
+   - Your predictor's performance (accuracy, MCC, and similar metrics —
+     the same evaluation toolkit Day 8 introduced), with training and
+     validation loss curves.
+   - At least one **ablation study** — how performance changes when you
+     vary something about the model (regularization, dropout, which
+     input features you use, number of layers, ...).
+3. **A code presentation** (~15 minutes: 10 minutes presenting your
+   model architecture and training procedure, 5 minutes of questions),
+   focused on the deep-learning part of your work, not slides about the
+   biology.
+
+This is not an exam — look up papers, discuss with peers, revisit
+earlier labs and notes. Just don't plagiarize; reports are checked with
+plagiarism software.
+
+## Grading
+
+**Report — 50%:**
+
+| Criterion | Weight | What it means |
+|---|---|---|
+| Format and coherence | 10% | Clear intro/methods/results/discussion structure; stays within 1000 words |
+| Answered all required elements | 30% | Every point above is addressed, with figures *and* accompanying written explanation |
+| Critical thinking / discussion | 30% | Reasoning about your results, whatever they turned out to be — a honest, well-argued negative result can score well here |
+| Figures | 15% | Legible, referenced in the main text (no stand-alone figures), captions written as complete, self-contained sentences |
+| Overall impression | 15% | Understanding of the assignment and effort put in; answering beyond the minimum can help here |
+
+**Code presentation — 50%:**
+
+| Criterion | Weight | What it means |
+|---|---|---|
+| Reproducibility | 30% | We rerun your notebook and get your reported numbers back — fix your random seeds |
+| Documentation | 20% | Comments throughout, functions/methods explained |
+| Explanation of the code | 50% | You walk through your own code live and answer follow-up questions about it — tests understanding, not just working code |
+
+::: {.callout-important}
+**Dates.** The source assignment this page is adapted from named specific
+2025 dates (presentation reservations, deadlines). Those are **not**
+carried over here — set real dates for this run of the course before
+publishing this page to students.
+:::
+
+## Resources
+
+- The dataset above, and the exam archive on the [course schedule
+  page](schedule.qmd#exam-preparation) — past exams are useful practice
+  for the kind of reasoning this project also expects, even though this
+  project itself isn't exam-style.
+- Every day's own page and notebook, Day 5 through Day 12 in particular
+  — this project deliberately doesn't introduce anything new.
+
+## What's next
+
+There isn't a Day 14 — this project is the course's closing synthesis,
+not a new topic to teach toward.

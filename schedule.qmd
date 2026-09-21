@@ -26,4 +26,20 @@ thread.
 | 10 | [**CNNs**](day10.qmd), classic & modern | d2l.ai, [Convolutional Neural Networks](https://d2l.ai/chapter_convolutional-neural-networks/index.html) + [Modern Convolutional Neural Networks](https://d2l.ai/chapter_convolutional-modern/index.html) | Protein contact prediction; SS-prediction's later profile+CNN era | **Full** |
 | 11 | [**RNNs & LSTM**](day11.qmd) | d2l.ai, [Recurrent Neural Networks](https://d2l.ai/chapter_recurrent-neural-networks/index.html) + [Modern Recurrent Neural Networks](https://d2l.ai/chapter_recurrent-modern/index.html) | SignalP signal-peptide detection; SS-prediction's (bi)LSTM era | Light exercise |
 | 12 | [**Attention & Transformers**](day12.qmd) | d2l.ai, [Attention Mechanisms and Transformers](https://d2l.ai/chapter_attention-mechanisms-and-transformers/index.html) | **AlphaFold** + **protein language models** — SS-prediction's endpoint | Light exercise |
+| 13 | [**Diffusion & Flow-Matching Models**](day13.qmd) *(extra session — not guaranteed to run; see below)* | Arne's own slide deck on diffusion/flow-matching models | Protein design: RFdiffusion + ProteinMPNN vs. Chroma | Light exercise |
 | — | [**Capstone: Secondary Structure Prediction project**](capstone.qmd) | — | Closes the loop opened at Day 7 | The project itself |
+
+Day 13 is a backup/buffer session — sketched and built so it's a real
+option, but the course will likely run without it. Don't assume it's
+part of the core schedule when planning the semester's actual calendar.
+
+## Exam preparation {#exam-preparation}
+
+Past exams, kept as a study resource (not because this course repeats
+questions from them):
+
+- [Exam Bioinformatics 2025](exams/Exam%20Bioinformatics%202025.pdf)
+- [ReExam Bioinformatics 2025](exams/ReExam%20Bioinformatics%202025.pdf)
+- [Old exam 1](exams/old_exam1.docx)
+- [Old exam 2](exams/old_exam2.docx)
+- [Old exam 3](exams/old_exam3.docx)

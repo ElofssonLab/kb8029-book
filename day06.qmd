@@ -512,6 +512,21 @@ copy; open it in
 via the badge at the top of the notebook page to edit and run it
 yourself.
 
+## The lab
+
+**Full lab:** implement gradient descent for a linear model from
+scratch (raw tensors + autograd), confirm it learns a simple linearly
+separable case (like the AND example in the notebook), then reproduce
+its failure on an XOR-shaped toy dataset and explain, in your own
+words, why no adjustment to the weights fixes it.
+
+### Submitting this lab
+
+Hand-in/grading for this lab isn't set up yet. It will likely run
+through a Canvas assignment — check the course's Canvas page for the
+actual submission mechanism before this session runs.
+
+
 ## What's next
 
 Day 7 picks up the *structure* side of today's PHD example properly —

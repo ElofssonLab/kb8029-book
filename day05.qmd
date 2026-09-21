@@ -517,6 +517,12 @@ and compare what the profile-based search finds that plain BLAST didn't,
 then hand-compute a small PSSM score for a toy motif to confirm the
 underlying arithmetic.
 
+### Submitting this lab
+
+Hand-in/grading for this lab isn't set up yet. It will likely run
+through a Canvas assignment — check the course's Canvas page for the
+actual submission mechanism before this session runs.
+
 ## What's next
 
 Day 6 formalizes the exact computation a PSSM performs — a weighted sum

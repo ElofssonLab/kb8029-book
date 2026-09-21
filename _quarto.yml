@@ -2,6 +2,7 @@ project:
   type: book
   resources:
     - js/quiz-widget.js
+    - exams/*
 
 book:
   title: "Bioinformatics & Deep Learning — Course Notes"
@@ -47,6 +48,10 @@ book:
     - day12.qmd
     - href: notebooks/day12-attention-and-transformers-in-code.ipynb
       text: "Day 12 — Notebook"
+    - day13.qmd
+    - href: notebooks/day13-diffusion-and-flow-matching-in-code.ipynb
+      text: "Day 13 — Notebook"
+    - capstone.qmd
     - references.qmd
 
 format:

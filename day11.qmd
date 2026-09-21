@@ -342,6 +342,12 @@ own notebook, then try changing the recurrent hidden size or the
 N-terminal window length and see how much of BiLSTM's advantage over
 the other models survives.
 
+### Submitting this lab
+
+Hand-in/grading for this lab isn't set up yet. It will likely run
+through a Canvas assignment — check the course's Canvas page for the
+actual submission mechanism before this session runs.
+
 ## What's next
 
 Day 12 picks up exactly where this day's protein-language-model section

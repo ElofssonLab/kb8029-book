@@ -376,6 +376,12 @@ pairwise and multiple alignment tools on real sequences, and confirm that
 a tool's reported score and alignment match what the dynamic-programming
 matrix above would predict for a small case.
 
+### Submitting this lab
+
+Hand-in/grading for this lab isn't set up yet. It will likely run
+through a Canvas assignment — check the course's Canvas page for the
+actual submission mechanism before this session runs.
+
 ## What's next
 
 Day 5 asks a different question about the same underlying problem: exact
