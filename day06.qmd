@@ -581,17 +581,24 @@ yourself.
 
 ## The lab
 
-**Full lab:** implement gradient descent for a linear model from
-scratch (raw tensors + autograd), confirm it learns a simple linearly
-separable case (like the AND example in the notebook), then reproduce
-its failure on an XOR-shaped toy dataset and explain, in your own
-words, why no adjustment to the weights fixes it.
+**A teaser, not a full treatment** (Day 8 covers train/validation/test
+splitting and evaluation properly; Day 9 covers regularization and
+architecture choices — neither is front-run here): assemble a real
+dataset — 55 real proteins' amino-acid composition, fetched live from
+EBI's PDBe API, against their real alpha-helix fraction — then fit
+linear regression and a small from-scratch multilayer perceptron on
+the same real data and compare their real held-out error, honestly
+(the two turn out to be close, with linear regression very slightly
+ahead — small, largely-additive biological features are exactly the
+regime a plain linear model can hold its own in).
+[`notebooks/day06-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day06-lab.ipynb)
+has the real pipeline, end to end.
 
 ### Submitting this lab
 
-Hand-in/grading for this lab isn't set up yet. It will likely run
-through a Canvas assignment — check the course's Canvas page for the
-actual submission mechanism before this session runs.
+This lab is administered through Canvas, not this book — see the
+course's Canvas page for the current quiz, deadline, and submission
+mechanism.
 
 
 ## What's next
