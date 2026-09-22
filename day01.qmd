@@ -19,8 +19,12 @@ Linear Algebra, §2.5 Calculus, §2.6 Probability and Statistics) — CC BY-SA
 [Volcano plot (statistics)](https://en.wikipedia.org/wiki/Volcano_plot_(statistics)),
 [Exponential function](https://en.wikipedia.org/wiki/Exponential_function),
 [Logarithm](https://en.wikipedia.org/wiki/Logarithm),
-[Sigmoid function](https://en.wikipedia.org/wiki/Sigmoid_function) — CC
-BY-SA 4.0. Text below is written from scratch, not copied, following
+[Sigmoid function](https://en.wikipedia.org/wiki/Sigmoid_function),
+[Integral](https://en.wikipedia.org/wiki/Integral),
+[Variance](https://en.wikipedia.org/wiki/Variance),
+[Standard deviation](https://en.wikipedia.org/wiki/Standard_deviation),
+[Normal distribution](https://en.wikipedia.org/wiki/Normal_distribution) —
+CC BY-SA 4.0. Text below is written from scratch, not copied, following
 these ideas; standard results (the geometric dot-product formula, the
 chain rule, Bayes' theorem, the t-test formula) are stated in the
 conventional way found in any of these sources. The volcano-plot figure
@@ -50,7 +54,11 @@ vector and the Frobenius norm of a matrix, compute a dot product by hand
 and interpret it geometrically, normalize a vector and compute a cross
 product, find the eigenvalues of a small matrix by hand, take a partial
 derivative of a simple multivariable function and use it to run a step
-of gradient descent, apply Bayes' rule to a concrete
+of gradient descent, recall the derivative of the handful of functions
+that come up constantly in this course, explain integration as the
+reverse of differentiation, compute the variance and standard deviation
+of a simple random variable and describe the 68-95-99.7 rule for a
+normal distribution, apply Bayes' rule to a concrete
 conditional-probability problem, explain what a p-value does and doesn't
 mean, run a two-sample t-test, explain why testing thousands of genes at
 once requires correcting for multiple testing, and explain why
@@ -483,6 +491,80 @@ weights, and the chain rule is what lets us compute how each weight,
 however deeply buried, should change, by multiplying together the
 derivatives of every function it passes through on the way to the output.
 
+### Derivative cheat sheet
+
+A short table of the derivatives that come up constantly throughout this
+course — worth having memorized rather than re-derived every time:
+
+| $f(x)$ | $f'(x)$ |
+|---|---|
+| constant $c$ | $0$ |
+| $x^n$ | $n x^{n-1}$ |
+| $e^x$ | $e^x$ |
+| $\ln(x)$ | $1/x$ |
+| $\sin(x)$ | $\cos(x)$ |
+| $\cos(x)$ | $-\sin(x)$ |
+| $\sigma(z) = 1/(1+e^{-z})$ | $\sigma(z)\,(1-\sigma(z))$ |
+
+The last row is worth flagging specifically: it's the exact derivative
+Day 9's backpropagation needs for every sigmoid-activated unit in a
+network, and the reason it's usually written in terms of $\sigma(z)$
+itself (rather than re-expanded in $e^{-z}$) is that, once you've
+already computed $\sigma(z)$ on the forward pass, its derivative costs
+nothing extra to get.
+
+A derivative is zero exactly where a function is momentarily flat — at a
+peak, a trough, or an inflection with a horizontal tangent. $\sin(x)$
+and its derivative $\cos(x)$ make this visible directly:
+
+![$f(x)=\sin(x)$ (solid) and $f'(x)=\cos(x)$ (dashed). Wherever $\sin(x)$ reaches a peak or trough (dotted vertical lines), $\cos(x)$ crosses exactly zero.](figs/day01-derivative-cheat-sheet.png){width=85%}
+
+### Integrals
+
+Integration is differentiation run backwards: given a derivative, find
+the function it came from. Geometrically, the **definite integral**
+$\int_a^b f(x)\,dx$ is the area under $f$'s curve between $a$ and $b$;
+the **indefinite integral** $\int f(x)\,dx$ recovers a whole family of
+functions differing only by a constant $C$ (since a constant's own
+derivative is always zero, per the cheat sheet above, integration alone
+can never tell which constant the original function had).
+
+**Worked example.** This page already differentiated $f(x) = (x-3)^2$
+into $f'(x) = 2(x-3)$, for the gradient-descent table further up.
+Integrating goes the other direction and should recover $f$ itself, up
+to a constant:
+
+$$
+\int 2(x-3)\,dx = (x-3)^2 + C
+$$
+
+— exactly the $f(x)$ this whole worked example started from. This is
+the informal **Fundamental Theorem of Calculus**: integration and
+differentiation are inverse operations.
+
+Two places this shows up later in the course, both without ever needing
+to solve an integral symbolically by hand: a continuous probability
+density (introduced in Part 3 below) is not itself a probability — it's
+the *area under* a stretch of it, i.e. its integral over that range,
+that gives an actual probability. And starting Day 8, "area under the
+ROC curve" (AUROC) and "area under the precision-recall curve" (AUPR)
+are two of this course's standard classifier-evaluation metrics — both
+literally integrals, computed numerically (the trapezoidal rule, summing
+up thin strips under a finite set of points) rather than solved in
+closed form, since a real ROC curve isn't a tidy algebraic function.
+
+**Practice problem.** For $f(x) = 4x^3$, find $f'(x)$ using the cheat
+sheet above, then integrate your answer and confirm you recover (a
+constant multiple of) $f(x)$ itself.
+
+::: {.callout-note collapse="true"}
+## Solution
+$f'(x) = 12x^2$ (power rule: $n=4$, so $4x^{4-1} \times$ coefficient
+$1 = 12x^2$... concretely $\frac{d}{dx}(4x^3) = 4 \cdot 3x^2 = 12x^2$).
+Integrating back: $\int 12x^2\,dx = 4x^3 + C$ — exactly $f(x)$, up to the
+constant integration can never recover.
+:::
+
 **Practice problem.** For $f(x_0, x_1) = 3x_0^2 + 2x_0 x_1$, compute
 $\nabla f$ at the point $(1, 2)$.
 
@@ -514,6 +596,18 @@ renderQuiz("day01-quiz-2", [
     ],
     correctIndex: 0,
     explanation: "f'(x) = 2(x-3) gets smaller as x approaches 3, and the update is always &eta; times that shrinking value."
+  },
+  {
+    question: "Using the derivative cheat sheet, what is the derivative of &sigma;(z) = 1/(1+e&#8315;&#7611;)?",
+    choices: ["&sigma;(z)(1 &minus; &sigma;(z))", "e&#8315;&#7611;", "&minus;e&#8315;&#7611;", "1/(1+e&#8315;&#7611;)&sup2;"],
+    correctIndex: 0,
+    explanation: "The sigmoid's derivative is conventionally written in terms of &sigma;(z) itself -- &sigma;(z)(1-&sigma;(z)) -- exactly the form Day 9's backpropagation uses."
+  },
+  {
+    question: "If f'(x) = 2(x-3), what is &int; f'(x) dx?",
+    choices: ["(x-3)&sup2; + C", "2(x-3)&sup2; + C", "x&sup2; - 3 + C", "2x - 6"],
+    correctIndex: 0,
+    explanation: "Integration undoes differentiation, up to an unrecoverable additive constant -- exactly the f(x) = (x-3)&sup2; this page's own gradient-descent example started from."
   }
 ]);
 </script>
@@ -522,6 +616,7 @@ renderQuiz("day01-quiz-2", [
 ### Further reading
 
 - Wikipedia, [Gradient](https://en.wikipedia.org/wiki/Gradient) and [Chain rule](https://en.wikipedia.org/wiki/Chain_rule) — further into multivariate calculus (Jacobians, the generalized chain rule) than this course needs
+- Wikipedia, [Integral](https://en.wikipedia.org/wiki/Integral) — the formal definition and techniques of integration, beyond the informal treatment above
 - d2l.ai, [Calculus](https://d2l.ai/chapter_preliminaries/calculus.html) — the same gradient-descent idea, with code
 
 ### Further watching
@@ -531,6 +626,38 @@ renderQuiz("day01-quiz-2", [
 ```{=html}
 <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
 <iframe src="https://www.youtube.com/embed/YG15m2VwSjA" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="Visualizing the chain rule and product rule, 3Blue1Brown"></iframe>
+</div>
+```
+
+[*The paradox of the derivative*](https://www.youtube.com/watch?v=9vKqVkMQHKk) (3Blue1Brown, Essence of Calculus, ch. 2) — what "instantaneous rate of change" actually means, resolving the apparent paradox that change needs two moments to compare, not one:
+
+```{=html}
+<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
+<iframe src="https://www.youtube.com/embed/9vKqVkMQHKk" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="The paradox of the derivative, 3Blue1Brown"></iframe>
+</div>
+```
+
+[*Derivative formulas through geometry*](https://www.youtube.com/watch?v=S0_qX4VJhMQ) (3Blue1Brown, Essence of Calculus, ch. 3) — where the derivative cheat-sheet formulas above actually come from, visually:
+
+```{=html}
+<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
+<iframe src="https://www.youtube.com/embed/S0_qX4VJhMQ" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="Derivative formulas through geometry, 3Blue1Brown"></iframe>
+</div>
+```
+
+[*Integration and the fundamental theorem of calculus*](https://www.youtube.com/watch?v=rfG8ce4nNh0) (3Blue1Brown, Essence of Calculus, ch. 8):
+
+```{=html}
+<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
+<iframe src="https://www.youtube.com/embed/rfG8ce4nNh0" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="Integration and the fundamental theorem of calculus, 3Blue1Brown"></iframe>
+</div>
+```
+
+[*What does area have to do with slope?*](https://www.youtube.com/watch?v=FnJqaIESC2s) (3Blue1Brown, Essence of Calculus, ch. 9) — a second, complementary view of why integration and differentiation are inverses:
+
+```{=html}
+<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
+<iframe src="https://www.youtube.com/embed/FnJqaIESC2s" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="What does area have to do with slope?, 3Blue1Brown"></iframe>
 </div>
 ```
 
@@ -555,6 +682,98 @@ $$
 
 Note that 3.5 isn't even a possible outcome of a single roll — expectation
 is a long-run average, not a prediction of any one result.
+
+### Variance, standard deviation, and the normal distribution
+
+The mean alone doesn't say how *spread out* a distribution is. Two
+datasets can share the same mean while looking completely different —
+one tightly clustered, one scattered widely. **Variance** measures that
+spread, as the expected squared distance from the mean:
+
+$$
+\text{Var}(X) = \mathbb{E}\big[(X-\mu)^2\big]
+$$
+
+Squaring keeps positive and negative deviations from cancelling out, but
+it also changes the units (a variance in, say, squared micrograms is
+awkward to interpret). **Standard deviation** fixes that by undoing the
+square:
+
+$$
+\sigma = \sqrt{\text{Var}(X)}
+$$
+
+— back in the same units as $X$ itself, and directly comparable to the
+mean.
+
+**Worked example.** The same fair six-sided die as above, with mean
+$\mu = 3.5$:
+
+$$
+\text{Var}(X) = \frac{(1-3.5)^2+(2-3.5)^2+(3-3.5)^2+(4-3.5)^2+(5-3.5)^2+(6-3.5)^2}{6} = \frac{35}{12} \approx 2.917
+$$
+
+$$
+\sigma = \sqrt{35/12} \approx 1.708
+$$
+
+Standard deviation is the same quantity the Student's t-test uses
+further down this page: its $s_p$ term is exactly this, a *pooled*
+standard deviation estimated from real sample data rather than computed
+exactly from a known die.
+
+The single most common continuous distribution is the **normal**
+(Gaussian) distribution — the familiar bell curve, fully described by
+just its mean $\mu$ and standard deviation $\sigma$:
+
+$$
+f(x) = \frac{1}{\sigma\sqrt{2\pi}} \, e^{-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2}
+$$
+
+(notice the $e^x$ sitting inside this formula — the next section below
+explains exactly why exponentials show up here and almost everywhere
+else in this course.) A normal distribution's spread follows the
+**68-95-99.7 rule**: about 68% of values fall within one standard
+deviation of the mean, 95% within two, and 99.7% within three — worth
+having as a rough intuition for "how surprising is this value" without
+running any calculation.
+
+### Logarithms and exponential functions
+
+Two more functions are worth having solid, since they appear constantly
+from here on: the **exponential function** $e^x$ (where $e \approx
+2.718$) — you just saw it inside the normal distribution's own formula
+above — and its inverse, the **logarithm** $\log(x)$ — asking "$e$ to
+what power gives $x$?" Different bases are common: $\log_{10}$ and
+$\log_2$ (both used below, for a volcano plot's axes) are the same idea
+with a different base, related to the natural log by a constant factor.
+
+The property that matters most: logarithms turn multiplication into
+addition,
+
+$$
+\log(xy) = \log(x) + \log(y)
+$$
+
+This is exactly why substitution-matrix scores (Day 4) and profile
+scores (Day 5) are **sums** of per-position log-odds terms rather than
+products of odds ratios — adding numbers is easier to reason about (and
+far less prone to numerical underflow) than multiplying many small
+probabilities together, and the log turns one into the other without
+changing which alignment or match scores best.
+
+**Worked example.** $\log_{10}(0.001) = -3$, since $10^{-3} = 0.001$ —
+exactly why a p-value of 0.001 gives $-\log_{10}(p) = 3$ on a volcano
+plot's y-axis (introduced further down this page): smaller p-values
+(stronger evidence) become larger, more-positive bars.
+
+The exponential function shows up just as often, usually to turn an
+unbounded number into a positive one (since $e^x > 0$ for every $x$) or
+into a probability. Day 6's perceptron uses exactly this: the **sigmoid
+function**, $\sigma(z) = 1/(1+e^{-z})$, squashes any real-valued $z$
+into the range $(0, 1)$, turning a weighted sum into something that can
+be read as a probability. (Its derivative is on the cheat sheet in Part
+2 above.)
 
 **Conditional probability** — the probability of one event given that
 another has occurred, written $P(A \mid B)$ — and **Bayes' rule**, which
@@ -687,42 +906,6 @@ real differentially expressed genes and only 1 is a false positive —
 recovering the large majority of the true effects while controlling the
 false-positive flood the naive threshold let straight through.
 
-### Logarithms and exponential functions
-
-Two more functions are worth having solid, since they appear constantly
-from here on: the **exponential function** $e^x$ (where $e \approx
-2.718$), and its inverse, the **logarithm** $\log(x)$ — asking "$e$ to
-what power gives $x$?" Different bases are common: $\log_{10}$ (used
-just above, for the volcano plot's y-axis) and $\log_2$ (used for the
-volcano plot's fold change) are the same idea with a different base,
-related to the natural log by a constant factor.
-
-The property that matters most: logarithms turn multiplication into
-addition,
-
-$$
-\log(xy) = \log(x) + \log(y)
-$$
-
-This is exactly why substitution-matrix scores (Day 4) and profile
-scores (Day 5) are **sums** of per-position log-odds terms rather than
-products of odds ratios — adding numbers is easier to reason about (and
-far less prone to numerical underflow) than multiplying many small
-probabilities together, and the log turns one into the other without
-changing which alignment or match scores best.
-
-**Worked example.** $\log_{10}(0.001) = -3$, since $10^{-3} = 0.001$ —
-exactly why a p-value of 0.001 gives $-\log_{10}(p) = 3$ on the volcano
-plot's y-axis: smaller p-values (stronger evidence) become larger,
-more-positive bars.
-
-The exponential function shows up just as often, usually to turn an
-unbounded number into a positive one (since $e^x > 0$ for every $x$) or
-into a probability. Day 6's perceptron uses exactly this: the **sigmoid
-function**, $\sigma(z) = 1/(1+e^{-z})$, squashes any real-valued $z$
-into the range $(0, 1)$, turning a weighted sum into something that can
-be read as a probability.
-
 **Practice problems.**
 
 1. A fair six-sided die is rolled once. What is $P(\text{even} \mid X >
@@ -733,6 +916,8 @@ be read as a probability.
    chance alone?
 3. A gene has a p-value of $10^{-6}$. What is its height on a volcano
    plot's y-axis, $-\log_{10}(p)$?
+4. A random variable takes value 2 with probability 0.5 and value 6 with
+   probability 0.5. Compute its mean, variance, and standard deviation.
 
 ::: {.callout-note collapse="true"}
 ## Solutions
@@ -742,6 +927,8 @@ be read as a probability.
 2. $100 \times 0.05 = 5$ false positives expected, even though every one
    of the 100 genes is truly non-differentially-expressed.
 3. $-\log_{10}(10^{-6}) = 6$.
+4. $\mu = 0.5(2) + 0.5(6) = 4$. $\text{Var}(X) = 0.5(2-4)^2 + 0.5(6-4)^2
+   = 0.5(4) + 0.5(4) = 4$. $\sigma = \sqrt{4} = 2$.
 :::
 
 **Check your understanding:**
@@ -817,6 +1004,12 @@ renderQuiz("day01-quiz-3", [
     choices: ["(0, 1)", "(-1, 1)", "(0, &infin;)", "Any real number"],
     correctIndex: 0,
     explanation: "The sigmoid squashes any real-valued input into the open interval (0, 1), which is exactly why it can be read as a probability."
+  },
+  {
+    question: "For a normal distribution with mean &mu; and standard deviation &sigma;, roughly what fraction of values fall within 2&sigma; of the mean?",
+    choices: ["68%", "95%", "99.7%", "50%"],
+    correctIndex: 1,
+    explanation: "The 68-95-99.7 rule: about 95% of a normal distribution's values fall within two standard deviations of the mean."
   }
 ]);
 </script>
@@ -831,6 +1024,30 @@ renderQuiz("day01-quiz-3", [
 - d2l.ai, [Probability and Statistics](https://d2l.ai/chapter_preliminaries/probability.html) — connects this directly to how machine-learning models are evaluated
 
 ### Further watching
+
+[*But what is the Central Limit Theorem?*](https://www.youtube.com/watch?v=zeJD6dqJ5lo) (3Blue1Brown) — why sums/averages of many random variables tend toward a normal distribution regardless of the shape of the individual variables, directly extending the variance/normal-distribution section above:
+
+```{=html}
+<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
+<iframe src="https://www.youtube.com/embed/zeJD6dqJ5lo" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="But what is the Central Limit Theorem?, 3Blue1Brown"></iframe>
+</div>
+```
+
+[*Binomial distributions | Probabilities of probabilities, part 1*](https://www.youtube.com/watch?v=8idr1WZ1A7Q) (3Blue1Brown) — the natural extension of this page's die-roll example: repeating a yes/no trial many times and counting successes:
+
+```{=html}
+<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
+<iframe src="https://www.youtube.com/embed/8idr1WZ1A7Q" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="Binomial distributions, Probabilities of probabilities part 1, 3Blue1Brown"></iframe>
+</div>
+```
+
+[*Why "probability of 0" does not mean "impossible" | Probabilities of probabilities, part 2*](https://www.youtube.com/watch?v=ZA4JkHKZM50) (3Blue1Brown) — the same series' follow-up, on continuous distributions (like the normal distribution above), where any single exact value has probability zero without being impossible:
+
+```{=html}
+<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
+<iframe src="https://www.youtube.com/embed/ZA4JkHKZM50" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="Why probability of 0 does not mean impossible, Probabilities of probabilities part 2, 3Blue1Brown"></iframe>
+</div>
+```
 
 [*Bayes theorem, the geometry of changing beliefs*](https://www.youtube.com/watch?v=HZGCoVF3YvM) (3Blue1Brown):
 
