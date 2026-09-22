@@ -2,9 +2,7 @@
 **Sources for this page:** Petras Kundrotas's KB8029 lecture "Protein
 Structure" (Feb 2026) — this page follows its structure for the levels-
 of-structure and structure-prediction material, adapted and substantially
-shortened, not copied verbatim (the lecture's later material on
-structure-comparison metrics and classification databases is beyond this
-session's scope and not covered here); Wikipedia,
+shortened, not copied verbatim; Wikipedia,
 [Protein structure](https://en.wikipedia.org/wiki/Protein_structure),
 [Alpha helix](https://en.wikipedia.org/wiki/Alpha_helix),
 [Beta sheet](https://en.wikipedia.org/wiki/Beta_sheet),
@@ -17,16 +15,44 @@ session's scope and not covered here); Wikipedia,
 Baldwin & Chothia (1979), "Haemoglobin: the structural changes related to
 ligand binding and its allosteric mechanism," *Journal of Molecular
 Biology* 129:175-220 ([PubMed](https://pubmed.ncbi.nlm.nih.gov/39173/)).
-The two real crystal structures used below and in the notebook, PDB
-entries [2HHB](https://www.rcsb.org/structure/2HHB) (deoxy hemoglobin)
-and [1HHO](https://www.rcsb.org/structure/1HHO) (oxy hemoglobin), were
-fetched live from the PDB archive — structure coordinate data is
+Structural-classification and structural-alignment sources: Murzin,
+Brenner, Hubbard & Chothia (1995), "SCOP: a structural classification of
+proteins database," *J. Mol. Biol.* 247:536-540
+([PubMed](https://pubmed.ncbi.nlm.nih.gov/7723011/)); Orengo, Michie,
+Jones, Jones & Swindells (1997), "CATH — a hierarchic classification of
+protein domain structures," *Structure* 5:1093-1108
+([PubMed](https://pubmed.ncbi.nlm.nih.gov/9309224/)); Cheng, Schaeffer,
+Liao, Kinch & Pei (2014), "ECOD: an evolutionary classification of
+protein domains," *PLoS Computational Biology* 10:e1003926
+([PubMed](https://pubmed.ncbi.nlm.nih.gov/25474468/)); Lau, Bordin,
+Kandathil, Sillitoe & Waman et al. (2024), "Exploring structural
+diversity across the protein universe with The Encyclopedia of
+Domains," *Science* 386:eadq4946
+([PubMed](https://pubmed.ncbi.nlm.nih.gov/39480926/)); Holm & Sander
+(1993), "Protein structure comparison by alignment of distance
+matrices" (DALI), *J. Mol. Biol.* 233:123-138
+([PubMed](https://pubmed.ncbi.nlm.nih.gov/8377180/)); Zhang & Skolnick
+(2005), "TM-align: a protein structure alignment algorithm based on the
+TM-score," *Nucleic Acids Research* 33:2302-2309
+([PubMed](https://pubmed.ncbi.nlm.nih.gov/15849316/)); van Kempen, Kim,
+Tumescheit, Mirdita, Lee, Gilchrist, Söding & Steinegger (2024), "Fast
+and accurate protein structure search with Foldseek," *Nature
+Biotechnology* 42:243-246
+([PubMed](https://pubmed.ncbi.nlm.nih.gov/37156916/)) — CC BY 4.0
+(Foldseek paper). The two real crystal structures used below and in the
+notebook, PDB entries [2HHB](https://www.rcsb.org/structure/2HHB)
+(deoxy hemoglobin) and [1HHO](https://www.rcsb.org/structure/1HHO) (oxy
+hemoglobin), were fetched live from the PDB archive — structure
+coordinate data is
 [CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) (public
-domain). All secondary-structure counts, distances, and the rendered
-figure below were computed fresh for this page and its notebook using
-[Biopython](https://biopython.org/) and a locally-run
-[PyMOL](https://pymol.org/) (open-source), not taken from the lecture's
-own numbers or images.
+domain), as is a third real structure used below,
+[1EMA](https://www.rcsb.org/structure/1EMA) (green fluorescent
+protein). All secondary-structure counts, distances, the Foldseek
+comparison, and the rendered figure below were computed fresh for this
+page and its notebook using [Biopython](https://biopython.org/), a
+locally-run [PyMOL](https://pymol.org/) (open-source), and a
+locally-run [Foldseek](https://github.com/steineggerlab/foldseek)
+(open-source), not taken from the lecture's own numbers or images.
 :::
 
 # Day 7: Protein Structure
@@ -92,6 +118,59 @@ illustrated.](figs/day07-hemoglobin-tetramer.png){width=85%}
 - Wikipedia, [Protein structure](https://en.wikipedia.org/wiki/Protein_structure) — a fuller treatment of all four levels
 - RCSB [PDB-101](https://pdb101.rcsb.org/) — short, illustrated explainers on structure and specific proteins, aimed at newcomers
 
+## Protein domain classification
+
+A **domain** is a compact, semi-independent unit within a tertiary
+structure — often able to fold and function on its own even when cut
+out of the rest of the chain, and frequently reused across otherwise
+unrelated proteins as a kind of structural building block. Days 3 and 5
+already covered domains from the *sequence* side (InterPro/Pfam, built
+from profile HMMs over sequence alignments). The databases below
+classify domains the other way round — from the actual solved 3D shape
+— which can group together real structural relatives that sequence
+alone misses entirely (sequence similarity fades away long before
+structural similarity does), and can equally miss a real relationship
+sequence-based methods do catch. Four real classification databases,
+each with a genuinely different philosophy:
+
+- **SCOP** (Structural Classification of Proteins; Murzin et al., 1995)
+  — the original: a hierarchy (class → fold → superfamily → family)
+  built mostly by expert manual curation, prioritizing classification
+  accuracy over automated coverage of every solved structure. Hosted at
+  EBI: [`ebi.ac.uk/pdbe/scop`](https://www.ebi.ac.uk/pdbe/scop/).
+- **CATH** (Class, Architecture, Topology, Homologous superfamily;
+  Orengo et al., 1997) — a parallel hierarchy with a similar spirit but
+  a different, more automated pipeline and different boundary/grouping
+  decisions in practice. [`cathdb.info`](https://www.cathdb.info/).
+- **ECOD** (Evolutionary Classification of Domains; Cheng et al., 2014)
+  — organizes domains primarily by inferred evolutionary relationship
+  rather than pure structural similarity, explicitly built to separate
+  "related by common ancestry" from "similar by coincidence or
+  convergence."
+  [`prodata.swmed.edu/ecod`](http://prodata.swmed.edu/ecod/).
+- **TED** (The Encyclopedia of Domains; Lau, Bordin et al., 2024, from
+  the same group that maintains CATH) — the newest of the four, built
+  by algorithmically parsing essentially the *entire* AlphaFold
+  Structure Database into domains at a scale no manual curation effort
+  could reach: hundreds of millions of predicted structures, not just
+  the roughly 200,000 experimentally solved ones the other three draw
+  from. [`ted.cathdb.info`](https://ted.cathdb.info/).
+
+These four don't always agree with each other on exactly where one
+domain ends and the next begins, or on how to group distant
+superfamilies together — a genuine, long-standing methodological
+tension in the field (different curation philosophies and similarity
+thresholds), not a matter of one being simply "right" and the others
+"wrong." Knowing more than one of these exists, and why, matters more
+than picking a single favorite.
+
+### Further reading
+
+- SCOP, [`ebi.ac.uk/pdbe/scop`](https://www.ebi.ac.uk/pdbe/scop/)
+- CATH, [`cathdb.info`](https://www.cathdb.info/)
+- ECOD, [`prodata.swmed.edu/ecod`](http://prodata.swmed.edu/ecod/)
+- TED, [`ted.cathdb.info`](https://ted.cathdb.info/)
+
 ## Why predicting the fold from sequence is hard
 
 A given amino acid sequence reliably folds into the same 3D structure
@@ -111,7 +190,18 @@ were developed, each with a real limitation:
   fold the chain by searching for the arrangement with the lowest free
   energy. The most rigorous approach in principle, but computationally
   so expensive it was, for a long time, only practical for small
-  proteins (under roughly 100 residues).
+  proteins (under roughly 100 residues). **Rosetta** (Baker lab,
+  University of Washington) is the best-known real software built
+  around exactly this approach — originally assembling structures from
+  short fragments of similar, already-solved sequences rather than
+  searching the full physical space from nothing, later extended well
+  beyond ab initio prediction into comparative modeling and protein
+  *design* (building a new sequence to fold into a chosen shape, not
+  just predicting the fold of an existing one). David Baker shared the
+  2024 Nobel Prize in Chemistry for this work — alongside Demis
+  Hassabis and John Jumper for AlphaFold, the deep-learning method
+  below — a real, direct link between this session's "classical" and
+  "modern" strategies, not two unrelated stories.
 - **Comparative modeling (homology modeling / threading)** — if a
   protein of known structure is similar enough in sequence, assume the
   new protein folds the same way and build a model from that template.
@@ -133,18 +223,67 @@ learning, most famously AlphaFold (2020) — which Day 12 covers properly,
 once this course has built up the neural-network machinery (Days 6-9)
 that made it possible.
 
-Structures also need to be **compared** to each other quantitatively,
-not just predicted — e.g. to check how close a predicted structure is to
-the real one. The most common such measure, root-mean-square deviation
-(RMSD) between corresponding atoms after optimally superimposing the two
-structures, and a length-independent alternative, the TM-score, are
-outside this session's scope but worth knowing exist.
-
 ### Further reading
 
 - Wikipedia, [Anfinsen's dogma](https://en.wikipedia.org/wiki/Anfinsen%27s_dogma)
 - Wikipedia, [Homology modeling](https://en.wikipedia.org/wiki/Homology_modeling) and [Threading (protein sequence)](https://en.wikipedia.org/wiki/Threading_(protein_sequence))
-- Wikipedia, [Root-mean-square deviation of atomic positions](https://en.wikipedia.org/wiki/Root-mean-square_deviation_of_atomic_positions) and [Template modeling score](https://en.wikipedia.org/wiki/Template_modeling_score) — the two most common structure-comparison measures, not needed until they come up again with AlphaFold on Day 12
+- Rosetta Commons, [`rosettacommons.org`](https://rosettacommons.org/)
+
+## Comparing structures: RMSD, TM-score, and Foldseek
+
+Structures need to be **compared** to each other quantitatively, not
+just predicted — e.g. to check how close a predicted structure is to
+the real one, or whether two real structures share a fold at all.
+
+**RMSD** (root-mean-square deviation) is the most direct measure: after
+optimally superimposing two structures, it's the root-mean-square
+distance between their corresponding atoms. Simple, but sensitive to
+protein length and to a single badly-misplaced loop dragging the whole
+number up even when the rest of the fold matches well. The **TM-score**
+fixes both problems with a length-normalizing formula that also
+down-weights small local deviations, giving a score from 0 to 1 that's
+comparable across proteins of different sizes — roughly, above ~0.5
+indicates the same overall fold, and 1.0 is a perfect match.
+
+**Foldseek** (van Kempen, Steinegger et al., 2024) does for structure
+search what BLAST (Day 5) does for sequence search: turn database-scale
+structural comparison from something expensive into something that
+runs in seconds. Its key idea is a change of representation, the same
+kind of move that makes BLAST fast — it encodes each residue's local
+3D neighborhood into a small discrete "3Di" alphabet, so comparing two
+*structures* becomes comparing two *strings* with fast sequence-alignment
+methods instead of expensive geometric superposition. This is what
+makes it practical to search a single query against the hundreds of
+millions of structures in the AlphaFold Structure Database and the PDB
+combined, in seconds rather than days. Before Foldseek, **DALI** (Holm
+& Sander, 1993) and **TM-align** (Zhang & Skolnick, 2005) were the
+standard tools for exactly this kind of comparison — both real,
+accurate, and still used for a single careful pairwise alignment, just
+far too slow to run at Foldseek's database scale.
+
+**A real worked comparison**, run locally with Foldseek on three real
+structures: the two hemoglobin states already used on this page
+(`2HHB`, `1HHO`) plus a real, unrelated fold, green fluorescent protein
+(`1EMA`, an all-beta barrel — nothing like hemoglobin's all-alpha
+globin fold). Matching alpha-to-alpha or beta-to-beta chains between
+`2HHB` and `1HHO` (the *same* protein in two conformational states)
+gives a TM-score of **0.98** and an RMSD of **0.7 Å** — about as similar
+as two independently solved structures get. Comparing across chain
+types (alpha vs. beta globin — related by evolution, but only ~43%
+identical in sequence) still gives a TM-score around **0.90-0.91**
+(RMSD ~1.7-1.8 Å) — the fold stays clearly recognizable as the same
+globin family even once sequence identity has dropped a long way,
+exactly the "structure is more conserved than sequence" point Day 5's
+evolutionary methods rely on, now shown geometrically rather than
+asserted. Searching `2HHB` against GFP (`1EMA`) returns **zero hits**,
+even with an artificially loosened significance threshold — Foldseek
+correctly finds no meaningful structural relationship between two
+genuinely unrelated folds.
+
+### Further reading
+
+- Wikipedia, [Root-mean-square deviation of atomic positions](https://en.wikipedia.org/wiki/Root-mean-square_deviation_of_atomic_positions) and [Template modeling score](https://en.wikipedia.org/wiki/Template_modeling_score)
+- Foldseek, [GitHub](https://github.com/steineggerlab/foldseek) and [web server](https://search.foldseek.com/search) — try it on any real PDB entry or AlphaFold model, no installation needed
 
 ## Structure visualization: PyMOL
 
@@ -239,6 +378,39 @@ renderQuiz("day07-quiz", [
     ],
     correctIndex: 0,
     explanation: "This is exactly the T (tense, deoxy) to R (relaxed, oxy) quaternary shift Baldwin & Chothia (1979) described &mdash; a real, measurable change in quaternary structure, not primary structure."
+  },
+  {
+    question: "SCOP, CATH, ECOD, and TED all classify protein domains. How do they differ from Day 3/5's InterPro/Pfam domain classification?",
+    choices: [
+      "SCOP/CATH/ECOD/TED classify domains by their actual solved or predicted 3D shape; InterPro/Pfam classify by sequence similarity",
+      "They classify completely different things; domains in one system have no relationship to domains in the other",
+      "SCOP/CATH/ECOD/TED are simply newer, more accurate replacements for InterPro/Pfam",
+      "InterPro/Pfam only work for RNA, while SCOP/CATH/ECOD/TED only work for protein"
+    ],
+    correctIndex: 0,
+    explanation: "Structure-based and sequence-based domain classification are complementary, not competing &mdash; structural similarity can survive long after sequence similarity has faded past detection."
+  },
+  {
+    question: "Foldseek can search a query structure against hundreds of millions of real and predicted structures in seconds. What is the key idea that makes this possible?",
+    choices: [
+      "Encoding each residue's local 3D neighborhood into a small discrete alphabet (3Di), turning structure comparison into fast sequence-like alignment instead of expensive geometric superposition",
+      "Foldseek only compares a small, hand-picked subset of atoms from each structure",
+      "Foldseek skips significance testing entirely to save time",
+      "Foldseek only works on proteins shorter than 100 residues"
+    ],
+    correctIndex: 0,
+    explanation: "The same kind of representation change that makes BLAST fast for sequence search &mdash; turn an expensive geometric problem into a fast string-alignment one."
+  },
+  {
+    question: "Foldseek reports a TM-score around 0.90-0.91 (RMSD ~1.7-1.8 &Aring;) comparing alpha-globin to beta-globin chains (2HHB vs. 1HHO, ~43% sequence identity), but zero hits at all comparing hemoglobin to GFP. What does the alpha-vs-beta-globin result demonstrate?",
+    choices: [
+      "That structural similarity can remain clearly detectable well after sequence identity has dropped a long way &mdash; structure is more conserved than sequence",
+      "That Foldseek cannot distinguish between related and unrelated protein folds",
+      "That alpha- and beta-globin have identical sequences",
+      "That TM-score is only meaningful for proteins of exactly the same length"
+    ],
+    correctIndex: 0,
+    explanation: "This is the same 'evolutionary information persists' theme Day 5's profile methods rely on &mdash; here it's the 3D fold, not a sequence profile, that stays recognizable."
   }
 ]);
 </script>
@@ -246,20 +418,27 @@ renderQuiz("day07-quiz", [
 
 ## The lab
 
-**Full lab, PyMOL-first:** load hemoglobin (PDB `2HHB`, continuing the
-*HBB* thread from Days 3 and 6) directly in PyMOL, use its cartoon
-representation to identify the same alpha helices Day 6 already
-quantified from the PDBe API, and use PyMOL's built-in distance
-measurement to reproduce, hands-on in the GUI, the beta-beta heme
-iron-to-iron distance the notebook computes in code — then compare it
-against the oxygenated structure (`1HHO`) to see the same allosteric
-shift found in the notebook.
+**Full lab, PyMOL-first**, across three real structures beyond this
+page's own hemoglobin example: a real HIV envelope glycoprotein
+trimer/antibody complex (`7LXM`) for representations, chain coloring,
+extracting objects, structural alignment (`cealign`), and finding a
+real sequence inside a structure; a real chitinase with real bound
+metal ions and an inhibitor (`8C6Z`) for selecting and visualizing
+charged residues; and human neuroglobin (`1OJ6`) for a real Foldseek/
+TM-score comparison (in
+[`notebooks/day07-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day07-lab.ipynb))
+against its own real AlphaFold DB prediction, a related real globin,
+and an unrelated real fold — plus a real domain-classification lookup
+in CATH, tying back to this page's own new sections. Viewing a
+structure directly in VS Code (via the real Protein Viewer extension,
+handy while connected to the shared course server over SSH) is also
+covered.
 
 ### Submitting this lab
 
-Hand-in/grading for this lab isn't set up yet. It will likely run
-through a Canvas assignment — check the course's Canvas page for the
-actual submission mechanism before this session runs.
+This lab is administered through Canvas, not this book — see the
+course's Canvas page for the current quiz, deadline, and submission
+mechanism.
 
 ## What's next
 
