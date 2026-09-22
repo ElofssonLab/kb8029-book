@@ -384,9 +384,9 @@ different standard-library module (`bz2`, `lzma`), same `.open(path,
 
 ## Putting it together: from database to plot
 
-A last, real worked example, assembling most of this page's tools in
-one small pipeline — and a chance to actually *feel* the notebook
-advantage from earlier, not just read about it.
+A last, real worked example, assembling most of this page's tools
+across two independent real-data demos — and a chance to actually
+*feel* the notebook advantage from earlier, not just read about it.
 
 **Step 1 — Biopython, for real data.** Fetch five real human globin
 genes live from NCBI via `Bio.Entrez`/`Bio.SeqIO` — the same paralogous
@@ -491,15 +491,15 @@ renderQuiz("day02-quiz", [
     explanation: "Autograd tracks every operation as it happens, then applies Day 1's chain rule automatically when you call backward()."
   },
   {
-    question: "In the closing worked example, which part is real and which is simulated?",
+    question: "In the closing worked example, how do Step 1 (the globin genes) and Step 2 (the volcano plot) relate to each other?",
     choices: [
-      "The five genes' identities/sequences (fetched live from NCBI) are real; the expression measurements used to make the volcano plot are simulated",
-      "Everything is real -- NCBI provides matched control/treatment expression data for any gene on request",
-      "Everything is simulated, including which genes were used",
-      "The expression measurements are real; the gene identities were invented for the example"
+      "They're two independent real-data demos -- the volcano plot's mouse-liver data has nothing to do with the fetched human globin genes",
+      "The five fetched globin genes are the ones plotted in the volcano plot",
+      "The volcano plot's expression values are simulated from the fetched genes' sequences",
+      "NCBI provides matched control/treatment expression data for any gene on request, which Step 2 uses"
     ],
     correctIndex: 0,
-    explanation: "Same honesty split as Day 1's own volcano plot: real database records, explicitly-labeled simulated measurements layered on top."
+    explanation: "Both halves are real, but from unrelated sources: Bio.Entrez (Step 1) demonstrates live database access; the volcano plot (Step 2) reuses an already-published dataset. Fetching a real record live and verifying a real published dataset you didn't generate yourself are two different, both-worth-demonstrating skills -- not one pipeline feeding the other."
   },
   {
     question: "What does a pandas DataFrame add on top of a plain NumPy array?",
@@ -518,16 +518,21 @@ renderQuiz("day02-quiz", [
 
 ## The lab
 
-A full lab session: work through the notebook above, then adapt the
-closing from-database-to-plot example to a different small set of real
-genes of your choosing (fetched live via `Bio.Entrez`, same as above)
-and confirm your own volcano plot renders sensibly.
+A separate, dedicated lab notebook —
+[`notebooks/day02-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day02-lab.ipynb) —
+not a complete notebook to just run, but one with several `...`
+placeholders to fill in and run instead. It reuses this page's own
+running examples (the same 50 toy genes, the same live-fetch pattern
+for a globin-family gene) on new data this page didn't already work
+out, so copying an answer straight from this page won't get you
+anywhere. Once every cell runs and prints a real value, answer the Day
+2 lab quiz on Canvas using your own notebook's actual output.
 
 ### Submitting this lab
 
-Hand-in/grading for this lab isn't set up yet. It will likely run
-through a Canvas assignment — check the course's Canvas page for the
-actual submission mechanism before this session runs.
+This lab is administered through Canvas, not this book — see the
+course's Canvas page for the current quiz, deadline, and submission
+mechanism.
 
 ## What's next
 
