@@ -509,8 +509,9 @@ renderQuiz("day05-quiz", [
 
 ## The lab
 
-**Full lab**, covering Day 4's alignment practice, BLAST, and profile
-methods together as one continuous exercise: run a real BLAST search on
+**Full lab**, covering BLAST and profile methods as one continuous
+exercise (Day 4 now has its own short lab for alignment practice, so
+this one no longer needs to cover that too): run a real BLAST search on
 an unknown sequence, then run a profile-based search (PSI-BLAST, or a
 Pfam domain search as in the worked example above) on the same sequence
 and compare what the profile-based search finds that plain BLAST didn't,

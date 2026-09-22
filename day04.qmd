@@ -370,16 +370,26 @@ renderQuiz("day04-quiz", [
 
 ## The lab
 
-A short, genuinely by-hand exercise: fill in a small Needleman-Wunsch
-dynamic-programming matrix and trace back the optimal alignment
-yourself, on paper — this time using a real substitution matrix
-(BLOSUM62) instead of the teaching notebook's flat identity scheme, on
-two real protein fragments not used anywhere else on this page. A
-self-check notebook —
-[`notebooks/day04-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day04-lab.ipynb) —
-verifies your work cell by cell once you have an answer, rather than
-computing it for you. Once your matrix and traceback both check out,
-answer the Day 4 lab quiz on Canvas using your own results.
+Three steps, all reached through
+[`notebooks/day04-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day04-lab.ipynb):
+
+1. **By hand**: fill in a small Needleman-Wunsch dynamic-programming
+   matrix and trace back the optimal alignment yourself, on paper — this
+   time using a real substitution matrix (BLOSUM62) instead of the
+   teaching notebook's flat identity scheme, on two real protein
+   fragments not used anywhere else on this page. The notebook checks
+   your work a row at a time, rather than computing it for you.
+2. **In code**: see how the score and alignment from Step 1 change
+   across different gap penalties and substitution matrices, then a real
+   local `blastp` search against a small real database shows the same
+   kind of sensitivity in a genuine E-value.
+3. **In code**: build and visualize a small, real multiple sequence
+   alignment — the "Progressive" strategy from the section above, made
+   concrete on three real, short windows from proteins already used
+   throughout this course.
+
+Once all three steps are done, answer the Day 4 lab quiz on Canvas using
+your own results.
 
 ### Submitting this lab
 
