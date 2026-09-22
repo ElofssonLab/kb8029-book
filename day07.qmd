@@ -159,7 +159,10 @@ views) — and can measure real geometric quantities (distances, angles)
 directly from the loaded coordinates by clicking on atoms or via its
 command line. Today's lab uses it hands-on; the notebook drives the same
 program headlessly from Python to make its figures and measurements
-reproducible outside the interactive GUI.
+reproducible outside the interactive GUI. (Biopython, introduced on Day
+2 for sequences, also has a structure-handling module, `Bio.PDB` — this
+course uses PyMOL instead, for its fuller visualization and analysis
+toolkit.)
 
 ## The notebook
 

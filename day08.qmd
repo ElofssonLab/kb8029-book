@@ -208,11 +208,13 @@ direct comparison.
 
 ## Practical PyTorch: writing a model as a class
 
-A PyTorch model is written as a class inheriting from `nn.Module` — Day
-2's OOP lesson, now doing real work: a class with its layers as
-attributes (set up in `__init__`) and a `forward()` method describing
-how input tensors become output tensors. This is the pattern every
-model in the rest of this course follows.
+A PyTorch model is written as a class inheriting from `nn.Module` — this
+course's first real, taught use of Python's `class` syntax (Day 2's
+Biopython objects already showed the *pattern* — an object with its own
+attributes — without teaching the syntax itself): a class with its
+layers as attributes (set up in `__init__`) and a `forward()` method
+describing how input tensors become output tensors. This is the pattern
+every model in the rest of this course follows.
 
 ## Check your understanding
 

@@ -1,202 +1,343 @@
 ::: {.callout-note}
 **Sources for this page:** Swaroop, C. H., *A Byte of Python*,
 <https://python.swaroopch.com/> — CC BY-SA 4.0, commercial use permitted.
-Python fundamentals and its Object-Oriented Programming chapter. The
-notebook's tensor/autograd sections are reused from this course's own
-existing teaching material (`notebooks/pytorch_bio_intro.ipynb`), not
-newly written. The scientific-stack section names Biopython, NumPy,
-pandas, Matplotlib, seaborn, SciPy, and scikit-learn as tools, with
-usage demonstrated in original example code — no text is reused from
-any of their documentation. Which of those tools get a light refresher
-versus fuller treatment here is informed by `slides/course_compendium
-(2).pdf`, the prerequisite DA7066 course's own compendium (Arvestad,
-Helanow, Mörtberg & Sahlin) — an internal planning reference, not
-excerpted or linked as further reading.
+Python fundamentals. The notebook's tensor/autograd sections are reused
+from this course's own existing teaching material
+(`notebooks/pytorch_bio_intro.ipynb`), not newly written. The
+scientific-stack sections name Biopython, NumPy, pandas, Matplotlib,
+seaborn, SciPy, and scikit-learn as tools, with usage demonstrated in
+original example code — no text is reused from any of their
+documentation. Which of those tools get a light refresher versus fuller
+treatment here is informed by `slides/course_compendium (2).pdf`, the
+prerequisite DA7066 course's own compendium (Arvestad, Helanow, Mörtberg
+& Sahlin) — an internal planning reference, not excerpted or linked as
+further reading. The closing worked example fetches five real human
+globin-gene records live from NCBI via `Bio.Entrez` while writing this
+page (accessions verified below), then simulates expression data for
+them in the same honest, explicitly-labeled way Day 1's volcano plot
+does — see that page's own sources note for the same pattern.
 :::
 
 # Day 2: Programming Prerequisites
 
 ## Learning goals
 
-By the end of this session you should be able to write and use your own
-Python functions and classes, explain what a tensor is and how it
-generalizes the vectors and matrices from Day 1, create and manipulate
-tensors (indexing, slicing, reshaping), and explain what automatic
+By the end of this session you should be able to explain what a
+notebook actually is and why cell execution order matters, import and
+use an external Python library rather than writing everything from
+scratch, create and manipulate PyTorch tensors, explain what automatic
 differentiation computes and why it matters for everything from Day 6
-onward.
+onward, fetch and parse real biological sequence data with Biopython,
+and open a `.zip` archive in Python.
 
-## Why classes, and why now
+## NumPy, pandas, and Matplotlib: a quick recap
 
-The previous run of this course covered Python syntax but never object-
-oriented programming — a gap several students flagged directly ("we were
-never taught classes") when the material later assumed familiarity with
-it. This session treats functions and classes as new material, not
-review.
+A handful of libraries underlie almost everything else in this session.
+**NumPy** provides the array — a grid of numbers, indexed and sliced
+efficiently — that PyTorch's own tensors (below), pandas' tables, and
+most scientific Python code are built on top of. **pandas** builds a
+labeled, tabular data structure (the `DataFrame`) on top of NumPy
+arrays: the natural format for a table of many genes and their
+properties, rather than one at a time. **Matplotlib** is the base
+plotting library nearly every figure in this book's notebooks
+ultimately goes through, directly or via a higher-level interface like
+**seaborn**, which plugs directly into pandas DataFrames.
 
-A **function** bundles a sequence of steps under a name so it can be
-reused without repeating the steps:
+If you've taken DA7066 ("Programming techniques for Life Sciences"),
+all of these are already familiar from its own NumPy/pandas/Matplotlib
+material — treat this as a quick refresher, not new material, and move
+straight on to the next section.
 
-```python
-def gc_content(sequence):
-    sequence = sequence.upper()
-    gc = sum(1 for base in sequence if base in "GC")
-    return gc / len(sequence)
-
-gc_content("ATGCGATACG")  # 0.5
-```
-
-A **class** goes one step further, bundling *data* and the *functions
-that operate on that data* together into a single object. Where a
-function takes data and returns a result, a class lets you create many
-independent objects that each carry their own data and know how to
-compute things about themselves:
+**Worked example**, reused for the rest of this page: a synthetic table
+of 50 toy "genes" — lengths drawn at random, with a GC content that
+increases with length plus noise (not biologically meaningful, just a
+real, recoverable relationship):
 
 ```python
-class DnaSequence:
-    def __init__(self, name, bases):
-        self.name = name
-        self.bases = bases.upper()
+import numpy as np
+import pandas as pd
 
-    def gc_content(self):
-        gc = sum(1 for base in self.bases if base in "GC")
-        return gc / len(self.bases)
+rng = np.random.default_rng(seed=0)
+n_genes = 50
+lengths = rng.integers(100, 1000, size=n_genes)
+gc_content = np.clip(0.3 + 0.0003 * lengths + rng.normal(0, 0.03, size=n_genes), 0, 1)
 
-seq = DnaSequence("my_gene", "ATGCGATACG")
-seq.gc_content()  # 0.5, but now seq also remembers its own name and bases
+genes = pd.DataFrame({"name": [f"gene_{i}" for i in range(n_genes)],
+                       "length": lengths, "gc_content": gc_content})
+print(genes.head())
 ```
 
-`__init__` is a special method Python calls automatically when a new
-object is created — it's where you set up whatever data that object
-should carry (here, `name` and `bases`). Every other method takes `self`
-as its first argument, which just refers to "the particular object this
-method was called on." This pattern — an object that owns its data and
-the operations on that data — is exactly what you'll see again in Day 8,
-where a neural network is itself a class that owns its weights and knows
-how to compute a prediction from them.
+```python
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+sns.scatterplot(data=genes, x="length", y="gc_content")
+plt.show()
+```
 
 ### Further reading
 
-- Python's own tutorial, [Classes](https://docs.python.org/3/tutorial/classes.html) — inheritance, class vs. instance variables, and more than this course needs
-- *A Byte of Python*, [Object Oriented Programming](https://python.swaroopch.com/oop.html) — the same ground as above, at the same level
+- NumPy, [quickstart](https://numpy.org/doc/stable/user/quickstart.html)
+- pandas, [10 minutes to pandas](https://pandas.pydata.org/docs/user_guide/10min.html)
+- Matplotlib, [Quick start guide](https://matplotlib.org/stable/users/explain/quick_start.html)
 
-## Tensors: the data structure underneath everything from here on
+## What notebooks are for
 
-Day 1 worked with vectors (a list of numbers) and matrices (a grid of
-numbers). A **tensor** is the general version of both: a container for
-numbers with any number of dimensions — a single number (a 0-dimensional
-tensor), a vector (1-dimensional), a matrix (2-dimensional), or higher
-still (a stack of matrices, and so on). Every deep-learning framework,
-including PyTorch, represents all of its data — inputs, weights,
-gradients — as tensors, precisely so that the same operations (add,
-multiply, reshape, ...) work regardless of how many dimensions the data
-happens to have.
+Every notebook in this book — including the one below — runs in
+[Google Colab](https://colab.research.google.com/), not as a plain
+`.py` script. That's a deliberate choice, not an accident, and it's
+worth understanding *why* before diving into more code.
 
-The notebook below builds tensors out of a small DNA-encoded toy
-dataset, then works through indexing, slicing, and reshaping — the same
-operations you already used on Day 1's vectors and matrices, just
-generalized.
+A notebook is a sequence of **cells** — code or text — each run
+independently, in whatever order you choose, with their outputs
+(numbers, plots, errors) shown directly underneath. That's what makes
+it suited to exploratory, scientific work in a way a plain script
+isn't: you can run one small piece, look at the result, adjust it, and
+re-run just that piece, without re-running everything from the top each
+time — and the surrounding prose (like this page's own notebook
+companion) can explain *why* a cell does what it does, right next to
+the code itself.
 
-## Automatic differentiation
+**The real gotcha, and a genuinely common one**: a notebook's *variables*
+persist in memory across cells, independently of where those cells sit
+*on the page*. If you run cell 3, then cell 7, then go back and edit
+cell 3 without re-running it, cell 7 is still using cell 3's *old*
+value — the notebook looks like it says one thing but is actually
+running on stale state. The fix is simple but easy to forget under
+deadline pressure: when in doubt, use your notebook environment's
+"restart and run all" option, which clears all memory and re-executes
+every cell top-to-bottom in the order they're written — the only way to
+be certain what you're looking at matches what's on the page.
 
-Day 1 introduced the gradient and worked it out by hand using the chain
-rule. Doing that by hand does not scale to a function with thousands or
-millions of variables — which is exactly what a neural network's weights
-are. **Automatic differentiation** (autograd) is the mechanism that
-makes this practical: PyTorch tracks every operation performed on a
-tensor, and when you ask for the gradient of some final result, it
-replays those operations backward, applying the chain rule automatically
-at every step. You never write a derivative by hand again after this
-point in the course — you only ever call `.backward()`.
+**Colab specifically**: it's a notebook environment that runs entirely
+in your browser, with free (rate-limited) access to a GPU — relevant
+starting Day 6, and essential from Day 8 onward — and no local Python
+installation required. Every notebook page in this book has an "Open in
+Colab" badge at the top for exactly this reason. See
+[Course Information & Logistics](course-info.qmd) for Colab's practical
+limits (it disconnects an idle session; don't leave one open and
+unattended for a long stretch).
+
+## Biopython: sequences and databases
+
+**Biopython** is the one library on this page you haven't seen in any
+prerequisite course, and the one that matters most going forward: Day
+3's database work, and most later labs' data loading, build directly on
+it.
+
+Its core object is `Seq` — a biological sequence, with the operations
+you'd actually want (translation, reverse complement) built in, so you
+never hand-roll a complement-lookup dictionary yourself. This example
+uses a real 30-nucleotide fragment of human beta-globin (*HBB*, the
+running example this course returns to starting Day 3), fetched live
+from NCBI (accession `NM_000518.5`) while writing this page:
+
+```python
+from Bio.Seq import Seq
+from Bio.SeqUtils import gc_fraction
+
+bio_seq = Seq("ATGGTGCATCTGACTCCTGAGGAGAAGTCT")
+print("length:            ", len(bio_seq))
+print("GC fraction:       ", gc_fraction(bio_seq))
+print("reverse complement:", bio_seq.reverse_complement())
+print("translated:        ", bio_seq.translate())
+```
+
+A single `Seq` is the building block; real work means parsing a *file*
+of them. `Bio.SeqIO` does that for any common format (FASTA here, but
+the same call works for GenBank, and more) — exactly the mechanism
+Day 3's database work builds on, just applied there to files fetched
+live from NCBI/UniProt at real scale instead of a small local example.
+
+And for actually *reaching* NCBI, rather than working from a sequence
+already typed in: `Bio.Entrez` is Biopython's interface to NCBI's own
+programmatic access point. The same five real human globin genes used
+in this page's closing example are fetched this way — `Entrez.efetch`
+asks a specific NCBI database for a specific accession and hands back
+the real record, live, over the network.
+
+`record.seq`, `record.id`, `record.description` — these are
+*attributes* of an *object*, which is worth a brief, proper mention
+rather than just a pattern to recognize (there isn't course time for a
+full treatment, so this is the one paragraph it gets). A Python
+**class** is a blueprint for objects like `record`: it bundles *data*
+(the attributes each object carries — here, a sequence, an ID, a
+description) together with the *functions that act on that data*
+(called **methods** — `record.seq.translate()` above is one). A class's
+`__init__` method runs once, when a new object is created, to set up
+that object's starting data; every other method automatically receives
+the specific object it was called on (conventionally named `self`) so
+it knows *whose* data to work with. `Bio.Entrez.efetch` doesn't hand
+back a plain dictionary of values — it hands back a real `SeqRecord`
+object, built from a class Biopython defines, with sequence-specific
+methods already attached. This exact pattern — an object that owns its
+data and knows how to compute things about itself — becomes taught,
+hands-on material on Day 8, when a PyTorch model is itself written as a
+class you define yourself; for now, recognizing the shape of it here is
+enough.
 
 ### Further reading
 
-- PyTorch, [A Gentle Introduction to torch.autograd](https://pytorch.org/tutorials/beginner/blitz/autograd_tutorial.html) — more detail on how the computation graph is built and freed
-- NumPy, [quickstart](https://numpy.org/doc/stable/user/quickstart.html) — the standard reference for the array operations tensors generalize
+- Biopython, [Tutorial and Cookbook](https://biopython.org/docs/latest/Tutorial/index.html) — this library's own standard starting point, well beyond what's shown here
+- NCBI, [Entrez Programming Utilities](https://www.ncbi.nlm.nih.gov/books/NBK25501/) — the actual API `Bio.Entrez` wraps
 
-## The scientific Python stack
+## SciPy: for statistics
 
-Beyond PyTorch, a handful of libraries recur throughout the rest of this
-course, and are worth a first look now rather than being introduced
-piecemeal later.
+**SciPy** extends NumPy with ready-made scientific routines —
+statistical tests, optimization, and more — so you're not
+re-implementing standard methods by hand. `scipy.stats` is what
+actually computes the Student's t-test Day 1 worked through
+by hand (`scipy.stats.ttest_ind`, for two independent samples) — the
+same test this page's own closing example uses.
 
-**Biopython** is what you'd actually reach for instead of writing your
-own `DnaSequence` class — it already implements sequence objects (with
-translation, reverse complementation, and much more), FASTA/GenBank file
-parsing via `Bio.SeqIO`, and database access, all used throughout real
-bioinformatics pipelines. This is the one library on this page you
-haven't seen before in any prerequisite course, and it's the one that
-matters most going forward: Day 3's database work, and most later labs'
-data loading, build directly on it. The notebook below goes beyond a
-single sequence object to actually parse a small FASTA file with
-`Bio.SeqIO` — the exact mechanism Day 3 uses at real database scale.
+**Worked example.** A synthetic set of 50 toy "genes" — lengths drawn
+at random, with a GC content that increases with length plus noise (not
+biologically meaningful, just a real, recoverable relationship) —
+checked with a Pearson correlation test:
 
-**NumPy** is the array library underneath almost everything else here,
-including PyTorch tensors — you've effectively been using NumPy-style
-thinking since the tensor section above. **pandas** builds a labeled,
-tabular data structure (the `DataFrame`) on top of NumPy arrays: the
-natural format for a table of many sequences and their properties, rather
-than one sequence at a time. If you've taken DA7066 ("Programming
-techniques for Life Sciences"), both of these will already be familiar
-from its NumPy/pandas/SciPy chapter — treat this as a quick refresher,
-not new material, and move on to the Biopython and zip-archive sections
-below.
+```python
+from scipy import stats
 
-**Matplotlib** is the base plotting library; **seaborn** builds a
-higher-level, statistics-oriented interface on top of it that plugs
-directly into pandas DataFrames — both are used for essentially every
-figure in this book's later notebooks. Also already covered in DA7066 —
-same advice: skim it.
+r, p_value = stats.pearsonr(genes["length"], genes["gc_content"])
+print(f"Pearson r = {r:.3f}, p = {p_value:.2e}")
+```
 
-**SciPy** extends NumPy with ready-made scientific routines — statistical
-tests, optimization, and more — sparing you from re-implementing standard
-methods by hand.
+### Further reading
+
+- SciPy, [`scipy.stats`](https://docs.scipy.org/doc/scipy/reference/stats.html) — every distribution and test this module provides
+
+## scikit-learn
 
 **scikit-learn** provides ready-made, well-tested implementations of
 standard machine-learning models. Day 6 deliberately builds a linear
 model "by hand" with raw tensors and gradient descent, precisely so you
 see every step of the mechanics — but for a plain linear regression, in
 practice you would normally just call scikit-learn's implementation
-directly, as the notebook below demonstrates.
+directly, on the same synthetic gene data above:
+
+```python
+from sklearn.linear_model import LinearRegression
+
+X = genes[["length"]]  # scikit-learn expects a 2D array of features
+y = genes["gc_content"]
+
+model = LinearRegression()
+model.fit(X, y)
+print("slope:", model.coef_[0], " intercept:", model.intercept_)
+```
 
 ### Further reading
 
-- pandas, [10 minutes to pandas](https://pandas.pydata.org/docs/user_guide/10min.html)
 - scikit-learn, [Linear Models](https://scikit-learn.org/stable/modules/linear_model.html) user guide
-- Biopython, [Tutorial and Cookbook](https://biopython.org/docs/latest/Tutorial/index.html)
 
-Each is that library's own standard starting point for going beyond
-what's shown here.
+## PyTorch: tensors and autograd
+
+Day 1 worked with vectors and matrices. A **tensor** is the general
+version of both: a container for numbers with any number of dimensions
+— a single number (0-dimensional), a vector (1-dimensional), a matrix
+(2-dimensional), or higher still. Every deep-learning framework,
+including PyTorch, represents all of its data — inputs, weights,
+gradients — as tensors, precisely so the same operations (add,
+multiply, reshape, ...) work regardless of how many dimensions the data
+happens to have. The notebook below builds tensors out of a small
+DNA-encoded toy dataset, then works through indexing, slicing, and
+reshaping — the same operations already used on Day 1's vectors and
+matrices, just generalized.
+
+Day 1 also introduced the gradient and worked it out by hand using the
+chain rule. Doing that by hand does not scale to a function with
+thousands or millions of variables — exactly what a neural network's
+weights are. **Automatic differentiation** (autograd) is the mechanism
+that makes this practical: PyTorch tracks every operation performed on
+a tensor, and when you ask for the gradient of some final result, it
+replays those operations backward, applying the chain rule
+automatically at every step. You never write a derivative by hand again
+after this point in the course — you only ever call `.backward()`.
+
+**Closing the loop with Day 1**: Day 1's practice problems were done
+entirely by hand. Here they are again, this time in PyTorch — the
+notebook confirms the dot product and the gradient computed in code
+match the by-hand answers exactly.
+
+### Further reading
+
+- PyTorch, [A Gentle Introduction to torch.autograd](https://pytorch.org/tutorials/beginner/blitz/autograd_tutorial.html) — more detail on how the computation graph is built and freed
 
 ## Opening zip archives
 
-One practical gap, worth closing now rather than mid-crisis later:
-downloaded datasets — including this course's own capstone project data
-(see `capstone.qmd`) — routinely arrive as a single `.zip` archive
-holding many files, and past students have specifically gotten stuck on
-opening and extracting these. Python's built-in `zipfile` module handles
-it in three lines: open the archive with `zipfile.ZipFile(path)`, list
-what's inside with `.namelist()`, and pull everything out with
-`.extractall()` (or a single named file with `.extract(name)`). No
-separate unzip program required — it's part of the standard library, and
-works the same way on Windows, macOS, and Linux.
+One small, practical thing worth knowing before it becomes a
+mid-deadline problem: downloaded datasets — including this course's own
+capstone project data (see `capstone.qmd`) — routinely arrive as a
+single `.zip` archive holding many files, and past students have
+specifically gotten stuck on opening and extracting these. Python's
+built-in `zipfile` module handles it in three lines: open the archive
+with `zipfile.ZipFile(path)`, list what's inside with `.namelist()`, and
+pull everything out with `.extractall()` (or a single named file with
+`.extract(name)`). No separate unzip program required — it's part of
+the standard library, and works the same way on Windows, macOS, and
+Linux.
 
 ### Further reading
 
 - Python docs, [`zipfile` — Work with ZIP archives](https://docs.python.org/3/library/zipfile.html)
 
+## Putting it together: from database to plot
+
+A last, real worked example, assembling most of this page's tools in
+one small pipeline — and a chance to actually *feel* the notebook
+advantage from earlier, not just read about it.
+
+**Step 1 — Biopython, for real data.** Fetch five real human globin
+genes live from NCBI via `Bio.Entrez`/`Bio.SeqIO` — the same paralogous
+family (all descended from ancient gene duplications) already
+introduced on Day 4 and used throughout this course:
+
+| Gene | Protein | RefSeq accession |
+|---|---|---|
+| *HBB* | beta-globin | `NM_000518.5` |
+| *HBA1* | alpha-globin 1 | `NM_000558.5` |
+| *HBA2* | alpha-globin 2 | `NM_000517.6` |
+| *MB* | myoglobin | `NM_001382809.1` |
+| *NGB* | neuroglobin | `NM_021257.4` |
+
+**Step 2 — SciPy + Matplotlib, honestly labeled as simulated.** NCBI
+doesn't hand you a differential-expression experiment for five genes on
+demand, so — exactly like Day 1's own volcano plot — the *expression
+values* from here on are **simulated, not real measurements**: four
+control and four treatment replicates per gene (the same replicate
+count as Day 1's t-test worked example), with *HBB* alone given a real
+simulated effect and the other four left at baseline. `scipy.stats.
+ttest_ind` gives each gene a p-value; plotting log2 fold change against
+$-\log_{10}(p)$ reproduces Day 1's volcano plot, now built from three
+tools handed off to each other instead of one script:
+
+![Five real genes, simulated expression: *HBB* alone shows a real, significant simulated fold change (log2 FC ≈ 2.66, p ≈ 0.0001); the other four sit near the origin, consistent with the simulated ground truth of no real effect.](figs/day02-volcano-plot.png){width=80%}
+
+With only five genes and four replicates each, this is a much smaller
+example than Day 1's 2000-gene version — deliberately: it's small enough
+to read off exactly what happened to each individual gene, rather than
+needing FDR correction to make sense of a wall of points.
+
+**Step 3 — the notebook payoff.** The notebook re-runs the plotting cell
+twice more: once with a different color scheme, once highlighting
+*HBB* specifically by name with an annotation. Each takes one small
+edit and a re-run of a single cell — a few seconds, not a from-scratch
+rebuild — which is exactly the "run a piece, look, adjust, re-run"
+workflow the notebooks section above described, now made concrete
+instead of asserted.
+
 ## The notebook
 
-`notebooks/day02-tensors-and-a-first-class.ipynb` reuses this course's
-own existing introductory PyTorch material almost unchanged — tensor
-creation, dtypes, indexing/slicing/reshaping, and a first autograd
-example, all built around a small DNA-encoded toy dataset — then adds
-several new sections: a `DnaSequence` class exercise applying today's OOP
-material to a real biological object, Biopython's equivalent of that same
-class, a synthetic table of "genes" used to demonstrate NumPy, pandas,
-Matplotlib, seaborn, SciPy, and a scikit-learn linear regression that
-recovers the synthetic data's known ground-truth relationship, and
-finally a recomputation of Day 1's own worked examples (a dot product and
-a gradient) in code, confirming the by-hand answers match. Open it in
+`notebooks/day02-tensors-and-a-first-class.ipynb` follows this page in
+order: tensor creation/indexing/slicing/reshaping and a first autograd
+example (reused from this course's own existing PyTorch material), a
+notebook cell-order demonstration, real Biopython usage (a `Seq` object,
+`Bio.SeqIO` parsing a small FASTA file, and a live `Bio.Entrez` fetch),
+a SciPy statistical test and a scikit-learn linear regression on
+synthetic gene data, Day 1's dot-product/gradient practice problems
+recomputed in PyTorch, opening a `.zip` archive, and finally the
+from-database-to-plot worked example above, plotted three times over to
+show the notebook advantage directly. Open it in
 [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day02-tensors-and-a-first-class.ipynb)
 via the badge at the top of the notebook page to edit and run it
 yourself.
@@ -212,26 +353,26 @@ used for this course's live in-class peer-instruction quizzes (see
 <script>
 renderQuiz("day02-quiz", [
   {
-    question: "Inside a class's method, what does <code>self</code> refer to?",
+    question: "You run cell 3, then cell 7. You edit cell 3 but do NOT re-run it, then look at cell 7's old output again. What does it reflect?",
     choices: [
-      "The particular object the method was called on",
-      "The class itself, shared by every object",
-      "The module the class is defined in",
-      "Nothing &mdash; <code>self</code> is optional and can be left out"
+      "Cell 3's OLD value, since cell 7 was run before cell 3 was edited and hasn't been re-run since",
+      "Cell 3's NEW value automatically, since notebooks always stay in sync",
+      "An error, since editing an earlier cell invalidates every later one",
+      "Nothing -- cell 7's output is cleared automatically when an earlier cell changes"
     ],
     correctIndex: 0,
-    explanation: "Each object created from a class has its own data; self is how a method reaches that specific object's data."
+    explanation: "A notebook's variables reflect whatever was last actually run, not the current text on the page -- 'restart and run all' is the only way to be sure they match."
   },
   {
-    question: "What is <code>__init__</code> for, in a Python class?",
+    question: "Why does this book's every notebook run in Google Colab specifically, rather than assuming a local Python install?",
     choices: [
-      "It's called automatically when a new object is created, to set up that object's initial data",
-      "It's called every time any method on the object is called",
-      "It converts the object to a string for printing",
-      "It deletes the object when it's no longer needed"
+      "No local installation needed, and it gives free (rate-limited) access to a GPU, relevant from Day 6 and essential from Day 8 onward",
+      "Colab is the only place Python notebooks can run at all",
+      "Colab automatically fixes bugs in submitted code",
+      "It's required for Biopython specifically to work"
     ],
     correctIndex: 0,
-    explanation: "__init__ runs once, at creation time, which is why it's where you set attributes like name and bases."
+    explanation: "Colab's GPU access is the real reason -- Day 8 onward needs it for anything beyond a toy model size."
   },
   {
     question: "What does calling <code>.backward()</code> on a PyTorch tensor actually do?",
@@ -245,6 +386,17 @@ renderQuiz("day02-quiz", [
     explanation: "Autograd tracks every operation as it happens, then applies Day 1's chain rule automatically when you call backward()."
   },
   {
+    question: "In the closing worked example, which part is real and which is simulated?",
+    choices: [
+      "The five genes' identities/sequences (fetched live from NCBI) are real; the expression measurements used to make the volcano plot are simulated",
+      "Everything is real -- NCBI provides matched control/treatment expression data for any gene on request",
+      "Everything is simulated, including which genes were used",
+      "The expression measurements are real; the gene identities were invented for the example"
+    ],
+    correctIndex: 0,
+    explanation: "Same honesty split as Day 1's own volcano plot: real database records, explicitly-labeled simulated measurements layered on top."
+  },
+  {
     question: "What does a pandas DataFrame add on top of a plain NumPy array?",
     choices: [
       "Labeled rows and columns, so a table's columns can be referred to by name instead of position",
@@ -254,12 +406,6 @@ renderQuiz("day02-quiz", [
     ],
     correctIndex: 0,
     explanation: "genes[\"length\"] works because pandas labels columns by name; the underlying numbers are still a NumPy array."
-  },
-  {
-    question: "Without running it: what does <code>gc_content(\"ttttaaaa\")</code> return, given the function defined in the notebook?",
-    choices: ["0.0", "0.5", "1.0", "It raises an error, because the input isn't uppercase"],
-    correctIndex: 0,
-    explanation: "The function upper-cases its input first, so lowercase is fine; there are no G's or C's in this sequence, so the result is 0.0."
   }
 ]);
 </script>
@@ -267,10 +413,10 @@ renderQuiz("day02-quiz", [
 
 ## The lab
 
-A full lab session: work through the notebook above, then extend the
-`DnaSequence` class with a reverse-complement method (the notebook's
-"try it yourself" exercise) and use it on a real sequence you'll
-retrieve from a database in Day 3.
+A full lab session: work through the notebook above, then adapt the
+closing from-database-to-plot example to a different small set of real
+genes of your choosing (fetched live via `Bio.Entrez`, same as above)
+and confirm your own volcano plot renders sensibly.
 
 ### Submitting this lab
 
@@ -280,7 +426,10 @@ actual submission mechanism before this session runs.
 
 ## What's next
 
-Day 3 puts these programming tools to use immediately: retrieving and
-working with real sequences from biological databases. The tensor and
-autograd mechanics introduced here resurface directly in Day 6's
-gradient-descent lab.
+Day 3 puts Biopython's database access to real, full-scale use:
+retrieving and cross-referencing real sequences across multiple
+biological databases. The tensor and autograd mechanics introduced here
+resurface directly in Day 6's gradient-descent lab, and Python's `class`
+syntax — introduced briefly here through Biopython's own objects, not
+yet practiced hands-on — becomes real, taught material on Day 8, when a
+PyTorch model is written as one.
