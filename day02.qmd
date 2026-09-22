@@ -13,9 +13,16 @@ prerequisite DA7066 course's own compendium (Arvestad, Helanow, Mörtberg
 & Sahlin) — an internal planning reference, not excerpted or linked as
 further reading. The closing worked example fetches five real human
 globin-gene records live from NCBI via `Bio.Entrez` while writing this
-page (accessions verified below), then simulates expression data for
-them in the same honest, explicitly-labeled way Day 1's volcano plot
-does — see that page's own sources note for the same pattern.
+page (accessions verified below), then, separately, plots a real
+published differential-expression dataset: Becares, N. et al. (2019),
+["Impaired LXRα Phosphorylation Attenuates Progression of Fatty Liver
+Disease"](https://doi.org/10.1016/j.celrep.2018.12.094), *Cell Reports*
+26(4):984-995 — loaded directly from its public source as shared example
+data by [VolcaNoseR](https://huygens.science.uva.nl/VolcaNoseR/)
+(Goedhart, J. & Luijsterburg, M.S., 2020,
+["VolcaNoseR is a web app for creating, exploring, labeling and sharing
+volcano plots"](https://doi.org/10.1038/s41598-020-76603-3), *Scientific
+Reports* 10:20560), a tool built for exactly this kind of plot.
 :::
 
 # Day 2: Programming Prerequisites
@@ -28,7 +35,7 @@ use an external Python library rather than writing everything from
 scratch, create and manipulate PyTorch tensors, explain what automatic
 differentiation computes and why it matters for everything from Day 6
 onward, fetch and parse real biological sequence data with Biopython,
-and open a `.zip` archive in Python.
+and open compressed files such as `.zip` and `.gz` in Python.
 
 ## NumPy, pandas, and Matplotlib: a quick recap
 
@@ -184,16 +191,13 @@ enough.
 ## SciPy: for statistics
 
 **SciPy** extends NumPy with ready-made scientific routines —
-statistical tests, optimization, and more — so you're not
-re-implementing standard methods by hand. `scipy.stats` is what
-actually computes the Student's t-test Day 1 worked through
-by hand (`scipy.stats.ttest_ind`, for two independent samples) — the
-same test this page's own closing example uses.
+statistical tests, hierarchical clustering, optimization, and much
+more — so you're not re-implementing standard methods by hand. Three
+examples, each tied to something this course actually does elsewhere:
 
-**Worked example.** A synthetic set of 50 toy "genes" — lengths drawn
-at random, with a GC content that increases with length plus noise (not
-biologically meaningful, just a real, recoverable relationship) —
-checked with a Pearson correlation test:
+**`scipy.stats.pearsonr`** checks whether a relationship is
+statistically significant — here, on the synthetic 50-"gene"
+length/GC-content table from the NumPy/pandas/Matplotlib recap above:
 
 ```python
 from scipy import stats
@@ -202,9 +206,44 @@ r, p_value = stats.pearsonr(genes["length"], genes["gc_content"])
 print(f"Pearson r = {r:.3f}, p = {p_value:.2e}")
 ```
 
+**`scipy.stats.ttest_ind`** is what actually computes a two-sample
+t-test — the exact test Day 1 worked through *by hand*. Reusing Day 1's
+own numbers ($5.1, 4.9, 5.3, 5.0$ control vs. $7.2, 6.8, 7.5, 7.0$
+treatment) confirms SciPy reproduces the same $t \approx -11.9,\ p
+\approx 0.00002$ Day 1 computed with the formula directly — the
+library isn't doing anything different, just doing it for you:
+
+```python
+control = [5.1, 4.9, 5.3, 5.0]
+treatment = [7.2, 6.8, 7.5, 7.0]
+
+t_stat, p_value = stats.ttest_ind(control, treatment)
+print(f"t = {t_stat:.2f}, p = {p_value:.5f}")
+```
+
+**`scipy.cluster.hierarchy`** builds a guide tree from a distance
+matrix by repeatedly merging the closest pair of clusters — precisely
+the algorithm behind Day 4's own guide-tree worked example (built there
+by hand, on five small toy sequences) and progressive multiple sequence
+alignment generally. `linkage` does the merging, `dendrogram` draws the
+result:
+
+```python
+from scipy.cluster.hierarchy import linkage, dendrogram
+from scipy.spatial.distance import pdist
+
+# Same shape of input Day 4's guide-tree example builds by hand: a
+# distance matrix between items (here, the 50 toy genes' length/GC
+# features standing in for a real pairwise sequence-distance matrix).
+distances = pdist(genes[["length", "gc_content"]])
+merge_order = linkage(distances, method="average")
+dendrogram(merge_order, no_labels=True)
+```
+
 ### Further reading
 
 - SciPy, [`scipy.stats`](https://docs.scipy.org/doc/scipy/reference/stats.html) — every distribution and test this module provides
+- SciPy, [Hierarchical clustering](https://docs.scipy.org/doc/scipy/reference/cluster.hierarchy.html) — the full `scipy.cluster.hierarchy` reference
 
 ## scikit-learn
 
@@ -226,9 +265,43 @@ model.fit(X, y)
 print("slope:", model.coef_[0], " intercept:", model.intercept_)
 ```
 
+`LinearRegression` is one model among many scikit-learn provides
+ready-made — worth knowing what else is there, since this course
+returns to several of them later, again "by hand" first for the
+mechanics, with the library version always available as the practical
+alternative:
+
+- **`LogisticRegression`** — despite the name, a *classifier*, not a
+  regressor (it fits a linear score through a sigmoid, exactly Day 6's
+  perceptron). The library version of what Day 6 and Day 8 build from
+  scratch.
+- **`sklearn.model_selection.train_test_split` and `KFold`** — the
+  library versions of the train/validation/test splitting and
+  cross-validation Day 8 builds and explains by hand.
+- **`sklearn.neural_network.MLPClassifier`** — a genuine multilayer
+  perceptron with hidden layers, trained with backpropagation, all
+  inside scikit-learn. Day 9 builds one from scratch (raw tensors,
+  explicit backprop) specifically so the mechanics are visible; this is
+  what you'd reach for once they don't need to be.
+- **XGBoost** (`xgboost.XGBClassifier`/`XGBRegressor`) — not part of
+  scikit-learn itself, but a hugely popular separate library that
+  deliberately mimics scikit-learn's `.fit()`/`.predict()` interface.
+  Gradient-boosted decision trees, not neural networks at all — a
+  genuinely different, often extremely strong approach this course
+  doesn't cover hands-on, but worth knowing exists as the thing people
+  reach for on structured/tabular data when a neural network is
+  overkill.
+
+None of these get their own worked example on this page — the point
+here is knowing they exist and roughly what each is for, not using them
+yet.
+
 ### Further reading
 
 - scikit-learn, [Linear Models](https://scikit-learn.org/stable/modules/linear_model.html) user guide
+- scikit-learn, [Neural network models (supervised)](https://scikit-learn.org/stable/modules/neural_networks_supervised.html) — `MLPClassifier`/`MLPRegressor`
+- scikit-learn, [Cross-validation](https://scikit-learn.org/stable/modules/cross_validation.html) user guide
+- XGBoost, [Get Started](https://xgboost.readthedocs.io/en/stable/get_started.html) — outside this course, but the standard starting point if you need it later
 
 ## PyTorch: tensors and autograd
 
@@ -263,23 +336,51 @@ match the by-hand answers exactly.
 
 - PyTorch, [A Gentle Introduction to torch.autograd](https://pytorch.org/tutorials/beginner/blitz/autograd_tutorial.html) — more detail on how the computation graph is built and freed
 
-## Opening zip archives
+## Opening compressed and archive files
 
 One small, practical thing worth knowing before it becomes a
 mid-deadline problem: downloaded datasets — including this course's own
-capstone project data (see `capstone.qmd`) — routinely arrive as a
-single `.zip` archive holding many files, and past students have
-specifically gotten stuck on opening and extracting these. Python's
-built-in `zipfile` module handles it in three lines: open the archive
-with `zipfile.ZipFile(path)`, list what's inside with `.namelist()`, and
-pull everything out with `.extractall()` (or a single named file with
-`.extract(name)`). No separate unzip program required — it's part of
-the standard library, and works the same way on Windows, macOS, and
-Linux.
+capstone project data (see `capstone.qmd`) — routinely arrive compressed
+in one of a few standard formats, and past students have specifically
+gotten stuck on opening and extracting these. None of them need a
+separate program; Python's standard library handles all of them.
+
+**`.zip`** archives (this course's capstone data, most software
+downloads): the `zipfile` module opens, lists, and extracts one in three
+lines — open with `zipfile.ZipFile(path)`, list contents with
+`.namelist()`, pull everything out with `.extractall()` (or one named
+file with `.extract(name)`).
+
+**`.gz`** (gzip) files are the one you'll see constantly in
+bioinformatics specifically — real sequence data is almost always
+distributed as `something.fasta.gz` or `something.fastq.gz`, since
+sequence files compress extremely well and downloads/storage both
+benefit. Unlike a zip archive, a `.gz` file isn't a container of
+multiple files — it's a single compressed stream — so the pattern is
+different and, once you know it, simpler: `gzip.open(path, "rt")` gives
+you a regular *readable text file handle*, with no separate extraction
+step at all. That matters for this course specifically because
+`Bio.SeqIO.parse` (introduced earlier on this page) doesn't care whether
+the file handle it's given is compressed or not — hand it a
+`gzip.open(...)` handle directly, and it parses records out of the
+compressed file exactly as if it had been decompressed to disk first.
+
+Two more, briefly, since you'll meet them eventually: **`.tar`** and
+**`.tar.gz`**/**`.tgz`** files (common from Linux-world bioinformatics
+tools) bundle many files together the way `.zip` does, but compress the
+whole bundle as one stream the way `.gz` does — the standard-library
+`tarfile` module handles them with the same `.namelist()`-style API as
+`zipfile` (`.getnames()` and `.extractall()`). **`.bz2`** and **`.xz`**
+are further alternative compression algorithms (better compression
+ratio, slower) you'll occasionally see instead of `.gz` — same idea,
+different standard-library module (`bz2`, `lzma`), same `.open(path,
+"rt")` pattern.
 
 ### Further reading
 
 - Python docs, [`zipfile` — Work with ZIP archives](https://docs.python.org/3/library/zipfile.html)
+- Python docs, [`gzip` — Support for gzip files](https://docs.python.org/3/library/gzip.html)
+- Python docs, [`tarfile` — Read and write tar archive files](https://docs.python.org/3/library/tarfile.html)
 
 ## Putting it together: from database to plot
 
@@ -300,31 +401,35 @@ introduced on Day 4 and used throughout this course:
 | *MB* | myoglobin | `NM_001382809.1` |
 | *NGB* | neuroglobin | `NM_021257.4` |
 
-**Step 2 — SciPy + Matplotlib, honestly labeled as simulated.** NCBI
-doesn't hand you a differential-expression experiment for five genes on
-demand, so — exactly like Day 1's own volcano plot — the *expression
-values* from here on are **simulated, not real measurements**: four
-control and four treatment replicates per gene (the same replicate
-count as Day 1's t-test worked example), with *HBB* alone given a real
-simulated effect and the other four left at baseline. `scipy.stats.
-ttest_ind` gives each gene a p-value; plotting log2 fold change against
-$-\log_{10}(p)$ reproduces Day 1's volcano plot, now built from three
-tools handed off to each other instead of one script:
+**Step 2 — pandas, SciPy, and Matplotlib, on a real published dataset.**
+Rather than simulating expression values (Day 1's approach, needed there
+because it's a from-scratch worked example), this step uses **real**
+differential-expression data: mouse liver RNA-seq, high-fat/high-
+cholesterol diet vs. control, from Becares et al. (2019, *Cell Reports*)
+— already processed with DESeq2, and shared as example data by
+[VolcaNoseR](https://huygens.science.uva.nl/VolcaNoseR/) (Goedhart &
+Luijsterburg, 2020, *Scientific Reports*), a web app built specifically
+for exploring volcano plots like this one. `pandas.read_csv` loads it
+directly from its public GitHub source — 3,001 real genes, each with a
+real log2 fold change and p-value already computed by the original
+study. `scipy.stats.pearsonr` checks the dataset's own two significance
+columns (`pvalue` and its precomputed `minus_log10_pvalue`) agree with
+each other — a real sanity check, not a formality, on data this page
+didn't generate itself — before Matplotlib plots all 3,001 genes at
+once and Day 1's honesty about a "wall of points" becomes visible for
+real, not just described:
 
-![Five real genes, simulated expression: *HBB* alone shows a real, significant simulated fold change (log2 FC ≈ 2.66, p ≈ 0.0001); the other four sit near the origin, consistent with the simulated ground truth of no real effect.](figs/day02-volcano-plot.png){width=80%}
-
-With only five genes and four replicates each, this is a much smaller
-example than Day 1's 2000-gene version — deliberately: it's small enough
-to read off exactly what happened to each individual gene, rather than
-needing FDR correction to make sense of a wall of points.
+![3,001 real differentially-expressed genes, mouse liver, high-fat/high-cholesterol diet vs. control (Becares et al. 2019). The single most significant gene is labeled; the rest form exactly the "wall of points" shape Day 1 described for simulated data — now real.](figs/day02-volcano-plot.png){width=80%}
 
 **Step 3 — the notebook payoff.** The notebook re-runs the plotting cell
-twice more: once with a different color scheme, once highlighting
-*HBB* specifically by name with an annotation. Each takes one small
-edit and a re-run of a single cell — a few seconds, not a from-scratch
-rebuild — which is exactly the "run a piece, look, adjust, re-run"
-workflow the notebooks section above described, now made concrete
-instead of asserted.
+twice more on this same real data: once with a different color scheme,
+once highlighting a *different* gene by name — the one with the single
+largest fold change, which (worth noticing) isn't the same gene as the
+most statistically significant one from the first plot. Each re-plot is
+one small edit and a re-run of a single cell — a few seconds, not a
+from-scratch rebuild — which is exactly the "run a piece, look, adjust,
+re-run" workflow the notebooks section above described, now made
+concrete instead of asserted.
 
 ## The notebook
 
@@ -335,7 +440,7 @@ notebook cell-order demonstration, real Biopython usage (a `Seq` object,
 `Bio.SeqIO` parsing a small FASTA file, and a live `Bio.Entrez` fetch),
 a SciPy statistical test and a scikit-learn linear regression on
 synthetic gene data, Day 1's dot-product/gradient practice problems
-recomputed in PyTorch, opening a `.zip` archive, and finally the
+recomputed in PyTorch, opening `.zip` and `.gz` files, and finally the
 from-database-to-plot worked example above, plotted three times over to
 show the notebook advantage directly. Open it in
 [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day02-tensors-and-a-first-class.ipynb)
