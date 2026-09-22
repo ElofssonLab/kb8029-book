@@ -1,0 +1,1720 @@
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en"><head>
+
+<meta charset="utf-8">
+<meta name="generator" content="quarto-1.10.18">
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+
+
+<title>Day 12 — Attention and Transformers in code – Bioinformatics &amp; Deep Learning — Course Notes</title>
+<style>
+/* Default styles provided by pandoc.
+** See https://pandoc.org/MANUAL.html#variables-for-html for config info.
+*/
+span.smallcaps{font-variant: small-caps;}
+div.columns{display: flex; gap: 1.5em;}
+div.column{flex: auto;}
+@media screen {
+div.columns{gap: min(4vw, 1.5em);}
+div.column{overflow-x: auto;}
+}
+div.hanging-indent{margin-left: 1.5em; text-indent: -1.5em;}
+ul.task-list{list-style: none;}
+ul.task-list li input[type="checkbox"] {
+  width: 0.8em;
+  margin: 0 0.8em 0.2em -1em; /* quarto-specific, see https://github.com/quarto-dev/quarto-cli/issues/4556 */ 
+  vertical-align: middle;
+}
+/* CSS for syntax highlighting */
+html { -webkit-text-size-adjust: 100%; }
+pre > code.sourceCode { white-space: pre; position: relative; }
+pre > code.sourceCode > span { display: inline-block; line-height: 1.25; }
+pre > code.sourceCode > span:empty { height: 1.2em; }
+.sourceCode { overflow: visible; }
+code.sourceCode > span { color: inherit; text-decoration: inherit; }
+div.sourceCode { margin: 1em 0; }
+pre.sourceCode { margin: 0; }
+@media screen {
+div.sourceCode { overflow: auto; }
+}
+@media print {
+pre > code.sourceCode { white-space: pre-wrap; }
+pre > code.sourceCode > span { text-indent: -5em; padding-left: 5em; }
+}
+pre.numberSource code
+  { counter-reset: source-line 0; }
+pre.numberSource code > span
+  { position: relative; left: -4em; counter-increment: source-line; }
+pre.numberSource code > span > a:first-child::before
+  { content: counter(source-line);
+    position: relative; left: -1em; text-align: right; vertical-align: baseline;
+    border: none; display: inline-block;
+    -webkit-touch-callout: none; -webkit-user-select: none;
+    -khtml-user-select: none; -moz-user-select: none;
+    -ms-user-select: none; user-select: none;
+    padding: 0 4px; width: 4em;
+  }
+pre.numberSource { margin-left: 3em;  padding-left: 4px; }
+div.sourceCode
+  {   }
+@media screen {
+pre > code.sourceCode > span > a:first-child::before { text-decoration: underline; }
+}
+</style>
+
+
+<script src="../site_libs/quarto-nav/quarto-nav.js"></script>
+<script src="../site_libs/quarto-nav/headroom.min.js"></script>
+<script src="../site_libs/clipboard/clipboard.min.js"></script>
+<script src="../site_libs/quarto-search/autocomplete.umd.js"></script>
+<script src="../site_libs/quarto-search/fuse.min.js"></script>
+<script src="../site_libs/quarto-search/quarto-search.js"></script>
+<meta name="quarto:offset" content="../">
+<link href="../day13.html" rel="next">
+<link href="../day12.html" rel="prev">
+<script src="../site_libs/quarto-html/quarto.js" type="module"></script>
+<script src="../site_libs/quarto-html/tabsets/tabsets.js" type="module"></script>
+<script src="../site_libs/quarto-html/popper.min.js"></script>
+<script src="../site_libs/quarto-html/tippy.umd.min.js"></script>
+<script src="../site_libs/quarto-html/anchor.min.js"></script>
+<link href="../site_libs/quarto-html/tippy.css" rel="stylesheet">
+<link href="../site_libs/quarto-html/quarto-syntax-highlighting-64a204ab8560d761af7679ceaba22944.css" rel="stylesheet" id="quarto-text-highlighting-styles">
+<script src="../site_libs/bootstrap/bootstrap.min.js"></script>
+<link href="../site_libs/bootstrap/bootstrap-icons.css" rel="stylesheet">
+<link href="../site_libs/bootstrap/bootstrap-343830dee7e81009abd9657442190b55.min.css" rel="stylesheet" append-hash="true" id="quarto-bootstrap" data-mode="light">
+<script id="quarto-search-options" type="application/json">{
+  "location": "sidebar",
+  "copy-button": false,
+  "collapse-after": 3,
+  "panel-placement": "start",
+  "type": "textbox",
+  "limit": 50,
+  "keyboard-shortcut": [
+    "f",
+    "/",
+    "s"
+  ],
+  "show-item-context": false,
+  "language": {
+    "search-no-results-text": "No results",
+    "search-matching-documents-text": "matching documents",
+    "search-copy-link-title": "Copy link to search",
+    "search-hide-matches-text": "Hide additional matches",
+    "search-more-match-text": "more match in this document",
+    "search-more-matches-text": "more matches in this document",
+    "search-clear-button-title": "Clear",
+    "search-text-placeholder": "",
+    "search-detached-cancel-button-title": "Cancel",
+    "search-submit-button-title": "Submit",
+    "search-label": "Search"
+  }
+}</script>
+<script src="js/quiz-widget.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/polyfill/v3/polyfill.min.js?features=es6"></script>
+  <script defer="" src="https://cdn.jsdelivr.net/npm/mathjax@4/tex-chtml.js" type="text/javascript"></script>
+
+<script type="text/javascript">
+const typesetMath = (el) => {
+  if (window.MathJax) {
+    // MathJax Typeset
+    window.MathJax.typeset([el]);
+  } else if (window.katex) {
+    // KaTeX Render
+    var mathElements = el.getElementsByClassName("math");
+    var macros = [];
+    for (var i = 0; i < mathElements.length; i++) {
+      var texText = mathElements[i].firstChild;
+      if (mathElements[i].tagName == "SPAN" && texText && texText.data) {
+        window.katex.render(texText.data, mathElements[i], {
+          displayMode: mathElements[i].classList.contains('display'),
+          throwOnError: false,
+          macros: macros,
+          fleqn: false
+        });
+      }
+    }
+  }
+}
+window.Quarto = {
+  typesetMath
+};
+</script>
+
+</head>
+
+<body class="nav-sidebar floating quarto-light">
+
+<div id="quarto-search-results"></div>
+  <header id="quarto-header" class="headroom fixed-top">
+  <nav class="quarto-secondary-nav">
+    <div class="container-fluid d-flex">
+      <button type="button" class="quarto-btn-toggle btn" data-bs-toggle="collapse" role="button" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">
+        <i class="bi bi-layout-text-sidebar-reverse"></i>
+      </button>
+        <nav class="quarto-page-breadcrumbs" aria-label="breadcrumb"><ol class="breadcrumb"><li class="breadcrumb-item"><a href="../notebooks/day12-attention-and-transformers-in-code.html">Day 12 — Notebook</a></li></ol></nav>
+        <a class="flex-grow-1" role="navigation" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item" aria-controls="quarto-sidebar" aria-expanded="false" aria-label="Toggle sidebar navigation" onclick="if (window.quartoToggleHeadroom) { window.quartoToggleHeadroom(); }">      
+        </a>
+      <button type="button" class="btn quarto-search-button" aria-label="Search" onclick="window.quartoOpenSearch();">
+        <i class="bi bi-search"></i>
+      </button>
+    </div>
+  </nav>
+</header>
+<!-- content -->
+<div id="quarto-content" class="quarto-container page-columns page-rows-contents page-layout-article">
+<!-- sidebar -->
+  <nav id="quarto-sidebar" class="sidebar collapse collapse-horizontal quarto-sidebar-collapse-item sidebar-navigation floating overflow-auto">
+    <div class="pt-lg-2 mt-2 text-left sidebar-header">
+    <div class="sidebar-title mb-0 py-0">
+      <a href="../">Bioinformatics &amp; Deep Learning — Course Notes</a> 
+    </div>
+      </div>
+        <div class="mt-2 flex-shrink-0 align-items-center">
+        <div class="sidebar-search">
+        <div id="quarto-search" class="" title="Search"></div>
+        </div>
+        </div>
+    <div class="sidebar-menu-container"> 
+    <ul class="list-unstyled mt-1">
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../index.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Welcome</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../schedule.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Course Schedule</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../course-info.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Course Information &amp; Logistics</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../day01.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">1</span>&nbsp; <span class="chapter-title">Day 1: Math Prerequisites</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/day01-math-in-code.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Day 1 — Notebook</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../day02.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">2</span>&nbsp; <span class="chapter-title">Day 2: Programming Prerequisites</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/day02-tensors-and-a-first-class.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Day 2 — Notebook</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../day03.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">3</span>&nbsp; <span class="chapter-title">Day 3: Biological Databases</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/day03-databases-in-code.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Day 3 — Notebook</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../day04.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">4</span>&nbsp; <span class="chapter-title">Day 4: Sequence Alignment</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/day04-alignment-in-code.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Day 4 — Notebook</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../day05.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">5</span>&nbsp; <span class="chapter-title">Day 5: Advanced Database Search &amp; Profile Methods</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/day05-blast-and-profiles-in-code.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Day 5 — Notebook</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../day06.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">6</span>&nbsp; <span class="chapter-title">Day 6: Linear Models, Gradient Descent, the XOR Problem &amp; Secondary Structure Prediction</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/day06-gradient-descent-xor.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Day 6 — Notebook</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../day07.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">7</span>&nbsp; <span class="chapter-title">Day 7: Protein Structure</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/day07-protein-structure-in-code.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Day 7 — Notebook</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../day08.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">8</span>&nbsp; <span class="chapter-title">Day 8: Machine Learning Foundations &amp; Practical PyTorch</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/day08-ml-foundations-and-pytorch.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Day 8 — Notebook</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../day09.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">9</span>&nbsp; <span class="chapter-title">Day 9: Backpropagation, Training, and Regularization</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/day09-backprop-training-regularization.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Day 9 — Notebook</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../day10.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">10</span>&nbsp; <span class="chapter-title">Day 10: CNNs, Classic &amp; Modern</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/day10-cnns-in-code.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Day 10 — Notebook</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../day11.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">11</span>&nbsp; <span class="chapter-title">Day 11: RNNs, (Bi)LSTM, GRUs</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/day11-rnns-lstm-gru-in-code.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Day 11 — Notebook</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../day12.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Day 12: Attention and Transformers</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/day12-attention-and-transformers-in-code.html" class="sidebar-item-text sidebar-link active">
+ <span class="menu-text">Day 12 — Notebook</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../day13.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Day 13: Diffusion &amp; Flow-Matching Models</span></span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../notebooks/day13-diffusion-and-flow-matching-in-code.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Day 13 — Notebook</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../capstone.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Capstone: Secondary Structure Prediction Project</span></a>
+  </div>
+</li>
+        <li class="sidebar-item">
+  <div class="sidebar-item-container"> 
+  <a href="../references.html" class="sidebar-item-text sidebar-link">
+ <span class="menu-text">Sources and licensing</span></a>
+  </div>
+</li>
+    </ul>
+    </div>
+</nav>
+<div id="quarto-sidebar-glass" class="quarto-sidebar-collapse-item" data-bs-toggle="collapse" data-bs-target=".quarto-sidebar-collapse-item"></div>
+<!-- margin-sidebar -->
+    <div id="quarto-margin-sidebar" class="sidebar margin-sidebar">
+        <nav id="TOC" role="doc-toc" class="toc-active">
+    <h2 id="toc-title">Table of contents</h2>
+   
+  <ul>
+  <li><a href="#from-word-counts-to-word-vectors-king-man-woman-queen" id="toc-from-word-counts-to-word-vectors-king-man-woman-queen" class="nav-link active" data-scroll-target="#from-word-counts-to-word-vectors-king-man-woman-queen">1) From word counts to word vectors: king − man + woman ≈ queen</a></li>
+  <li><a href="#self-attention-from-scratch-query-key-value" id="toc-self-attention-from-scratch-query-key-value" class="nav-link" data-scroll-target="#self-attention-from-scratch-query-key-value">2) Self-attention from scratch: query, key, value</a></li>
+  <li><a href="#multi-head-attention" id="toc-multi-head-attention" class="nav-link" data-scroll-target="#multi-head-attention">3) Multi-head attention</a></li>
+  <li><a href="#causal-masking-the-gpt-difference" id="toc-causal-masking-the-gpt-difference" class="nav-link" data-scroll-target="#causal-masking-the-gpt-difference">4) Causal masking: the GPT difference</a></li>
+  <li><a href="#positional-encoding" id="toc-positional-encoding" class="nav-link" data-scroll-target="#positional-encoding">5) Positional encoding</a></li>
+  <li><a href="#a-minimal-transformer-encoder-block" id="toc-a-minimal-transformer-encoder-block" class="nav-link" data-scroll-target="#a-minimal-transformer-encoder-block">6) A minimal Transformer encoder block</a></li>
+  <li><a href="#a-real-protein-language-model-esm-2-embeddings" id="toc-a-real-protein-language-model-esm-2-embeddings" class="nav-link" data-scroll-target="#a-real-protein-language-model-esm-2-embeddings">7) A real protein language model: ESM-2 embeddings</a></li>
+  <li><a href="#try-it-yourself" id="toc-try-it-yourself" class="nav-link" data-scroll-target="#try-it-yourself">Try it yourself</a></li>
+  </ul>
+</nav>
+    </div>
+<!-- main -->
+<main class="content" id="quarto-document-content">
+
+<header id="title-block-header" class="quarto-title-block default">
+<div class="quarto-title">
+<h1 class="title">Day 12 — Attention and Transformers in code</h1>
+</div>
+
+
+
+<div class="quarto-title-meta">
+
+    
+  
+    
+  </div>
+  
+
+
+</header>
+
+
+<p><a href="https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day12-attention-and-transformers-in-code.ipynb" style="display:inline-block;padding:10px 18px;background-color:#F9AB00;color:#000000;font-weight:bold;text-decoration:none;border-radius:6px;font-family:sans-serif;font-size:14px;">▶&nbsp; Open in Google Colab</a></p>
+<p>This notebook builds the Transformer up piece by piece: real pretrained word embeddings (the classic king-man+woman analogy), self-attention from scratch, multi-head attention, causal masking (the GPT difference), positional encoding, a minimal Transformer encoder block, and a real protein-language-model (ESM-2) embedding demo tying back to the globins used throughout this course.</p>
+<p>Adapted from this project’s own <code>notebooks/ch12.ipynb</code>-<code>ch15.ipynb</code> (Ekman-derived) and <code>notebooks/protein_contact_prediction.ipynb</code>’s ESM usage pattern. Every number below is computed by the code in this notebook, not asserted.</p>
+<div id="02876311" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-21T14:19:04.568993Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-21T14:19:04.568760Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-21T14:19:06.233517Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-21T14:19:06.232776Z&quot;}}" data-execution_count="1">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb1"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> math</span>
+<span id="cb1-2"><a href="#cb1-2" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> numpy <span class="im">as</span> np</span>
+<span id="cb1-3"><a href="#cb1-3" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> matplotlib.pyplot <span class="im">as</span> plt</span>
+<span id="cb1-4"><a href="#cb1-4" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch</span>
+<span id="cb1-5"><a href="#cb1-5" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn <span class="im">as</span> nn</span>
+<span id="cb1-6"><a href="#cb1-6" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> torch.nn.functional <span class="im">as</span> F</span>
+<span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb1-8"><a href="#cb1-8" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">0</span>)</span>
+<span id="cb1-9"><a href="#cb1-9" aria-hidden="true" tabindex="-1"></a>np.random.seed(<span class="dv">0</span>)</span>
+<span id="cb1-10"><a href="#cb1-10" aria-hidden="true" tabindex="-1"></a>device <span class="op">=</span> torch.device(<span class="st">"cuda"</span> <span class="cf">if</span> torch.cuda.is_available() <span class="cf">else</span> <span class="st">"cpu"</span>)</span>
+<span id="cb1-11"><a href="#cb1-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"device:"</span>, device)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>device: cuda</code></pre>
+</div>
+</div>
+<section id="from-word-counts-to-word-vectors-king-man-woman-queen" class="level2">
+<h2 class="anchored" data-anchor-id="from-word-counts-to-word-vectors-king-man-woman-queen">1) From word counts to word vectors: king − man + woman ≈ queen</h2>
+<p>Before attention, the first idea this day’s history needs is that words can be represented as <em>learned</em> vectors (embeddings) rather than one-hot codes. Rather than retraining embeddings from scratch on a tiny corpus (which does not reliably show the classic analogy), this loads real, pretrained GloVe vectors (Pennington, Socher &amp; Manning 2014) via <code>gensim</code> and checks the analogy directly.</p>
+<div id="0fc3e739" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-21T14:19:06.235368Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-21T14:19:06.235160Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-21T14:19:27.463640Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-21T14:19:27.462982Z&quot;}}" data-execution_count="2">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb3"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb3-1"><a href="#cb3-1" aria-hidden="true" tabindex="-1"></a><span class="im">import</span> gensim.downloader <span class="im">as</span> api</span>
+<span id="cb3-2"><a href="#cb3-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-3"><a href="#cb3-3" aria-hidden="true" tabindex="-1"></a>glove <span class="op">=</span> api.load(<span class="st">"glove-wiki-gigaword-50"</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb3-5"><a href="#cb3-5" aria-hidden="true" tabindex="-1"></a>result <span class="op">=</span> glove.most_similar(positive<span class="op">=</span>[<span class="st">"king"</span>, <span class="st">"woman"</span>], negative<span class="op">=</span>[<span class="st">"man"</span>], topn<span class="op">=</span><span class="dv">5</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"king - man + woman =~"</span>)</span>
+<span id="cb3-7"><a href="#cb3-7" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> word, score <span class="kw">in</span> result:</span>
+<span id="cb3-8"><a href="#cb3-8" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="ss">f"  </span><span class="sc">{</span>word<span class="sc">:12s}</span><span class="ss"> cosine similarity = </span><span class="sc">{</span>score<span class="sc">:.4f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>king - man + woman =~
+  queen        cosine similarity = 0.8524
+  throne       cosine similarity = 0.7664
+  prince       cosine similarity = 0.7592
+  daughter     cosine similarity = 0.7474
+  elizabeth    cosine similarity = 0.7460</code></pre>
+</div>
+</div>
+<p><code>queen</code> comes out on top with cosine similarity 0.85 to the vector <code>king - man + woman</code> — the analogy holds for real, pretrained embeddings. This directly-computed relationship (not a hand-wave) is the entire motivation for the next 30 years of this field: represent words (or residues, or anything else discrete) as vectors positioned so that <em>meaning</em> becomes <em>geometry</em>.</p>
+</section>
+<section id="self-attention-from-scratch-query-key-value" class="level2">
+<h2 class="anchored" data-anchor-id="self-attention-from-scratch-query-key-value">2) Self-attention from scratch: query, key, value</h2>
+<p>Attention answers a search-like question for every position in a sequence: “which other positions should I pay attention to, and how much?” Concretely, each position’s embedding is projected into three vectors:</p>
+<ul>
+<li><strong>Query</strong> (<span class="math inline">\(Q\)</span>): what this position is looking for</li>
+<li><strong>Key</strong> (<span class="math inline">\(K\)</span>): what this position offers, for others to search against</li>
+<li><strong>Value</strong> (<span class="math inline">\(V\)</span>): what this position actually contributes if attended to</li>
+</ul>
+<p>The attention weights are a softmax over scaled dot products of queries against keys; the output is a weighted sum of values:</p>
+<p><span class="math display">\[
+\text{Attention}(Q, K, V) = \text{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right) V
+\]</span></p>
+<p>This is exactly Day 5’s BLAST reframed: BLAST searches a fixed database with a fixed heuristic (word matching + extension); attention <em>learns</em> what makes a good query/key match and how strongly to weight it, via <span class="math inline">\(W_Q\)</span>, <span class="math inline">\(W_K\)</span>, <span class="math inline">\(W_V\)</span>, trained end-to-end rather than hand-designed.</p>
+<p>The weights below are randomly initialized (untrained), exactly like Day 8’s first look at an untrained network — the point here is the <em>mechanism</em>, not a trained result.</p>
+<div id="08dc4e92" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-21T14:19:27.466091Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-21T14:19:27.465865Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-21T14:19:27.485883Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-21T14:19:27.485263Z&quot;}}" data-execution_count="3">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb5"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> scaled_dot_product_attention(Q, K, V):</span>
+<span id="cb5-2"><a href="#cb5-2" aria-hidden="true" tabindex="-1"></a>    d_k <span class="op">=</span> Q.shape[<span class="op">-</span><span class="dv">1</span>]</span>
+<span id="cb5-3"><a href="#cb5-3" aria-hidden="true" tabindex="-1"></a>    scores <span class="op">=</span> Q <span class="op">@</span> K.transpose(<span class="op">-</span><span class="dv">2</span>, <span class="op">-</span><span class="dv">1</span>) <span class="op">/</span> math.sqrt(d_k)</span>
+<span id="cb5-4"><a href="#cb5-4" aria-hidden="true" tabindex="-1"></a>    weights <span class="op">=</span> F.softmax(scores, dim<span class="op">=-</span><span class="dv">1</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" aria-hidden="true" tabindex="-1"></a>    output <span class="op">=</span> weights <span class="op">@</span> V</span>
+<span id="cb5-6"><a href="#cb5-6" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> output, weights</span>
+<span id="cb5-7"><a href="#cb5-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-8"><a href="#cb5-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-9"><a href="#cb5-9" aria-hidden="true" tabindex="-1"></a>tokens <span class="op">=</span> [<span class="st">"the"</span>, <span class="st">"cat"</span>, <span class="st">"sat"</span>, <span class="st">"on"</span>, <span class="st">"the"</span>, <span class="st">"mat"</span>]</span>
+<span id="cb5-10"><a href="#cb5-10" aria-hidden="true" tabindex="-1"></a>n, d_model, d_k <span class="op">=</span> <span class="bu">len</span>(tokens), <span class="dv">16</span>, <span class="dv">8</span></span>
+<span id="cb5-11"><a href="#cb5-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-12"><a href="#cb5-12" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">1</span>)</span>
+<span id="cb5-13"><a href="#cb5-13" aria-hidden="true" tabindex="-1"></a>x <span class="op">=</span> torch.randn(<span class="dv">1</span>, n, d_model)  <span class="co"># stand-in "embeddings" for this toy sentence</span></span>
+<span id="cb5-14"><a href="#cb5-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-15"><a href="#cb5-15" aria-hidden="true" tabindex="-1"></a>W_Q <span class="op">=</span> nn.Linear(d_model, d_k, bias<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb5-16"><a href="#cb5-16" aria-hidden="true" tabindex="-1"></a>W_K <span class="op">=</span> nn.Linear(d_model, d_k, bias<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb5-17"><a href="#cb5-17" aria-hidden="true" tabindex="-1"></a>W_V <span class="op">=</span> nn.Linear(d_model, d_k, bias<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb5-18"><a href="#cb5-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-19"><a href="#cb5-19" aria-hidden="true" tabindex="-1"></a>Q, K, V <span class="op">=</span> W_Q(x), W_K(x), W_V(x)</span>
+<span id="cb5-20"><a href="#cb5-20" aria-hidden="true" tabindex="-1"></a>out, attn_weights <span class="op">=</span> scaled_dot_product_attention(Q, K, V)</span>
+<span id="cb5-21"><a href="#cb5-21" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb5-22"><a href="#cb5-22" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Q, K, V shapes:"</span>, Q.shape, K.shape, V.shape)</span>
+<span id="cb5-23"><a href="#cb5-23" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"attention weight matrix shape:"</span>, attn_weights.shape)</span>
+<span id="cb5-24"><a href="#cb5-24" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"each row sums to (should be 1.0):"</span>, attn_weights[<span class="dv">0</span>].<span class="bu">sum</span>(dim<span class="op">=-</span><span class="dv">1</span>))</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Q, K, V shapes: torch.Size([1, 6, 8]) torch.Size([1, 6, 8]) torch.Size([1, 6, 8])
+attention weight matrix shape: torch.Size([1, 6, 6])
+each row sums to (should be 1.0): tensor([1.0000, 1.0000, 1.0000, 1.0000, 1.0000, 1.0000],
+       grad_fn=&lt;SumBackward1&gt;)</code></pre>
+</div>
+</div>
+<div id="67438347" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-21T14:19:27.487706Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-21T14:19:27.487542Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-21T14:19:27.755924Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-21T14:19:27.755128Z&quot;}}" data-execution_count="4">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb7"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb7-1"><a href="#cb7-1" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">5</span>, <span class="fl">4.5</span>))</span>
+<span id="cb7-2"><a href="#cb7-2" aria-hidden="true" tabindex="-1"></a>im <span class="op">=</span> ax.imshow(attn_weights[<span class="dv">0</span>].detach().numpy(), cmap<span class="op">=</span><span class="st">"viridis"</span>)</span>
+<span id="cb7-3"><a href="#cb7-3" aria-hidden="true" tabindex="-1"></a>ax.set_xticks(<span class="bu">range</span>(n))<span class="op">;</span> ax.set_xticklabels(tokens, rotation<span class="op">=</span><span class="dv">45</span>, ha<span class="op">=</span><span class="st">"right"</span>)</span>
+<span id="cb7-4"><a href="#cb7-4" aria-hidden="true" tabindex="-1"></a>ax.set_yticks(<span class="bu">range</span>(n))<span class="op">;</span> ax.set_yticklabels(tokens)</span>
+<span id="cb7-5"><a href="#cb7-5" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"attending to (key)"</span>)<span class="op">;</span> ax.set_ylabel(<span class="st">"query"</span>)</span>
+<span id="cb7-6"><a href="#cb7-6" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Self-attention weights (untrained, random projections)"</span>)</span>
+<span id="cb7-7"><a href="#cb7-7" aria-hidden="true" tabindex="-1"></a>plt.colorbar(im, ax<span class="op">=</span>ax, fraction<span class="op">=</span><span class="fl">0.046</span>)</span>
+<span id="cb7-8"><a href="#cb7-8" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb7-9"><a href="#cb7-9" aria-hidden="true" tabindex="-1"></a>plt.savefig(<span class="st">"../figs/day12-attention-heatmap.png"</span>, dpi<span class="op">=</span><span class="dv">130</span>)</span>
+<span id="cb7-10"><a href="#cb7-10" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="day12-attention-and-transformers-in-code_files/figure-html/cell-5-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Every row is a probability distribution over which other tokens that query attends to. Right now the pattern is meaningless (random weights) — after training on real data, these weights learn to track genuine linguistic or biological relationships (e.g.&nbsp;a verb attending to its subject, or in AlphaFold’s Evoformer, a residue attending to residues it co-evolves with — see the case study below).</p>
+</section>
+<section id="multi-head-attention" class="level2">
+<h2 class="anchored" data-anchor-id="multi-head-attention">3) Multi-head attention</h2>
+<p>A single attention head can only learn one <em>kind</em> of relationship at a time (say, “attend to the previous word”). Multi-head attention runs several independent attention heads in parallel, each with its own <span class="math inline">\(W_Q, W_K, W_V\)</span>, then concatenates and linearly projects the results — letting different heads specialize.</p>
+<div id="7108b288" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-21T14:19:27.758302Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-21T14:19:27.757977Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-21T14:19:28.210520Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-21T14:19:28.209910Z&quot;}}" data-execution_count="5">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb8"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> MultiHeadAttention(nn.Module):</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, d_model, n_heads):</span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>        <span class="cf">assert</span> d_model <span class="op">%</span> n_heads <span class="op">==</span> <span class="dv">0</span></span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.n_heads <span class="op">=</span> n_heads</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.d_k <span class="op">=</span> d_model <span class="op">//</span> n_heads</span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.W_Q <span class="op">=</span> nn.Linear(d_model, d_model, bias<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.W_K <span class="op">=</span> nn.Linear(d_model, d_model, bias<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb8-9"><a href="#cb8-9" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.W_V <span class="op">=</span> nn.Linear(d_model, d_model, bias<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb8-10"><a href="#cb8-10" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.W_O <span class="op">=</span> nn.Linear(d_model, d_model, bias<span class="op">=</span><span class="va">False</span>)</span>
+<span id="cb8-11"><a href="#cb8-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-12"><a href="#cb8-12" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> split_heads(<span class="va">self</span>, x):</span>
+<span id="cb8-13"><a href="#cb8-13" aria-hidden="true" tabindex="-1"></a>        b, n, d <span class="op">=</span> x.shape</span>
+<span id="cb8-14"><a href="#cb8-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> x.view(b, n, <span class="va">self</span>.n_heads, <span class="va">self</span>.d_k).transpose(<span class="dv">1</span>, <span class="dv">2</span>)  <span class="co"># (b, heads, n, d_k)</span></span>
+<span id="cb8-15"><a href="#cb8-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-16"><a href="#cb8-16" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x):</span>
+<span id="cb8-17"><a href="#cb8-17" aria-hidden="true" tabindex="-1"></a>        Q, K, V <span class="op">=</span> <span class="va">self</span>.split_heads(<span class="va">self</span>.W_Q(x)), <span class="va">self</span>.split_heads(<span class="va">self</span>.W_K(x)), <span class="va">self</span>.split_heads(<span class="va">self</span>.W_V(x))</span>
+<span id="cb8-18"><a href="#cb8-18" aria-hidden="true" tabindex="-1"></a>        out, weights <span class="op">=</span> scaled_dot_product_attention(Q, K, V)</span>
+<span id="cb8-19"><a href="#cb8-19" aria-hidden="true" tabindex="-1"></a>        b, h, n, d_k <span class="op">=</span> out.shape</span>
+<span id="cb8-20"><a href="#cb8-20" aria-hidden="true" tabindex="-1"></a>        out <span class="op">=</span> out.transpose(<span class="dv">1</span>, <span class="dv">2</span>).reshape(b, n, h <span class="op">*</span> d_k)</span>
+<span id="cb8-21"><a href="#cb8-21" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> <span class="va">self</span>.W_O(out), weights</span>
+<span id="cb8-22"><a href="#cb8-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-23"><a href="#cb8-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-24"><a href="#cb8-24" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">2</span>)</span>
+<span id="cb8-25"><a href="#cb8-25" aria-hidden="true" tabindex="-1"></a>mha <span class="op">=</span> MultiHeadAttention(d_model<span class="op">=</span><span class="dv">16</span>, n_heads<span class="op">=</span><span class="dv">4</span>)</span>
+<span id="cb8-26"><a href="#cb8-26" aria-hidden="true" tabindex="-1"></a>out, head_weights <span class="op">=</span> mha(x)</span>
+<span id="cb8-27"><a href="#cb8-27" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"output shape:"</span>, out.shape, <span class="st">" (unchanged from input, as required to stack more layers)"</span>)</span>
+<span id="cb8-28"><a href="#cb8-28" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"per-head attention weight shape:"</span>, head_weights.shape, <span class="st">"= (batch, heads, query, key)"</span>)</span>
+<span id="cb8-29"><a href="#cb8-29" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-30"><a href="#cb8-30" aria-hidden="true" tabindex="-1"></a>fig, axes <span class="op">=</span> plt.subplots(<span class="dv">1</span>, <span class="dv">4</span>, figsize<span class="op">=</span>(<span class="dv">14</span>, <span class="fl">3.2</span>))</span>
+<span id="cb8-31"><a href="#cb8-31" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> h <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">4</span>):</span>
+<span id="cb8-32"><a href="#cb8-32" aria-hidden="true" tabindex="-1"></a>    axes[h].imshow(head_weights[<span class="dv">0</span>, h].detach().numpy(), cmap<span class="op">=</span><span class="st">"viridis"</span>)</span>
+<span id="cb8-33"><a href="#cb8-33" aria-hidden="true" tabindex="-1"></a>    axes[h].set_title(<span class="ss">f"head </span><span class="sc">{</span>h<span class="sc">}</span><span class="ss">"</span>)</span>
+<span id="cb8-34"><a href="#cb8-34" aria-hidden="true" tabindex="-1"></a>    axes[h].set_xticks(<span class="bu">range</span>(n))<span class="op">;</span> axes[h].set_xticklabels(tokens, rotation<span class="op">=</span><span class="dv">90</span>, fontsize<span class="op">=</span><span class="dv">7</span>)</span>
+<span id="cb8-35"><a href="#cb8-35" aria-hidden="true" tabindex="-1"></a>    axes[h].set_yticks(<span class="bu">range</span>(n))<span class="op">;</span> axes[h].set_yticklabels(tokens, fontsize<span class="op">=</span><span class="dv">7</span>)</span>
+<span id="cb8-36"><a href="#cb8-36" aria-hidden="true" tabindex="-1"></a>plt.suptitle(<span class="st">"Four heads, four different (untrained) attention patterns"</span>)</span>
+<span id="cb8-37"><a href="#cb8-37" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb8-38"><a href="#cb8-38" aria-hidden="true" tabindex="-1"></a>plt.savefig(<span class="st">"../figs/day12-multihead-attention.png"</span>, dpi<span class="op">=</span><span class="dv">130</span>)</span>
+<span id="cb8-39"><a href="#cb8-39" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>output shape: torch.Size([1, 6, 16])  (unchanged from input, as required to stack more layers)
+per-head attention weight shape: torch.Size([1, 4, 6, 6]) = (batch, heads, query, key)</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="day12-attention-and-transformers-in-code_files/figure-html/cell-6-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>Even with random, untrained weights, the four heads visibly attend differently from each other (verify: no two heatmaps above are identical) — the <em>architecture</em> already guarantees diversity of what each head can specialize in; training then decides what each one actually specializes <em>for</em>.</p>
+</section>
+<section id="causal-masking-the-gpt-difference" class="level2">
+<h2 class="anchored" data-anchor-id="causal-masking-the-gpt-difference">4) Causal masking: the GPT difference</h2>
+<p>Everything above lets every position attend to every other position — fine for an <em>encoder</em> that sees a whole sentence (or a whole protein) at once. A <strong>decoder-only</strong> model like GPT generates one token at a time and must never be allowed to peek at tokens it hasn't generated yet. The fix is a <strong>causal mask</strong>: before the softmax, set every “attend to the future” score to <span class="math inline">\(-\infty\)</span>, so it becomes exactly 0 after softmax.</p>
+<div id="db760c7b" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-21T14:19:28.212746Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-21T14:19:28.212594Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-21T14:19:28.359590Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-21T14:19:28.358897Z&quot;}}" data-execution_count="6">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb10"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> causal_mask(n):</span>
+<span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>    mask <span class="op">=</span> torch.triu(torch.ones(n, n), diagonal<span class="op">=</span><span class="dv">1</span>).<span class="bu">bool</span>()  <span class="co"># True above the diagonal = "future"</span></span>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> mask</span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> masked_scaled_dot_product_attention(Q, K, V, mask<span class="op">=</span><span class="va">None</span>):</span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>    d_k <span class="op">=</span> Q.shape[<span class="op">-</span><span class="dv">1</span>]</span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>    scores <span class="op">=</span> Q <span class="op">@</span> K.transpose(<span class="op">-</span><span class="dv">2</span>, <span class="op">-</span><span class="dv">1</span>) <span class="op">/</span> math.sqrt(d_k)</span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>    <span class="cf">if</span> mask <span class="kw">is</span> <span class="kw">not</span> <span class="va">None</span>:</span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>        scores <span class="op">=</span> scores.masked_fill(mask, <span class="bu">float</span>(<span class="st">"-inf"</span>))</span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>    weights <span class="op">=</span> F.softmax(scores, dim<span class="op">=-</span><span class="dv">1</span>)</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> weights <span class="op">@</span> V, weights</span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>mask <span class="op">=</span> causal_mask(n)</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a>_, causal_weights <span class="op">=</span> masked_scaled_dot_product_attention(Q, K, V, mask<span class="op">=</span>mask)</span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Row 0 (token 'the') can attend to:"</span>, causal_weights[<span class="dv">0</span>, <span class="dv">0</span>].detach().numpy().<span class="bu">round</span>(<span class="dv">3</span>))</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Row 5 (token 'mat') can attend to:"</span>, causal_weights[<span class="dv">0</span>, <span class="dv">5</span>].detach().numpy().<span class="bu">round</span>(<span class="dv">3</span>))</span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>()</span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Weight assigned to any FUTURE position (should be exactly 0.0):"</span>,</span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>      <span class="bu">float</span>(causal_weights[<span class="dv">0</span>][mask].<span class="bu">abs</span>().<span class="bu">max</span>()))</span>
+<span id="cb10-23"><a href="#cb10-23" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-24"><a href="#cb10-24" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="fl">4.5</span>, <span class="dv">4</span>))</span>
+<span id="cb10-25"><a href="#cb10-25" aria-hidden="true" tabindex="-1"></a>ax.imshow(causal_weights[<span class="dv">0</span>].detach().numpy(), cmap<span class="op">=</span><span class="st">"viridis"</span>)</span>
+<span id="cb10-26"><a href="#cb10-26" aria-hidden="true" tabindex="-1"></a>ax.set_xticks(<span class="bu">range</span>(n))<span class="op">;</span> ax.set_xticklabels(tokens, rotation<span class="op">=</span><span class="dv">45</span>, ha<span class="op">=</span><span class="st">"right"</span>)</span>
+<span id="cb10-27"><a href="#cb10-27" aria-hidden="true" tabindex="-1"></a>ax.set_yticks(<span class="bu">range</span>(n))<span class="op">;</span> ax.set_yticklabels(tokens)</span>
+<span id="cb10-28"><a href="#cb10-28" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Causal (GPT-style) self-attention:</span><span class="ch">\n</span><span class="st">lower-triangular only"</span>)</span>
+<span id="cb10-29"><a href="#cb10-29" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb10-30"><a href="#cb10-30" aria-hidden="true" tabindex="-1"></a>plt.savefig(<span class="st">"../figs/day12-causal-mask.png"</span>, dpi<span class="op">=</span><span class="dv">130</span>)</span>
+<span id="cb10-31"><a href="#cb10-31" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Row 0 (token 'the') can attend to: [1. 0. 0. 0. 0. 0.]
+Row 5 (token 'mat') can attend to: [0.116 0.22  0.131 0.144 0.208 0.18 ]
+
+Weight assigned to any FUTURE position (should be exactly 0.0): 0.0</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="day12-attention-and-transformers-in-code_files/figure-html/cell-7-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+<p>The first token can only attend to itself; the last token can attend to everything before and including itself. This one masking change — nothing else — is the entire architectural difference between an encoder (Day 12's attention section above, and AlphaFold's Evoformer, which sees a whole sequence/alignment at once) and a GPT-style decoder (which must generate left-to-right). Stack many causal self-attention layers, train by next-token prediction on a huge unlabeled corpus, and that <em>is</em> a GPT model — the same self-supervised idea as Day 11's UniRep (next amino acid, on an LSTM), now with attention instead of recurrence, at a much larger scale.</p>
+</section>
+<section id="positional-encoding" class="level2">
+<h2 class="anchored" data-anchor-id="positional-encoding">5) Positional encoding</h2>
+<p>Attention itself has no notion of <em>order</em> — shuffle the tokens and every query/key/value pair is unchanged. The original Transformer's fix: add a fixed sinusoidal pattern to each position's embedding, with a different frequency per dimension, so nearby positions get similar codes and the model can learn to use the difference.</p>
+<div id="5cf8e65e" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-21T14:19:28.361018Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-21T14:19:28.360876Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-21T14:19:28.625155Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-21T14:19:28.624328Z&quot;}}" data-execution_count="7">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb12"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> positional_encoding(seq_len, d_model):</span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>    position <span class="op">=</span> torch.arange(seq_len).unsqueeze(<span class="dv">1</span>).<span class="bu">float</span>()</span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>    div_term <span class="op">=</span> torch.exp(torch.arange(<span class="dv">0</span>, d_model, <span class="dv">2</span>).<span class="bu">float</span>() <span class="op">*</span> (<span class="op">-</span>math.log(<span class="fl">10000.0</span>) <span class="op">/</span> d_model))</span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>    pe <span class="op">=</span> torch.zeros(seq_len, d_model)</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>    pe[:, <span class="dv">0</span>::<span class="dv">2</span>] <span class="op">=</span> torch.sin(position <span class="op">*</span> div_term)</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>    pe[:, <span class="dv">1</span>::<span class="dv">2</span>] <span class="op">=</span> torch.cos(position <span class="op">*</span> div_term)</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> pe</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a>pe <span class="op">=</span> positional_encoding(seq_len<span class="op">=</span><span class="dv">50</span>, d_model<span class="op">=</span><span class="dv">64</span>)</span>
+<span id="cb12-11"><a href="#cb12-11" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"positional encoding shape:"</span>, pe.shape)</span>
+<span id="cb12-12"><a href="#cb12-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-13"><a href="#cb12-13" aria-hidden="true" tabindex="-1"></a>plt.figure(figsize<span class="op">=</span>(<span class="dv">7</span>, <span class="dv">4</span>))</span>
+<span id="cb12-14"><a href="#cb12-14" aria-hidden="true" tabindex="-1"></a>plt.imshow(pe.T, cmap<span class="op">=</span><span class="st">"RdBu"</span>, aspect<span class="op">=</span><span class="st">"auto"</span>)</span>
+<span id="cb12-15"><a href="#cb12-15" aria-hidden="true" tabindex="-1"></a>plt.xlabel(<span class="st">"position in sequence"</span>)<span class="op">;</span> plt.ylabel(<span class="st">"embedding dimension"</span>)</span>
+<span id="cb12-16"><a href="#cb12-16" aria-hidden="true" tabindex="-1"></a>plt.title(<span class="st">"Sinusoidal positional encoding (Vaswani et al. 2017)"</span>)</span>
+<span id="cb12-17"><a href="#cb12-17" aria-hidden="true" tabindex="-1"></a>plt.colorbar(label<span class="op">=</span><span class="st">"value"</span>)</span>
+<span id="cb12-18"><a href="#cb12-18" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb12-19"><a href="#cb12-19" aria-hidden="true" tabindex="-1"></a>plt.savefig(<span class="st">"../figs/day12-positional-encoding.png"</span>, dpi<span class="op">=</span><span class="dv">130</span>)</span>
+<span id="cb12-20"><a href="#cb12-20" aria-hidden="true" tabindex="-1"></a>plt.show()</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>positional encoding shape: torch.Size([50, 64])</code></pre>
+</div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="day12-attention-and-transformers-in-code_files/figure-html/cell-8-output-2.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+</div>
+</section>
+<section id="a-minimal-transformer-encoder-block" class="level2">
+<h2 class="anchored" data-anchor-id="a-minimal-transformer-encoder-block">6) A minimal Transformer encoder block</h2>
+<p>Putting it together: multi-head self-attention, a residual connection + LayerNorm, a small feed-forward network, another residual connection + LayerNorm. This is the repeating unit that, stacked N times, <em>is</em> the Transformer encoder (and, with causal masking, the GPT decoder).</p>
+<div id="39558ee7" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-21T14:19:28.627053Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-21T14:19:28.626891Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-21T14:19:28.635014Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-21T14:19:28.634492Z&quot;}}" data-execution_count="8">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb14"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a><span class="kw">class</span> TransformerEncoderBlock(nn.Module):</span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> <span class="fu">__init__</span>(<span class="va">self</span>, d_model, n_heads, d_ff):</span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>        <span class="bu">super</span>().<span class="fu">__init__</span>()</span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.attn <span class="op">=</span> MultiHeadAttention(d_model, n_heads)</span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.norm1 <span class="op">=</span> nn.LayerNorm(d_model)</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.ff <span class="op">=</span> nn.Sequential(nn.Linear(d_model, d_ff), nn.ReLU(), nn.Linear(d_ff, d_model))</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a>        <span class="va">self</span>.norm2 <span class="op">=</span> nn.LayerNorm(d_model)</span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>    <span class="kw">def</span> forward(<span class="va">self</span>, x):</span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>        attn_out, _ <span class="op">=</span> <span class="va">self</span>.attn(x)</span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> <span class="va">self</span>.norm1(x <span class="op">+</span> attn_out)          <span class="co"># residual + LayerNorm</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>        ff_out <span class="op">=</span> <span class="va">self</span>.ff(x)</span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>        x <span class="op">=</span> <span class="va">self</span>.norm2(x <span class="op">+</span> ff_out)             <span class="co"># residual + LayerNorm</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>        <span class="cf">return</span> x</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>torch.manual_seed(<span class="dv">3</span>)</span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>block <span class="op">=</span> TransformerEncoderBlock(d_model<span class="op">=</span><span class="dv">16</span>, n_heads<span class="op">=</span><span class="dv">4</span>, d_ff<span class="op">=</span><span class="dv">32</span>)</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a>y <span class="op">=</span> block(x <span class="op">+</span> pe[:n, :<span class="dv">16</span>].unsqueeze(<span class="dv">0</span>))</span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"input shape: "</span>, x.shape)</span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"output shape:"</span>, y.shape, <span class="st">" (identical to input -- this is why blocks stack)"</span>)</span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"output is finite and non-degenerate:"</span>, torch.isfinite(y).<span class="bu">all</span>().item(), <span class="st">"std ="</span>, y.std().item())</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>input shape:  torch.Size([1, 6, 16])
+output shape: torch.Size([1, 6, 16])  (identical to input -- this is why blocks stack)
+output is finite and non-degenerate: True std = 1.005244493484497</code></pre>
+</div>
+</div>
+<p>Shape-in equals shape-out is not incidental — it is <em>why</em> this block can be stacked N times to build an arbitrarily deep Transformer, exactly the way Day 9's hidden layers stacked, and exactly what GPT-style models and AlphaFold's Evoformer both do (dozens of these blocks, not one).</p>
+</section>
+<section id="a-real-protein-language-model-esm-2-embeddings" class="level2">
+<h2 class="anchored" data-anchor-id="a-real-protein-language-model-esm-2-embeddings">7) A real protein language model: ESM-2 embeddings</h2>
+<p>Everything above used English words as a friendly first example. The point of this whole day is that the <em>same</em> architecture, pretrained by next-token (next-residue) prediction on millions of real protein sequences, is what ESM (“Evolutionary Scale Modeling”, Meta AI) and similar protein language models actually are. Below: real ESM-2 embeddings (the smallest public checkpoint, 8M parameters, for speed) for three real globins used throughout this course, checked against their real pairwise sequence identity.</p>
+<div id="d37a91f6" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-21T14:19:28.636617Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-21T14:19:28.636457Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-21T14:19:31.751179Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-21T14:19:31.750451Z&quot;}}" data-execution_count="9">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb16"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a><span class="im">from</span> Bio <span class="im">import</span> Align</span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a><span class="co"># Real sequences used elsewhere in this course: human beta-globin (HBB), human myoglobin (MB),</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a><span class="co"># and human alpha-globin (HBA1) -- all real UniProt reviewed entries, fetched previously in</span></span>
+<span id="cb16-5"><a href="#cb16-5" aria-hidden="true" tabindex="-1"></a><span class="co"># Days 3-6's notebooks; hard-coded here (already verified) to keep this section fast and offline-safe.</span></span>
+<span id="cb16-6"><a href="#cb16-6" aria-hidden="true" tabindex="-1"></a>sequences <span class="op">=</span> {</span>
+<span id="cb16-7"><a href="#cb16-7" aria-hidden="true" tabindex="-1"></a>    <span class="st">"HBB (beta-globin)"</span>: <span class="st">"MVHLTPEEKSAVTALWGKVNVDEVGGEALGRLLVVYPWTQRFFESFGDLSTPDAVMGNPKVKAHGKKVLGAFSDGLAHLDNLKGTFATLSELHCDKLHVDPENFRLLGNVLVCVLAHHFGKEFTPPVQAAYQKVVAGVANALAHKYH"</span>,</span>
+<span id="cb16-8"><a href="#cb16-8" aria-hidden="true" tabindex="-1"></a>    <span class="st">"MB (myoglobin)"</span>:    <span class="st">"MGLSDGEWQLVLNVWGKVEADIPGHGQEVLIRLFKGHPETLEKFDKFKHLKSEDEMKASEDLKKHGATVLTALGGILKKKGHHEAELTPLAQSHATKHKIPIKYLEFISECIIQVLQSKHPGDFGADAQGAMNKALELFRKDMASNYKELGFQG"</span>,</span>
+<span id="cb16-9"><a href="#cb16-9" aria-hidden="true" tabindex="-1"></a>    <span class="st">"HBA1 (alpha-globin)"</span>:<span class="st">"MVLSPADKTNVKAAWGKVGAHAGEYGAEALERMFLSFPTTKTYFPHFDLSHGSAQVKGHGKKVADALTNAVAHVDDMPNALSALSDLHAHKLRVDPVNFKLLSHCLLVTLAAHLPAEFTPAVHASLDKFLASVSTVLTSKYR"</span>,</span>
+<span id="cb16-10"><a href="#cb16-10" aria-hidden="true" tabindex="-1"></a>}</span>
+<span id="cb16-11"><a href="#cb16-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-12"><a href="#cb16-12" aria-hidden="true" tabindex="-1"></a>tokenizer_esm <span class="op">=</span> <span class="va">None</span></span>
+<span id="cb16-13"><a href="#cb16-13" aria-hidden="true" tabindex="-1"></a><span class="cf">try</span>:</span>
+<span id="cb16-14"><a href="#cb16-14" aria-hidden="true" tabindex="-1"></a>    <span class="im">from</span> transformers <span class="im">import</span> AutoTokenizer, EsmModel</span>
+<span id="cb16-15"><a href="#cb16-15" aria-hidden="true" tabindex="-1"></a>    tokenizer_esm <span class="op">=</span> AutoTokenizer.from_pretrained(<span class="st">"facebook/esm2_t6_8M_UR50D"</span>)</span>
+<span id="cb16-16"><a href="#cb16-16" aria-hidden="true" tabindex="-1"></a>    esm_model <span class="op">=</span> EsmModel.from_pretrained(<span class="st">"facebook/esm2_t6_8M_UR50D"</span>)</span>
+<span id="cb16-17"><a href="#cb16-17" aria-hidden="true" tabindex="-1"></a>    esm_model.<span class="bu">eval</span>()</span>
+<span id="cb16-18"><a href="#cb16-18" aria-hidden="true" tabindex="-1"></a>    ESM_AVAILABLE <span class="op">=</span> <span class="va">True</span></span>
+<span id="cb16-19"><a href="#cb16-19" aria-hidden="true" tabindex="-1"></a><span class="cf">except</span> <span class="pp">Exception</span> <span class="im">as</span> exc:</span>
+<span id="cb16-20"><a href="#cb16-20" aria-hidden="true" tabindex="-1"></a>    <span class="bu">print</span>(<span class="st">"ESM unavailable in this environment:"</span>, exc)</span>
+<span id="cb16-21"><a href="#cb16-21" aria-hidden="true" tabindex="-1"></a>    ESM_AVAILABLE <span class="op">=</span> <span class="va">False</span></span>
+<span id="cb16-22"><a href="#cb16-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb16-23"><a href="#cb16-23" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"ESM-2 (8M) available:"</span>, ESM_AVAILABLE)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stderr">
+<div class="ansi-escaped-output">
+<pre>/home/arnee/miniforge3/envs/ekman-teaching/lib/python3.11/site-packages/tqdm/auto.py:21: TqdmWarning: IProgress not found. Please update jupyter and ipywidgets. See https://ipywidgets.readthedocs.io/en/stable/user_install.html
+
+  from .autonotebook import tqdm as notebook_tqdm
+
+Warning: You are sending unauthenticated requests to the HF Hub. Please set a HF_TOKEN to enable higher rate limits and faster downloads.
+
+
+Loading weights:   0%|          | 0/107 [00:00&lt;?, ?it/s]
+
+Loading weights:   1%|          | 1/107 [00:00&lt;00:00, 14074.85it/s, Materializing param=contact_head.regression.bias]
+
+Loading weights:   1%|          | 1/107 [00:00&lt;00:00, 1243.13it/s, Materializing param=contact_head.regression.bias] 
+
+Loading weights:   2%|▏         | 2/107 [00:00&lt;00:00, 1379.25it/s, Materializing param=contact_head.regression.weight]
+
+Loading weights:   2%|▏         | 2/107 [00:00&lt;00:00, 581.81it/s, Materializing param=contact_head.regression.weight] 
+
+Loading weights:   3%|▎         | 3/107 [00:00&lt;00:00, 754.24it/s, Materializing param=embeddings.word_embeddings.weight]
+
+Loading weights:   3%|▎         | 3/107 [00:00&lt;00:00, 673.64it/s, Materializing param=embeddings.word_embeddings.weight]
+
+Loading weights:   4%|▎         | 4/107 [00:00&lt;00:00, 729.41it/s, Materializing param=encoder.emb_layer_norm_after.bias]
+
+Loading weights:   4%|▎         | 4/107 [00:00&lt;00:00, 612.17it/s, Materializing param=encoder.emb_layer_norm_after.bias]
+
+Loading weights:   5%|▍         | 5/107 [00:00&lt;00:00, 641.72it/s, Materializing param=encoder.emb_layer_norm_after.weight]
+
+Loading weights:   5%|▍         | 5/107 [00:00&lt;00:00, 564.74it/s, Materializing param=encoder.emb_layer_norm_after.weight]
+
+Loading weights:   6%|▌         | 6/107 [00:00&lt;00:00, 550.02it/s, Materializing param=encoder.layer.0.LayerNorm.bias]     
+
+Loading weights:   6%|▌         | 6/107 [00:00&lt;00:00, 466.23it/s, Materializing param=encoder.layer.0.LayerNorm.bias]
+
+Loading weights:   7%|▋         | 7/107 [00:00&lt;00:00, 488.18it/s, Materializing param=encoder.layer.0.LayerNorm.weight]
+
+Loading weights:   7%|▋         | 7/107 [00:00&lt;00:00, 474.69it/s, Materializing param=encoder.layer.0.LayerNorm.weight]
+
+Loading weights:   7%|▋         | 8/107 [00:00&lt;00:00, 525.85it/s, Materializing param=encoder.layer.0.attention.LayerNorm.bias]
+
+Loading weights:   7%|▋         | 8/107 [00:00&lt;00:00, 513.21it/s, Materializing param=encoder.layer.0.attention.LayerNorm.bias]
+
+Loading weights:   8%|▊         | 9/107 [00:00&lt;00:00, 561.29it/s, Materializing param=encoder.layer.0.attention.LayerNorm.weight]
+
+Loading weights:   8%|▊         | 9/107 [00:00&lt;00:00, 548.50it/s, Materializing param=encoder.layer.0.attention.LayerNorm.weight]
+
+Loading weights:   9%|▉         | 10/107 [00:00&lt;00:00, 594.19it/s, Materializing param=encoder.layer.0.attention.output.dense.bias]
+
+Loading weights:   9%|▉         | 10/107 [00:00&lt;00:00, 581.94it/s, Materializing param=encoder.layer.0.attention.output.dense.bias]
+
+Loading weights:  10%|█         | 11/107 [00:00&lt;00:00, 624.14it/s, Materializing param=encoder.layer.0.attention.output.dense.weight]
+
+Loading weights:  10%|█         | 11/107 [00:00&lt;00:00, 576.98it/s, Materializing param=encoder.layer.0.attention.output.dense.weight]
+
+Loading weights:  11%|█         | 12/107 [00:00&lt;00:00, 616.14it/s, Materializing param=encoder.layer.0.attention.self.key.bias]      
+
+Loading weights:  11%|█         | 12/107 [00:00&lt;00:00, 604.90it/s, Materializing param=encoder.layer.0.attention.self.key.bias]
+
+Loading weights:  12%|█▏        | 13/107 [00:00&lt;00:00, 641.67it/s, Materializing param=encoder.layer.0.attention.self.key.weight]
+
+Loading weights:  12%|█▏        | 13/107 [00:00&lt;00:00, 620.70it/s, Materializing param=encoder.layer.0.attention.self.key.weight]
+
+Loading weights:  13%|█▎        | 14/107 [00:00&lt;00:00, 655.51it/s, Materializing param=encoder.layer.0.attention.self.query.bias]
+
+Loading weights:  13%|█▎        | 14/107 [00:00&lt;00:00, 644.89it/s, Materializing param=encoder.layer.0.attention.self.query.bias]
+
+Loading weights:  14%|█▍        | 15/107 [00:00&lt;00:00, 677.88it/s, Materializing param=encoder.layer.0.attention.self.query.weight]
+
+Loading weights:  14%|█▍        | 15/107 [00:00&lt;00:00, 667.66it/s, Materializing param=encoder.layer.0.attention.self.query.weight]
+
+Loading weights:  15%|█▍        | 16/107 [00:00&lt;00:00, 699.65it/s, Materializing param=encoder.layer.0.attention.self.rotary_embeddings.inv_freq]
+
+Loading weights:  15%|█▍        | 16/107 [00:00&lt;00:00, 682.93it/s, Materializing param=encoder.layer.0.attention.self.rotary_embeddings.inv_freq]
+
+Loading weights:  16%|█▌        | 17/107 [00:00&lt;00:00, 710.49it/s, Materializing param=encoder.layer.0.attention.self.value.bias]                
+
+Loading weights:  16%|█▌        | 17/107 [00:00&lt;00:00, 700.38it/s, Materializing param=encoder.layer.0.attention.self.value.bias]
+
+Loading weights:  17%|█▋        | 18/107 [00:00&lt;00:00, 725.32it/s, Materializing param=encoder.layer.0.attention.self.value.weight]
+
+Loading weights:  17%|█▋        | 18/107 [00:00&lt;00:00, 712.46it/s, Materializing param=encoder.layer.0.attention.self.value.weight]
+
+Loading weights:  18%|█▊        | 19/107 [00:00&lt;00:00, 733.35it/s, Materializing param=encoder.layer.0.intermediate.dense.bias]    
+
+Loading weights:  18%|█▊        | 19/107 [00:00&lt;00:00, 718.92it/s, Materializing param=encoder.layer.0.intermediate.dense.bias]
+
+Loading weights:  19%|█▊        | 20/107 [00:00&lt;00:00, 740.66it/s, Materializing param=encoder.layer.0.intermediate.dense.weight]
+
+Loading weights:  19%|█▊        | 20/107 [00:00&lt;00:00, 727.79it/s, Materializing param=encoder.layer.0.intermediate.dense.weight]
+
+Loading weights:  20%|█▉        | 21/107 [00:00&lt;00:00, 750.24it/s, Materializing param=encoder.layer.0.output.dense.bias]        
+
+Loading weights:  20%|█▉        | 21/107 [00:00&lt;00:00, 698.65it/s, Materializing param=encoder.layer.0.output.dense.bias]
+
+Loading weights:  21%|██        | 22/107 [00:00&lt;00:00, 722.29it/s, Materializing param=encoder.layer.0.output.dense.weight]
+
+Loading weights:  21%|██        | 22/107 [00:00&lt;00:00, 714.23it/s, Materializing param=encoder.layer.0.output.dense.weight]
+
+Loading weights:  21%|██▏       | 23/107 [00:00&lt;00:00, 729.78it/s, Materializing param=encoder.layer.1.LayerNorm.bias]     
+
+Loading weights:  21%|██▏       | 23/107 [00:00&lt;00:00, 719.60it/s, Materializing param=encoder.layer.1.LayerNorm.bias]
+
+Loading weights:  22%|██▏       | 24/107 [00:00&lt;00:00, 742.29it/s, Materializing param=encoder.layer.1.LayerNorm.weight]
+
+Loading weights:  22%|██▏       | 24/107 [00:00&lt;00:00, 733.93it/s, Materializing param=encoder.layer.1.LayerNorm.weight]
+
+Loading weights:  23%|██▎       | 25/107 [00:00&lt;00:00, 754.54it/s, Materializing param=encoder.layer.1.attention.LayerNorm.bias]
+
+Loading weights:  23%|██▎       | 25/107 [00:00&lt;00:00, 733.25it/s, Materializing param=encoder.layer.1.attention.LayerNorm.bias]
+
+Loading weights:  24%|██▍       | 26/107 [00:00&lt;00:00, 752.05it/s, Materializing param=encoder.layer.1.attention.LayerNorm.weight]
+
+Loading weights:  24%|██▍       | 26/107 [00:00&lt;00:00, 743.43it/s, Materializing param=encoder.layer.1.attention.LayerNorm.weight]
+
+Loading weights:  25%|██▌       | 27/107 [00:00&lt;00:00, 760.76it/s, Materializing param=encoder.layer.1.attention.output.dense.bias]
+
+Loading weights:  25%|██▌       | 27/107 [00:00&lt;00:00, 751.93it/s, Materializing param=encoder.layer.1.attention.output.dense.bias]
+
+Loading weights:  26%|██▌       | 28/107 [00:00&lt;00:00, 769.14it/s, Materializing param=encoder.layer.1.attention.output.dense.weight]
+
+Loading weights:  26%|██▌       | 28/107 [00:00&lt;00:00, 759.97it/s, Materializing param=encoder.layer.1.attention.output.dense.weight]
+
+Loading weights:  27%|██▋       | 29/107 [00:00&lt;00:00, 776.34it/s, Materializing param=encoder.layer.1.attention.self.key.bias]      
+
+Loading weights:  27%|██▋       | 29/107 [00:00&lt;00:00, 749.07it/s, Materializing param=encoder.layer.1.attention.self.key.bias]
+
+Loading weights:  28%|██▊       | 30/107 [00:00&lt;00:00, 763.07it/s, Materializing param=encoder.layer.1.attention.self.key.weight]
+
+Loading weights:  28%|██▊       | 30/107 [00:00&lt;00:00, 748.07it/s, Materializing param=encoder.layer.1.attention.self.key.weight]
+
+Loading weights:  29%|██▉       | 31/107 [00:00&lt;00:00, 761.87it/s, Materializing param=encoder.layer.1.attention.self.query.bias]
+
+Loading weights:  29%|██▉       | 31/107 [00:00&lt;00:00, 752.54it/s, Materializing param=encoder.layer.1.attention.self.query.bias]
+
+Loading weights:  30%|██▉       | 32/107 [00:00&lt;00:00, 766.21it/s, Materializing param=encoder.layer.1.attention.self.query.weight]
+
+Loading weights:  30%|██▉       | 32/107 [00:00&lt;00:00, 757.36it/s, Materializing param=encoder.layer.1.attention.self.query.weight]
+
+Loading weights:  31%|███       | 33/107 [00:00&lt;00:00, 769.58it/s, Materializing param=encoder.layer.1.attention.self.rotary_embeddings.inv_freq]
+
+Loading weights:  31%|███       | 33/107 [00:00&lt;00:00, 760.20it/s, Materializing param=encoder.layer.1.attention.self.rotary_embeddings.inv_freq]
+
+Loading weights:  32%|███▏      | 34/107 [00:00&lt;00:00, 770.03it/s, Materializing param=encoder.layer.1.attention.self.value.bias]                
+
+Loading weights:  32%|███▏      | 34/107 [00:00&lt;00:00, 745.53it/s, Materializing param=encoder.layer.1.attention.self.value.bias]
+
+Loading weights:  33%|███▎      | 35/107 [00:00&lt;00:00, 757.93it/s, Materializing param=encoder.layer.1.attention.self.value.weight]
+
+Loading weights:  33%|███▎      | 35/107 [00:00&lt;00:00, 748.90it/s, Materializing param=encoder.layer.1.attention.self.value.weight]
+
+Loading weights:  34%|███▎      | 36/107 [00:00&lt;00:00, 754.58it/s, Materializing param=encoder.layer.1.intermediate.dense.bias]    
+
+Loading weights:  34%|███▎      | 36/107 [00:00&lt;00:00, 747.30it/s, Materializing param=encoder.layer.1.intermediate.dense.bias]
+
+Loading weights:  35%|███▍      | 37/107 [00:00&lt;00:00, 754.54it/s, Materializing param=encoder.layer.1.intermediate.dense.weight]
+
+Loading weights:  35%|███▍      | 37/107 [00:00&lt;00:00, 747.50it/s, Materializing param=encoder.layer.1.intermediate.dense.weight]
+
+Loading weights:  36%|███▌      | 38/107 [00:00&lt;00:00, 758.07it/s, Materializing param=encoder.layer.1.output.dense.bias]        
+
+Loading weights:  36%|███▌      | 38/107 [00:00&lt;00:00, 750.95it/s, Materializing param=encoder.layer.1.output.dense.bias]
+
+Loading weights:  36%|███▋      | 39/107 [00:00&lt;00:00, 761.76it/s, Materializing param=encoder.layer.1.output.dense.weight]
+
+Loading weights:  36%|███▋      | 39/107 [00:00&lt;00:00, 755.06it/s, Materializing param=encoder.layer.1.output.dense.weight]
+
+Loading weights:  37%|███▋      | 40/107 [00:00&lt;00:00, 765.39it/s, Materializing param=encoder.layer.2.LayerNorm.bias]     
+
+Loading weights:  37%|███▋      | 40/107 [00:00&lt;00:00, 758.33it/s, Materializing param=encoder.layer.2.LayerNorm.bias]
+
+Loading weights:  38%|███▊      | 41/107 [00:00&lt;00:00, 768.83it/s, Materializing param=encoder.layer.2.LayerNorm.weight]
+
+Loading weights:  38%|███▊      | 41/107 [00:00&lt;00:00, 762.44it/s, Materializing param=encoder.layer.2.LayerNorm.weight]
+
+Loading weights:  39%|███▉      | 42/107 [00:00&lt;00:00, 772.51it/s, Materializing param=encoder.layer.2.attention.LayerNorm.bias]
+
+Loading weights:  39%|███▉      | 42/107 [00:00&lt;00:00, 766.09it/s, Materializing param=encoder.layer.2.attention.LayerNorm.bias]
+
+Loading weights:  40%|████      | 43/107 [00:00&lt;00:00, 775.74it/s, Materializing param=encoder.layer.2.attention.LayerNorm.weight]
+
+Loading weights:  40%|████      | 43/107 [00:00&lt;00:00, 769.38it/s, Materializing param=encoder.layer.2.attention.LayerNorm.weight]
+
+Loading weights:  41%|████      | 44/107 [00:00&lt;00:00, 779.13it/s, Materializing param=encoder.layer.2.attention.output.dense.bias]
+
+Loading weights:  41%|████      | 44/107 [00:00&lt;00:00, 772.70it/s, Materializing param=encoder.layer.2.attention.output.dense.bias]
+
+Loading weights:  42%|████▏     | 45/107 [00:00&lt;00:00, 782.38it/s, Materializing param=encoder.layer.2.attention.output.dense.weight]
+
+Loading weights:  42%|████▏     | 45/107 [00:00&lt;00:00, 774.67it/s, Materializing param=encoder.layer.2.attention.output.dense.weight]
+
+Loading weights:  43%|████▎     | 46/107 [00:00&lt;00:00, 754.72it/s, Materializing param=encoder.layer.2.attention.self.key.bias]      
+
+Loading weights:  43%|████▎     | 46/107 [00:00&lt;00:00, 747.16it/s, Materializing param=encoder.layer.2.attention.self.key.bias]
+
+Loading weights:  44%|████▍     | 47/107 [00:00&lt;00:00, 754.39it/s, Materializing param=encoder.layer.2.attention.self.key.weight]
+
+Loading weights:  44%|████▍     | 47/107 [00:00&lt;00:00, 743.18it/s, Materializing param=encoder.layer.2.attention.self.key.weight]
+
+Loading weights:  45%|████▍     | 48/107 [00:00&lt;00:00, 751.82it/s, Materializing param=encoder.layer.2.attention.self.query.bias]
+
+Loading weights:  45%|████▍     | 48/107 [00:00&lt;00:00, 745.33it/s, Materializing param=encoder.layer.2.attention.self.query.bias]
+
+Loading weights:  46%|████▌     | 49/107 [00:00&lt;00:00, 753.78it/s, Materializing param=encoder.layer.2.attention.self.query.weight]
+
+Loading weights:  46%|████▌     | 49/107 [00:00&lt;00:00, 741.27it/s, Materializing param=encoder.layer.2.attention.self.query.weight]
+
+Loading weights:  47%|████▋     | 50/107 [00:00&lt;00:00, 744.36it/s, Materializing param=encoder.layer.2.attention.self.rotary_embeddings.inv_freq]
+
+Loading weights:  47%|████▋     | 50/107 [00:00&lt;00:00, 738.08it/s, Materializing param=encoder.layer.2.attention.self.rotary_embeddings.inv_freq]
+
+Loading weights:  48%|████▊     | 51/107 [00:00&lt;00:00, 743.96it/s, Materializing param=encoder.layer.2.attention.self.value.bias]                
+
+Loading weights:  48%|████▊     | 51/107 [00:00&lt;00:00, 733.34it/s, Materializing param=encoder.layer.2.attention.self.value.bias]
+
+Loading weights:  49%|████▊     | 52/107 [00:00&lt;00:00, 739.76it/s, Materializing param=encoder.layer.2.attention.self.value.weight]
+
+Loading weights:  49%|████▊     | 52/107 [00:00&lt;00:00, 731.78it/s, Materializing param=encoder.layer.2.attention.self.value.weight]
+
+Loading weights:  50%|████▉     | 53/107 [00:00&lt;00:00, 739.57it/s, Materializing param=encoder.layer.2.intermediate.dense.bias]    
+
+Loading weights:  50%|████▉     | 53/107 [00:00&lt;00:00, 731.81it/s, Materializing param=encoder.layer.2.intermediate.dense.bias]
+
+Loading weights:  50%|█████     | 54/107 [00:00&lt;00:00, 739.26it/s, Materializing param=encoder.layer.2.intermediate.dense.weight]
+
+Loading weights:  50%|█████     | 54/107 [00:00&lt;00:00, 731.74it/s, Materializing param=encoder.layer.2.intermediate.dense.weight]
+
+Loading weights:  51%|█████▏    | 55/107 [00:00&lt;00:00, 739.65it/s, Materializing param=encoder.layer.2.output.dense.bias]        
+
+Loading weights:  51%|█████▏    | 55/107 [00:00&lt;00:00, 731.99it/s, Materializing param=encoder.layer.2.output.dense.bias]
+
+Loading weights:  52%|█████▏    | 56/107 [00:00&lt;00:00, 739.69it/s, Materializing param=encoder.layer.2.output.dense.weight]
+
+Loading weights:  52%|█████▏    | 56/107 [00:00&lt;00:00, 732.21it/s, Materializing param=encoder.layer.2.output.dense.weight]
+
+Loading weights:  53%|█████▎    | 57/107 [00:00&lt;00:00, 738.87it/s, Materializing param=encoder.layer.3.LayerNorm.bias]     
+
+Loading weights:  53%|█████▎    | 57/107 [00:00&lt;00:00, 733.72it/s, Materializing param=encoder.layer.3.LayerNorm.bias]
+
+Loading weights:  54%|█████▍    | 58/107 [00:00&lt;00:00, 740.92it/s, Materializing param=encoder.layer.3.LayerNorm.weight]
+
+Loading weights:  54%|█████▍    | 58/107 [00:00&lt;00:00, 731.30it/s, Materializing param=encoder.layer.3.LayerNorm.weight]
+
+Loading weights:  55%|█████▌    | 59/107 [00:00&lt;00:00, 735.86it/s, Materializing param=encoder.layer.3.attention.LayerNorm.bias]
+
+Loading weights:  55%|█████▌    | 59/107 [00:00&lt;00:00, 731.22it/s, Materializing param=encoder.layer.3.attention.LayerNorm.bias]
+
+Loading weights:  56%|█████▌    | 60/107 [00:00&lt;00:00, 738.36it/s, Materializing param=encoder.layer.3.attention.LayerNorm.weight]
+
+Loading weights:  56%|█████▌    | 60/107 [00:00&lt;00:00, 734.18it/s, Materializing param=encoder.layer.3.attention.LayerNorm.weight]
+
+Loading weights:  57%|█████▋    | 61/107 [00:00&lt;00:00, 736.52it/s, Materializing param=encoder.layer.3.attention.output.dense.bias]
+
+Loading weights:  57%|█████▋    | 61/107 [00:00&lt;00:00, 732.35it/s, Materializing param=encoder.layer.3.attention.output.dense.bias]
+
+Loading weights:  58%|█████▊    | 62/107 [00:00&lt;00:00, 736.62it/s, Materializing param=encoder.layer.3.attention.output.dense.weight]
+
+Loading weights:  58%|█████▊    | 62/107 [00:00&lt;00:00, 732.36it/s, Materializing param=encoder.layer.3.attention.output.dense.weight]
+
+Loading weights:  59%|█████▉    | 63/107 [00:00&lt;00:00, 738.93it/s, Materializing param=encoder.layer.3.attention.self.key.bias]      
+
+Loading weights:  59%|█████▉    | 63/107 [00:00&lt;00:00, 734.95it/s, Materializing param=encoder.layer.3.attention.self.key.bias]
+
+Loading weights:  60%|█████▉    | 64/107 [00:00&lt;00:00, 741.45it/s, Materializing param=encoder.layer.3.attention.self.key.weight]
+
+Loading weights:  60%|█████▉    | 64/107 [00:00&lt;00:00, 737.50it/s, Materializing param=encoder.layer.3.attention.self.key.weight]
+
+Loading weights:  61%|██████    | 65/107 [00:00&lt;00:00, 743.84it/s, Materializing param=encoder.layer.3.attention.self.query.bias]
+
+Loading weights:  61%|██████    | 65/107 [00:00&lt;00:00, 740.10it/s, Materializing param=encoder.layer.3.attention.self.query.bias]
+
+Loading weights:  62%|██████▏   | 66/107 [00:00&lt;00:00, 746.35it/s, Materializing param=encoder.layer.3.attention.self.query.weight]
+
+Loading weights:  62%|██████▏   | 66/107 [00:00&lt;00:00, 742.51it/s, Materializing param=encoder.layer.3.attention.self.query.weight]
+
+Loading weights:  63%|██████▎   | 67/107 [00:00&lt;00:00, 739.64it/s, Materializing param=encoder.layer.3.attention.self.rotary_embeddings.inv_freq]
+
+Loading weights:  63%|██████▎   | 67/107 [00:00&lt;00:00, 736.06it/s, Materializing param=encoder.layer.3.attention.self.rotary_embeddings.inv_freq]
+
+Loading weights:  64%|██████▎   | 68/107 [00:00&lt;00:00, 739.71it/s, Materializing param=encoder.layer.3.attention.self.value.bias]                
+
+Loading weights:  64%|██████▎   | 68/107 [00:00&lt;00:00, 736.63it/s, Materializing param=encoder.layer.3.attention.self.value.bias]
+
+Loading weights:  64%|██████▍   | 69/107 [00:00&lt;00:00, 743.52it/s, Materializing param=encoder.layer.3.attention.self.value.weight]
+
+Loading weights:  64%|██████▍   | 69/107 [00:00&lt;00:00, 740.86it/s, Materializing param=encoder.layer.3.attention.self.value.weight]
+
+Loading weights:  65%|██████▌   | 70/107 [00:00&lt;00:00, 746.01it/s, Materializing param=encoder.layer.3.intermediate.dense.bias]    
+
+Loading weights:  65%|██████▌   | 70/107 [00:00&lt;00:00, 742.71it/s, Materializing param=encoder.layer.3.intermediate.dense.bias]
+
+Loading weights:  66%|██████▋   | 71/107 [00:00&lt;00:00, 750.01it/s, Materializing param=encoder.layer.3.intermediate.dense.weight]
+
+Loading weights:  66%|██████▋   | 71/107 [00:00&lt;00:00, 746.09it/s, Materializing param=encoder.layer.3.intermediate.dense.weight]
+
+Loading weights:  67%|██████▋   | 72/107 [00:00&lt;00:00, 753.33it/s, Materializing param=encoder.layer.3.output.dense.bias]        
+
+Loading weights:  67%|██████▋   | 72/107 [00:00&lt;00:00, 750.58it/s, Materializing param=encoder.layer.3.output.dense.bias]
+
+Loading weights:  68%|██████▊   | 73/107 [00:00&lt;00:00, 756.01it/s, Materializing param=encoder.layer.3.output.dense.weight]
+
+Loading weights:  68%|██████▊   | 73/107 [00:00&lt;00:00, 751.77it/s, Materializing param=encoder.layer.3.output.dense.weight]
+
+Loading weights:  69%|██████▉   | 74/107 [00:00&lt;00:00, 758.73it/s, Materializing param=encoder.layer.4.LayerNorm.bias]     
+
+Loading weights:  69%|██████▉   | 74/107 [00:00&lt;00:00, 756.12it/s, Materializing param=encoder.layer.4.LayerNorm.bias]
+
+Loading weights:  70%|███████   | 75/107 [00:00&lt;00:00, 762.77it/s, Materializing param=encoder.layer.4.LayerNorm.weight]
+
+Loading weights:  70%|███████   | 75/107 [00:00&lt;00:00, 760.34it/s, Materializing param=encoder.layer.4.LayerNorm.weight]
+
+Loading weights:  71%|███████   | 76/107 [00:00&lt;00:00, 767.15it/s, Materializing param=encoder.layer.4.attention.LayerNorm.bias]
+
+Loading weights:  71%|███████   | 76/107 [00:00&lt;00:00, 764.62it/s, Materializing param=encoder.layer.4.attention.LayerNorm.bias]
+
+Loading weights:  72%|███████▏  | 77/107 [00:00&lt;00:00, 771.37it/s, Materializing param=encoder.layer.4.attention.LayerNorm.weight]
+
+Loading weights:  72%|███████▏  | 77/107 [00:00&lt;00:00, 768.84it/s, Materializing param=encoder.layer.4.attention.LayerNorm.weight]
+
+Loading weights:  73%|███████▎  | 78/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.4.attention.LayerNorm.weight]
+
+Loading weights:  73%|███████▎  | 78/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.4.attention.output.dense.bias]
+
+Loading weights:  73%|███████▎  | 78/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.4.attention.output.dense.bias]
+
+Loading weights:  74%|███████▍  | 79/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.4.attention.output.dense.weight]
+
+Loading weights:  74%|███████▍  | 79/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.4.attention.output.dense.weight]
+
+Loading weights:  75%|███████▍  | 80/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.4.attention.self.key.bias]      
+
+Loading weights:  75%|███████▍  | 80/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.4.attention.self.key.bias]
+
+Loading weights:  76%|███████▌  | 81/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.4.attention.self.key.weight]
+
+Loading weights:  76%|███████▌  | 81/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.4.attention.self.key.weight]
+
+Loading weights:  77%|███████▋  | 82/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.4.attention.self.query.bias]
+
+Loading weights:  77%|███████▋  | 82/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.4.attention.self.query.bias]
+
+Loading weights:  78%|███████▊  | 83/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.4.attention.self.query.weight]
+
+Loading weights:  78%|███████▊  | 83/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.4.attention.self.query.weight]
+
+Loading weights:  79%|███████▊  | 84/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.4.attention.self.rotary_embeddings.inv_freq]
+
+Loading weights:  79%|███████▊  | 84/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.4.attention.self.rotary_embeddings.inv_freq]
+
+Loading weights:  79%|███████▉  | 85/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.4.attention.self.value.bias]                
+
+Loading weights:  79%|███████▉  | 85/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.4.attention.self.value.bias]
+
+Loading weights:  80%|████████  | 86/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.4.attention.self.value.weight]
+
+Loading weights:  80%|████████  | 86/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.4.attention.self.value.weight]
+
+Loading weights:  81%|████████▏ | 87/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.4.intermediate.dense.bias]    
+
+Loading weights:  81%|████████▏ | 87/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.4.intermediate.dense.bias]
+
+Loading weights:  82%|████████▏ | 88/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.4.intermediate.dense.weight]
+
+Loading weights:  82%|████████▏ | 88/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.4.intermediate.dense.weight]
+
+Loading weights:  83%|████████▎ | 89/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.4.output.dense.bias]        
+
+Loading weights:  83%|████████▎ | 89/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.4.output.dense.bias]
+
+Loading weights:  84%|████████▍ | 90/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.4.output.dense.weight]
+
+Loading weights:  84%|████████▍ | 90/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.4.output.dense.weight]
+
+Loading weights:  85%|████████▌ | 91/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.5.LayerNorm.bias]     
+
+Loading weights:  85%|████████▌ | 91/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.5.LayerNorm.bias]
+
+Loading weights:  86%|████████▌ | 92/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.5.LayerNorm.weight]
+
+Loading weights:  86%|████████▌ | 92/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.5.LayerNorm.weight]
+
+Loading weights:  87%|████████▋ | 93/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.5.attention.LayerNorm.bias]
+
+Loading weights:  87%|████████▋ | 93/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.5.attention.LayerNorm.bias]
+
+Loading weights:  88%|████████▊ | 94/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.5.attention.LayerNorm.weight]
+
+Loading weights:  88%|████████▊ | 94/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.5.attention.LayerNorm.weight]
+
+Loading weights:  89%|████████▉ | 95/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.5.attention.output.dense.bias]
+
+Loading weights:  89%|████████▉ | 95/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.5.attention.output.dense.bias]
+
+Loading weights:  90%|████████▉ | 96/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.5.attention.output.dense.weight]
+
+Loading weights:  90%|████████▉ | 96/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.5.attention.output.dense.weight]
+
+Loading weights:  91%|█████████ | 97/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.5.attention.self.key.bias]      
+
+Loading weights:  91%|█████████ | 97/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.5.attention.self.key.bias]
+
+Loading weights:  92%|█████████▏| 98/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.5.attention.self.key.weight]
+
+Loading weights:  92%|█████████▏| 98/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.5.attention.self.key.weight]
+
+Loading weights:  93%|█████████▎| 99/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.5.attention.self.query.bias]
+
+Loading weights:  93%|█████████▎| 99/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.5.attention.self.query.bias]
+
+Loading weights:  93%|█████████▎| 100/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.5.attention.self.query.weight]
+
+Loading weights:  93%|█████████▎| 100/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.5.attention.self.query.weight]
+
+Loading weights:  94%|█████████▍| 101/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.5.attention.self.rotary_embeddings.inv_freq]
+
+Loading weights:  94%|█████████▍| 101/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.5.attention.self.rotary_embeddings.inv_freq]
+
+Loading weights:  95%|█████████▌| 102/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.5.attention.self.value.bias]                
+
+Loading weights:  95%|█████████▌| 102/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.5.attention.self.value.bias]
+
+Loading weights:  96%|█████████▋| 103/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.5.attention.self.value.weight]
+
+Loading weights:  96%|█████████▋| 103/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.5.attention.self.value.weight]
+
+Loading weights:  97%|█████████▋| 104/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.5.intermediate.dense.bias]    
+
+Loading weights:  97%|█████████▋| 104/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.5.intermediate.dense.bias]
+
+Loading weights:  98%|█████████▊| 105/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.5.intermediate.dense.weight]
+
+Loading weights:  98%|█████████▊| 105/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.5.intermediate.dense.weight]
+
+Loading weights:  99%|█████████▉| 106/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.5.output.dense.bias]        
+
+Loading weights:  99%|█████████▉| 106/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.5.output.dense.bias]
+
+Loading weights: 100%|██████████| 107/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.5.output.dense.weight]
+
+Loading weights: 100%|██████████| 107/107 [00:00&lt;00:00, 775.03it/s, Materializing param=encoder.layer.5.output.dense.weight]
+
+Loading weights: 100%|██████████| 107/107 [00:00&lt;00:00, 865.23it/s, Materializing param=encoder.layer.5.output.dense.weight]
+
+
+<span class="ansi-bold">EsmModel LOAD REPORT</span> from: facebook/esm2_t6_8M_UR50D
+
+Key                         | Status     | 
+
+----------------------------+------------+-
+
+lm_head.dense.weight        | UNEXPECTED | 
+
+lm_head.layer_norm.weight   | UNEXPECTED | 
+
+esm.embeddings.position_ids | UNEXPECTED | 
+
+lm_head.layer_norm.bias     | UNEXPECTED | 
+
+lm_head.dense.bias          | UNEXPECTED | 
+
+lm_head.bias                | UNEXPECTED | 
+
+pooler.dense.weight         | MISSING    | 
+
+pooler.dense.bias           | MISSING    | 
+
+
+
+<span style="font-style:italic">Notes:
+
+- UNEXPECTED</span><span style="font-style:italic"> :can be ignored when loading from different task/architecture; not ok if you expect identical arch.
+
+- MISSING</span><span style="font-style:italic">    :those params were newly initialized because missing from the checkpoint. Consider training on your downstream task.</span>
+</pre>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>ESM-2 (8M) available: True</code></pre>
+</div>
+</div>
+<div id="0aebd1f0" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-21T14:19:31.752806Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-21T14:19:31.752449Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-21T14:19:31.835356Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-21T14:19:31.834510Z&quot;}}" data-execution_count="10">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb18"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb18-1"><a href="#cb18-1" aria-hidden="true" tabindex="-1"></a>names <span class="op">=</span> <span class="bu">list</span>(sequences.keys())</span>
+<span id="cb18-2"><a href="#cb18-2" aria-hidden="true" tabindex="-1"></a>seqs <span class="op">=</span> <span class="bu">list</span>(sequences.values())</span>
+<span id="cb18-3"><a href="#cb18-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-4"><a href="#cb18-4" aria-hidden="true" tabindex="-1"></a><span class="cf">with</span> torch.no_grad():</span>
+<span id="cb18-5"><a href="#cb18-5" aria-hidden="true" tabindex="-1"></a>    enc <span class="op">=</span> tokenizer_esm(seqs, return_tensors<span class="op">=</span><span class="st">"pt"</span>, padding<span class="op">=</span><span class="va">True</span>)</span>
+<span id="cb18-6"><a href="#cb18-6" aria-hidden="true" tabindex="-1"></a>    out <span class="op">=</span> esm_model(<span class="op">**</span>enc)</span>
+<span id="cb18-7"><a href="#cb18-7" aria-hidden="true" tabindex="-1"></a>    <span class="co"># mean-pool over real (non-padding) residue positions -&gt; one fixed-length vector per protein</span></span>
+<span id="cb18-8"><a href="#cb18-8" aria-hidden="true" tabindex="-1"></a>    mask <span class="op">=</span> enc[<span class="st">"attention_mask"</span>].unsqueeze(<span class="op">-</span><span class="dv">1</span>).<span class="bu">float</span>()</span>
+<span id="cb18-9"><a href="#cb18-9" aria-hidden="true" tabindex="-1"></a>    pooled <span class="op">=</span> (out.last_hidden_state <span class="op">*</span> mask).<span class="bu">sum</span>(<span class="dv">1</span>) <span class="op">/</span> mask.<span class="bu">sum</span>(<span class="dv">1</span>)</span>
+<span id="cb18-10"><a href="#cb18-10" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-11"><a href="#cb18-11" aria-hidden="true" tabindex="-1"></a>esm_embeddings <span class="op">=</span> pooled.numpy()</span>
+<span id="cb18-12"><a href="#cb18-12" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"ESM embedding shape per protein:"</span>, esm_embeddings.shape)</span>
+<span id="cb18-13"><a href="#cb18-13" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-14"><a href="#cb18-14" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> cosine(a, b):</span>
+<span id="cb18-15"><a href="#cb18-15" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="bu">float</span>(np.dot(a, b) <span class="op">/</span> (np.linalg.norm(a) <span class="op">*</span> np.linalg.norm(b)))</span>
+<span id="cb18-16"><a href="#cb18-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb18-17"><a href="#cb18-17" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"</span><span class="ch">\n</span><span class="st">ESM embedding cosine similarity:"</span>)</span>
+<span id="cb18-18"><a href="#cb18-18" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):</span>
+<span id="cb18-19"><a href="#cb18-19" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(i <span class="op">+</span> <span class="dv">1</span>, <span class="dv">3</span>):</span>
+<span id="cb18-20"><a href="#cb18-20" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"  </span><span class="sc">{</span>names[i]<span class="sc">:22s}</span><span class="ss"> vs </span><span class="sc">{</span>names[j]<span class="sc">:22s}</span><span class="ss">: </span><span class="sc">{</span>cosine(esm_embeddings[i], esm_embeddings[j])<span class="sc">:.4f}</span><span class="ss">"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>ESM embedding shape per protein: (3, 320)
+
+ESM embedding cosine similarity:
+  HBB (beta-globin)      vs MB (myoglobin)        : 0.9772
+  HBB (beta-globin)      vs HBA1 (alpha-globin)   : 0.9878
+  MB (myoglobin)         vs HBA1 (alpha-globin)   : 0.9637</code></pre>
+</div>
+</div>
+<div id="5acbfa52" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-21T14:19:31.837073Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-21T14:19:31.836910Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-21T14:19:31.854111Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-21T14:19:31.853428Z&quot;}}" data-execution_count="11">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb20"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb20-1"><a href="#cb20-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Real pairwise sequence identity, using the same global-alignment machinery as Day 4</span></span>
+<span id="cb20-2"><a href="#cb20-2" aria-hidden="true" tabindex="-1"></a>aligner <span class="op">=</span> Align.PairwiseAligner()</span>
+<span id="cb20-3"><a href="#cb20-3" aria-hidden="true" tabindex="-1"></a>aligner.mode <span class="op">=</span> <span class="st">"global"</span></span>
+<span id="cb20-4"><a href="#cb20-4" aria-hidden="true" tabindex="-1"></a>aligner.open_gap_score <span class="op">=</span> <span class="op">-</span><span class="dv">10</span></span>
+<span id="cb20-5"><a href="#cb20-5" aria-hidden="true" tabindex="-1"></a>aligner.extend_gap_score <span class="op">=</span> <span class="op">-</span><span class="fl">0.5</span></span>
+<span id="cb20-6"><a href="#cb20-6" aria-hidden="true" tabindex="-1"></a>aligner.substitution_matrix <span class="op">=</span> Align.substitution_matrices.load(<span class="st">"BLOSUM62"</span>)</span>
+<span id="cb20-7"><a href="#cb20-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-8"><a href="#cb20-8" aria-hidden="true" tabindex="-1"></a><span class="kw">def</span> pct_identity(a, b):</span>
+<span id="cb20-9"><a href="#cb20-9" aria-hidden="true" tabindex="-1"></a>    aln <span class="op">=</span> aligner.align(a, b)[<span class="dv">0</span>]</span>
+<span id="cb20-10"><a href="#cb20-10" aria-hidden="true" tabindex="-1"></a>    s1, s2 <span class="op">=</span> <span class="bu">str</span>(aln[<span class="dv">0</span>]), <span class="bu">str</span>(aln[<span class="dv">1</span>])</span>
+<span id="cb20-11"><a href="#cb20-11" aria-hidden="true" tabindex="-1"></a>    matches <span class="op">=</span> <span class="bu">sum</span>(<span class="dv">1</span> <span class="cf">for</span> x, y <span class="kw">in</span> <span class="bu">zip</span>(s1, s2) <span class="cf">if</span> x <span class="op">==</span> y <span class="kw">and</span> x <span class="op">!=</span> <span class="st">"-"</span>)</span>
+<span id="cb20-12"><a href="#cb20-12" aria-hidden="true" tabindex="-1"></a>    aligned_len <span class="op">=</span> <span class="bu">sum</span>(<span class="dv">1</span> <span class="cf">for</span> x, y <span class="kw">in</span> <span class="bu">zip</span>(s1, s2) <span class="cf">if</span> x <span class="op">!=</span> <span class="st">"-"</span> <span class="kw">and</span> y <span class="op">!=</span> <span class="st">"-"</span>)</span>
+<span id="cb20-13"><a href="#cb20-13" aria-hidden="true" tabindex="-1"></a>    <span class="cf">return</span> <span class="fl">100.0</span> <span class="op">*</span> matches <span class="op">/</span> aligned_len</span>
+<span id="cb20-14"><a href="#cb20-14" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb20-15"><a href="#cb20-15" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Real pairwise sequence identity (BLOSUM62 global alignment):"</span>)</span>
+<span id="cb20-16"><a href="#cb20-16" aria-hidden="true" tabindex="-1"></a>identities <span class="op">=</span> {}</span>
+<span id="cb20-17"><a href="#cb20-17" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>):</span>
+<span id="cb20-18"><a href="#cb20-18" aria-hidden="true" tabindex="-1"></a>    <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(i <span class="op">+</span> <span class="dv">1</span>, <span class="dv">3</span>):</span>
+<span id="cb20-19"><a href="#cb20-19" aria-hidden="true" tabindex="-1"></a>        pid <span class="op">=</span> pct_identity(seqs[i], seqs[j])</span>
+<span id="cb20-20"><a href="#cb20-20" aria-hidden="true" tabindex="-1"></a>        identities[(i, j)] <span class="op">=</span> pid</span>
+<span id="cb20-21"><a href="#cb20-21" aria-hidden="true" tabindex="-1"></a>        <span class="bu">print</span>(<span class="ss">f"  </span><span class="sc">{</span>names[i]<span class="sc">:22s}</span><span class="ss"> vs </span><span class="sc">{</span>names[j]<span class="sc">:22s}</span><span class="ss">: </span><span class="sc">{</span>pid<span class="sc">:.1f}</span><span class="ss">% identity"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Real pairwise sequence identity (BLOSUM62 global alignment):
+  HBB (beta-globin)      vs MB (myoglobin)        : 26.0% identity
+  HBB (beta-globin)      vs HBA1 (alpha-globin)   : 46.4% identity
+  MB (myoglobin)         vs HBA1 (alpha-globin)   : 29.1% identity</code></pre>
+</div>
+</div>
+<div id="c7be8ea2" class="cell" data-quarto-private-1="{&quot;key&quot;:&quot;execution&quot;,&quot;value&quot;:{&quot;iopub.execute_input&quot;:&quot;2026-09-21T14:19:31.855664Z&quot;,&quot;iopub.status.busy&quot;:&quot;2026-09-21T14:19:31.855446Z&quot;,&quot;iopub.status.idle&quot;:&quot;2026-09-21T14:19:32.206937Z&quot;,&quot;shell.execute_reply&quot;:&quot;2026-09-21T14:19:32.206130Z&quot;}}" data-execution_count="12">
+<div class="code-copy-outer-scaffold"><div class="sourceCode cell-code" id="cb22"><pre class="sourceCode python code-with-copy"><code class="sourceCode python"><span id="cb22-1"><a href="#cb22-1" aria-hidden="true" tabindex="-1"></a>pairs <span class="op">=</span> [(i, j) <span class="cf">for</span> i <span class="kw">in</span> <span class="bu">range</span>(<span class="dv">3</span>) <span class="cf">for</span> j <span class="kw">in</span> <span class="bu">range</span>(i <span class="op">+</span> <span class="dv">1</span>, <span class="dv">3</span>)]</span>
+<span id="cb22-2"><a href="#cb22-2" aria-hidden="true" tabindex="-1"></a>cos_vals <span class="op">=</span> [cosine(esm_embeddings[i], esm_embeddings[j]) <span class="cf">for</span> i, j <span class="kw">in</span> pairs]</span>
+<span id="cb22-3"><a href="#cb22-3" aria-hidden="true" tabindex="-1"></a>id_vals <span class="op">=</span> [identities[(i, j)] <span class="cf">for</span> i, j <span class="kw">in</span> pairs]</span>
+<span id="cb22-4"><a href="#cb22-4" aria-hidden="true" tabindex="-1"></a>labels <span class="op">=</span> [<span class="ss">f"</span><span class="sc">{</span>names[i]<span class="sc">.</span>split()[<span class="dv">0</span>]<span class="sc">}</span><span class="ss">-</span><span class="sc">{</span>names[j]<span class="sc">.</span>split()[<span class="dv">0</span>]<span class="sc">}</span><span class="ss">"</span> <span class="cf">for</span> i, j <span class="kw">in</span> pairs]</span>
+<span id="cb22-5"><a href="#cb22-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-6"><a href="#cb22-6" aria-hidden="true" tabindex="-1"></a>fig, ax <span class="op">=</span> plt.subplots(figsize<span class="op">=</span>(<span class="dv">5</span>, <span class="fl">4.5</span>))</span>
+<span id="cb22-7"><a href="#cb22-7" aria-hidden="true" tabindex="-1"></a>ax.scatter(id_vals, cos_vals, s<span class="op">=</span><span class="dv">80</span>)</span>
+<span id="cb22-8"><a href="#cb22-8" aria-hidden="true" tabindex="-1"></a><span class="cf">for</span> lbl, x_, y_ <span class="kw">in</span> <span class="bu">zip</span>(labels, id_vals, cos_vals):</span>
+<span id="cb22-9"><a href="#cb22-9" aria-hidden="true" tabindex="-1"></a>    ax.annotate(lbl, (x_, y_), textcoords<span class="op">=</span><span class="st">"offset points"</span>, xytext<span class="op">=</span>(<span class="dv">6</span>, <span class="dv">4</span>), fontsize<span class="op">=</span><span class="dv">9</span>)</span>
+<span id="cb22-10"><a href="#cb22-10" aria-hidden="true" tabindex="-1"></a>ax.set_xlabel(<span class="st">"real pairwise sequence identity (%)"</span>)</span>
+<span id="cb22-11"><a href="#cb22-11" aria-hidden="true" tabindex="-1"></a>ax.set_ylabel(<span class="st">"ESM-2 embedding cosine similarity"</span>)</span>
+<span id="cb22-12"><a href="#cb22-12" aria-hidden="true" tabindex="-1"></a>ax.set_title(<span class="st">"Three real globins: sequence identity vs.</span><span class="ch">\n</span><span class="st">ESM-2 embedding similarity"</span>)</span>
+<span id="cb22-13"><a href="#cb22-13" aria-hidden="true" tabindex="-1"></a>plt.tight_layout()</span>
+<span id="cb22-14"><a href="#cb22-14" aria-hidden="true" tabindex="-1"></a>plt.savefig(<span class="st">"../figs/day12-esm-vs-identity.png"</span>, dpi<span class="op">=</span><span class="dv">130</span>)</span>
+<span id="cb22-15"><a href="#cb22-15" aria-hidden="true" tabindex="-1"></a>plt.show()</span>
+<span id="cb22-16"><a href="#cb22-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb22-17"><a href="#cb22-17" aria-hidden="true" tabindex="-1"></a><span class="bu">print</span>(<span class="st">"Correlation check: higher real sequence identity pairs with higher ESM similarity:"</span>,</span>
+<span id="cb22-18"><a href="#cb22-18" aria-hidden="true" tabindex="-1"></a>      <span class="st">"YES"</span> <span class="cf">if</span> (id_vals[<span class="dv">0</span>] <span class="op">&gt;</span> id_vals[<span class="dv">1</span>]) <span class="op">==</span> (cos_vals[<span class="dv">0</span>] <span class="op">&gt;</span> cos_vals[<span class="dv">1</span>]) <span class="cf">else</span> <span class="st">"NOT in this small sample"</span>)</span></code></pre></div><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></div>
+<div class="cell-output cell-output-display">
+<div>
+<figure class="figure">
+<p><img src="day12-attention-and-transformers-in-code_files/figure-html/cell-13-output-1.png" class="img-fluid figure-img"></p>
+</figure>
+</div>
+</div>
+<div class="cell-output cell-output-stdout">
+<pre><code>Correlation check: higher real sequence identity pairs with higher ESM similarity: YES</code></pre>
+</div>
+</div>
+<p>This is what “protein language model” cashes out to concretely: a Transformer, pretrained by next-residue prediction on hundreds of millions of real sequences (not the 8M-parameter demo checkpoint used here for speed — production ESM-2 checkpoints go up to 15 billion parameters), produces a single fixed-length vector per protein that captures enough about it that two globins with higher real sequence identity land closer together in embedding space too — the same representation-learning idea as Day 11's UniRep, now built from attention instead of an LSTM, and exactly the kind of representation AlphaFold's Evoformer computes and refines internally (see the case study on the book page).</p>
+</section>
+<section id="try-it-yourself" class="level2">
+<h2 class="anchored" data-anchor-id="try-it-yourself">Try it yourself</h2>
+<p>Change the toy sentence in section 2, add more heads or layers to the Transformer block in section 6, or swap in different real UniProt sequences in section 7 (e.g.&nbsp;a much more distant protein) and see how the identity-vs-similarity relationship holds up with a less closely related pair.</p>
+
+
+</section>
+
+</main> <!-- /main -->
+<script id="quarto-html-after-body" type="application/javascript">
+  window.document.addEventListener("DOMContentLoaded", function (event) {
+    const icon = "";
+    const anchorJS = new window.AnchorJS();
+    anchorJS.options = {
+      placement: 'right',
+      icon: icon
+    };
+    anchorJS.add('.anchored');
+    const isCodeAnnotation = (el) => {
+      for (const clz of el.classList) {
+        if (clz.startsWith('code-annotation-')) {                     
+          return true;
+        }
+      }
+      return false;
+    }
+    const onCopySuccess = function(e) {
+      // button target
+      const button = e.trigger;
+      // don't keep focus
+      button.blur();
+      // flash "checked"
+      button.classList.add('code-copy-button-checked');
+      var currentTitle = button.getAttribute("title");
+      button.setAttribute("title", "Copied!");
+      let tooltip;
+      if (window.bootstrap) {
+        button.setAttribute("data-bs-toggle", "tooltip");
+        button.setAttribute("data-bs-placement", "left");
+        button.setAttribute("data-bs-title", "Copied!");
+        tooltip = new bootstrap.Tooltip(button, 
+          { trigger: "manual", 
+            customClass: "code-copy-button-tooltip",
+            offset: [0, -8]});
+        tooltip.show();    
+      }
+      setTimeout(function() {
+        if (tooltip) {
+          tooltip.hide();
+          button.removeAttribute("data-bs-title");
+          button.removeAttribute("data-bs-toggle");
+          button.removeAttribute("data-bs-placement");
+        }
+        button.setAttribute("title", currentTitle);
+        button.classList.remove('code-copy-button-checked');
+      }, 1000);
+      // clear code selection
+      e.clearSelection();
+    }
+    const getTextToCopy = function(trigger) {
+      const outerScaffold = trigger.parentElement.cloneNode(true);
+      const codeEl = outerScaffold.querySelector('code');
+      for (const childEl of codeEl.children) {
+        if (isCodeAnnotation(childEl)) {
+          childEl.remove();
+        }
+      }
+      return codeEl.innerText;
+    }
+    const clipboard = new window.ClipboardJS('.code-copy-button:not([data-in-quarto-modal])', {
+      text: getTextToCopy
+    });
+    clipboard.on('success', onCopySuccess);
+    if (window.document.getElementById('quarto-embedded-source-code-modal')) {
+      const clipboardModal = new window.ClipboardJS('.code-copy-button[data-in-quarto-modal]', {
+        text: getTextToCopy,
+        container: window.document.getElementById('quarto-embedded-source-code-modal')
+      });
+      clipboardModal.on('success', onCopySuccess);
+    }
+      var localhostRegex = new RegExp(/^(?:http|https):\/\/localhost\:?[0-9]*\//);
+      var mailtoRegex = new RegExp(/^mailto:/);
+        var filterRegex = new RegExp('/' + window.location.host + '/');
+      var isInternal = (href) => {
+          return filterRegex.test(href) || localhostRegex.test(href) || mailtoRegex.test(href);
+      }
+      // Inspect non-navigation links and adorn them if external
+     var links = window.document.querySelectorAll('a[href]:not(.nav-link):not(.navbar-brand):not(.toc-action):not(.sidebar-link):not(.sidebar-item-toggle):not(.pagination-link):not(.no-external):not([aria-hidden]):not(.dropdown-item):not(.quarto-navigation-tool):not(.about-link)');
+      for (var i=0; i<links.length; i++) {
+        const link = links[i];
+        if (!isInternal(link.href)) {
+          // undo the damage that might have been done by quarto-nav.js in the case of
+          // links that we want to consider external
+          if (link.dataset.originalHref !== undefined) {
+            link.href = link.dataset.originalHref;
+          }
+        }
+      }
+    function tippyHover(el, contentFn, onTriggerFn, onUntriggerFn) {
+      const config = {
+        allowHTML: true,
+        maxWidth: 500,
+        delay: 100,
+        arrow: false,
+        appendTo: function(el) {
+            return el.parentElement;
+        },
+        interactive: true,
+        interactiveBorder: 10,
+        theme: 'quarto',
+        placement: 'bottom-start',
+      };
+      if (contentFn) {
+        config.content = contentFn;
+      }
+      if (onTriggerFn) {
+        config.onTrigger = onTriggerFn;
+      }
+      if (onUntriggerFn) {
+        config.onUntrigger = onUntriggerFn;
+      }
+      window.tippy(el, config); 
+    }
+    const noterefs = window.document.querySelectorAll('a[role="doc-noteref"]');
+    for (var i=0; i<noterefs.length; i++) {
+      const ref = noterefs[i];
+      tippyHover(ref, function() {
+        // use id or data attribute instead here
+        let href = ref.getAttribute('data-footnote-href') || ref.getAttribute('href');
+        try { href = new URL(href).hash; } catch {}
+        const id = href.replace(/^#\/?/, "");
+        const note = window.document.getElementById(id);
+        if (note) {
+          return note.innerHTML;
+        } else {
+          return "";
+        }
+      });
+    }
+    const xrefs = window.document.querySelectorAll('a.quarto-xref');
+    const processXRef = (id, note) => {
+      // Strip column container classes
+      const stripColumnClz = (el) => {
+        el.classList.remove("page-full", "page-columns");
+        if (el.children) {
+          for (const child of el.children) {
+            stripColumnClz(child);
+          }
+        }
+      }
+      stripColumnClz(note)
+      if (id === null || id.startsWith('sec-')) {
+        // Special case sections, only their first couple elements
+        const container = document.createElement("div");
+        if (note.children && note.children.length > 2) {
+          container.appendChild(note.children[0].cloneNode(true));
+          for (let i = 1; i < note.children.length; i++) {
+            const child = note.children[i];
+            if (child.tagName === "P" && child.innerText === "") {
+              continue;
+            } else {
+              container.appendChild(child.cloneNode(true));
+              break;
+            }
+          }
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(container);
+          }
+          return container.innerHTML
+        } else {
+          if (window.Quarto?.typesetMath) {
+            window.Quarto.typesetMath(note);
+          }
+          return note.innerHTML;
+        }
+      } else {
+        // Remove any anchor links if they are present
+        const anchorLink = note.querySelector('a.anchorjs-link');
+        if (anchorLink) {
+          anchorLink.remove();
+        }
+        if (window.Quarto?.typesetMath) {
+          window.Quarto.typesetMath(note);
+        }
+        if (note.classList.contains("callout")) {
+          return note.outerHTML;
+        } else {
+          return note.innerHTML;
+        }
+      }
+    }
+    for (var i=0; i<xrefs.length; i++) {
+      const xref = xrefs[i];
+      tippyHover(xref, undefined, function(instance) {
+        instance.disable();
+        let url = xref.getAttribute('href');
+        let hash = undefined; 
+        if (url.startsWith('#')) {
+          hash = url;
+        } else {
+          try { hash = new URL(url).hash; } catch {}
+        }
+        if (hash) {
+          const id = hash.replace(/^#\/?/, "");
+          const note = window.document.getElementById(id);
+          if (note !== null) {
+            try {
+              const html = processXRef(id, note.cloneNode(true));
+              instance.setContent(html);
+            } finally {
+              instance.enable();
+              instance.show();
+            }
+          } else {
+            // See if we can fetch this
+            fetch(url.split('#')[0])
+            .then(res => res.text())
+            .then(html => {
+              const parser = new DOMParser();
+              const htmlDoc = parser.parseFromString(html, "text/html");
+              const note = htmlDoc.getElementById(id);
+              if (note !== null) {
+                const html = processXRef(id, note);
+                instance.setContent(html);
+              } 
+            }).finally(() => {
+              instance.enable();
+              instance.show();
+            });
+          }
+        } else {
+          // See if we can fetch a full url (with no hash to target)
+          // This is a special case and we should probably do some content thinning / targeting
+          fetch(url)
+          .then(res => res.text())
+          .then(html => {
+            const parser = new DOMParser();
+            const htmlDoc = parser.parseFromString(html, "text/html");
+            const note = htmlDoc.querySelector('main.content');
+            if (note !== null) {
+              // This should only happen for chapter cross references
+              // (since there is no id in the URL)
+              // remove the first header
+              if (note.children.length > 0 && note.children[0].tagName === "HEADER") {
+                note.children[0].remove();
+              }
+              const html = processXRef(null, note);
+              instance.setContent(html);
+            } 
+          }).finally(() => {
+            instance.enable();
+            instance.show();
+          });
+        }
+      }, function(instance) {
+      });
+    }
+        let selectedAnnoteEl;
+        const selectorForAnnotation = ( cell, annotation) => {
+          let cellAttr = 'data-code-cell="' + cell + '"';
+          let lineAttr = 'data-code-annotation="' +  annotation + '"';
+          const selector = 'span[' + cellAttr + '][' + lineAttr + ']';
+          return selector;
+        }
+        const selectCodeLines = (annoteEl) => {
+          const doc = window.document;
+          const targetCell = annoteEl.getAttribute("data-target-cell");
+          const targetAnnotation = annoteEl.getAttribute("data-target-annotation");
+          const annoteSpan = window.document.querySelector(selectorForAnnotation(targetCell, targetAnnotation));
+          const lines = annoteSpan.getAttribute("data-code-lines").split(",");
+          const lineIds = lines.map((line) => {
+            return targetCell + "-" + line;
+          })
+          let top = null;
+          let height = null;
+          let parent = null;
+          if (lineIds.length > 0) {
+              //compute the position of the single el (top and bottom and make a div)
+              const el = window.document.getElementById(lineIds[0]);
+              top = el.offsetTop;
+              height = el.offsetHeight;
+              parent = el.parentElement.parentElement;
+            if (lineIds.length > 1) {
+              const lastEl = window.document.getElementById(lineIds[lineIds.length - 1]);
+              const bottom = lastEl.offsetTop + lastEl.offsetHeight;
+              height = bottom - top;
+            }
+            if (top !== null && height !== null && parent !== null) {
+              // cook up a div (if necessary) and position it 
+              let div = window.document.getElementById("code-annotation-line-highlight");
+              if (div === null) {
+                div = window.document.createElement("div");
+                div.setAttribute("id", "code-annotation-line-highlight");
+                div.style.position = 'absolute';
+                parent.appendChild(div);
+              }
+              div.style.top = top - 2 + "px";
+              div.style.height = height + 4 + "px";
+              div.style.left = 0;
+              let gutterDiv = window.document.getElementById("code-annotation-line-highlight-gutter");
+              if (gutterDiv === null) {
+                gutterDiv = window.document.createElement("div");
+                gutterDiv.setAttribute("id", "code-annotation-line-highlight-gutter");
+                gutterDiv.style.position = 'absolute';
+                const codeCell = window.document.getElementById(targetCell);
+                const gutter = codeCell.querySelector('.code-annotation-gutter');
+                gutter.appendChild(gutterDiv);
+              }
+              gutterDiv.style.top = top - 2 + "px";
+              gutterDiv.style.height = height + 4 + "px";
+            }
+            selectedAnnoteEl = annoteEl;
+          }
+        };
+        const unselectCodeLines = () => {
+          const elementsIds = ["code-annotation-line-highlight", "code-annotation-line-highlight-gutter"];
+          elementsIds.forEach((elId) => {
+            const div = window.document.getElementById(elId);
+            if (div) {
+              div.remove();
+            }
+          });
+          selectedAnnoteEl = undefined;
+        };
+          // Handle positioning of the toggle
+      window.addEventListener(
+        "resize",
+        throttle(() => {
+          elRect = undefined;
+          if (selectedAnnoteEl) {
+            selectCodeLines(selectedAnnoteEl);
+          }
+        }, 10)
+      );
+      function throttle(fn, ms) {
+      let throttle = false;
+      let timer;
+        return (...args) => {
+          if(!throttle) { // first call gets through
+              fn.apply(this, args);
+              throttle = true;
+          } else { // all the others get throttled
+              if(timer) clearTimeout(timer); // cancel #2
+              timer = setTimeout(() => {
+                fn.apply(this, args);
+                timer = throttle = false;
+              }, ms);
+          }
+        };
+      }
+        // Attach click handler to the DT
+        const annoteDls = window.document.querySelectorAll('dt[data-target-cell]');
+        for (const annoteDlNode of annoteDls) {
+          annoteDlNode.addEventListener('click', (event) => {
+            const clickedEl = event.target;
+            if (clickedEl !== selectedAnnoteEl) {
+              unselectCodeLines();
+              const activeEl = window.document.querySelector('dt[data-target-cell].code-annotation-active');
+              if (activeEl) {
+                activeEl.classList.remove('code-annotation-active');
+              }
+              selectCodeLines(clickedEl);
+              clickedEl.classList.add('code-annotation-active');
+            } else {
+              // Unselect the line
+              unselectCodeLines();
+              clickedEl.classList.remove('code-annotation-active');
+            }
+          });
+        }
+    const findCites = (el) => {
+      const parentEl = el.parentElement;
+      if (parentEl) {
+        const cites = parentEl.dataset.cites;
+        if (cites) {
+          return {
+            el,
+            cites: cites.split(' ')
+          };
+        } else {
+          return findCites(el.parentElement)
+        }
+      } else {
+        return undefined;
+      }
+    };
+    var bibliorefs = window.document.querySelectorAll('a[role="doc-biblioref"]');
+    for (var i=0; i<bibliorefs.length; i++) {
+      const ref = bibliorefs[i];
+      const citeInfo = findCites(ref);
+      if (citeInfo) {
+        tippyHover(citeInfo.el, function() {
+          var popup = window.document.createElement('div');
+          citeInfo.cites.forEach(function(cite) {
+            var citeDiv = window.document.createElement('div');
+            citeDiv.classList.add('hanging-indent');
+            citeDiv.classList.add('csl-entry');
+            var biblioDiv = window.document.getElementById('ref-' + cite);
+            if (biblioDiv) {
+              citeDiv.innerHTML = biblioDiv.innerHTML;
+            }
+            popup.appendChild(citeDiv);
+          });
+          return popup.innerHTML;
+        });
+      }
+    }
+  });
+  </script>
+<nav class="page-navigation">
+  <div class="nav-page nav-page-previous">
+      <a href="../day12.html" class="pagination-link" aria-label="Day 12: Attention and Transformers">
+        <i class="bi bi-arrow-left-short"></i> <span class="nav-page-text"><span class="chapter-number">12</span>&nbsp; <span class="chapter-title">Day 12: Attention and Transformers</span></span>
+      </a>          
+  </div>
+  <div class="nav-page nav-page-next">
+      <a href="../day13.html" class="pagination-link" aria-label="Day 13: Diffusion &amp; Flow-Matching Models">
+        <span class="nav-page-text"><span class="chapter-number">13</span>&nbsp; <span class="chapter-title">Day 13: Diffusion &amp; Flow-Matching Models</span></span> <i class="bi bi-arrow-right-short"></i>
+      </a>
+  </div>
+</nav>
+</div> <!-- /content -->
+
+
+
+
+</body></html>

@@ -370,17 +370,22 @@ renderQuiz("day04-quiz", [
 
 ## The lab
 
-A light, tool-based exercise rather than a full lab (Day 5 gets the full
-lab, once BLAST and profile methods are covered too): use EMBL-EBI's
-pairwise and multiple alignment tools on real sequences, and confirm that
-a tool's reported score and alignment match what the dynamic-programming
-matrix above would predict for a small case.
+A short, genuinely by-hand exercise: fill in a small Needleman-Wunsch
+dynamic-programming matrix and trace back the optimal alignment
+yourself, on paper — this time using a real substitution matrix
+(BLOSUM62) instead of the teaching notebook's flat identity scheme, on
+two real protein fragments not used anywhere else on this page. A
+self-check notebook —
+[`notebooks/day04-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day04-lab.ipynb) —
+verifies your work cell by cell once you have an answer, rather than
+computing it for you. Once your matrix and traceback both check out,
+answer the Day 4 lab quiz on Canvas using your own results.
 
 ### Submitting this lab
 
-Hand-in/grading for this lab isn't set up yet. It will likely run
-through a Canvas assignment — check the course's Canvas page for the
-actual submission mechanism before this session runs.
+This lab is administered through Canvas, not this book — see the
+course's Canvas page for the current quiz, deadline, and submission
+mechanism.
 
 ## What's next
 

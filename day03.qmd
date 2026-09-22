@@ -146,6 +146,49 @@ the same sequence.
 - Wikipedia, [UniProt](https://en.wikipedia.org/wiki/UniProt) and [GenBank](https://en.wikipedia.org/wiki/GenBank)
 - EMBL-EBI Training, [The UniProt databases](https://www.ebi.ac.uk/training/online/courses/uniprot-quick-tour/the-uniprot-databases/)
 
+## Protein and RNA family databases: InterPro and Rfam
+
+A single sequence record tells you what a gene or protein *is*; a family
+database tells you what group it *belongs to* — often the fastest way
+to learn anything about a new or poorly characterized sequence at all.
+
+**InterPro** (EBI) integrates protein family, domain, and
+functional-site predictions from over a dozen member databases into one
+resource — including **Pfam**, whose long-standalone site was retired in
+2023 and merged directly into InterPro, so "look it up in Pfam" today
+means "look it up in InterPro." Every UniProt entry links out to its own
+InterPro matches directly. *HBB*'s own protein, `P68871`, matches five
+real InterPro entries:
+
+| InterPro accession | Name |
+|---|---|
+| IPR000971 | Globin |
+| IPR002337 | Hemoglobin, beta-type |
+| IPR009050 | Globin-like superfamily |
+| IPR012292 | Globin/Protoglobin |
+| IPR050056 | Hemoglobin and related oxygen transporters |
+
+Entries nest from broad (Globin-like superfamily) to specific
+(Hemoglobin, beta-type) — exactly the profile-HMM-based family
+classification whose algorithm Day 5 covers in depth.
+
+**Rfam** is InterPro's RNA-side counterpart: families of non-coding RNA
+(tRNAs, rRNAs, riboswitches, snoRNAs...) classified not by a profile HMM
+over sequence alone but by a **covariance model**, which scores sequence
+*and* conserved secondary structure (base-pairing pattern) together,
+since a non-coding RNA's function usually depends on the shape it folds
+into as much as its exact sequence. *HBB* itself has no Rfam entry —
+it's protein-coding, and Rfam is specifically for the non-coding side —
+but the mechanism is worth seeing on a real family: **RF00005** ("tRNA")
+is Rfam's transfer RNA family, matching the four short double-helical
+elements and three loops (D, anticodon, T loops) every tRNA folds into,
+regardless of which amino acid it carries.
+
+### Further reading
+
+- EMBL-EBI, [InterPro](https://www.ebi.ac.uk/interpro/)
+- Rfam, [RF00005 (tRNA)](https://rfam.org/family/RF00005)
+
 ## Accession numbers vs. official names
 
 Every database entry has a database-specific identifier — its
@@ -197,6 +240,8 @@ and following real, live cross-references:
 | Transcript (RNA) | RefSeq | `NM_000518.5` | The mRNA — "hemoglobin subunit beta (HBB), mRNA" |
 | Protein | RefSeq | `NP_000509.1` | The translated protein; its record explicitly lists `DBSOURCE: NM_000518.5` — the cross-reference back to its own mRNA |
 | Protein | UniProt (Swiss-Prot) | `P68871` | `HBB_HUMAN` — the same protein, reviewed and richly annotated on the UniProt side |
+| Domain | InterPro | `IPR000971` | "Globin" — the conserved fold this protein shares with every other globin |
+| Structure | PDB | `2HHB` | Human deoxyhemoglobin — the actual HBA/HBB tetramer, determined by X-ray diffraction at 1.74 Å (Fermi & Perutz), not just its sequence |
 
 Each row is a different database's record for the *same* underlying
 biology, linked by explicit cross-references rather than by everyone
@@ -204,6 +249,95 @@ agreeing to reuse one accession number — exactly the "why an accession
 number alone isn't enough" point from the previous section, made
 concrete. The notebook fetches every one of these records live and shows
 the actual cross-reference text.
+
+## Structure databases: PDB and AlphaFold DB
+
+Every database so far has stored a sequence — a string of letters. The
+**Protein Data Bank (PDB)** stores something different: an actual
+experimentally determined 3D structure, atom by atom. Continuing the
+same *HBB* thread, entry **2HHB** is the real human deoxyhemoglobin
+structure Fermi and Perutz solved by X-ray diffraction at 1.74 Å
+resolution — literally the physical arrangement this protein folds
+into, not a prediction. (Day 7 covers structure determination methods
+and how to actually read/manipulate a structure file, in PyMOL; this
+page only establishes what the database holds and how to find an
+entry.)
+
+The **AlphaFold Protein Structure Database** (EBI, built on DeepMind's
+AlphaFold2) holds the complementary case: a *predicted* structure, for
+essentially any protein with a sequence, whether or not anyone has ever
+solved it experimentally. `P68871` — the same UniProt entry this page
+has tracked all along — has a real AlphaFold model too, each residue
+carrying its own per-residue confidence score (pLDDT). For a protein
+like HBB with a well-solved real structure already in the PDB, the two
+should agree closely; AlphaFold's real value is for the vast majority of
+proteins that *don't* have one.
+
+**Accessing PDB programmatically.** Both PDBe (EBI's own PDB mirror) and
+RCSB (the US PDB archive) publish modern REST/GraphQL APIs that replaced
+older, clunkier interfaces:
+
+- PDBe's REST API returns a structure's full metadata as JSON directly
+  by accession — `https://www.ebi.ac.uk/pdbe/api/pdb/entry/summary/2hhb`.
+- RCSB's newer Search API (full-text/attribute search across the whole
+  PDB) and Data API (GraphQL, for pulling exactly the fields you want in
+  one request) are the two modern replacements for RCSB's old advanced
+  search and SOAP/REST webservices — see the notebook for both used
+  live, on this same 2HHB entry.
+
+### Further reading
+
+- EMBL-EBI, [PDBe](https://www.ebi.ac.uk/pdbe/) and [AlphaFold DB](https://alphafold.ebi.ac.uk/)
+- RCSB PDB, [Search API](https://search.rcsb.org/) and [Data API (GraphQL)](https://data.rcsb.org/graphql/index.html)
+
+## Interactions and complexes
+
+A structure database shows one molecule (or, like 2HHB, one fixed
+assembly) at a time. **IntAct** (EBI, part of the IMEx consortium)
+instead catalogs individual physical *interactions* between molecules —
+curated from published experiments, not predicted. A real query against
+*HBB*'s own protein turns up, among others, an interaction with **HBZ**
+(hemoglobin subunit zeta, another real globin-family paralog).
+
+**Complex Portal** (EBI, IntAct's sister resource) goes one level up:
+not pairwise interactions, but curated, stable **complexes** — named
+assemblies with known composition and stoichiometry. Searching it for
+HBB surfaces **CPX-2158**, "Hemoglobin HbA complex": two copies of HBA1
+(alpha), two copies of HBB (beta), and four heme groups — exactly the
+real tetramer that 2HHB's structure, above, is a picture of. The complex
+record and the structure record describe the same real biological
+object from two different angles: composition versus atomic geometry.
+
+### Further reading
+
+- EMBL-EBI, [IntAct](https://www.ebi.ac.uk/intact/)
+- EMBL-EBI, [Complex Portal](https://www.ebi.ac.uk/complexportal/)
+
+## Networks
+
+Zoom out further and a cell's proteins form a **network** — not just
+the direct physical interactions IntAct curates, but every kind of
+functional relationship: physical binding, co-expression, shared
+pathway membership, even literature co-mentions. **STRING** aggregates
+all of these into one scored network per protein, mixing curated
+interaction databases (including IntAct), predictions, and
+text-mining. A real STRING query for *CDC28* (this page's other running
+example, from the InterPro material above and the lab below) returns it
+immediately as `4932.YBR160W`, ready to pull its full interaction
+neighborhood from.
+
+**FunCoup** (Stockholm University) takes a related but distinct
+approach — a functional-coupling network built specifically to
+integrate many weaker, indirect evidence types into a single confidence
+score per gene pair. It won't get more depth here — a later course in
+this program covers it properly — but it's worth knowing it exists as a
+genuinely different way of building the same kind of network STRING
+builds.
+
+### Further reading
+
+- STRING, [string-db.org](https://string-db.org/)
+- FunCoup, [funcoup.org](https://funcoup.org/)
 
 ## Retrieving information: know your level, then search
 
@@ -287,16 +421,56 @@ precise, and usually much smaller, result set.
 
 - Wikipedia, [PubMed](https://en.wikipedia.org/wiki/PubMed), [PubMed Central](https://en.wikipedia.org/wiki/PubMed_Central), [MEDLINE](https://en.wikipedia.org/wiki/MEDLINE), [BioRxiv](https://en.wikipedia.org/wiki/BioRxiv), and [Boolean search](https://en.wikipedia.org/wiki/Boolean_search)
 
+## Beyond sequence and structure: variants, cancer, and disease
+
+A few more resources worth knowing exist, even without going into depth
+on any of them here:
+
+**Variants.** dbSNP and ClinVar (both NCBI) catalog genetic variants
+and, for ClinVar, their clinical significance. EBI's own variant
+archive, the **European Variation Archive (EVA)**, plays the same role
+on the European side. The **GWAS Catalog** (EBI) instead catalogs
+genotype-phenotype *associations* from published genome-wide
+association studies — not individual variant records, but the
+statistical links between a variant and a trait or disease. **OMIM**
+(Online Mendelian Inheritance in Man, Johns Hopkins) is the older, still
+widely cited reference specifically for gene-to-disease relationships.
+
+**Cancer genomics.** The **Cancer Genome Atlas (TCGA)**, accessed today
+through NCI's Genomic Data Commons portal, holds large-scale
+genomic/clinical data across cancer types. **COSMIC** (Sanger Institute,
+UK) catalogs somatic mutations found in cancer specifically — a
+narrower, more curated complement to TCGA's raw scale.
+
+**Further systems-level resources**, briefly: **PRIDE** (EBI) is the
+proteomics equivalent of GenBank/ENA — a repository for mass-spectrometry
+proteomics data. **Reactome** and **BioModels** (both EBI-affiliated)
+hold, respectively, curated biological pathways and quantitative/
+computational models of those pathways — useful once a question moves
+from "what does this protein do" to "how does it behave as part of a
+system."
+
+### Further reading
+
+- EMBL-EBI, [EVA](https://www.ebi.ac.uk/eva/) and [GWAS Catalog](https://www.ebi.ac.uk/gwas/)
+- NCBI, [ClinVar](https://www.ncbi.nlm.nih.gov/clinvar/)
+- NCI, [GDC Data Portal](https://portal.gdc.cancer.gov/) and Sanger, [COSMIC](https://cancer.sanger.ac.uk/cosmic)
+- EMBL-EBI, [PRIDE](https://www.ebi.ac.uk/pride/), [Reactome](https://reactome.org/), and [BioModels](https://www.ebi.ac.uk/biomodels/)
+
 ## The notebook
 
 `notebooks/day03-databases-in-code.ipynb` reproduces every real record
 and every search count on this page with live code rather than
 screenshots: it fetches the *HBB* gene, mRNA, and protein records
 directly from NCBI via `Bio.Entrez`, fetches the matching UniProt entry
-via UniProt's REST API and shows its cross-references back to RefSeq, and
-runs the `hemoglobin`/`malaria` Boolean searches above against the real,
-live PubMed index, checking the inclusion-exclusion arithmetic in code
-rather than just asserting it. Open it in
+via UniProt's REST API and shows its cross-references back to RefSeq,
+fetches `P68871`'s InterPro domain matches, fetches PDB entry 2HHB's
+metadata via both PDBe's REST API and RCSB's GraphQL Data API, queries
+IntAct and Complex Portal for HBB's own interaction/complex records, and
+queries STRING for *CDC28*'s network neighborhood — then runs the
+`hemoglobin`/`malaria` Boolean searches above against the real, live
+PubMed index, checking the inclusion-exclusion arithmetic in code rather
+than just asserting it. Open it in
 [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day03-databases-in-code.ipynb)
 via the badge at the top of the notebook page to edit and run it
 yourself.
@@ -325,7 +499,7 @@ renderQuiz("day03-quiz", [
   {
     question: "Which pair correctly matches a database level to what it stores?",
     choices: [
-      "RNA level: mRNA/cDNA transcripts; Protein level: translated sequences plus structure/family databases like PDB and Pfam",
+      "RNA level: mRNA/cDNA transcripts; Protein level: translated sequences plus structure/family databases like PDB and InterPro",
       "DNA level: protein 3D structures; RNA level: gene symbols",
       "Protein level: raw unassembled sequencing reads",
       "RNA level: chromosome assemblies"
@@ -393,6 +567,50 @@ renderQuiz("day03-quiz", [
     ],
     correctIndex: 0,
     explanation: "A PubMed hit is not the same as a free full text &mdash; PMC (or a preprint server like bioRxiv) is where you'd check for one."
+  },
+  {
+    question: "Pfam's standalone website was retired in 2023. Where do you look up a Pfam family today?",
+    choices: [
+      "InterPro &mdash; Pfam was merged directly into it as one of its member databases",
+      "UniProt &mdash; Pfam families are now only listed there, with no separate database",
+      "Pfam families no longer exist and were discontinued entirely",
+      "Rfam &mdash; Pfam and Rfam were merged into a single resource"
+    ],
+    correctIndex: 0,
+    explanation: "InterPro integrates Pfam (and over a dozen other family/domain resources) into one place; Rfam is a separate, RNA-specific resource, not Pfam's replacement."
+  },
+  {
+    question: "Rfam classifies non-coding RNA families using a covariance model rather than a plain profile HMM. Why does that matter for RNA specifically?",
+    choices: [
+      "A covariance model scores conserved secondary structure (base-pairing) together with sequence, since a non-coding RNA's function often depends on the shape it folds into as much as its exact sequence",
+      "Covariance models are simply a faster way to compute the same thing a profile HMM computes",
+      "RNA sequences are too short for profile HMMs to work at all",
+      "Covariance models only work for protein-coding sequences, not RNA"
+    ],
+    correctIndex: 0,
+    explanation: "A profile HMM (as InterPro/Pfam uses for proteins) scores sequence alone; a covariance model additionally scores the conserved fold."
+  },
+  {
+    question: "PDB entry 2HHB and AlphaFold DB's model for the same protein (P68871, HBB) represent two fundamentally different kinds of evidence. What's the difference?",
+    choices: [
+      "2HHB is an experimentally determined structure (X-ray diffraction); the AlphaFold model is a computational prediction",
+      "They're both predictions, just from different software",
+      "They're both experimentally determined, just by different labs",
+      "2HHB is a prediction and the AlphaFold model is the experimentally confirmed structure"
+    ],
+    correctIndex: 0,
+    explanation: "AlphaFold DB's real value is for proteins with no solved structure at all; for HBB, a real experimental structure (2HHB) already exists to compare it against."
+  },
+  {
+    question: "Complex Portal's CPX-2158 (\"Hemoglobin HbA complex\": 2x HBA1, 2x HBB, 4x heme) and PDB entry 2HHB both describe the same real hemoglobin tetramer. What's the actual difference between what each database record captures?",
+    choices: [
+      "Complex Portal records composition and stoichiometry (which molecules, how many of each); PDB records atomic-resolution 3D geometry",
+      "They contain completely unrelated information about two different molecules",
+      "Complex Portal is only for predicted complexes, never real curated ones",
+      "PDB only stores sequence information, never structural coordinates"
+    ],
+    correctIndex: 0,
+    explanation: "Same real biological object (the HbA tetramer), described from two different angles: who's in it and how many copies, versus exactly where every atom sits."
   }
 ]);
 </script>
@@ -401,10 +619,10 @@ renderQuiz("day03-quiz", [
 ## The lab
 
 A light, tool-based exercise: a hands-on tour through ENA/DDBJ/GenBank,
-the UCSC Genome Browser, the PDB↔GenBank connection, Entrez, PubMed/PMC,
-UniProt, Pfam/InterPro, and the PDB↔AlphaFoldDB connection, using real
-genes, proteins, and structures rather than abstract descriptions of
-each database.
+the UCSC Genome Browser, InterPro/Rfam, PDB/AlphaFold DB (including a
+real query against the RCSB Search API), IntAct/Complex Portal, STRING,
+Entrez, PubMed/PMC, and UniProt, using real genes, proteins, and
+structures rather than abstract descriptions of each database.
 
 ### Submitting this lab
 
