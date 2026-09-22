@@ -382,6 +382,46 @@ different standard-library module (`bz2`, `lzma`), same `.open(path,
 - Python docs, [`gzip` — Support for gzip files](https://docs.python.org/3/library/gzip.html)
 - Python docs, [`tarfile` — Read and write tar archive files](https://docs.python.org/3/library/tarfile.html)
 
+## Connecting to the shared course server
+
+Colab covers most of this course, but a few labs (starting with Day 5's)
+use real command-line bioinformatics tools and databases too large to
+install on your own laptop — for those, this course provides a shared
+server, `students.bioinfo.se`, reachable over SSH (see [Course
+Information & Logistics](course-info.qmd)'s "Coding environment" section
+for the policy: you'll be asked to generate a key and send it in). Worth
+setting this up now, before Day 5's lab actually needs it.
+
+1. **Generate an SSH keypair**, if you don't already have one:
+   ```
+   ssh-keygen -t ed25519 -C "your-email@example.com"
+   ```
+   Accept the default file location; a passphrase is optional but
+   recommended. This creates two files in `~/.ssh/`: `id_ed25519` (your
+   **private** key — never share this) and `id_ed25519.pub` (your
+   **public** key — safe to share, this is what you send in).
+2. **Send the contents of `id_ed25519.pub`** (not the private key) the
+   way your teachers ask for it, so it can be added to the server's
+   authorized keys.
+3. **Test plain SSH access** once your key's been added:
+   ```
+   ssh your-username@students.bioinfo.se
+   ```
+4. **Connect from VSCode directly**, rather than just a bare terminal:
+   install the **Remote - SSH** extension (`ms-vscode-remote.remote-ssh`),
+   then either use the Command Palette (Ctrl/Cmd+Shift+P) →
+   "Remote-SSH: Connect to Host..." and enter
+   `your-username@students.bioinfo.se`, or add an entry to `~/.ssh/config`
+   first so you can just pick it from a list:
+   ```
+   Host students
+       HostName students.bioinfo.se
+       User your-username
+   ```
+   Once connected, VSCode's file explorer, terminal, and editor all
+   operate on the *server*, not your laptop — including every real tool
+   Day 5's lab uses.
+
 ## Putting it together: from database to plot
 
 A last, real worked example, assembling most of this page's tools

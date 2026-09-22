@@ -511,18 +511,33 @@ renderQuiz("day05-quiz", [
 
 **Full lab**, covering BLAST and profile methods as one continuous
 exercise (Day 4 now has its own short lab for alignment practice, so
-this one no longer needs to cover that too): run a real BLAST search on
-an unknown sequence, then run a profile-based search (PSI-BLAST, or a
-Pfam domain search as in the worked example above) on the same sequence
-and compare what the profile-based search finds that plain BLAST didn't,
-then hand-compute a small PSSM score for a toy motif to confirm the
-underlying arithmetic.
+this one no longer needs to cover that too): identify a real, unknown
+gene from a raw sequence via a real NCBI BLAST search (it turns out to
+be a sixth real human globin-family gene, continuing this course's own
+running thread), then three real code exercises — a real ClustalW
+alignment and PSSM on five globin-family proteins, a real PSI-BLAST
+search comparing its first iteration against its third against a real
+local copy of the PDB, and a live Pfam domain search for HIV-1's
+Gag-Pol polyprotein via the same real InterPro API this page's own HBB
+worked example uses.
+
+**Recommended: run this for real on the shared course server**, not
+just in Colab — every tool these exercises use (`clustalw`, `psiblast`,
+`apt-get`) is a genuine command-line tool, and running them over a real
+SSH connection (see Day 2's "Connecting to the shared course server")
+is a real, transferable skill in its own right. Once connected via
+VSCode, either open
+[`notebooks/day05-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day05-lab.ipynb)
+there directly (VSCode's Jupyter support runs it on the server, not
+your laptop), or open a terminal alongside it and run the same commands
+by hand. Colab still works if you don't have server access set up yet
+— same notebook either way.
 
 ### Submitting this lab
 
-Hand-in/grading for this lab isn't set up yet. It will likely run
-through a Canvas assignment — check the course's Canvas page for the
-actual submission mechanism before this session runs.
+This lab is administered through Canvas, not this book — see the
+course's Canvas page for the current quiz, deadline, and submission
+mechanism.
 
 ## What's next
 
