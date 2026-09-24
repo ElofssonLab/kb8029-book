@@ -193,7 +193,8 @@ Hassabis and John Jumper shared half of the
 - **ESMFold** skips the alignment altogether and predicts from a single
   sequence using the ESM-2 language model (Day 11). In the notebook,
   ESMFold predicts Ephrin-A5 in seconds with TM-score 0.941 against the
-  crystal structure (1SHW).
+  crystal structure (1SHW). It is much weaker for complexes. Its
+  successor, ESMFold2 (2026), is built for them (Part 3).
 
 **Known limits** (lecture):
 
@@ -367,6 +368,64 @@ The common thread is Day 8's lesson on a grand scale. Performance on
 examples similar to the training data says little about genuinely new
 ones, and confidence scores do not always know the difference.
 
+## After AlphaFold3: ESMFold2, IsoDDE and OpenDDE
+
+The field moves fast. Three systems from 2026 show three different ways
+of moving beyond AlphaFold3.
+
+- **ESMFold2** (Candido et al. 2026,
+  [bioRxiv](https://doi.org/10.64898/2026.06.03.729735); Biohub; MIT
+  licence, open weights). It joins a large protein language model, ESMC
+  (6 billion parameters, the successor to Day 11's ESM-2), to an
+  AlphaFold3-style diffusion structure module. The original ESMFold was
+  built for single chains. ESMFold2 predicts complexes of proteins,
+  nucleic acids and ligands, from single sequences or with an optional
+  alignment. The authors report that it "meets or exceeds" AlphaFold3 on
+  protein-protein and antibody-antigen complexes. The notebook runs it on
+  one complex from each of the four regions below, five seeds each (figure).
+  For every complex the seed with the highest ipTM is a good model
+  (DockQ 0.61-0.85). For the 1996 D1.3 antibody, though, three of five
+  seeds put the antibody in the wrong place. No single ipTM threshold
+  separates right from wrong across complexes: correct Fab : MHC-I models
+  (ipTM 0.73) score below wrong D1.3 models (0.78).
+
+  ![ESMFold2 on one complex per region, five seeds each, scored with DockQ against the crystal structure (0.23 acceptable, 0.49 medium, 0.80 high). Left: all seeds; the bar marks the seed with the highest ipTM. Right: ipTM against DockQ. These are well-known complexes; p53 : MDM2 has been in the PDB since 1996, so a good model here does not show that Region IV is solved.](figs/day12-esmfold2-regions.png)
+
+- **IsoDDE**, the Isomorphic Labs Drug Design Engine (Isomorphic Labs
+  2026, [technical report](https://doi.org/10.5281/zenodo.19699685)). It
+  is proprietary, from DeepMind's drug-discovery sister company. The
+  company claims:
+  - on the Runs N' Poses protein-ligand benchmark, more than double
+    AlphaFold3's accuracy for the ligands least similar to the training
+    data;
+  - on 334 new antibody-antigen complexes, 2.3 times AlphaFold3 and
+    19.8 times Boltz-2 at high accuracy (DockQ > 0.8);
+  - binding-affinity predictions that can beat physics-based
+    free-energy methods;
+  - binding pockets found from sequence alone.
+
+  There is no code, no model and no independent test, so these are
+  claims, not results. Notice where the claimed gains are: on exactly the
+  examples unlike the training set, where AlphaFold3 is weakest.
+- **OpenDDE** (2026, [GitHub](https://github.com/contact-ajmal/opendde),
+  MIT licence) is a community project by a single developer, not
+  affiliated with Isomorphic Labs. It is not a new model. It chains
+  existing open tools behind one web interface:
+  - AlphaFold3 for complexes;
+  - P2Rank for pockets;
+  - Boltz-2 for affinity;
+  - ImmuneBuilder for antibodies;
+  - ChEMBL and RDKit for known ligands;
+  - a language-model assistant.
+
+  It has no benchmarks of its own. It shows what an "engine" is: a
+  pipeline of separate models, each of which can, and should, be
+  evaluated on its own.
+
+The contrast matters for science. Open tools such as ESMFold2, Boltz-2
+and OpenFold3 can be tested by anyone, on data they have never seen. A
+closed system can only be judged by what its owners choose to report.
+
 ## Where AI structure prediction works: four regions
 
 The lecture organises all of this into four regions of protein
@@ -520,6 +579,17 @@ renderQuiz("day12-quiz", [
     ],
     correctIndex: 0,
     explanation: "Designs are then usually checked by refolding the sequence with AlphaFold2 or ESMFold."
+  },
+  {
+    question: "Isomorphic Labs reports that its IsoDDE engine more than doubles AlphaFold3's accuracy on protein-ligand complexes unlike the training data. How should you treat this?",
+    choices: [
+      "As a claim: IsoDDE is proprietary, with no code, model or independent benchmark, so nobody else can test it on new data",
+      "As proof that AlphaFold3 is obsolete",
+      "As irrelevant, because ligands cannot be predicted",
+      "As a result that OpenDDE has reproduced"
+    ],
+    correctIndex: 0,
+    explanation: "OpenDDE is a pipeline of existing open tools (AlphaFold3, P2Rank, Boltz-2, ImmuneBuilder), not a reproduction of IsoDDE."
   }
 ]);
 </script>
@@ -532,7 +602,8 @@ computations on this page, in the same three parts:
 
 1. 3 × 3 contact patterns in eight real structures.
 2. AlphaFold DB models of β-globin and p53 with pLDDT and PAE; the
-   β-globin model against its crystal structure; ESMFold on Ephrin-A5.
+   β-globin model against its crystal structure; ESMFold on Ephrin-A5;
+   ESMFold2 models of five complexes scored with DockQ.
 3. The forward noising of a diffusion model, and a small diffusion model
    generating points from noise.
 
