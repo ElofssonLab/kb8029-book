@@ -500,7 +500,7 @@ yourself.
 Networks" lab and rebuilt in PyTorch. This time you **write the training
 loop yourself**. Work through
 [`notebooks/day09-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day09-lab.ipynb),
-filling in every `...`:
+replacing every `todo(...)` call with your own code:
 
 1. write the four-step mini-batch training loop;
 2. compare cross-entropy with mean squared and mean absolute error as the

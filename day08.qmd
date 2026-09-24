@@ -539,7 +539,7 @@ yourself.
 dataset for neural networks, adapted from the previous course's
 "Neural Networks" lab and rebuilt in PyTorch. Work through
 [`notebooks/day08-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day08-lab.ipynb),
-filling in every `...`:
+replacing every `todo(...)` call with your own code:
 
 1. inspect the class balance;
 2. build training, validation and test sets, and standardize the pixels
