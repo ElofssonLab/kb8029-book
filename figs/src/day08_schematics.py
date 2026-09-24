@@ -283,9 +283,9 @@ def fig_architectures():
          "local patterns, shared weights\ne.g. contact maps"),
         (mini_rnn, "Recurrent (RNN/LSTM)", "Day 11",
          "reads a sequence in order\ne.g. signal peptides"),
-        (mini_transformer, "Attention / Transformer", "Day 12",
+        (mini_transformer, "Attention / Transformer", "Day 11",
          "every position looks at every other\ne.g. ESM, AlphaFold"),
-        (mini_diffusion, "Generative (diffusion)", "Day 13",
+        (mini_diffusion, "Generative (diffusion)", "Day 12",
          "generates new examples\ne.g. RFdiffusion design"),
     ]
     fig, axes = plt.subplots(1, 5, figsize=(14, 3.6))

@@ -14,7 +14,7 @@ assumed from a folder name).
 
 This project is not a new topic. It's the same problem posed
 descriptively on Day 7, using the tools built up from Day 5 (profiles)
-through Day 12 (attention): design, train, and evaluate your own
+through Day 12 (AlphaFold): design, train, and evaluate your own
 secondary-structure predictor. There is no single correct architecture —
 part of the assignment is deciding how to build the model yourself,
 informed by what the course covered (a linear/profile score → a

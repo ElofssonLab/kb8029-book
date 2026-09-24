@@ -47,11 +47,8 @@ book:
     - href: notebooks/day11-rnns-lstm-gru-in-code.ipynb
       text: "Day 11 — Notebook"
     - day12.qmd
-    - href: notebooks/day12-attention-and-transformers-in-code.ipynb
+    - href: notebooks/day12-alphafold-and-generative-models-in-code.ipynb
       text: "Day 12 — Notebook"
-    - day13.qmd
-    - href: notebooks/day13-diffusion-and-flow-matching-in-code.ipynb
-      text: "Day 13 — Notebook"
     - capstone.qmd
     - references.qmd
 

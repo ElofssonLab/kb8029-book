@@ -351,7 +351,7 @@ Connectivity is the main thing that separates the network
 **architectures** in the rest of this course. Each one builds an
 assumption about the data into its wiring:
 
-![The architectures still to come, each with a biological application from this course. Feed-forward networks take a fixed-size input (today's localization model; PHD on Day 9). CNNs look for local patterns with shared weights (contact maps, Day 10). RNNs read a sequence one position at a time (signal peptides, Day 11). Transformers let every position attend to every other (protein language models and AlphaFold, Day 12). Generative diffusion models learn to turn noise into new examples (protein design, Day 13).](figs/day08-architectures.png){width=100%}
+![The architectures still to come, each with a biological application from this course. Feed-forward networks take a fixed-size input (today's localization model; PHD on Day 9). CNNs look for local patterns with shared weights (contact maps, Day 10). RNNs read a sequence one position at a time (signal peptides, Day 11). Transformers let every position attend to every other (language models and SignalP 6.0, Day 11; AlphaFold, Day 12). Generative diffusion models learn to turn noise into new examples (protein design, Day 12).](figs/day08-architectures.png){width=100%}
 
 ## Smooth activation functions
 
