@@ -1,103 +1,83 @@
 ::: {.callout-note}
 **Sources for this page:** d2l.ai, *Dive into Deep Learning*,
-[Recurrent Neural Networks](https://d2l.ai/chapter_recurrent-neural-networks/index.html)
-and [Modern Recurrent Neural Networks](https://d2l.ai/chapter_recurrent-modern/index.html)
-(§10.1 LSTM) — CC BY-SA 4.0; Wikipedia,
-[Long short-term memory](https://en.wikipedia.org/wiki/Long_short-term_memory)
-and [Gated recurrent unit](https://en.wikipedia.org/wiki/Gated_recurrent_unit)
-— CC BY-SA 4.0; Nielsen, Teufel, Brunak & von Heijne (2024), ["SignalP:
-The Evolution of a Web Server"](https://pubmed.ncbi.nlm.nih.gov/38995548/), in
-*Protein Bioinformatics*, Methods in Molecular Biology vol. 2836 — a
-real, authoritative history written by the SignalP authors themselves
-(a copy is kept as `SignalP.pdf` in this repository), used for every
-historical claim about SignalP's versions below; Alley, Khimulya,
-Biswas, AlQuraishi & Church (2019), ["Unified rational protein
-engineering with sequence-based deep representation
-learning"](https://www.nature.com/articles/s41592-019-0598-1), *Nature
-Methods* (UniRep); Heinzinger et al., ["ProstT5: Bilingual Language
-Model for Protein Sequence and
-Structure"](https://github.com/mheinzinger/ProstT5) (TU Munich/Rost
-lab), also on [PubMed](https://pubmed.ncbi.nlm.nih.gov/39633723/). The
-recurrent-processing framing (backpropagation through time, the
-eigenvalue view of vanishing/exploding gradients, LSTM's gates and
-Constant Error Carousel) is mined for ideas from Magnus Ekman's
-*Learning Deep Learning* (slide decks `Chapter-9`, `Chapter-10` in
-`slides/`, and the accompanying `notebooks/ch09.ipynb`/`ch10.ipynb`) —
-a copyrighted, not openly-licensed textbook (the one this course
-rebuild is replacing), credited here as an internal source, not linked
-as further reading. **No 3Blue1Brown video specifically about RNNs or
-LSTMs was found** (their neural-network series, used on Day 9, covers
-only feedforward networks and backprop; their later series is
-Transformer-specific and belongs to Day 12) — none is cited here rather
-than forcing a mismatched one. The SignalP case study fetches a real,
-live dataset from UniProtKB; every number on this page was computed in
-code and verified by reading the notebook's actual output, not
-transcribed or assumed.
+[Recurrent Neural Networks](https://d2l.ai/chapter_recurrent-neural-networks/index.html),
+[Modern Recurrent Neural Networks](https://d2l.ai/chapter_recurrent-modern/index.html)
+and [Attention Mechanisms and Transformers](https://d2l.ai/chapter_attention-mechanisms-and-transformers/index.html)
+— CC BY-SA 4.0. The history of SignalP follows Nielsen, Teufel, Brunak &
+von Heijne (2024), ["SignalP: The Evolution of a Web Server"](https://doi.org/10.1007/978-1-0716-4007-4_17),
+*Methods Mol Biol* 2836:331-367, a history written by the SignalP authors
+themselves (copyrighted; its findings are described and cited here, and
+its figures are not reproduced). Every other historical number is taken
+from the primary paper, cited where it is used. Data: 4,910 reviewed
+UniProt entries (CC BY 4.0), a copy of which is kept in the course
+repository; the pretrained ESM-2 model (Lin et al. 2023) via `fair-esm`.
+The recurrent-network and attention material follows ideas from Magnus
+Ekman's *Learning Deep Learning* (ch. 9-12 slide decks and notebooks), a
+copyrighted, not openly licensed textbook, credited here as an internal
+source and not linked. Every number from our own code was read back
+from the notebook's output.
 :::
 
-# Day 11: RNNs, (Bi)LSTM, GRUs
+# Day 11: Sequences, Language Models and SignalP
 
 ## Learning goals
 
-By the end of this session you should be able to explain why a hidden
-state carried across sequence positions suits variable-length
-sequential data better than a fixed-size window; explain why
-backpropagation through many time steps tends to vanish or explode, and
-how LSTM's gates address it; describe what a bidirectional RNN and a
-GRU each change relative to a plain LSTM, and why; and describe, using
-the real history of a real bioinformatics tool, how protein sequence
-models moved from feedforward networks through this day's RNN/LSTM
-family and on toward pretrained protein language models.
+By the end of this session you should be able to:
 
-## Recurrent processing: a hidden state carried through time
+- explain how a recurrent network carries a hidden state along a
+  sequence, why gradients vanish or explode through time, and how LSTM
+  and bidirectional LSTM address this;
+- explain what a **language model** is, and trace the path from n-grams
+  and recurrent language models to attention, the Transformer, BERT and
+  GPT;
+- explain self-attention (queries, keys, values) and the difference
+  between masked (BERT-style) and causal (GPT-style) language models;
+- describe how protein language models are trained and what their
+  embeddings capture;
+- describe how SignalP changed from a 1990s feed-forward network to a
+  protein language model, and show in code why pretrained embeddings help
+  most when labelled data are scarce or test proteins are unlike the
+  training set.
 
-Every model so far in this course sees a fixed-size input: Day 8-9's
-one-hot subcellular-localization vector, Day 10's 1D-CNN's fixed
-receptive field. Real biological sequences vary in length, and — for a
-genuinely sequential problem like predicting the next value in a time
-series or labelling a protein residue by residue — the right answer at
-one position can depend on everything that came before it, arbitrarily
-far back. A **recurrent neural network (RNN)** handles this by carrying
-a **hidden state** $h_t$ forward one position at a time, updated at
-each step from the current input and the previous hidden state:
+The session has three parts: **recurrent networks**, **language
+models**, and **SignalP 6.0 in practice**.
+
+# Part 1: Recurrent networks
+
+## A hidden state carried along the sequence
+
+Every model so far has a fixed-size input: Days 8-9's one-hot vector,
+Day 10's convolutional window. A **recurrent neural network (RNN)**
+instead reads a sequence one position at a time and carries a **hidden
+state** $h_t$ forward, updated from the current input and the previous
+state:
 
 $$
 h_t = \tanh(W_{xh} x_t + W_{hh} h_{t-1} + b_h)
 $$
 
-Unlike a CNN's fixed kernel width, this hidden state can in principle
-carry information from arbitrarily far back in the sequence — the same
-weights $W_{xh}$, $W_{hh}$ are reused at every position, so an RNN
-naturally handles sequences of any length with a fixed number of
-parameters.
+The same weights are reused at every position, so one network handles
+sequences of any length. In principle $h_t$ can carry information from
+arbitrarily far back.
 
 ### Why gradients vanish or explode through time
 
-Training an RNN means backpropagating through every time step it
-processed — **backpropagation through time (BPTT)**. Conceptually this
-is the same chain rule as any other network, but now the same
-recurrent weight matrix $W_{hh}$ gets multiplied into the gradient once
-per time step. Whether that repeated multiplication shrinks or grows
-depends on the weight matrix's eigenvalues: an eigenvalue below 1
-shrinks the gradient toward zero over many steps (**vanishing**); above
-1, it grows without bound (**exploding**) — the same real problem Day 9
-already ran into with a 6-layer *feedforward* network, now happening
-along the *sequence length* instead of network depth:
+Training an RNN means backpropagating through every step it took
+(**backpropagation through time**). The same matrix $W_{hh}$ enters the
+gradient once per step, so the gradient is multiplied by roughly the same
+factor again and again. Below 1 it vanishes, above 1 it explodes. This is
+Day 9's vanishing-gradient problem again, now along the sequence instead
+of through the layers:
 
-![Repeated multiplication by a fixed factor, over many recurrent steps. At factor 0.8, the signal shrinks to about $1.5\times10^{-6}$ of its start after 60 steps; at factor 1.2, it grows to about $5.6\times10^4$.](figs/day11-vanishing-exploding.png){width=85%}
+![Repeated multiplication by a fixed factor over many recurrent steps. At 0.8 the signal shrinks to about $1.5\times10^{-6}$ after 60 steps; at 1.2 it grows to about $5.6\times10^4$.](figs/day11-vanishing-exploding.png){width=80%}
 
-A long protein sequence, or a long time series, can easily need
-hundreds of recurrent steps — more than enough for even a mild
-eigenvalue away from 1 to vanish or explode completely.
+## LSTM: a memory cell with gates
 
-## LSTM: gates and the Constant Error Carousel
-
-**Long Short-Term Memory (LSTM)** fixes this with the same idea Day 9's
-skip-connection-flavored fixes used: give the gradient a path that
-doesn't require repeated multiplication. LSTM keeps a separate **cell
-state** $c_t$, updated *additively* rather than by repeated
-multiplication, controlled by three gates — forget ($f_t$), input
-($i_t$), and output ($o_t$):
+The **Long Short-Term Memory** network (Hochreiter & Schmidhuber, 1997,
+[*Neural Computation* 9:1735](https://doi.org/10.1162/neco.1997.9.8.1735))
+adds a separate **cell state** $c_t$ that is updated by *addition* rather
+than by repeated multiplication. Gates (small sigmoid layers) decide what
+to forget, what to write and what to output:
 
 $$
 f_t = \sigma(W_f[h_{t-1}, x_t]), \quad i_t = \sigma(W_i[h_{t-1}, x_t]), \quad \tilde c_t = \tanh(W_c[h_{t-1}, x_t])
@@ -106,150 +86,325 @@ $$
 c_t = f_t \odot c_{t-1} + i_t \odot \tilde c_t, \qquad o_t = \sigma(W_o[h_{t-1}, x_t]), \qquad h_t = o_t \odot \tanh(c_t)
 $$
 
-When the forget gate is close to 1 and the input gate close to 0,
-$c_t \approx c_{t-1}$: the cell state passes through almost unchanged,
-sidestepping the vanishing-gradient multiplication above — this
-mechanism is sometimes called the **Constant Error Carousel**. It's why
-LSTM's forget-gate bias is conventionally initialized to $+1$ at the
-start of training, favoring "remember" by default (verified in the
-notebook: a from-scratch `ExplicitLSTMCell`, matched exactly against
-PyTorch's own `nn.LSTMCell` on identical weights).
+When the forget gate is near 1 and the input gate near 0, $c_t \approx
+c_{t-1}$, and the error signal flows back almost unchanged. The original
+paper called this the "constant error carousel" and showed it could
+bridge time lags of more than 1,000 steps. (The forget gate itself was
+added a few years later.) The notebook writes the cell out by hand and
+checks it against PyTorch's `nn.LSTMCell`: the outputs are identical.
 
-## Bidirectional LSTM and GRU
+Two refinements:
 
-Two real refinements on plain LSTM, both used in this day's own case
-study below:
+- A **bidirectional LSTM** (Schuster & Paliwal, 1997) runs one LSTM
+  left-to-right and another right-to-left and combines them at every
+  position, so each position sees what comes *after* it too.
+- A **GRU** merges the gates into two and drops the separate cell state:
+  fewer weights, often similar results.
 
-- **Bidirectional (BiLSTM)**: runs one LSTM left-to-right and a second
-  right-to-left over the same sequence, concatenating their hidden
-  states at each position. Whether a residue is part of a signal
-  peptide (this day's case study) depends on context from *both*
-  directions — a forward-only LSTM can only see what came before a
-  given position, never what comes after.
-- **GRU (Gated Recurrent Unit)**: merges LSTM's three gates into two (a
-  reset gate and an update gate) and drops the separate cell state,
-  folding everything into a single hidden state — fewer parameters,
-  often comparably good in practice.
+## Case study: which residues belong to a signal peptide?
 
-Whether BiLSTM or GRU actually helps on a real task is an empirical
-question, answered directly below rather than asserted.
+**Signal peptides** are short N-terminal sequences that send a protein
+into the secretory pathway, a discovery for which Günter Blobel received
+the [1999 Nobel Prize](https://www.nobelprize.org/prizes/medicine/1999/summary/).
+They have three regions: a positively charged **n-region**, a
+hydrophobic **h-region**, and a polar **c-region** ending at the cleavage
+site. Our dataset has 4,910 reviewed UniProt proteins from eukaryotes and
+bacteria:
+
+- 1,936 with a signal peptide whose annotation has **experimental
+  evidence** (ECO:0000269). Many UniProt signal peptides are *predicted*,
+  often by SignalP itself, and training on those would teach a model to
+  imitate SignalP;
+- 1,988 cytoplasmic or nuclear proteins;
+- 986 transmembrane proteins without a signal peptide. These are *hard*
+  negatives, since a transmembrane helix is also a hydrophobic stretch.
+
+The split is homology-aware (Day 8): 3,205 MMseqs2 clusters at 30%
+identity, divided into 3,432 training, 737 validation and 741 test
+proteins. Each residue of the first 70 is labelled signal peptide or not:
+
+| Model (per-residue labelling, test set) | Weights | MCC | AUPR |
+|---|---|---|---|
+| Sliding window (15 residues) + linear classifier | — | 0.539 | 0.681 |
+| Simple RNN | 4,105 | 0.620 | 0.770 |
+| LSTM | 14,761 | 0.631 | 0.767 |
+| **Bidirectional LSTM** | 29,017 | **0.820** | **0.920** |
+
+![Residue-level comparison of the four models on the homology-aware test set: summary metrics (left) and precision-recall curves (right).](figs/day11-model-comparison.png){width=100%}
+
+The bidirectional LSTM wins by a wide margin. Whether residue *i* is still
+in the signal peptide depends on what comes *after* it (the cleavage
+site), which a forward-only network has not seen yet. SignalP 5.0 (2019)
+was built from these parts: a deep network with an LSTM and a
+**conditional random field** (CRF) on top. A CRF scores whole label
+sequences rather than single residues, so it can rule out biologically
+impossible ones (for example, a signal peptide that stops and restarts).
 
 ### Further reading
 
-- Wikipedia, [Long short-term memory](https://en.wikipedia.org/wiki/Long_short-term_memory) and [Gated recurrent unit](https://en.wikipedia.org/wiki/Gated_recurrent_unit) — full gate equations and variants beyond what's needed here
-- d2l.ai, [Modern Recurrent Neural Networks](https://d2l.ai/chapter_recurrent-modern/index.html) — LSTM, GRU, and deep/bidirectional RNNs in full mechanical detail
+- d2l.ai, [Modern Recurrent Neural Networks](https://d2l.ai/chapter_recurrent-modern/index.html) (LSTM, GRU, bidirectional RNNs)
+- Wikipedia, [Long short-term memory](https://en.wikipedia.org/wiki/Long_short-term_memory)
 
-## Case study: SignalP — from feedforward networks to protein language models
+# Part 2: Language models
 
-**Signal peptides** are short N-terminal sequences (a hydrophobic core
-flanked by an n-region and a c-region) that direct a protein for
-secretion — discovered by Günter Blobel, who won the 1999 Nobel Prize
-in Physiology or Medicine for it. Predicting whether, and where, a
-protein has one is a real **sequence-labelling** task: a label per
-residue, not one label per protein — exactly what this day's recurrent
-models are built for.
+## What a language model is
 
-**SignalP**'s own 30-year history is a real, concrete tour through this
-entire course's model-architecture arc, not a hypothetical one:
+A **language model** assigns a probability to a sequence of tokens,
+usually one token at a time: *given what came before (or around), how
+likely is each possible next token?* It needs no labels, because the text
+is its own training signal. To predict well it has to learn the
+regularities of the language, and those learned regularities (its
+internal representations, or **embeddings**) turn out to be useful for
+almost everything else.
 
-| Version | Year | Architecture |
+**A tiny one, in the notebook.** An LSTM trained to predict the next
+residue of the training proteins reaches 4.071 bits per residue on the
+test proteins. That is better than knowing only the amino-acid composition
+(4.164 bits) or guessing uniformly (4.322 bits), but only a little.
+Protein sequences are hard to predict residue by residue. Large models
+get much further, with far more data and a better architecture.
+
+## What actually happened: from n-grams to GPT
+
+- **n-grams.** For decades, language models counted how often each word
+  followed the previous one or two words.
+- **2003, neural language models.** Bengio et al.
+  ([*JMLR* 3:1137](https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf))
+  learned a vector for every word jointly with a network that predicts
+  the next word. Perplexity improved by about 24% over the best n-gram
+  model on one corpus.
+- **2013, word vectors with structure.** Using vectors from a recurrent
+  language model, Mikolov, Yih & Zweig
+  ([NAACL 2013](https://aclanthology.org/N13-1090/)) showed that
+  "King − Man + Woman" lands closest to "Queen". Word2vec (Mikolov et al.,
+  [arXiv:1301.3781](https://arxiv.org/abs/1301.3781)) then made such
+  vectors cheap to train: under a day for 1.6 billion words.
+- **2014, sequence to sequence.** An LSTM encoder compresses a sentence
+  into one vector, and an LSTM decoder writes the translation. It reached
+  34.8 BLEU on English→French, beating a phrase-based system (33.3)
+  (Sutskever, Vinyals & Le, [arXiv:1409.3215](https://arxiv.org/abs/1409.3215)).
+- **2014, attention.** Bahdanau, Cho & Bengio
+  ([arXiv:1409.0473](https://arxiv.org/abs/1409.0473)) argued that one
+  fixed-length vector is a bottleneck. They let the decoder
+  "(soft-)search" the whole input sentence at every step instead.
+- **2017, the Transformer** (Vaswani et al.,
+  [arXiv:1706.03762](https://arxiv.org/abs/1706.03762)): drop the
+  recurrence and keep only attention. 28.4 BLEU on English→German and
+  41.8 on English→French, the latter after 3.5 days on eight GPUs, "a
+  small fraction of the training costs of the best models". Without
+  recurrence, all positions are processed in parallel.
+- **2018-2019, pretrain, then adapt.** Three landmark models:
+  - ELMo (bidirectional LSTM language model;
+    [Peters et al.](https://arxiv.org/abs/1802.05365));
+  - **GPT** (a 12-layer Transformer decoder predicting the *next* token;
+    [Radford et al. 2018](https://cdn.openai.com/research-covers/language-unsupervised/language_understanding_paper.pdf));
+  - **BERT** (a Transformer encoder that predicts *masked* tokens; 15% of
+    tokens masked; [Devlin et al.](https://arxiv.org/abs/1810.04805)).
+
+  All are pretrained on unlabelled text and then fine-tuned for each task.
+- **Scale.** GPT-2 had 1.5 billion parameters (2019). GPT-3 had 175
+  billion (2020,
+  [arXiv:2005.14165](https://arxiv.org/abs/2005.14165)), and it solved
+  new tasks from a few examples in the prompt, "without any gradient
+  updates".
+
+## Attention, from scratch
+
+For every position, **self-attention** asks: *which other positions
+should I take information from?* Each position's vector $x_i$ is turned
+into a **query** $q_i$, a **key** $k_i$ and a **value** $v_i$ (three
+learned linear maps). Position $i$ compares its query with every key,
+turns the scores into weights with softmax, and takes the weighted average
+of the values:
+
+$$
+\text{Attention}(Q, K, V) = \text{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right) V
+$$
+
+![Self-attention weights for a six-token toy sentence with random (untrained) projections. Each row, one query, is a probability distribution over all positions.](figs/day11-attention-heatmap.png){width=55%}
+
+Unlike an RNN, attention connects any two positions in one step, however
+far apart they are. A Transformer stacks many such layers, each with
+several **heads** that can learn different relationships, plus a small
+feed-forward network, residual connections (Day 10's ResNet idea), and a
+**positional encoding**, because attention by itself ignores order.
+
+**BERT vs. GPT is one mask.** A BERT-style encoder lets every position
+attend to every other and learns by filling in masked tokens. A GPT-style
+decoder masks out the *future*, so each position sees only earlier ones
+and learns by predicting the next token, which is what lets it generate
+text:
+
+![Causal (GPT-style) attention: each token can only attend to itself and earlier tokens.](figs/day11-causal-mask.png){width=45%}
+
+## Protein language models
+
+The same recipe works for proteins. There are hundreds of millions of
+unlabelled sequences, and a model that learns to fill in missing residues
+has to learn something about structure, function and evolution.
+
+- **An early precursor.** SignalP's authors note that the neural-network
+  program their group used before SignalP had a "spell-checking" mode:
+  the central residue of a window was erased and the network trained to
+  predict it. They describe this as "presumably … the first machine
+  learning language model" in biological sequence analysis (Nielsen et
+  al. 2024).
+- **2019, recurrent protein language models.** UniRep: a 1,900-unit
+  multiplicative LSTM trained on about 24 million UniRef50 sequences for
+  about three weeks on four GPUs (Alley et al.,
+  [*Nat Methods* 16:1315](https://pubmed.ncbi.nlm.nih.gov/31636460/)).
+  SeqVec: ELMo on UniRef50, secondary structure Q3 = 79% from embeddings
+  alone (Heinzinger et al.,
+  [*BMC Bioinformatics* 20:723](https://pubmed.ncbi.nlm.nih.gov/31847804/)).
+- **2021-2022, Transformers.**
+  - ProtTrans (Elnaggar et al.,
+    [*IEEE TPAMI* 44:7112](https://pubmed.ncbi.nlm.nih.gov/34232869/))
+    trained BERT, T5 and other architectures on up to 393 billion amino
+    acids. **ProtBERT**, a 30-layer BERT, is the model inside SignalP 6.0.
+  - ESM-1b (Rives et al.,
+    [*PNAS* 118:e2016239118](https://pubmed.ncbi.nlm.nih.gov/33876751/)):
+    about 650 million parameters, trained on UniRef50.
+  - Rao et al. ([ICLR 2021](https://openreview.net/forum?id=fylclEqgvgd))
+    showed that the attention maps of such models predict residue-residue
+    **contacts** without ever being trained on structures. That is the
+    bridge to Day 12.
+- **2023, ESM-2** (Lin et al.,
+  [*Science* 379:1123](https://pubmed.ncbi.nlm.nih.gov/36927031/)):
+  models from 8 million to 15 billion parameters, trained by masked
+  language modelling. The largest ones predict 3D structure directly from
+  a single sequence (ESMFold).
+
+**The model knows what a signal peptide looks like.** In the notebook,
+ESM-2 (35M parameters) is given a real secreted protein with residue 11,
+inside the hydrophobic h-region, masked. It predicts leucine with
+probability 0.41, then A, V and G, and the true residue is indeed L. At
+the same position in a cytoplasmic protein its guesses are spread out,
+with no residue above 0.11. Nobody told it about signal peptides.
+
+### Further reading
+
+- d2l.ai, [Attention Mechanisms and Transformers](https://d2l.ai/chapter_attention-mechanisms-and-transformers/index.html)
+- Vaswani et al. (2017), [Attention Is All You Need](https://arxiv.org/abs/1706.03762)
+- Devlin et al. (2019), [BERT](https://arxiv.org/abs/1810.04805)
+- Lin et al. (2023), [Evolutionary-scale prediction of atomic-level protein structure with a language model](https://pubmed.ncbi.nlm.nih.gov/36927031/)
+
+# Part 3: SignalP 6.0 in practice
+
+## Thirty years of SignalP
+
+The SignalP web server has existed since 1995 and is one of the most used
+prediction tools in bioinformatics. Its history runs through this whole
+course:
+
+| Version | Year | Model | What changed |
+|---|---|---|---|
+| 1.0 | 1997 | Feed-forward networks on sliding windows (Day 6), one hidden layer | Separate networks for prokaryotes and eukaryotes |
+| 2.0 | 1998 | + hidden Markov model (Day 5) | Cleavage site found in nearly 70% of signal peptides |
+| 3.0 | 2004 | Networks + HMM | Cleavage-site accuracy up 6-17%; new discrimination score |
+| 4.0 | 2011 | Networks | Transmembrane proteins added as negatives, so hydrophobic TM helices are no longer called signal peptides |
+| 5.0 | 2019 | Deep network with LSTM + CRF (Part 1) | Three signal-peptide types; archaea; organism group as an extra input |
+| 6.0 | 2022 | **ProtBERT protein language model** + CRF | Five types, subregions (n/h/c), metagenomic proteins |
+
+(Nielsen, Engelbrecht, Brunak & von Heijne,
+[*Protein Eng* 10:1](https://pubmed.ncbi.nlm.nih.gov/9051728/); Nielsen &
+Krogh, [ISMB 1998](https://pubmed.ncbi.nlm.nih.gov/9783217/); Bendtsen et
+al., [*J Mol Biol* 340:783](https://pubmed.ncbi.nlm.nih.gov/15223320/);
+Petersen et al., [*Nat Methods* 8:785](https://pubmed.ncbi.nlm.nih.gov/21959131/);
+Almagro Armenteros et al., [*Nat Biotechnol* 37:420](https://pubmed.ncbi.nlm.nih.gov/30778233/);
+Teufel et al., [*Nat Biotechnol* 40:1023](https://pubmed.ncbi.nlm.nih.gov/34980915/).)
+
+### What the language model changed (Nielsen et al. 2024; Teufel et al. 2022)
+
+- **Few-shot learning.** Two signal-peptide types had almost no training
+  data: Tat/SPII (lipoproteins exported by the Tat pathway; 36 sequences
+  could be assembled) and Sec/SPIII (pilin-like proteins; 113). With
+  ProtBERT, both became predictable for the first time, while a retrained
+  SignalP 5.0 "remained too low to make it practically useful". In the
+  paper's words, this "confirms the importance of LMs for low-data
+  problems".
+- **Better generalization.** Tested on proteins removed during homology
+  partitioning, the two versions were equal on close homologs of the
+  training data, but "at sequence identities lower than 60%, SignalP 6.0
+  outperforms SignalP 5.0".
+- **No organism input needed.** The language model infers the taxonomic
+  context from the sequence itself, so SignalP 6.0 also works on
+  metagenomic proteins of unknown origin.
+- **Regions without labels.** n-, h- and c-regions cannot be measured
+  directly. They were learned by *weak supervision* (a few rules such as
+  "the most hydrophobic position is in the h-region") plus an extra loss
+  that pushes the predicted regions to differ in amino-acid composition.
+- **Homology partitioning, again.** SignalP 5.0 had assigned CD-HIT
+  clusters to folds, which the authors later found "was actually not
+  valid": pairs across folds stayed well above the 20% identity cutoff.
+  For 6.0 they built GraphPart (Teufel et al. 2023,
+  [*NAR Genom Bioinform* 5:lqad088](https://pubmed.ncbi.nlm.nih.gov/37850036/)),
+  which removes sequences until no cross-fold pair is too similar. Even
+  so, 20% proved impossible and they settled for 30%. This is Day 8's
+  lesson, learned the hard way by one of the most used tools in the field.
+- **Fine-tuned, then frozen.** SignalP 6.0 fine-tuned all 30 ProtBERT
+  layers. The field has since moved towards keeping the language model
+  frozen and training only small layers on top, which is what we do below
+  and what Day 10 did with the ImageNet ResNet.
+
+## Reproducing the idea at classroom scale
+
+Can we see the same two effects ourselves? The task is simpler than
+SignalP's: *does this protein have a signal peptide?* We use the same
+4,910 proteins and the first 70 residues of each, with three classifiers:
+
+- **one-hot + logistic regression** (70 × 20 = 1,400 input numbers);
+- **one-hot + a small 1D CNN** (Day 10), closer to the pre-language-model
+  era;
+- **frozen ESM-2 embedding + logistic regression**: ESM-2 (35M
+  parameters, a stand-in for the much larger ProtBERT) reads the 70
+  residues, and its last-layer vectors are averaged into 480 numbers.
+
+**On the homology-aware test set** (741 proteins, used once):
+
+| Classifier | MCC | Accuracy |
 |---|---|---|
-| SignalP 1.0 | 1995 | Feedforward ANN, one hidden layer, sliding windows |
-| SignalP 4.0 | 2011 | Feedforward ANN, nested cross-validation, redefined negative set |
-| SignalP 5.0 | 2019 | **CNN + RNN (LSTM) + CRF** |
-| SignalP 6.0 | 2022 | **ProtBERT (Transformer protein language model) + CRF** |
+| one-hot + logistic regression | 0.745 | 0.879 |
+| one-hot + 1D CNN | 0.837 | 0.922 |
+| **ESM-2 embedding + logistic regression** | **0.955** | **0.978** |
 
-SignalP 5.0 used exactly this day's toolkit — a CNN feeding an LSTM,
-with a conditional random field (CRF) layer replacing the older
-hand-designed C-score/S-score post-processing. SignalP 6.0 then
-replaced the LSTM component with a pretrained Transformer-based protein
-language model (more on what that means below), fine-tuned for the
-task — the same recurrent-to-attention transition Day 12 covers in
-general.
+**Few-shot.** Train on random subsets of the training proteins:
 
-One more detail, from the SignalP authors' own account of version 1.0:
-its training software had a "spell-checking" mode that erased the
-middle amino acid in a window and trained the network to predict it
-from the ones around it — masked-residue prediction, in 1995,
-"presumably represent[ing] the first machine learning language model in
-the domain of biological sequence analysis," in the authors' own words.
-The idea this day's protein-language-model section closes with is
-older than it might seem.
+![Test MCC against the number of labelled training proteins (log scale). With 20 proteins, the ESM-2 classifier reaches MCC 0.762; the one-hot models are near zero (0.045 and 0.114).](figs/day11-fewshot.png){width=75%}
 
-### Real comparison: sliding-window baseline vs. SimpleRNN vs. LSTM vs. BiLSTM vs. GRU
+With 50 labelled proteins the ESM-2 classifier (MCC 0.907) already beats
+both one-hot models trained on all 4,169 (0.745 and 0.839). The language
+model has already learned, from unlabelled sequences, most of what
+distinguishes a signal peptide. The labels only need to point at it.
 
-The notebook fetches a live signal-peptide dataset from UniProtKB
-(reviewed entries with a `ft_signal` annotation) and trains all five
-models on the identical residue-labelling task — N-terminal 70
-residues, predicting signal-peptide membership per position:
+**Generalization.** SignalP 6.0's authors compared performance on test
+proteins at different identities to the training set. We do the same with
+a plain random 80/20 split, so the test set covers the whole range, and
+measure each test protein's identity to its most similar training protein
+with MMseqs2:
 
-![Signal-peptide residue detection: a sliding-window logistic baseline against SimpleRNN, LSTM, BiLSTM, and GRU taggers, and the corresponding precision-recall curves. BiLSTM wins clearly on every threshold-dependent metric.](figs/day11-model-comparison.png){width=100%}
+![Test MCC in bins of identity to the most similar training protein. Proteins with no detectable homolog (37% of the test set) fall in the lowest bin.](figs/day11-identity-bins.png){width=75%}
 
-| Model | Params | Precision | Recall | F1 | MCC | AUPR | AUROC |
-|---|---|---|---|---|---|---|---|
-| Sliding window | — | 0.296 | 0.888 | 0.444 | 0.460 | 0.588 | 0.941 |
-| SimpleRNN | 4,105 | 0.680 | 0.287 | 0.404 | 0.418 | 0.538 | 0.935 |
-| LSTM | 14,761 | 0.733 | 0.239 | 0.361 | 0.398 | 0.578 | 0.947 |
-| **BiLSTM** | 29,017 | 0.775 | 0.476 | **0.590** | **0.587** | **0.714** | **0.972** |
-| GRU | 11,209 | 0.733 | 0.350 | 0.474 | 0.484 | 0.611 | 0.951 |
+- **Close homologs (>90% identity):** all three classifiers are perfect.
+- **No close homolog (<30%):** the one-hot classifiers drop to MCC 0.681
+  and 0.776, while the ESM-2 classifier stays at 0.960.
 
-A real, non-forced result: BiLSTM clearly wins on every
-threshold-dependent metric (F1, MCC, AUPR) and on AUROC, exactly
-matching the argument above — a forward-only model genuinely loses
-information a bidirectional one can use, on this real task. Plain LSTM,
-notably, does *not* beat the much simpler sliding-window baseline on
-F1/MCC here (it trades recall for precision) — a reminder that gating
-alone doesn't guarantee a win; direction of context mattered more than
-the gates did for this particular dataset.
+The middle bins hold only 78-288 proteins each and are noisy. The overall
+pattern matches SignalP 6.0's finding: the advantage appears exactly where
+there is no close homolog to copy from.
+
+**Caveats, stated plainly.** Our task is easier than SignalP's (one
+signal-peptide type, protein-level labels), our language model is much
+smaller, and we did not fine-tune it. ESM-2 has also seen these sequences
+during pretraining, but never their labels, and the same is true of
+ProtBERT inside SignalP 6.0.
+
+![PCA of the ESM-2 embeddings of the first 70 residues, coloured by group. The language model was never shown these labels.](figs/day11-esm-pca.png){width=60%}
 
 ### Further reading
 
-- Nielsen, Teufel, Brunak & von Heijne (2024), ["SignalP: The Evolution
-  of a Web Server"](https://pubmed.ncbi.nlm.nih.gov/38995548/), in
-  *Protein Bioinformatics*, Methods in Molecular Biology vol. 2836 — an
-  excellent, highly readable first-hand account of all six SignalP
-  versions from the people who built them; every historical detail
-  above is drawn from it. Not open access (Springer, Methods in
-  Molecular Biology) — linked here as a citation for readers with
-  institutional access, not distributed as a file from this repository.
-
-## Protein language models: the same building blocks, pretrained at scale
-
-**UniRep** (Alley, Khimulya, Biswas, AlQuraishi & Church, *Nature
-Methods* 2019) is a real protein language model built on exactly this
-day's own toolkit — a **multiplicative LSTM (mLSTM)**, trained by
-next-amino-acid prediction on roughly 24 million UniRef50 sequences.
-No labels, no annotation: the model just learns to predict the next
-residue given the ones before it, the same self-supervised idea behind
-GPT-style language models, but built on an LSTM rather than a
-Transformer. The resulting fixed-length representations turned out
-useful for predicting secondary structure, stability, and function —
-this is what "protein language model" means at the
-representation-learning level, using only the recurrent machinery this
-day already covers.
-
-SignalP 6.0 (above) shows the next step directly: the same task,
-upgraded from this day's architecture family (5.0's LSTM) to a
-Transformer-based protein language model (6.0's ProtBERT). A second,
-more recent example: **ProstT5** ([Heinzinger et al.](https://github.com/mheinzinger/ProstT5),
-TU Munich/Rost lab) is a T5-based (Transformer) protein language model
-that translates between amino-acid sequence and 3Di structure tokens
-(Foldseek's structural alphabet) — a real, current example of what a
-protein language model can do, described here purely at the level of
-*what it does*.
-
-**How Transformer-based models like ProtBERT and ProstT5 actually work
-internally — self-attention — is Day 12's job, not this one.** This
-section is deliberately about the *concept* (pretrain on massive
-unlabeled sequence data, get useful representations out) using
-examples architecturally connected to this day, not a preview of the
-mechanism.
-
-### Further reading
-
-- Wikipedia, [Recurrent neural network](https://en.wikipedia.org/wiki/Recurrent_neural_network) — applications and variants beyond this page's scope
-- Alley et al. (2019), [UniRep](https://www.nature.com/articles/s41592-019-0598-1) — the full mLSTM protein language model
-- Heinzinger et al., [ProstT5 on GitHub](https://github.com/mheinzinger/ProstT5) — code, weights, and the underlying paper
+- Teufel et al. (2022), [SignalP 6.0 predicts all five types of signal peptides using protein language models](https://pubmed.ncbi.nlm.nih.gov/34980915/) (open access)
+- Teufel et al. (2023), [GraphPart: homology partitioning for biological sequence analysis](https://pubmed.ncbi.nlm.nih.gov/37850036/)
+- SignalP 6.0 [web server](https://services.healthtech.dtu.dk/services/SignalP-6.0/)
 
 ## Check your understanding
 
@@ -258,59 +413,81 @@ mechanism.
 <script>
 renderQuiz("day11-quiz", [
   {
-    question: "Backpropagation through time multiplies a gradient by the same recurrent weight matrix once per time step. What determines whether this causes vanishing or exploding gradients?",
+    question: "Why does a bidirectional LSTM label signal-peptide residues so much better (MCC 0.820) than a forward-only LSTM (0.631)?",
     choices: [
-      "Whether the weight matrix's eigenvalues are below 1 (vanishing) or above 1 (exploding)",
-      "The number of residues in the amino acid alphabet",
-      "Whether the model uses PyTorch or another framework",
-      "The batch size used during training"
+      "Whether a residue is still in the signal peptide depends on what comes after it (the cleavage site), which a forward-only network has not yet seen",
+      "Bidirectional networks have no vanishing-gradient problem at all",
+      "It was trained on twice as many proteins",
+      "Signal peptides are read from the C-terminus by the cell"
     ],
     correctIndex: 0,
-    explanation: "An eigenvalue below 1 shrinks the repeated product toward zero over many steps; above 1, it grows without bound -- exactly the factor=0.8 vs. factor=1.2 comparison in the notebook."
+    explanation: "Running a second LSTM right-to-left gives every position information about the rest of the sequence."
   },
   {
-    question: "Why is LSTM's forget-gate bias conventionally initialized to +1 rather than 0?",
+    question: "Why does the dataset keep only signal peptides with experimental evidence (ECO:0000269)?",
     choices: [
-      "It favors \"remember\" (forget gate close to 1) by default at the start of training, so the cell state passes through nearly unchanged instead of being multiplied down immediately",
-      "It makes the model train faster on any dataset regardless of task",
-      "It is required for the equations to be mathematically valid",
-      "It disables the input gate entirely"
+      "Many UniProt signal peptides are predicted, often by SignalP itself; training on them would teach the model to imitate SignalP rather than biology",
+      "Experimental annotations are always longer",
+      "UniProt removes predicted features from downloads",
+      "It makes the dataset larger"
     ],
     correctIndex: 0,
-    explanation: "With the forget gate near 1 and the input gate near 0, c_t is approximately c_{t-1} -- the Constant Error Carousel -- avoiding the repeated-multiplication decay a plain RNN suffers from the start."
+    explanation: "Circular training data inflate apparent performance, a relative of Day 8's leakage problem."
   },
   {
-    question: "On the real signal-peptide detection comparison in this day's notebook, which model won on F1, MCC, and AUPR, and why does that match the architectural argument for it?",
+    question: "What is the essential difference between a BERT-style and a GPT-style Transformer language model?",
     choices: [
-      "BiLSTM -- because whether a residue is part of a signal peptide depends on context from both directions, which only a bidirectional model can see",
-      "Plain LSTM -- because gates always outperform a bidirectional architecture",
-      "The sliding-window baseline -- because simpler models always generalize better on small datasets",
-      "SimpleRNN -- because fewer parameters always means better generalization"
+      "BERT fills in masked tokens using context on both sides; GPT predicts the next token and may only attend to earlier positions (causal mask)",
+      "BERT uses recurrence, GPT uses attention",
+      "GPT has no attention layers",
+      "BERT is only for proteins, GPT only for text"
     ],
     correctIndex: 0,
-    explanation: "BiLSTM's real measured F1 (0.590), MCC (0.587), and AUPR (0.714) all clearly beat every forward-only model, matching the argument that bidirectional context genuinely matters for this task."
+    explanation: "The architecture is almost the same; the training objective and one mask differ. ESM-2 and ProtBERT are BERT-style."
   },
   {
-    question: "What does SignalP's own version history (1.0 through 6.0) illustrate about this course's model-architecture arc?",
+    question: "In self-attention, what does softmax(QK^T / sqrt(d_k)) compute?",
     choices: [
-      "A real progression from feedforward ANNs, to CNN+RNN(LSTM)+CRF (5.0), to a Transformer-based protein language model + CRF (6.0)",
-      "SignalP has used the exact same neural network architecture, unchanged, since 1995",
-      "SignalP abandoned neural networks entirely after version 4.0 in favor of pure alignment methods",
-      "SignalP 6.0 removed all machine learning and returned to a hand-designed weight matrix"
+      "For each position (query), a probability distribution over all positions (keys), used to average their values",
+      "The next token in the sequence",
+      "The gradient of the loss",
+      "A fixed position-independent weight matrix"
     ],
     correctIndex: 0,
-    explanation: "SignalP 5.0 (2019) used exactly this day's toolkit (CNN+LSTM+CRF); SignalP 6.0 (2022) upgraded the LSTM component to a pretrained Transformer protein language model (ProtBERT) -- the same transition Day 12 covers in general."
+    explanation: "Each row of the attention matrix sums to one: how much each other position contributes to this one."
   },
   {
-    question: "UniRep is described as a protein language model built on an LSTM rather than a Transformer. What does it actually learn to do during pretraining?",
+    question: "With only 20 labelled proteins, logistic regression on frozen ESM-2 embeddings reaches MCC 0.762 while one-hot models stay near zero. Why?",
     choices: [
-      "Predict the next amino acid given the ones before it, on millions of unlabeled UniRef50 sequences -- no labels or annotations required",
-      "Predict a protein's exact 3D structure directly from its sequence",
-      "Classify proteins into a fixed set of functional categories using labeled training data",
-      "Translate protein sequences into a different organism's genetic code"
+      "Pretraining on millions of unlabelled sequences already taught the model what signal peptides look like; the few labels only have to point at it",
+      "ESM-2 was trained on SignalP's labels",
+      "One-hot encoding cannot represent signal peptides",
+      "20 proteins are enough for any model"
     ],
     correctIndex: 0,
-    explanation: "UniRep's pretraining objective is self-supervised next-amino-acid prediction, the same idea behind GPT-style language models, applied to about 24 million protein sequences with no labels."
+    explanation: "This is the few-shot effect that let SignalP 6.0 predict Tat/SPII (36 known examples) and Sec/SPIII (113) for the first time."
+  },
+  {
+    question: "SignalP 6.0 outperformed a retrained SignalP 5.0 mainly for test proteins below 60% identity to the training set, and we see the same pattern. What does this say?",
+    choices: [
+      "Pretrained representations help most where there is no close homolog to copy from, which is exactly where a predictor is most needed",
+      "Language models are worse on close homologs",
+      "Homology partitioning is unnecessary with language models",
+      "Identity to the training set does not matter"
+    ],
+    correctIndex: 0,
+    explanation: "On close homologs everything works; the difference appears on novel proteins."
+  },
+  {
+    question: "Why did the SignalP authors say that their SignalP 5.0 homology partitioning with CD-HIT 'was actually not valid'?",
+    choices: [
+      "Assigning CD-HIT clusters to folds only bounds identity to cluster centres; other pairs across folds stayed well above the 20% cutoff",
+      "CD-HIT cannot read protein sequences",
+      "They used too many folds",
+      "The clusters were too small to train on"
+    ],
+    correctIndex: 0,
+    explanation: "GraphPart, built for SignalP 6.0, removes sequences until no cross-fold pair is too similar (they had to settle for 30%)."
   }
 ]);
 </script>
@@ -318,40 +495,28 @@ renderQuiz("day11-quiz", [
 
 ## The notebook
 
-`notebooks/day11-rnns-lstm-gru-in-code.ipynb` verifies every claim above
-in code: the vanishing/exploding-through-time plot, a from-scratch
-`ExplicitLSTMCell` checked exactly against PyTorch's own `nn.LSTMCell`,
-and the real SignalP case study — a live UniProtKB fetch, a
-sliding-window baseline, and a shared `SeqTagger` class switched between
-SimpleRNN, LSTM, BiLSTM, and GRU, with every number in the comparison
-table above read back from the notebook's actual executed output.
-Adapted from this repo's own `notebooks/ch09.ipynb`, `ch10.ipynb`, and
-`ch10_signal_peptide_detection.ipynb` (the last of which already builds
-the SignalP dataset fetch and the SlidingWindow/SimpleRNN/LSTM
-comparison this notebook extends with BiLSTM and GRU). Open it in
-[Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day11-rnns-lstm-gru-in-code.ipynb)
-via the badge at the top of the notebook page to edit and run it
-yourself.
+`notebooks/day11-rnns-lstm-gru-in-code.ipynb` runs everything on this
+page from our own code, in the same three parts:
 
-## The lab
+1. Vanishing and exploding gradients through time, an LSTM cell written
+   out by hand, and residue labelling with a sliding window, a simple
+   RNN, an LSTM and a bidirectional LSTM on the homology-aware split.
+2. A next-residue LSTM language model, self-attention and the causal mask
+   from scratch, and ESM-2 filling in a masked residue.
+3. One-hot vs. frozen ESM-2 embeddings: the homology-aware test, the
+   few-shot curve, performance vs. identity, and the PCA.
 
-A light, guided exercise (this session is the course's flagged trim
-candidate if a session needs to be cut, per `course-redesign.md`): work
-through `notebooks/ch10_signal_peptide_detection.ipynb` and this day's
-own notebook, then try changing the recurrent hidden size or the
-N-terminal window length and see how much of BiLSTM's advantage over
-the other models survives.
+The dataset is loaded from the course repository. On Colab run
+`!pip install fair-esm` first; everything runs on a CPU in a few minutes.
+Open it in
+[Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day11-rnns-lstm-gru-in-code.ipynb).
 
-### Submitting this lab
-
-Hand-in/grading for this lab isn't set up yet. It will likely run
-through a Canvas assignment — check the course's Canvas page for the
-actual submission mechanism before this session runs.
+LAB_SECTION
 
 ## What's next
 
-Day 12 picks up exactly where this day's protein-language-model section
-left off: attention, framed as a learned, differentiable version of Day
-5's BLAST search, is what actually powers ProtBERT and ProstT5
-internally — and it's also, at a conceptual level, part of what changed
-with AlphaFold.
+Day 12 is about **AlphaFold** and its relatives. Attention over a
+multiple sequence alignment and over residue pairs predicts full 3D
+structures, and protein language models such as ESM-2 can do it from a
+single sequence. The contacts of Day 10 become distances, then
+coordinates.
