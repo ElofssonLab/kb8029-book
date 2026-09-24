@@ -89,10 +89,12 @@ Four steps, repeated once per batch (or, for a small dataset, once per
 epoch over the whole training set): **forward pass** (compute
 predictions), **compute loss**, **`loss.backward()`** (backpropagation —
 fills in every weight's gradient), **`optimizer.step()`** (updates every
-weight using its own gradient). Running this, unmodified, on Day 8's
-subcellular-localization network: training accuracy reaches 1.000 while
-validation accuracy plateaus at 0.543 — a textbook case of
-**overfitting**. With 490 training examples against a 3000-dimensional
+weight using its own gradient). We run this, unmodified, on Day 8's
+subcellular-localization network, using Day 8's homology-aware split (486
+training / 105 validation / 109 test proteins, with no 30%-identity
+homologs across the split). Training accuracy reaches 1.000. Validation
+accuracy peaks at 0.486 (epoch 5), then *falls* to 0.438 by epoch 29.
+This is a textbook case of **overfitting**. With 486 training examples against a 3000-dimensional
 input and roughly 190,000 parameters, the network has far more freedom
 than data, and happily memorizes idiosyncrasies of the specific training
 sequences rather than learning the general signal. This is exactly the
@@ -143,8 +145,26 @@ training here.
 
 ## Vanishing gradients: why activation choice matters for depth
 
-Sigmoid and tanh saturate for large $|x|$ (Day 8) — their derivative
-there is near zero. In a deep network, the chain rule *multiplies*
+The derivatives of Day 8's activation functions tell the story:
+
+![Derivatives of sigmoid, tanh and ReLU. Sigmoid's is at most 0.25 (at $z = 0$) and below 0.01 by $|z| = 6$. Tanh's peaks at 1.0 but also vanishes in both tails. ReLU's is exactly 0 or exactly 1.](figs/day09-activation-derivatives.png){width=70%}
+
+| Activation | Range | Zero-centered? | Saturates? | Known problem |
+|---|---|---|---|---|
+| Sigmoid | $(0,1)$ | No | Both ends | Derivative at most 0.25, so the gradient shrinks at every layer |
+| Tanh | $(-1,1)$ | Yes | Both ends | Still vanishes, though less severely |
+| ReLU | $[0,\infty)$ | No | Only for $z<0$ (derivative exactly 0) | "Dying ReLU": a unit stuck at $z<0$ for every input never recovers |
+
+Tanh is zero-centered, which is why it was long preferred over sigmoid
+for *hidden* layers. Sigmoid stays standard for a binary *output*, where
+a $(0, 1)$ probability is exactly what is needed. ReLU never shrinks the
+gradient for positive inputs, and it is cheap to compute. Its weakness is
+the flat side. **Leaky ReLU** ($\max(0.01z, z)$) and **GELU** (a smooth
+ReLU-like curve used in transformers) keep a small slope for $z < 0$ so
+that units cannot die. This course's own networks use plain ReLU.
+
+Sigmoid and tanh saturate for large $|x|$, so their derivative there is
+near zero. In a deep network, the chain rule *multiplies*
 these derivatives together across layers, and a handful of small
 numbers multiplied together compounds fast. A concrete check: a
 6-hidden-layer network, freshly initialized, one backward pass, sigmoid
@@ -153,8 +173,8 @@ input, compared to the layer closest to the output:
 
 | Activation | Layer near input | Layer near output | Ratio |
 |---|---|---|---|
-| Sigmoid | $8.3\times10^{-9}$ | $2.6\times10^{-2}$ | ~3,100,000× |
-| ReLU | $4.2\times10^{-6}$ | $5.5\times10^{-4}$ | ~130× |
+| Sigmoid | $8.3\times10^{-9}$ | $2.7\times10^{-2}$ | ~3,200,000× |
+| ReLU | $4.2\times10^{-6}$ | $5.9\times10^{-4}$ | ~140× |
 
 With sigmoid, the earliest layer's gradient is roughly **three million
 times smaller** than the last layer's — that layer's weights would
@@ -196,19 +216,18 @@ Three practical tools against the overfitting demonstrated above:
   validation performance peaks — costs nothing extra to implement and
   is often the single most effective fix.
 
-Applied to the case study: dropout + L2 alone give only a modest
-improvement (training accuracy still reaches 1.000 — with ~190,000
-parameters and 490 examples, the model has enough capacity to memorize
-regardless). **Early stopping** is what actually captures the real
-improvement — rolling back to the epoch with the best validation
-accuracy (epoch 29 of 100) gives a validation accuracy of 0.590, clearly
-better than the unregularized run's 0.543. Reported honestly:
-regularization helps here, but it is not a substitute for having enough
-data relative to model size — a real limitation of this small,
-deliberately simple case study, part of why production tools for this
-exact problem (e.g. DeepLoc) use much larger training sets and more
-parameter-efficient input representations than a flattened one-hot
-encoding.
+Applied to the case study, training accuracy still reaches 1.000 in
+every run. With ~190,000 parameters and 486 examples, the model can
+memorize the training set whatever we do. What helps is **early
+stopping**: rolling back to the epoch with the best validation accuracy
+keeps the network near its peak (0.486) instead of the 0.438 it has sunk
+to by the end. Dropout + L2 did *not* improve on that peak here (best
+validation accuracy 0.476, at epoch 13 of 100). Regularization is not a
+substitute for having enough data relative to model size. This is a real
+limitation of this small, deliberately simple case study, and part of why
+production tools for this exact problem (e.g. DeepLoc) use much larger
+training sets and more parameter-efficient input representations than a
+flattened one-hot encoding.
 
 ### Further reading
 
@@ -216,18 +235,27 @@ encoding.
 
 ## The result: training this network for real
 
-The same four metrics from Day 8, now on the trained, early-stopped
-model, directly comparable to Day 8's untrained baseline:
+The epoch was chosen on the validation set, so the validation number is
+now slightly optimistic (Day 8). The final metrics therefore come from
+the **test set**, used once. Next to them are the untrained network from
+Day 8 and Day 8's linear baseline (logistic regression, no hidden layer),
+trained on the same training set:
 
-| Metric | Day 8 (untrained) | Day 9 (trained) |
-|---|---|---|
-| Accuracy | 0.248 | 0.590 |
-| Macro F1 | 0.176 | 0.584 |
-| MCC | 0.086 | 0.492 |
-| Macro AUROC | 0.542 | 0.828 |
+| Metric | Untrained network (Day 8, val) | Trained network (test) | Logistic regression (test) |
+|---|---|---|---|
+| Accuracy | 0.181 | 0.514 | **0.569** |
+| Macro F1 | 0.124 | 0.493 | — |
+| MCC | −0.027 | 0.394 | **0.461** |
+| Macro AUROC | 0.474 | 0.831 | **0.849** |
 
-Every metric improves substantially — real training, on a real
-biological dataset, doing real work.
+Training works: every metric moves far above chance. But **the linear
+model wins.** On this small, homology-partitioned dataset, the hidden
+layer does not pay for its ~190,000 parameters, echoing the Day 6 lab. A
+hidden layer helps when the inputs interact in ways a linear model
+cannot represent (Day 6's XOR) *and* there is enough data to learn those
+interactions. Here the data is the bottleneck. The lesson is general:
+**always compare against a simple baseline** before believing that a
+deeper model is better.
 
 ## Check your understanding
 
@@ -247,7 +275,7 @@ renderQuiz("day09-quiz", [
     explanation: "Backpropagation is the chain rule applied systematically, reusing each layer's derivative rather than recomputing everything from scratch for every weight."
   },
   {
-    question: "Training Day 8's subcellular-localization network with no regularization reaches 100% training accuracy but only 54.3% validation accuracy. What does this gap indicate?",
+    question: "Training Day 8's subcellular-localization network with no regularization reaches 100% training accuracy but only 43.8% validation accuracy at the end of training. What does this gap indicate?",
     choices: [
       "Overfitting -- the model has memorized training-set idiosyncrasies rather than learning the general signal",
       "The model has learned the task perfectly and the validation set is mislabeled",
@@ -277,7 +305,7 @@ renderQuiz("day09-quiz", [
       "None of them help; more training data is the only real fix"
     ],
     correctIndex: 0,
-    explanation: "Dropout and L2 give a modest improvement, but early stopping (epoch 29 vs. the full 100-epoch run) is what actually captures the real gain here."
+    explanation: "Validation accuracy peaks early (0.486 at epoch 5) and then falls as the network memorizes the training set. Early stopping keeps the peak. Dropout + L2 did not improve on it here."
   },
   {
     question: "How does Rost & Sander's PHD method combine the pieces introduced across Days 5-9?",
@@ -297,13 +325,15 @@ renderQuiz("day09-quiz", [
 ## The notebook
 
 `notebooks/day09-backprop-training-regularization.ipynb` rebuilds Day
-8's exact dataset and model (self-contained, so it runs on its own),
+8's exact dataset, homology-aware split and model (self-contained, so it
+runs on its own),
 works through the tiny hand-computed-vs-autograd backpropagation
 example above, then does what Day 8 stopped short of: runs the standard
 training loop unregularized (showing the overfitting above),
-demonstrates the vanishing-gradient effect on a 6-layer sigmoid vs.
-ReLU network, applies dropout + L2 + early stopping, and reports the
-trained model's real metrics against Day 8's baseline. Open it in
+plots the activation-function derivatives, demonstrates the
+vanishing-gradient effect on a 6-layer sigmoid vs. ReLU network, applies
+dropout + L2 + early stopping, and reports the trained model's test-set
+metrics against Day 8's untrained network and linear baseline. Open it in
 [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day09-backprop-training-regularization.ipynb)
 via the badge at the top of the notebook page to edit and run it
 yourself.

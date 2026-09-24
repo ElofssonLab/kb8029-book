@@ -108,44 +108,46 @@ photographs.
 
 Days 8-9 built a flat, fully-connected classifier for the same
 150-residue, 5-class subcellular-localization dataset used throughout
-this section (700 proteins, balanced to 140 per class, one-hot encoded,
-490/105/105 train/val/test split — the notebook re-fetches the exact
-same data live from UniProt and confirms every one of those counts
-matches before continuing). Here, the identical dataset and split feed a
-small 1D-CNN instead: two convolutional layers (kernel size 7 — each
-filter looks at a 7-residue window at a time) with global average
-pooling before a final linear layer to the 5 classes.
+this section. It has 700 proteins, balanced to 140 per class, one-hot
+encoded, with Day 8's homology-aware 486/105/109 train/val/test split
+(no 30%-identity homologs across the split). The notebook re-fetches the
+same data live from UniProt and checks every one of those counts before
+continuing. Here, the identical dataset and split feed a small 1D-CNN
+instead: two convolutional layers (kernel size 7, so each filter looks at
+a 7-residue window) followed by global average pooling and a final linear
+layer to the 5 classes.
 
-That single architectural change has a real, measured effect on model
-size: the 1D-CNN has **19,237** trainable parameters, versus the flat
-MLP's **192,389** — a 10x reduction, entirely from weight sharing across
-positions instead of learning an independent weight for each of the
-150 positions.
+That single architectural change has a measured effect on model size.
+The 1D-CNN has **19,237** trainable parameters, versus the flat MLP's
+**192,389**. The 10x reduction comes entirely from sharing weights across
+positions instead of learning an independent weight for each of the 150
+positions.
 
-Trained the same way as Day 9 (Adam, early stopping on validation
-accuracy) and evaluated on the identical held-out test set:
+We train it the same way as Day 9 (Adam, early stopping on validation
+accuracy) and evaluate it on the same held-out test set:
 
-| Metric | Day 8: untrained MLP | Day 9: trained MLP | Day 10: trained 1D-CNN |
-|---|---|---|---|
-| Accuracy | 0.248 | 0.590 | 0.562 |
-| Macro F1 | 0.176 | 0.584 | 0.568 |
-| MCC | 0.086 | 0.492 | 0.456 |
-| Macro AUROC | 0.542 | 0.828 | 0.844 |
+| Metric | Day 8: untrained MLP (val) | Day 9: trained MLP | Day 9: logistic regression | Day 10: trained 1D-CNN |
+|---|---|---|---|---|
+| Accuracy | 0.181 | 0.514 | 0.569 | **0.587** |
+| Macro F1 | 0.124 | 0.493 | — | **0.586** |
+| MCC | −0.027 | 0.394 | 0.461 | **0.485** |
+| Macro AUROC | 0.474 | 0.831 | 0.849 | **0.868** |
 
-Reported honestly, not spun: the 1D-CNN does **not** clearly beat the
-flat MLP on raw accuracy/F1/MCC here — it's slightly behind on all
-three, though slightly ahead on AUROC. With only 700 short sequences and
-a task where the *combination* of many distributed positions (not one
-local, translatable motif) may carry most of the signal, weight sharing
-doesn't obviously help accuracy on this particular dataset. What it
-reliably buys, independent of whether accuracy improves, is the 10x
-parameter reduction above — the same predictive signal (if anything,
-slightly higher AUROC) from a far smaller number of weights. That
-parameter efficiency, not a guaranteed accuracy win, is convolution's
-real, general argument — and it becomes decisive on the much longer,
-genuinely locally-structured inputs (full-length images, long
-sequences) where a flat fully-connected layer would be completely
-impractical to fit in memory at all.
+The 1D-CNN beats the flat MLP on every metric, with a tenth of the
+parameters. It is also slightly ahead of the linear baseline that beat
+the MLP on Day 9. With 486 training proteins, the flat MLP had far too
+many free weights to learn from so little data. The CNN builds in an
+assumption instead: the same short motif means the same thing wherever
+it occurs. That assumption fits the biology of targeting signals and
+transmembrane segments, and it spends the limited data much more
+efficiently. The margins over logistic regression are small, though. On
+a 109-protein test set, differences of a few percentage points are
+within split-to-split noise (Day 8), so the robust finding is the gap to
+the flat MLP rather than the gap to the linear model. Convolution's
+general argument is parameter efficiency from built-in assumptions. It
+becomes decisive on longer, locally structured inputs (images, long
+sequences), where a flat fully connected layer would not even fit in
+memory.
 
 ## Classic architectures: AlexNet and the 2012 ImageNet moment
 
@@ -245,15 +247,15 @@ renderQuiz("day10-quiz", [
     explanation: "Translation equivariance comes from weight sharing itself and holds even for an untrained kernel, exactly as demonstrated."
   },
   {
-    question: "On Day 10's real measured comparison, how did the 1D-CNN's test accuracy compare to Day 9's trained flat MLP, on the identical held-out test set?",
+    question: "On Day 10's measured comparison, how did the 1D-CNN compare to Day 9's trained flat MLP on the same homology-aware test set?",
     choices: [
-      "Slightly lower (0.562 vs. 0.590) despite using about 10x fewer parameters",
-      "Substantially higher, proving CNNs always beat flat networks",
+      "Better on every metric (accuracy 0.587 vs. 0.514), with about 10x fewer parameters",
+      "Worse on every metric, because CNNs need more data",
       "Identical to 3 decimal places",
       "The CNN could not be trained on this data at all"
     ],
     correctIndex: 0,
-    explanation: "Reported honestly: the CNN did not win on accuracy here, though it used far fewer parameters and had slightly higher AUROC -- a real, non-spun result."
+    explanation: "Weight sharing builds in the assumption that a motif means the same thing wherever it occurs, which spends 486 training proteins far more efficiently than 192,389 independent weights."
   },
   {
     question: "What specifically made it possible to train networks over 100 layers deep (ResNet, 2015), where plain stacking of more layers had previously made training worse, not better?",
