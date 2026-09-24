@@ -535,23 +535,33 @@ yourself.
 
 ## The lab
 
-**Full lab:** follow the notebook to build the localization dataset
-yourself:
+**Full lab, on MNIST:** 70,000 handwritten digits, the classic first
+dataset for neural networks, adapted from the previous course's
+"Neural Networks" lab and rebuilt in PyTorch. Work through
+[`notebooks/day08-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day08-lab.ipynb),
+filling in every `...`:
 
-1. fetch and filter the UniProt entries;
-2. balance and one-hot encode them;
-3. cluster them and make the homology-aware split;
-4. measure how much homology leakage inflates a baseline;
-5. define the `nn.Module` and check its output shape and untrained
-   metrics.
+1. inspect the class balance;
+2. build training, validation and test sets, and standardize the pixels
+   using statistics from the training set only;
+3. write the model as an `nn.Module` (784 inputs, 10 tanh hidden units,
+   10 output logits) and count its parameters;
+4. train it with a provided `train_model` function (Day 9 opens that
+   box), then turn logits into probabilities and classes;
+5. compute a confusion matrix, precision, recall, F1, MCC and a ROC
+   curve for one digit against the rest;
+6. shrink the training set to watch overfitting appear, and use the test
+   set once, at the end.
 
-Stop there. Day 9 is where this model learns.
+The last section returns to proteins: it measures how many validation
+proteins in a *random* split of today's localization dataset have a
+homolog in the training set.
 
 ### Submitting this lab
 
-Hand-in/grading for this lab isn't set up yet. It will likely run
-through a Canvas assignment — check the course's Canvas page for the
-actual submission mechanism before this session runs.
+This lab is administered through Canvas, not this book — see the
+course's Canvas page for the current quiz, deadline, and submission
+mechanism.
 
 ## What's next
 
