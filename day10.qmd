@@ -80,7 +80,13 @@ motifs; later layers combine them into larger parts.
 
 ### Further watching
 
-- 3Blue1Brown, ["But what is a convolution?"](https://www.youtube.com/watch?v=KuXjwB4LzSA)
+[*But what is a convolution?*](https://www.youtube.com/watch?v=KuXjwB4LzSA) (3Blue1Brown): convolution from probability to image blurring, the same sliding weighted sum a CNN learns:
+
+```{=html}
+<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
+<iframe src="https://www.youtube.com/embed/KuXjwB4LzSA" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="But what is a convolution?, 3Blue1Brown"></iframe>
+</div>
+```
 
 ## What actually happened: from LeNet to ResNet
 

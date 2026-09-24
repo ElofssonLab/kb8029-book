@@ -19,7 +19,7 @@ Day 8's UniProt subcellular-localization data. Ioffe & Szegedy (2015),
 "Batch Normalization," [arXiv:1502.03167](https://arxiv.org/abs/1502.03167);
 Rost & Sander (1993), [*J. Mol. Biol.* 232:584-599](https://doi.org/10.1006/jmbi.1993.1413)
 and [*PNAS* 90:7558-7562](https://pmc.ncbi.nlm.nih.gov/articles/PMC47181/)
-(the PHD method). 3Blue1Brown's neural-network videos are linked as
+(the PHD method). 3Blue1Brown's neural-network and cross-entropy videos are embedded as
 further watching. The housing regression setup (linear baseline vs.
 64/64 network, L2 and dropout), the vanishing-gradient demonstration and
 the tiny hand-computed backpropagation example follow ideas from Magnus
@@ -94,9 +94,21 @@ worked example in this course.
 
 ### Further watching
 
-- 3Blue1Brown, [But what is a neural network?](https://www.youtube.com/watch?v=aircAruvnKk) — a recap of the network-as-composed-functions picture from Day 6, worth revisiting first if it's been a while
-- 3Blue1Brown, [What is backpropagation really doing?](https://www.youtube.com/watch?v=Ilg3gGewQ5U) — the same chain-rule idea as above, built up visually, one layer at a time
-- 3Blue1Brown, [Backpropagation calculus](https://www.youtube.com/watch?v=tIeHLnjs5U8) — the full chain-rule mechanics for a general multi-layer network, the general case the worked example above specializes
+[*Backpropagation, intuitively*](https://www.youtube.com/watch?v=Ilg3gGewQ5U) (3Blue1Brown, Deep Learning ch. 3): the same chain-rule idea as above, built up visually one layer at a time. (Chapter 1, [*But what is a neural network?*](https://www.youtube.com/watch?v=aircAruvnKk), is embedded on Day 6.)
+
+```{=html}
+<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
+<iframe src="https://www.youtube.com/embed/Ilg3gGewQ5U" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="Backpropagation, intuitively, 3Blue1Brown"></iframe>
+</div>
+```
+
+[*Backpropagation calculus*](https://www.youtube.com/watch?v=tIeHLnjs5U8) (3Blue1Brown, Deep Learning ch. 4): the full chain-rule mechanics for a general multi-layer network, the general case of the worked example above:
+
+```{=html}
+<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
+<iframe src="https://www.youtube.com/embed/tIeHLnjs5U8" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="Backpropagation calculus, 3Blue1Brown"></iframe>
+</div>
+```
 
 ## The standard PyTorch training loop, on a clinical dataset
 
@@ -184,7 +196,13 @@ training here.
 
 ### Further watching
 
-- 3Blue1Brown, [But what is cross-entropy? | Compression is Intelligence Part 2](https://www.youtube.com/watch?v=GlYgs6v2YfU) — cross-entropy from the information-theory side, building up from first principles
+[*But what is cross-entropy?*](https://www.youtube.com/watch?v=GlYgs6v2YfU) (3Blue1Brown, Compression is Intelligence part 2): cross-entropy from the information-theory side, built up from first principles:
+
+```{=html}
+<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
+<iframe src="https://www.youtube.com/embed/GlYgs6v2YfU" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="But what is cross-entropy?, 3Blue1Brown"></iframe>
+</div>
+```
 
 # Part 2: Regression with a network
 

@@ -11,6 +11,8 @@ its figures are not reproduced). Every other historical number is taken
 from the primary paper, cited where it is used. Data: 4,910 reviewed
 UniProt entries (CC BY 4.0), a copy of which is kept in the course
 repository; the pretrained ESM-2 model (Lin et al. 2023) via `fair-esm`.
+3Blue1Brown's videos on language models, Transformers and attention are
+embedded as further watching.
 The recurrent-network and attention material follows ideas from Magnus
 Ekman's *Learning Deep Learning* (ch. 9-12 slide decks and notebooks), a
 copyrighted, not openly licensed textbook, credited here as an internal
@@ -164,6 +166,16 @@ test proteins. That is better than knowing only the amino-acid composition
 Protein sequences are hard to predict residue by residue. Large models
 get much further, with far more data and a better architecture.
 
+### Further watching
+
+[*Large Language Models explained briefly*](https://www.youtube.com/watch?v=LPZh9BOjkQs) (3Blue1Brown): a short overview of what a language model is and how it is trained:
+
+```{=html}
+<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
+<iframe src="https://www.youtube.com/embed/LPZh9BOjkQs" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="Large Language Models explained briefly, 3Blue1Brown"></iframe>
+</div>
+```
+
 ## What actually happened: from n-grams to GPT
 
 - **n-grams.** For decades, language models counted how often each word
@@ -208,6 +220,16 @@ get much further, with far more data and a better architecture.
   new tasks from a few examples in the prompt, "without any gradient
   updates".
 
+### Further watching
+
+[*Transformers, the tech behind LLMs*](https://www.youtube.com/watch?v=wjZofJX0v4M) (3Blue1Brown, Deep Learning ch. 5): how a GPT-style model turns tokens into vectors and predicts the next token:
+
+```{=html}
+<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
+<iframe src="https://www.youtube.com/embed/wjZofJX0v4M" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="Transformers, the tech behind LLMs, 3Blue1Brown"></iframe>
+</div>
+```
+
 ## Attention, from scratch
 
 For every position, **self-attention** asks: *which other positions
@@ -236,6 +258,18 @@ and learns by predicting the next token, which is what lets it generate
 text:
 
 ![Causal (GPT-style) attention: each token can only attend to itself and earlier tokens.](figs/day11-causal-mask.png){width=45%}
+
+### Further watching
+
+[*Attention in transformers, step-by-step*](https://www.youtube.com/watch?v=eMlx5fFNoYc) (3Blue1Brown, Deep Learning ch. 6): queries, keys, values, multiple heads and the causal mask, animated:
+
+```{=html}
+<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
+<iframe src="https://www.youtube.com/embed/eMlx5fFNoYc" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="Attention in transformers, step-by-step, 3Blue1Brown"></iframe>
+</div>
+```
+
+Going further: [*How might LLMs store facts*](https://www.youtube.com/watch?v=9-Jl0dxWQs8) (3Blue1Brown, Deep Learning ch. 7), about the feed-forward layers inside a Transformer.
 
 ## Protein language models
 
@@ -511,7 +545,28 @@ The dataset is loaded from the course repository. On Colab run
 Open it in
 [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day11-rnns-lstm-gru-in-code.ipynb).
 
-LAB_SECTION
+## The lab
+
+**Full lab:** adapted from the previous course's "Neural Networks" labs
+and rebuilt in PyTorch on biological data. Work through
+[`notebooks/day11-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day11-lab.ipynb),
+replacing every `todo(...)` call with your own code:
+
+1. write one step of a simple RNN by hand and check it against `nn.RNN`;
+2. label signal-peptide residues with a feed-forward sliding window of
+   1 to 41 residues, and see how the window size matters;
+3. build a forward and a bidirectional LSTM tagger for the same task, and
+   explain why reading the sequence in both directions helps;
+4. compute ESM-2 embeddings and cosine similarities for two myoglobins
+   and an unrelated membrane transporter;
+5. embed eleven PDB proteins, plot them with PCA, cluster them, and check
+   the clusters against their Pfam families.
+
+### Submitting this lab
+
+This lab is administered through Canvas, not this book — see the
+course's Canvas page for the current quiz, deadline, and submission
+mechanism.
 
 ## What's next
 
