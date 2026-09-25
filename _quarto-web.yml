@@ -1,0 +1,50 @@
+# Default profile: the website, including the notebooks.
+book:
+  chapters:
+    - index.qmd
+    - schedule.qmd
+    - course-info.qmd
+    - day01.qmd
+    - href: notebooks/day01-math-in-code.ipynb
+      text: "Day 1 — Notebook"
+    - day02.qmd
+    - href: notebooks/day02-tensors-and-a-first-class.ipynb
+      text: "Day 2 — Notebook"
+    - day03.qmd
+    - href: notebooks/day03-databases-in-code.ipynb
+      text: "Day 3 — Notebook"
+    - day04.qmd
+    - href: notebooks/day04-alignment-in-code.ipynb
+      text: "Day 4 — Notebook"
+    - day05.qmd
+    - href: notebooks/day05-blast-and-profiles-in-code.ipynb
+      text: "Day 5 — Notebook"
+    - day06.qmd
+    - href: notebooks/day06-gradient-descent-xor.ipynb
+      text: "Day 6 — Notebook"
+    - day07.qmd
+    - href: notebooks/day07-protein-structure-in-code.ipynb
+      text: "Day 7 — Notebook"
+    - day08.qmd
+    - href: notebooks/day08-ml-foundations-and-pytorch.ipynb
+      text: "Day 8 — Notebook"
+    - day09.qmd
+    - href: notebooks/day09-backprop-training-regularization.ipynb
+      text: "Day 9 — Notebook"
+    - day10.qmd
+    - href: notebooks/day10-cnns-in-code.ipynb
+      text: "Day 10 — Notebook"
+    - day11.qmd
+    - href: notebooks/day11-rnns-lstm-gru-in-code.ipynb
+      text: "Day 11 — Notebook"
+    - day12.qmd
+    - href: notebooks/day12-alphafold-and-generative-models-in-code.ipynb
+      text: "Day 12 — Notebook"
+    - capstone.qmd
+    - references.qmd
+
+  sidebar:
+    tools:
+      - icon: file-earmark-pdf
+        href: /KB8029-course-notes.pdf
+        text: "All course pages as one PDF"

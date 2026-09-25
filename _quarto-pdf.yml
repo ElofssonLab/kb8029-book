@@ -1,0 +1,38 @@
+# Profile for the single-PDF version of the course notes (quarto render --profile pdf).
+# Only the course pages: the notebooks are linked from the website instead.
+project:
+  output-dir: _pdf
+book:
+  output-file: "KB8029-course-notes"
+  chapters:
+    - index.qmd
+    - schedule.qmd
+    - course-info.qmd
+    - day01.qmd
+    - day02.qmd
+    - day03.qmd
+    - day04.qmd
+    - day05.qmd
+    - day06.qmd
+    - day07.qmd
+    - day08.qmd
+    - day09.qmd
+    - day10.qmd
+    - day11.qmd
+    - day12.qmd
+    - capstone.qmd
+    - references.qmd
+format:
+  pdf:
+    documentclass: scrreprt
+    pdf-engine: lualatex
+    toc: true
+    number-sections: true
+    colorlinks: true
+    mainfont: "DejaVu Serif"
+    sansfont: "DejaVu Sans"
+    monofont: "DejaVu Sans Mono"
+    geometry: margin=2.5cm
+    fig-pos: "H"
+    filters:
+      - pdf-demote-parts.lua

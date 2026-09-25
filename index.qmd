@@ -7,6 +7,12 @@ integrated day-by-day structure — see the [Course Schedule](schedule.qmd)
 for the full plan, or `course-redesign.md` in the repository root for the
 rationale behind it.
 
+::: {.content-visible when-format="html"}
+**Offline or printed?** All course pages are also available as a single
+PDF: [KB8029-course-notes.pdf](/KB8029-course-notes.pdf). The notebooks
+are not included; open them from the website.
+:::
+
 **This is not a copy of any textbook.** The course previously assigned
 copyrighted textbooks (Magnus Ekman's *Learning Deep Learning* for the
 machine-learning half, Jonathan Pevsner's *Bioinformatics and Functional
