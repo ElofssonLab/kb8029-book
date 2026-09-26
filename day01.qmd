@@ -4,9 +4,15 @@
 
 # Day 1: Math Prerequisites
 
-This is a refresher, not a first encounter. The goal isn't to re-teach linear algebra, calculus, or probability from zero — it's to consolidate exactly the pieces this course actually uses, work through them with real numbers, and show you *where* each one shows up later, so none of it feels like disconnected math-for-its-own-sake. There's no coding today; that's Day 2 — though the notebook linked at the bottom lets you check today's by-hand answers in code if you're curious.
+This is not "all the mathematics you might need". It is the mathematical vocabulary we will use during the next 11 days, worked through with real numbers, with a pointer to where each idea shows up later. There's no coding today; that's Day 2, though the notebook linked at the bottom lets you check today's answers in code.
 
-The session is in three parts: vectors and matrices (including the dot product, matrix shapes and the transpose, what eigenvalues are for, and a first look ahead to tensors), derivatives and gradient descent, then probability and Bayes' rule. Each part ends with a practice problem, a quick self-check, and a short video if you'd like the idea animated.
+The session is in three parts:
+
+1. **Vectors and matrices:** vectors, dimensions and shapes, the dot product, matrix multiplication (and the transpose), normalization, and an intuitive look at eigenvectors and PCA.
+2. **Calculus for machine learning:** derivatives, partial derivatives, the gradient, gradient descent and the chain rule.
+3. **Probability and statistics:** a short recap, conditional probability, logs and log-odds, likelihood, p-values and multiple testing, and an RNA-seq example.
+
+Each part ends with practice problems, a quick self-check and a short video.
 
 ## Learning goals
 
@@ -14,7 +20,7 @@ By the end of this session you should:
 
 - work comfortably with vectors, matrices, dot products and dimensions;
 - understand derivatives, gradients and why gradient descent works;
-- understand conditional probability and Bayes' rule;
+- understand conditional probability and likelihood;
 - understand logs, likelihood and why bioinformatics uses log-scores;
 - understand p-values and why multiple testing requires FDR control.
 
@@ -25,12 +31,12 @@ By the end of this session you should:
 
 > "It's a mathematical term, represented by an arrow with both direction and magnitude. Vector! That's me, because I commit crimes with both direction and magnitude." — Vector, in *Despicable Me* (2010)
 
-He's not wrong — that's exactly the geometric picture of a vector this session builds on.
+He's not wrong: that's the geometric picture of a vector this session builds on.
 :::
 
-A vector is just an ordered list of numbers. You already know how to add two vectors (add corresponding entries) and how to scale one (multiply every entry by the same number).
+### Vectors
 
-### Length, absolute value, and size
+A vector is just an ordered list of numbers. You already know how to add two vectors (add corresponding entries) and how to scale one (multiply every entry by the same number).
 
 For a single number, $|x|$ measures its distance from zero — how big it is, ignoring sign. Vectors and matrices generalize this the same way they generalize everything else in this session.
 
@@ -48,15 +54,18 @@ $$
 
 — literally the hypotenuse of a 3-4-5 right triangle.
 
-Matrices generalize the same idea once more: treat every entry as part of one long vector, and the same formula gives the matrix's **Frobenius norm**,
+### Dimensions and shapes
 
-$$
-\lVert A \rVert_F = \sqrt{\textstyle\sum_{i,j} a_{ij}^2}
-$$
+The number of entries in a vector is its **dimension**: $(3, 4)$ is 2-dimensional, and the 20-number amino acid composition of a protein is a 20-dimensional vector. A matrix is a rectangular grid of numbers, and its **shape** is its number of rows and columns: a matrix with $n$ rows and $m$ columns has shape $(n, m)$, also written $n \times m$. For everything you will do in NumPy and PyTorch, one habit matters more than any formula: **always know the shape of every matrix and vector.** In biology, a matrix is almost always a data table:
 
-a single number measuring how "big" a matrix is overall. This turns out to be useful throughout the rest of this course — for instance, for measuring how much two matrices differ (the norm of their difference), or how large a set of learned weights has grown during training.
+- **Gene expression.** Measure 20,000 genes in 50 patient samples, and you have a matrix of shape $(50, 20000)$. Row $i$ is one sample's expression profile; column $j$ is one gene across all the samples.
+- **Protein features.** Describe 1,000 proteins by their amino acid composition (the fraction of each of the 20 amino acids), and you have a matrix $X$ of shape $(1000, 20)$: one row per protein, one column per feature.
 
-The one operation worth slowing down on next is the **dot product**:
+Vectors and matrices are the first two members of a bigger family called **tensors**: a single number is a 0-dimensional tensor, a vector is 1-dimensional, a matrix is 2-dimensional, and a tensor can keep going to 3 dimensions (a stack of matrices) or higher still. A batch of 32 protein sequences of length 100, each position one-hot encoded over 20 amino acids, is a tensor of shape $(32, 100, 20)$. Day 2 introduces tensors properly, as the one data structure PyTorch uses for everything, and the shape rules below carry over unchanged.
+
+### The dot product
+
+The operation that matters most is the **dot product**:
 
 $$
 \mathbf{w} \cdot \mathbf{x} = w_1 x_1 + w_2 x_2 + \dots + w_n x_n
@@ -77,31 +86,15 @@ $$
 $$
 
 where $\theta$ is the angle between the two vectors and $\lVert \cdot
-\rVert$ is the length defined above. This tells you the *sign* of a dot product for free, without computing anything: it's positive when the angle between the vectors is less than 90° (they point in broadly the same direction), zero when they're exactly perpendicular, and negative when the angle exceeds 90° (they point in broadly opposite directions). In the worked example above, $\mathbf{w}$ and $\mathbf{x}$ are about 103° apart — just past perpendicular — which is exactly why their dot product came out negative:
+\rVert$ is the length defined above. This tells you the *sign* of a dot product for free, without computing anything: it's positive when the angle between the vectors is less than 90° (they point in broadly the same direction), zero when they're exactly perpendicular, and negative when the angle exceeds 90° (they point in broadly opposite directions). In the worked example above, $\mathbf{w}$ and $\mathbf{x}$ are about 103° apart — just past perpendicular, which is why their dot product came out negative:
 
 ![](figs/day01-vector-angle.png){width="55%"}
 
-Why does this one specific computation deserve a whole session's worth of attention before we've even started the course proper? Because it reappears, unchanged, in two very different-looking places later in this course. A **profile score** (Day 5) — the standard way of asking "how well does this sequence match a known family?" — is computed by multiplying each position's observed value by a position-specific weight and summing. And a **perceptron** (Day 6), the simplest kind of artificial neuron, computes its output the exact same way: a dot product between a weight vector and an input vector. When we get there, you'll already know the arithmetic *and* the geometric intuition; the only new part will be what to *do* with the result.
+Why does this one specific computation deserve a whole session's worth of attention before we've even started the course proper? Because it reappears, unchanged, in two very different-looking places later in this course. A **profile score** (Day 5) — the standard way of asking "how well does this sequence match a known family?" — is computed by multiplying each position's observed value by a position-specific weight and summing. And a **perceptron** (Day 6), the simplest kind of artificial neuron, computes its output the same way: a dot product between a weight vector and an input vector. When we get there, you'll already know the arithmetic *and* the geometric intuition; the only new part will be what to *do* with the result.
 
-### Normalization
+### Matrix multiplication
 
-Dividing a vector by its own length produces a **unit vector** — a vector pointing the same direction, but with length exactly 1:
-
-$$
-\hat{\mathbf{w}} = \frac{\mathbf{w}}{\lVert \mathbf{w} \rVert}
-$$
-
-**Worked example.** For $\mathbf{w} = (2, -1)$ from above, the length formula gives $\lVert \mathbf{w} \rVert = \sqrt{5} \approx 2.236$, so
-
-$$
-\hat{\mathbf{w}} = \left( \frac{2}{\sqrt{5}}, \frac{-1}{\sqrt{5}} \right) \approx (0.894, -0.447)
-$$
-
-Normalizing is exactly what removes the $\lVert \mathbf{w} \rVert$ factor from the geometric dot-product formula above, leaving only the angle behind. This matters in practice: two "profile" weight vectors that point in the same direction but were written down at different scales — say, one is exactly ten times the other — give wildly different raw dot products, even though they represent the same underlying match; normalizing both to unit vectors first makes their scores directly comparable. (This is exactly the surprise in this session's in-class discussion problem, if you've done it.)
-
-### Matrices
-
-A matrix is a rectangular grid of numbers — you can think of it as a table, or as a stack of vectors (its rows, or equally its columns). Matrix–vector and matrix–matrix multiplication are the dot product done many times at once: a matrix–vector product is just a batch of dot products, one per row of the matrix. For example,
+A matrix can be read as a stack of vectors (its rows, or equally its columns). Matrix–vector and matrix–matrix multiplication are the dot product done many times at once: a matrix–vector product is just a batch of dot products, one per row of the matrix. For example,
 
 $$
 \begin{pmatrix} 2 & -1 \\ 0 & 3 \end{pmatrix}
@@ -112,14 +105,7 @@ $$
 \begin{pmatrix} -2 \\ 12 \end{pmatrix}
 $$
 
-— the first entry of the result is exactly the worked-example dot product from above; the second is a new dot product between the matrix's second row and the same vector.
-
-### Shapes: matrices as data tables
-
-For everything you will do in NumPy and PyTorch, one habit matters more than any formula: **always know the shape of every matrix and vector.** A matrix with $n$ rows and $m$ columns has shape $(n, m)$, also written $n \times m$. In biology, a matrix is almost always a data table:
-
-- **Gene expression.** Measure 20,000 genes in 50 patient samples, and you have a matrix of shape $(50, 20000)$. Row $i$ is one sample's expression profile; column $j$ is one gene across all the samples.
-- **Protein features.** Describe 1,000 proteins by their amino acid composition (the fraction of each of the 20 amino acids), and you have a matrix $X$ of shape $(1000, 20)$: one row per protein, one column per feature.
+— the first entry of the result is the worked-example dot product from above; the second is a new dot product between the matrix's second row and the same vector.
 
 Now take a classifier that predicts, say, whether a protein is secreted. It has one weight per feature, so its weight vector $\mathbf{w}$ has shape $(20,)$. The product $X\mathbf{w}$ computes the dot product of every row of $X$ with $\mathbf{w}$:
 
@@ -127,7 +113,7 @@ $$
 \underbrace{X}_{(1000,\ 20)} \; \underbrace{\mathbf{w}}_{(20,)} \;=\; \underbrace{X\mathbf{w}}_{(1000,)}
 $$
 
-**One matrix–vector product gives 1,000 scores, one per protein.** No loop is needed. This is exactly how Day 6's perceptron and Day 8's classifiers are written: stack every example as a row of $X$ and compute `X @ w`.
+**One matrix–vector product gives 1,000 scores, one per protein.** No loop is needed. This is how Day 6's perceptron and Day 8's classifiers are written: stack every example as a row of $X$ and compute `X @ w`.
 
 The rule behind it: **the inner dimensions must match, and the outer ones give the shape of the result.**
 
@@ -160,7 +146,31 @@ You will meet it constantly, because it is how the shapes are made to fit:
 - **$X^\top X$** has shape $(20, 1000)(1000, 20) \rightarrow (20, 20)$: it compares every feature with every other feature, summed over all proteins. For data with the column means subtracted, $X^\top X / (n-1)$ is the **covariance matrix** of the features, the matrix PCA works on (below).
 - **Transposing a product reverses the order:** $(AB)^\top = B^\top A^\top$. Check it with shapes: $AB$ is $(n \times k)$, so its transpose must be $(k \times n)$, and only $B^\top A^\top$, $(k \times m)(m \times n)$, gives that.
 
-### Eigenvalues and eigenvectors
+### Normalization
+
+Dividing a vector by its own length produces a **unit vector** — a vector pointing the same direction, but with length exactly 1:
+
+$$
+\hat{\mathbf{w}} = \frac{\mathbf{w}}{\lVert \mathbf{w} \rVert}
+$$
+
+**Worked example.** For $\mathbf{w} = (2, -1)$ from above, the length formula gives $\lVert \mathbf{w} \rVert = \sqrt{5} \approx 2.236$, so
+
+$$
+\hat{\mathbf{w}} = \left( \frac{2}{\sqrt{5}}, \frac{-1}{\sqrt{5}} \right) \approx (0.894, -0.447)
+$$
+
+Normalizing removes the $\lVert \mathbf{w} \rVert$ factor from the geometric dot-product formula above, leaving only the angle behind. This matters in practice: two "profile" weight vectors that point in the same direction but were written down at different scales — say, one is exactly ten times the other — give wildly different raw dot products, even though they represent the same underlying match; normalizing both to unit vectors first makes their scores directly comparable. (This is the surprise in this session's in-class discussion problem, if you've done it.)
+
+The length of a matrix works the same way: treat every entry as part of one long vector, and the length formula gives the matrix's **Frobenius norm**,
+
+$$
+\lVert A \rVert_F = \sqrt{\textstyle\sum_{i,j} a_{ij}^2}
+$$
+
+a single number measuring how "big" a matrix is overall. This turns out to be useful throughout the rest of this course — for instance, for measuring how much two matrices differ (the norm of their difference), or how large a set of learned weights has grown during training.
+
+### Eigenvectors and PCA, intuitively
 
 A matrix $A$ transforms any vector it multiplies — usually changing both its length and its direction. For most matrices, though, a handful of special directions are left *unchanged in orientation* by the transformation — only stretched or shrunk. Such a vector $\mathbf{v}$ is an **eigenvector** of $A$, and the factor it's scaled by is the corresponding **eigenvalue** $\lambda$:
 
@@ -187,10 +197,6 @@ Its length equals $\lVert \mathbf{a} \rVert \, \lVert \mathbf{b} \rVert \sin\the
 
 **Practice.** Compute $(1, 2, 0) \times (0, 1, 3)$. *Answer:* $\big((2)(3)-(0)(1),\ (0)(0)-(1)(3),\ (1)(1)-(2)(0)\big) = (6, -3, 1)$.
 :::
-
-### A first look ahead: tensors
-
-Vectors and matrices are the first two members of a bigger family called **tensors**: a single number is a 0-dimensional tensor, a vector is 1-dimensional, a matrix is 2-dimensional, and a tensor can keep going to 3 dimensions (a stack of matrices) or higher still. A batch of 32 protein sequences of length 100, each position one-hot encoded over 20 amino acids, is a tensor of shape $(32, 100, 20)$. Day 2 introduces tensors properly — as the one data structure PyTorch uses for everything — and the shape rules above carry over unchanged.
 
 **Practice problems.**
 
@@ -311,9 +317,31 @@ renderQuiz("day01-quiz-1", [
 </div>
 ```
 
-## Part 2: Derivatives, the gradient, and gradient descent
+## Part 2: Calculus for machine learning
+
+### Derivatives
 
 A derivative tells you how much a function's output changes for a small change in its input — the slope of the tangent line at a point. If you've seen this before, that's the whole idea; what's worth reviewing is what happens once there's more than one input.
+
+A short table of the derivatives that come up constantly throughout this course — worth having memorized rather than re-derived every time:
+
+| $f(x)$                     | $f'(x)$                    |
+|----------------------------|----------------------------|
+| constant $c$               | $0$                        |
+| $x^n$                      | $n x^{n-1}$                |
+| $e^x$                      | $e^x$                      |
+| $\ln(x)$                   | $1/x$                      |
+| $\sin(x)$                  | $\cos(x)$                  |
+| $\cos(x)$                  | $-\sin(x)$                 |
+| $\sigma(z) = 1/(1+e^{-z})$ | $\sigma(z)\,(1-\sigma(z))$ |
+
+The last row is worth flagging specifically: it's the derivative Day 9's backpropagation needs for every sigmoid-activated unit in a network, and the reason it's usually written in terms of $\sigma(z)$ itself (rather than re-expanded in $e^{-z}$) is that, once you've already computed $\sigma(z)$ on the forward pass, its derivative costs nothing extra to get.
+
+A derivative is zero where a function is momentarily flat — at a peak, a trough, or an inflection with a horizontal tangent. $\sin(x)$ and its derivative $\cos(x)$ make this visible directly:
+
+![$f(x)=\sin(x)$ (solid) and $f'(x)=\cos(x)$ (dashed). Wherever $\sin(x)$ reaches a peak or trough (dotted vertical lines), $\cos(x)$ crosses exactly zero.](figs/day01-derivative-cheat-sheet.png){width="85%"}
+
+### Partial derivatives and the gradient
 
 A **partial derivative** of a function of several variables, written $\partial y / \partial x_i$, is computed by treating every variable except $x_i$ as a constant and differentiating as usual. If you stack all of a function's partial derivatives into a single vector, you get its **gradient**:
 
@@ -336,7 +364,9 @@ $$
 
 Geometrically, the gradient at a point tells you two things at once: the *direction* in which the function increases fastest, and (via its length) *how steeply*. Point yourself in the opposite direction, and you're headed downhill as fast as possible from where you're standing.
 
-That last sentence is the entire idea behind **gradient descent**, which Day 6 uses to train the perceptron introduced above. Given a function that measures how wrong a model's predictions are (a *loss function*), repeatedly step a small amount in the direction opposite its gradient, and the error goes down. Concretely, the update rule is
+### Gradient descent
+
+Stepping against the gradient is the whole idea behind **gradient descent**, which Day 6 uses to train the perceptron introduced above. Given a function that measures how wrong a model's predictions are (a *loss function*), repeatedly step a small amount in the direction opposite its gradient, and the error goes down. Concretely, the update rule is
 
 $$
 x_{n+1} = x_n - \eta \, f'(x_n)
@@ -352,9 +382,11 @@ where $\eta$ (eta) is a small positive **learning rate** controlling the step si
 | 2   | 2.520 | 0.23     | -0.96     | 2.808                         |
 | 3   | 2.808 | 0.037    | -0.384    | 2.923                         |
 
-Notice two things: $x_n$ is closing in on 3 (the true minimum, where $f'(x) = 0$), and the *steps themselves* shrink as it gets closer, purely because the derivative shrinks — nobody had to manually decrease $\eta$. This exact table-of-iterations idea is what you'll watch happen inside a real model's training loop, starting Day 6, except with many weights being updated at once via the gradient vector instead of one number via a single derivative.
+Notice two things: $x_n$ is closing in on 3 (the true minimum, where $f'(x) = 0$), and the *steps themselves* shrink as it gets closer, purely because the derivative shrinks — nobody had to manually decrease $\eta$. The same table of iterations is what you'll watch happen inside a real model's training loop, starting Day 6, except with many weights being updated at once via the gradient vector instead of one number via a single derivative.
 
-One more idea from calculus matters more than any other for this course: the **chain rule**. For a composite function $y = f(g(x))$, its derivative is
+### The chain rule
+
+The idea from calculus that matters most for this course is the **chain rule**. For a composite function $y = f(g(x))$, its derivative is
 
 $$
 \frac{dy}{dx} = \frac{df}{dg} \cdot \frac{dg}{dx}
@@ -362,27 +394,8 @@ $$
 
 — the derivative of a function of a function is the product of their individual derivatives. It looks unremarkable written down, but it is, quite literally, the one idea backpropagation (Day 9) is built from: a neural network's output is a function of a function of a function of its weights, and the chain rule is what lets us compute how each weight, however deeply buried, should change, by multiplying together the derivatives of every function it passes through on the way to the output.
 
-### Derivative cheat sheet
-
-A short table of the derivatives that come up constantly throughout this course — worth having memorized rather than re-derived every time:
-
-| $f(x)$                     | $f'(x)$                    |
-|----------------------------|----------------------------|
-| constant $c$               | $0$                        |
-| $x^n$                      | $n x^{n-1}$                |
-| $e^x$                      | $e^x$                      |
-| $\ln(x)$                   | $1/x$                      |
-| $\sin(x)$                  | $\cos(x)$                  |
-| $\cos(x)$                  | $-\sin(x)$                 |
-| $\sigma(z) = 1/(1+e^{-z})$ | $\sigma(z)\,(1-\sigma(z))$ |
-
-The last row is worth flagging specifically: it's the exact derivative Day 9's backpropagation needs for every sigmoid-activated unit in a network, and the reason it's usually written in terms of $\sigma(z)$ itself (rather than re-expanded in $e^{-z}$) is that, once you've already computed $\sigma(z)$ on the forward pass, its derivative costs nothing extra to get.
-
-A derivative is zero exactly where a function is momentarily flat — at a peak, a trough, or an inflection with a horizontal tangent. $\sin(x)$ and its derivative $\cos(x)$ make this visible directly:
-
-![$f(x)=\sin(x)$ (solid) and $f'(x)=\cos(x)$ (dashed). Wherever $\sin(x)$ reaches a peak or trough (dotted vertical lines), $\cos(x)$ crosses exactly zero.](figs/day01-derivative-cheat-sheet.png){width="85%"}
-
-### Integrals
+::: {.callout-note collapse="true"}
+## Optional: integrals, briefly (for AUROC on Day 8)
 
 Integration is differentiation run backwards: given a derivative, find the function it came from. Geometrically, the **definite integral** $\int_a^b f(x)\,dx$ is the area under $f$'s curve between $a$ and $b$; the **indefinite integral** $\int f(x)\,dx$ recovers a whole family of functions differing only by a constant $C$ (since a constant's own derivative is always zero, per the cheat sheet above, integration alone can never tell which constant the original function had).
 
@@ -392,16 +405,13 @@ $$
 \int 2(x-3)\,dx = (x-3)^2 + C
 $$
 
-— exactly the $f(x)$ this whole worked example started from. This is the informal **Fundamental Theorem of Calculus**: integration and differentiation are inverse operations.
+— the $f(x)$ this worked example started from. This is the informal **Fundamental Theorem of Calculus**: integration and differentiation are inverse operations.
 
-Two places this shows up later in the course, both without ever needing to solve an integral symbolically by hand: a continuous probability density (introduced in Part 3 below) is not itself a probability — it's the *area under* a stretch of it, i.e. its integral over that range, that gives an actual probability. And starting Day 8, "area under the ROC curve" (AUROC) and "area under the precision-recall curve" (AUPR) are two of this course's standard classifier-evaluation metrics — both literally integrals, computed numerically (the trapezoidal rule, summing up thin strips under a finite set of points) rather than solved in closed form, since a real ROC curve isn't a tidy algebraic function.
+Two places this shows up later in the course, both without ever needing to solve an integral symbolically by hand: a continuous probability density is not itself a probability — it's the *area under* a stretch of it, i.e. its integral over that range, that gives an actual probability. And starting Day 8, "area under the ROC curve" (AUROC) and "area under the precision-recall curve" (AUPR) are two of this course's standard classifier-evaluation metrics — both literally integrals, computed numerically (the trapezoidal rule, summing up thin strips under a finite set of points) rather than solved in closed form, since a real ROC curve isn't a tidy algebraic function.
 
 **Practice problem.** For $f(x) = 4x^3$, find $f'(x)$ using the cheat sheet above, then integrate your answer and confirm you recover (a constant multiple of) $f(x)$ itself.
 
-::: {.callout-note collapse="true"}
-## Solution
-
-$f'(x) = 12x^2$, by the power rule $\frac{d}{dx}x^n = nx^{n-1}$ with $n = 3$, times the constant factor 4: $\frac{d}{dx}(4x^3) = 4 \cdot 3x^2 = 12x^2$. Integrating back: $\int 12x^2\,dx = 4x^3 + C$ — exactly $f(x)$, up to the constant integration can never recover.
+*Solution:* $f'(x) = 12x^2$, by the power rule $\frac{d}{dx}x^n = nx^{n-1}$ with $n = 3$, times the constant factor 4: $\frac{d}{dx}(4x^3) = 4 \cdot 3x^2 = 12x^2$. Integrating back: $\int 12x^2\,dx = 4x^3 + C$, which is $f(x)$ up to the constant integration can never recover.
 :::
 
 **Practice problem.** For $f(x_0, x_1) = 3x_0^2 + 2x_0 x_1$, compute $\nabla f$ at the point $(1, 2)$.
@@ -439,13 +449,13 @@ renderQuiz("day01-quiz-2", [
     question: "Using the derivative cheat sheet, what is the derivative of &sigma;(z) = 1/(1+e&#8315;&#7611;)?",
     choices: ["&sigma;(z)(1 &minus; &sigma;(z))", "e&#8315;&#7611;", "&minus;e&#8315;&#7611;", "1/(1+e&#8315;&#7611;)&sup2;"],
     correctIndex: 0,
-    explanation: "The sigmoid's derivative is conventionally written in terms of &sigma;(z) itself -- &sigma;(z)(1-&sigma;(z)) -- exactly the form Day 9's backpropagation uses."
+    explanation: "The sigmoid's derivative is conventionally written in terms of &sigma;(z) itself -- &sigma;(z)(1-&sigma;(z)), the form Day 9's backpropagation uses."
   },
   {
     question: "If f'(x) = 2(x-3), what is &int; f'(x) dx?",
     choices: ["(x-3)&sup2; + C", "2(x-3)&sup2; + C", "x&sup2; - 3 + C", "2x - 6"],
     correctIndex: 0,
-    explanation: "Integration undoes differentiation, up to an unrecoverable additive constant -- exactly the f(x) = (x-3)&sup2; this page's own gradient-descent example started from."
+    explanation: "Integration undoes differentiation, up to an unrecoverable additive constant: the f(x) = (x-3)&sup2; this page's gradient-descent example started from."
   }
 ]);
 </script>
@@ -499,130 +509,183 @@ renderQuiz("day01-quiz-2", [
 </div>
 ```
 
-## Part 3: Probability basics
+## Part 3: Probability and statistics
 
-A **random variable** takes on different values with different probabilities — a discrete one (like a die roll) has a countable list of outcomes, each with a probability; a continuous one (like a measured concentration) has a probability *density* instead. The **expectation** of a random variable is its probability-weighted average value:
+The biostatistics course covers probability in general. This part is the
+vocabulary the rest of this course uses: a short recap, then
+**conditional probability**, **log probabilities and log-odds**,
+**likelihood**, and **p-values with multiple testing**, ending in an
+RNA-seq example.
 
-$$
-\mathbb{E}[X] = \sum_i x_i \, P(X = x_i)
-$$
+### A short recap: expectation and variance
 
-**Worked example.** For a fair six-sided die, each outcome has probability $1/6$, so
+The **expectation** of a random variable is its probability-weighted
+average, $\mathbb{E}[X] = \sum_i x_i \, P(X = x_i)$; for a fair die,
+$3.5$. **Variance**, $\text{Var}(X) = \mathbb{E}\big[(X-\mu)^2\big]$,
+measures the spread around the mean, and the **standard deviation**
+$\sigma = \sqrt{\text{Var}(X)}$ puts it back in the units of $X$ (for the
+die, $\sigma \approx 1.71$). For a normal distribution, about 95% of
+values lie within $2\sigma$ of the mean.
 
-$$
-\mathbb{E}[X] = \frac{1+2+3+4+5+6}{6} = 3.5
-$$
+### Conditional probability
 
-Note that 3.5 isn't even a possible outcome of a single roll — expectation is a long-run average, not a prediction of any one result.
-
-### Variance, standard deviation, and the normal distribution
-
-The mean alone doesn't say how *spread out* a distribution is. Two datasets can share the same mean while looking completely different — one tightly clustered, one scattered widely. **Variance** measures that spread, as the expected squared distance from the mean:
-
-$$
-\text{Var}(X) = \mathbb{E}\big[(X-\mu)^2\big]
-$$
-
-Squaring keeps positive and negative deviations from cancelling out, but it also changes the units (a variance in, say, squared micrograms is awkward to interpret). **Standard deviation** fixes that by undoing the square:
+The probability of $A$ *given* that $B$ has happened, written
+$P(A \mid B)$, restricts attention to the cases where $B$ is true:
 
 $$
-\sigma = \sqrt{\text{Var}(X)}
+P(A \mid B) = \frac{P(A \text{ and } B)}{P(B)}
 $$
 
-— back in the same units as $X$ itself, and directly comparable to the mean.
+**Worked example.** A fair die is rolled. Given that the result is
+greater than 3, what is the probability that it is even? Only 4, 5 and 6
+remain, and two of them are even, so $P(\text{even} \mid X > 3) = 2/3$,
+not the unconditional $1/2$.
 
-**Worked example.** The same fair six-sided die as above, with mean $\mu = 3.5$:
+**The direction matters.** $P(A \mid B)$ and $P(B \mid A)$ are different
+numbers. Among 200 proteins, 60 are membrane proteins, and 30 of those
+have a signal peptide; so do 20 of the 140 others. Then
+$P(\text{signal peptide} \mid \text{membrane}) = 30/60 = 0.5$, but
+$P(\text{membrane} \mid \text{signal peptide}) = 30/50 = 0.6$. Mixing the
+two up is one of the most common errors in reading statistics, and it is
+the error behind misreading p-values (below).
 
-$$
-\text{Var}(X) = \frac{(1-3.5)^2+(2-3.5)^2+(3-3.5)^2+(4-3.5)^2+(5-3.5)^2+(6-3.5)^2}{6} = \frac{35}{12} \approx 2.917
-$$
+Conditional probabilities are everywhere in this course. A profile or
+hidden Markov model (Day 5) gives the probability of a residue *given*
+the position in the family, and a classifier (Day 8) gives the
+probability of a class *given* the input.
 
-$$
-\sigma = \sqrt{35/12} \approx 1.708
-$$
+::: {.callout-note collapse="true"}
+## Optional: Bayes' rule
 
-Standard deviation is the same quantity the t-test uses further down this page: its $s_1$ and $s_2$ are exactly this, standard deviations estimated from real sample data rather than computed exactly from a known die.
-
-The single most common continuous distribution is the **normal** (Gaussian) distribution — the familiar bell curve, fully described by just its mean $\mu$ and standard deviation $\sigma$:
-
-$$
-f(x) = \frac{1}{\sigma\sqrt{2\pi}} \, e^{-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2}
-$$
-
-(notice the $e^x$ sitting inside this formula — the next section below explains exactly why exponentials show up here and almost everywhere else in this course.) A normal distribution's spread follows the **68-95-99.7 rule**: about 68% of values fall within one standard deviation of the mean, 95% within two, and 99.7% within three — worth having as a rough intuition for "how surprising is this value" without running any calculation.
-
-### Logarithms and exponential functions
-
-Two more functions are worth having solid, since they appear constantly from here on: the **exponential function** $e^x$ (where $e \approx
-2.718$) — you just saw it inside the normal distribution's own formula above — and its inverse, the **logarithm** $\log(x)$ — asking "$e$ to what power gives $x$?" Different bases are common: $\log_{10}$ and $\log_2$ (both used below, for a volcano plot's axes) are the same idea with a different base, related to the natural log by a constant factor.
-
-The property that matters most: logarithms turn multiplication into addition,
-
-$$
-\log(xy) = \log(x) + \log(y)
-$$
-
-This is exactly why substitution-matrix scores (Day 4) and profile scores (Day 5) are **sums** of per-position log-odds terms rather than products of odds ratios — adding numbers is easier to reason about (and far less prone to numerical underflow) than multiplying many small probabilities together, and the log turns one into the other without changing which alignment or match scores best.
-
-**Worked example.** $\log_{10}(0.001) = -3$, since $10^{-3} = 0.001$ — exactly why a p-value of 0.001 gives $-\log_{10}(p) = 3$ on a volcano plot's y-axis (introduced further down this page): smaller p-values (stronger evidence) become larger, more-positive bars.
-
-The exponential function shows up just as often, usually to turn an unbounded number into a positive one (since $e^x > 0$ for every $x$) or into a probability. Day 6's perceptron uses exactly this: the **sigmoid function**, $\sigma(z) = 1/(1+e^{-z})$, squashes any real-valued $z$ into the range $(0, 1)$. That alone does not make the output a probability: squashing an arbitrary score into $(0, 1)$ gives a number between 0 and 1, not a calibrated probability. The output can be interpreted as a probability when the model is built and trained for it, as in logistic regression or a binary classifier trained with the matching loss (Day 8). (Its derivative is on the cheat sheet in Part 2 above.)
-
-**Conditional probability** — the probability of one event given that another has occurred, written $P(A \mid B)$ — and **Bayes' rule**, which lets you flip a conditional probability around, are worth having solid before Day 5, where they're exactly the machinery underneath a Hidden Markov Model. Bayes' rule follows directly from the definition of conditional probability ($P(A \mid B) = P(A \cap B)/P(B)$, applied both ways round) and reads:
+Bayes' rule turns one conditional probability around into the other. It
+follows from the definition of conditional probability, applied both ways
+round:
 
 $$
 P(A \mid B) = \frac{P(B \mid A) \, P(A)}{P(B)}
 $$
 
-**Worked example** (the classic illustration of why this matters): a diagnostic test for a rare condition affecting 1% of a population is 95% accurate on people who have it ($P(\text{positive} \mid \text{disease}) =
-0.95$) and gives a false positive 5% of the time on people who don't ($P(\text{positive} \mid \text{no disease}) = 0.05$). If someone tests positive, what's the actual probability they have the condition?
+**Example.** A diagnostic test for a condition affecting 1% of a
+population detects it in 95% of people who have it,
+$P(\text{positive} \mid \text{disease}) = 0.95$, and gives a false
+positive in 5% of people who don't. If someone tests positive, what is the
+probability that they have the condition? Positives come from both groups:
+$P(\text{positive}) = (0.95)(0.01) + (0.05)(0.99) = 0.059$. So
 
 $$
-P(\text{disease} \mid \text{positive}) = \frac{P(\text{positive} \mid \text{disease}) \, P(\text{disease})}{P(\text{positive})}
+P(\text{disease} \mid \text{positive}) = \frac{(0.95)(0.01)}{0.059} \approx 0.16
 $$
 
-The denominator, $P(\text{positive})$, has to account for positives from *both* groups: $P(\text{positive}) = (0.95)(0.01) + (0.05)(0.99) =
-0.0095 + 0.0495 = 0.059$. So
+Despite a 95%-sensitive test, a positive result means only about a 16%
+chance of having the condition, because the condition is rare and false
+positives from the large healthy group outnumber the true positives. Bayes'
+rule combines a **prior** (1% have the condition) with **evidence** (the
+test). Maximum likelihood, below, uses only the likelihood and no prior.
+:::
+
+### Log probabilities and log-odds
+
+The probability of a whole sequence is a product of per-position
+probabilities, and products of many small numbers become impossibly small. A random 1,000-base sequence has
+probability $0.25^{1000} \approx 10^{-602}$ under a uniform model, far
+below the smallest number a computer can store (about $10^{-308}$); it
+rounds to zero. The **logarithm** fixes this, because it turns
+multiplication into addition:
 
 $$
-P(\text{disease} \mid \text{positive}) = \frac{(0.95)(0.01)}{0.059} \approx 0.161
+\log(xy) = \log(x) + \log(y)
 $$
 
-Despite a 95%-accurate test, a positive result only means about a 16% chance of actually having the condition — because the condition is rare, false positives from the large healthy population outnumber true positives from the small affected one. This is what Bayes' rule does: it combines a prior belief (1% of people have the condition) with evidence (a positive test). A related but different idea runs through the loss functions used from Day 6 onward. Many of them can be understood as **negative log-likelihoods**: minimizing the loss finds the model parameters under which the observed data are most probable (maximum likelihood). That uses the likelihood, $P(\text{data} \mid \text{parameters})$, but no prior, so it is not Bayes' rule itself.
+The log-probability of the sequence is a sum of 1,000 per-base terms,
+$1000 \times \log_{10}(0.25) \approx -602$: an ordinary number. (Logs to
+different bases, $\ln$, $\log_2$ and $\log_{10}$, differ only by a
+constant factor.)
+
+**Log-odds scores.** Bioinformatics usually compares two models: is this
+sequence better explained by a family model or by background
+frequencies? The **log-odds score** is the log of the ratio of the sequence's
+probabilities under the two models, and for independent positions it is a *sum* of per-position
+terms:
+
+$$
+S = \log \frac{P(\text{sequence} \mid \text{model})}{P(\text{sequence} \mid \text{background})}
+  = \sum_i \log \frac{P(x_i \mid \text{model})}{P(x_i \mid \text{background})}
+$$
+
+A positive score means the model explains the sequence better, a negative
+one that the background does. This is how substitution matrices (Day 4:
+BLOSUM entries are scaled log-odds) and profile scores (Day 5: a PSSM
+column is a list of log-odds) work, and why their scores are added along
+an alignment.
+
+**Worked example.** A GC-rich model gives G and C probability 0.35 each
+and A and T 0.15 each; the background gives every base 0.25. Per base, in
+bits ($\log_2$): G or C scores $\log_2(0.35/0.25) = +0.49$, and A or T
+scores $\log_2(0.15/0.25) = -0.74$. The sequence GCGCAT scores
+
+$$
+S = 4 \times 0.49 + 2 \times (-0.74) \approx +0.47 \text{ bits}
+$$
+
+so it is $2^{0.47} \approx 1.4$ times more likely under the GC-rich model.
+
+**Logs of p-values.** Very small p-values are also shown on a log scale:
+$-\log_{10}(p)$ turns $p = 0.001$ into 3 and $p = 10^{-6}$ into 6, the
+y-axis of the volcano plot below.
+
+**Back from log-odds to probability.** The **sigmoid function**,
+$\sigma(z) = 1/(1+e^{-z})$, undoes a (natural) log-odds: if
+$z = \ln\big(p/(1-p)\big)$, then $\sigma(z) = p$. Logistic regression
+(Day 8) models the log-odds of a class as a weighted sum of the inputs and
+uses the sigmoid to turn it into a probability. Applied to an arbitrary
+score, the sigmoid still gives a number between 0 and 1, but that is only
+a calibrated probability if the model was trained for it. (Its derivative
+is on the cheat sheet in Part 2.)
+
+### Likelihood
+
+A probability model tells you how likely data are, given the model's
+parameters: $P(\text{data} \mid \text{parameters})$. Read the other way
+round, as a function of the parameters for data you have already
+observed, the same number is called the **likelihood**:
+
+$$
+L(\text{parameters}) = P(\text{data} \mid \text{parameters})
+$$
+
+**Worked example.** A 10-base DNA fragment contains 7 G or C and 3 A or
+T. Model each base as independently G/C with probability $p$. Because the
+bases are independent, the probability of the whole fragment is the
+product of the per-base probabilities:
+
+$$
+L(p) = p^7 (1-p)^3
+$$
+
+For $p = 0.5$, $L = 0.5^{10} \approx 0.00098$. For $p = 0.7$,
+$L = 0.7^7 \times 0.3^3 \approx 0.0022$, about 2.3 times higher: the data
+are better explained by a GC-rich model. No value of $p$ does better than
+0.7, the observed fraction. Choosing the parameters that make the observed
+data most probable is **maximum likelihood**, and it is how most models
+in this course are trained. Because a likelihood is a product, it is computed as a sum of logs (the
+**log-likelihood**, previous section), and the loss functions of Day 6
+onwards are **negative log-likelihoods**: minimizing the loss maximizes
+the likelihood.
 
 ### p-values and hypothesis testing
 
 Statistical testing starts from a **null hypothesis** ($H_0$) — the assumption that there's no real effect, and any difference you observe is just chance. A **p-value** is the probability of seeing a result at least as extreme as what you actually observed, *if the null hypothesis were true*. By convention, $p < 0.05$ is often treated as "statistically significant," but that threshold is a convention, not a law of nature. What the threshold guarantees is this: if the null hypothesis is true and the assumptions of the test hold, a test using a significance threshold of 0.05 has a 5% probability of rejecting the null hypothesis.
 
-This is a genuinely easy idea to misread, and worth contrasting directly with the disease-test example above: a p-value is $P(\text{data this
-extreme} \mid H_0)$, *not* $P(H_0 \mid \text{data})$ — exactly the same kind of "backwards" conditional-probability confusion. A small p-value tells you the data would be surprising if there were truly no effect; it does not, by itself, tell you the probability that there's no effect.
+A p-value is a conditional probability, $P(\text{data this extreme} \mid H_0)$, *not* $P(H_0 \mid \text{data})$. This is the direction error from the conditional-probability section. A small p-value tells you the data would be surprising if there were truly no effect; it does not, by itself, tell you the probability that there's no effect.
 
-### Comparing two group means: the t-test
-
-The biostatistics course covers this in depth, so here is only a reminder.
-A classical test for comparing two group means is the **t-test**; Welch's
-version is usually preferred when equal variances cannot be assumed, and
-it is a safer default for most biological data. Welch's t-statistic is
-
-$$
-t = \frac{\bar{x}_1 - \bar{x}_2}{\sqrt{s_1^2/n_1 + s_2^2/n_2}}
-$$
-
-where $\bar{x}_1, \bar{x}_2$ are the two sample means, $s_1, s_2$ their
-sample standard deviations and $n_1, n_2$ their sample sizes. (Student's
-original version pools $s_1$ and $s_2$ into one standard deviation, which
-assumes the two groups are equally variable.) Larger differences between
-the means, or less noisy data, push $|t|$ up, and a bigger $|t|$ gives a
-smaller p-value.
-
-**Worked example.** Four expression measurements in a control condition, $(5.1, 4.9, 5.3, 5.0)$, and four in a treatment condition, $(7.2, 6.8,
-7.5, 7.0)$:
-
-$$
-\bar{x}_{\text{control}} = 5.075, \qquad \bar{x}_{\text{treatment}} = 7.125, \qquad t \approx -11.9, \qquad p \approx 0.0001
-$$
-
-With means this far apart relative to how little the four replicates in each group vary, the difference is extremely unlikely to be chance — matching the tiny p-value.
+**The t-test, briefly.** The biostatistics course covers it in depth. A
+classical test for comparing two group means is the t-test; Welch's
+version, $t = (\bar{x}_1 - \bar{x}_2)/\sqrt{s_1^2/n_1 + s_2^2/n_2}$, is
+usually preferred when equal variances cannot be assumed. A larger
+difference between the means, or less noisy data, gives a larger $|t|$
+and a smaller p-value. Four control measurements $(5.1, 4.9, 5.3, 5.0)$
+against four treatment measurements $(7.2, 6.8, 7.5, 7.0)$ give
+$t \approx -11.9$ and $p \approx 0.0001$.
 
 ### The multiple testing problem
 
@@ -632,7 +695,7 @@ The fix is a **multiple testing correction**. Bonferroni's is the simplest — d
 
 ### Worked example: RNA-seq differential expression and the volcano plot
 
-Put all three ideas together on a realistic-shaped problem: comparing gene expression between a treatment and a control condition across 2000 genes, of which 50 are simulated to be genuinely differentially expressed and the rest are pure noise. For each gene, a t-test gives a p-value, and the **fold change** — how many-fold higher or lower its expression is in treatment vs. control, usually reported as $\log_2$ of that ratio — measures the size of the effect, independently of its statistical significance.
+Put these ideas together on a realistic-shaped problem: comparing gene expression between a treatment and a control condition across 2000 genes, of which 50 are simulated to be genuinely differentially expressed and the rest are pure noise. For each gene, a t-test gives a p-value, and the **fold change** — how many-fold higher or lower its expression is in treatment vs. control, usually reported as $\log_2$ of that ratio — measures the size of the effect, independently of its statistical significance.
 
 A **volcano plot** shows both at once: $\log_2$ fold change on the x-axis, $-\log_{10}(p\text{-value})$ on the y-axis (so smaller p-values — stronger evidence — plot higher up). Genes that are both far from the centre (a big effect) and high up (strong evidence) are the interesting ones — the shape that gives the plot its name:
 
@@ -642,20 +705,20 @@ Applying just the naive $p<0.05$ threshold to this simulated data (Welch's t-tes
 
 **Practice problems.**
 
-1.  A fair six-sided die is rolled once. What is $P(\text{even} \mid X >
-    3)$ — the probability of an even result, given that the result exceeds 3?
-2.  If you test 100 genes with no real difference at $p<0.05$ and apply no correction, about how many false positives should you expect by chance alone?
-3.  A gene has a p-value of $10^{-6}$. What is its height on a volcano plot's y-axis, $-\log_{10}(p)$?
-4.  A random variable takes value 2 with probability 0.5 and value 6 with probability 0.5. Compute its mean, variance, and standard deviation.
+1.  Among 200 proteins, 60 are membrane proteins and 30 of those have a signal peptide; 20 of the other 140 have one too. What are $P(\text{membrane} \mid \text{signal peptide})$ and $P(\text{signal peptide} \mid \text{not membrane})$?
+2.  A 4-base fragment has 3 G/C and 1 A/T. Compute its likelihood under $p_{GC} = 0.5$ and under $p_{GC} = 0.75$. Which explains it better?
+3.  With the GC-rich model of the worked example, what is the log-odds score of the sequence AT, in bits? Which model does it favour?
+4.  If you test 100 genes with no real difference at $p<0.05$ and apply no correction, about how many false positives should you expect by chance alone?
+5.  A gene has a p-value of $10^{-6}$. What is its height on a volcano plot's y-axis, $-\log_{10}(p)$?
 
 ::: {.callout-note collapse="true"}
 ## Solutions
 
-1.  $X > 3$ means the outcome is 4, 5, or 6 — three equally likely outcomes. Of those, 4 and 6 are even: two out of three. So $P(\text{even} \mid X > 3) = 2/3$.
-2.  $100 \times 0.05 = 5$ false positives expected, even though every one of the 100 genes is truly non-differentially-expressed.
-3.  $-\log_{10}(10^{-6}) = 6$.
-4.  $\mu = 0.5(2) + 0.5(6) = 4$. $\text{Var}(X) = 0.5(2-4)^2 + 0.5(6-4)^2
-    = 0.5(4) + 0.5(4) = 4$. $\sigma = \sqrt{4} = 2$.
+1.  50 proteins have a signal peptide, 30 of them membrane proteins: $P(\text{membrane} \mid \text{signal peptide}) = 30/50 = 0.6$. $P(\text{signal peptide} \mid \text{not membrane}) = 20/140 \approx 0.14$.
+2.  $L(0.5) = 0.5^4 = 0.0625$; $L(0.75) = 0.75^3 \times 0.25 \approx 0.105$. The GC-rich value, $p = 0.75$ (the observed fraction), explains it better.
+3.  $2 \times \log_2(0.15/0.25) = 2 \times (-0.74) \approx -1.47$ bits: negative, so the background model explains AT better.
+4.  $100 \times 0.05 = 5$ false positives expected, even though every one of the 100 genes is truly non-differentially-expressed.
+5.  $-\log_{10}(10^{-6}) = 6$.
 :::
 
 **Check your understanding:**
@@ -665,10 +728,38 @@ Applying just the naive $p<0.05$ threshold to this simulated data (Welch's t-tes
 <script>
 renderQuiz("day01-quiz-3", [
   {
-    question: "A diagnostic test for a disease affecting 2% of a population is 90% accurate on people who have it, and gives a false positive 10% of the time on people who don't. If someone tests positive, is the probability they actually have the disease closest to 90%, 68%, 15%, or 2%?",
-    choices: ["90%", "68%", "15%", "2%"],
-    correctIndex: 2,
-    explanation: "P(positive) = 0.9×0.02 + 0.10×0.98 = 0.116; P(disease|positive) = 0.018/0.116 &asymp; 15%."
+    question: "Among 200 proteins, 60 are membrane proteins, and 30 of those have a signal peptide. Which of these is P(signal peptide | membrane)?",
+    choices: ["30/60 = 0.5", "30/200 = 0.15", "60/200 = 0.3", "30/50 = 0.6"],
+    correctIndex: 0,
+    explanation: "Condition on the membrane proteins: 30 of the 60 have a signal peptide. 30/50 would be the reverse, P(membrane | signal peptide), if 50 proteins in total had one."
+  },
+  {
+    question: "A fragment has 7 G/C out of 10 bases. Which G/C probability p gives it the highest likelihood p^7 (1-p)^3?",
+    choices: ["0.7", "0.5", "1.0", "0.3"],
+    correctIndex: 0,
+    explanation: "The maximum-likelihood estimate is the observed fraction, 7/10."
+  },
+  {
+    question: "Why are likelihoods of long sequences computed as sums of log-probabilities rather than products of probabilities?",
+    choices: [
+      "A product of hundreds of small probabilities rounds to zero on a computer; the sum of their logs is an ordinary number",
+      "Logarithms make probabilities larger than 1",
+      "Sums are more biologically meaningful than products",
+      "Products cannot be computed for DNA"
+    ],
+    correctIndex: 0,
+    explanation: "log(xy) = log(x) + log(y), so the sum of logs carries the same information without underflow."
+  },
+  {
+    question: "A sequence has a log-odds score of -2 bits against background. What does that mean?",
+    choices: [
+      "It is 4 times more likely under the background model than under the family model",
+      "It is 2 times more likely under the family model",
+      "It is certainly not a family member",
+      "The score is invalid, because scores cannot be negative"
+    ],
+    correctIndex: 0,
+    explanation: "A negative log-odds favours the background; 2 bits is a factor of 2^2 = 4."
   },
   {
     question: "What does a p-value actually represent?",
@@ -699,44 +790,26 @@ renderQuiz("day01-quiz-3", [
     explanation: "Being far out on the x-axis alone can just mean noisy data with few replicates; being high on the y-axis alone can mean a tiny, unimportant effect measured very precisely. The interesting genes are both."
   },
   {
-    question: "Why is Benjamini-Hochberg FDR correction usually preferred over Bonferroni correction when testing thousands of genes at once?",
+    question: "Why is controlling the false discovery rate (for example with the Benjamini-Hochberg procedure) usually preferred over Bonferroni correction when testing thousands of genes at once?",
     choices: [
-      "FDR controls the expected proportion of false discoveries rather than the chance of any single false positive, giving more power to detect real effects among many tests",
-      "FDR ignores the multiple-testing problem entirely, which is simpler",
+      "It controls the expected proportion of false discoveries rather than the chance of any single false positive, giving more power to detect real effects among many tests",
+      "It ignores the multiple-testing problem entirely, which is simpler",
       "Bonferroni correction only works for continuous-valued data",
-      "FDR requires testing fewer genes than Bonferroni does"
+      "It requires testing fewer genes than Bonferroni does"
     ],
     correctIndex: 0,
-    explanation: "Bonferroni's stricter guarantee (controlling any false positive at all) becomes extremely conservative at genome-scale; FDR's weaker, more useful guarantee stays informative with thousands of tests."
+    explanation: "Bonferroni's stricter guarantee (controlling any false positive at all) becomes extremely conservative at genome-scale; FDR control stays informative with thousands of tests."
   },
   {
-    question: "What is log&#8321;&#8320;(0.0001)?",
-    choices: ["-4", "4", "0.0001", "-0.0001"],
-    correctIndex: 0,
-    explanation: "10&#8315;&#8308; = 0.0001, so log&#8321;&#8320;(0.0001) = -4."
-  },
-  {
-    question: "Why are substitution-matrix and profile scores computed as SUMS of log-odds terms rather than PRODUCTS of odds ratios?",
+    question: "Logistic regression computes a weighted sum z of the inputs. What does the sigmoid σ(z) = 1/(1+e&#8315;&#7611;) do with it?",
     choices: [
-      "Because log(xy) = log(x) + log(y), so summing logs is equivalent to multiplying the underlying probabilities, while avoiding numerical underflow",
-      "Because sums are always more biologically meaningful than products",
-      "Because logarithms make small probabilities larger",
-      "Because addition is only possible for positive numbers"
+      "It treats z as a log-odds and turns it into a probability between 0 and 1",
+      "It takes the logarithm of z",
+      "It makes z an integer",
+      "It computes a p-value"
     ],
     correctIndex: 0,
-    explanation: "Multiplying many small probabilities together quickly underflows to zero; taking logs turns that product into a sum, which is numerically stable and picks out the same best-scoring alignment or match."
-  },
-  {
-    question: "What range of values does the sigmoid function &sigma;(z) = 1/(1+e&#8315;&#7611;) always produce, no matter what z is?",
-    choices: ["(0, 1)", "(-1, 1)", "(0, &infin;)", "Any real number"],
-    correctIndex: 0,
-    explanation: "The sigmoid squashes any real-valued input into the open interval (0, 1). That makes it suitable as the output of a model trained to predict probabilities, such as logistic regression, but squashing an arbitrary score does not by itself make it a calibrated probability."
-  },
-  {
-    question: "For a normal distribution with mean &mu; and standard deviation &sigma;, roughly what fraction of values fall within 2&sigma; of the mean?",
-    choices: ["68%", "95%", "99.7%", "50%"],
-    correctIndex: 1,
-    explanation: "The 68-95-99.7 rule: about 95% of a normal distribution's values fall within two standard deviations of the mean."
+    explanation: "If z = ln(p/(1-p)), then σ(z) = p. The output is a calibrated probability only if the model was trained for it."
   }
 ]);
 </script>
@@ -744,45 +817,14 @@ renderQuiz("day01-quiz-3", [
 
 ### Further reading
 
-- Wikipedia, [Bayes' theorem](https://en.wikipedia.org/wiki/Bayes%27_theorem) — more worked examples and the different interpretations of probability behind it
-- Wikipedia, [P-value](https://en.wikipedia.org/wiki/P-value), [Student's t-test](https://en.wikipedia.org/wiki/Student%27s_t-test) and [Welch's t-test](https://en.wikipedia.org/wiki/Welch%27s_t-test)
+- Wikipedia, [Conditional probability](https://en.wikipedia.org/wiki/Conditional_probability) and [Likelihood function](https://en.wikipedia.org/wiki/Likelihood_function)
+- Wikipedia, [Logarithm](https://en.wikipedia.org/wiki/Logarithm), [Log probability](https://en.wikipedia.org/wiki/Log_probability) and [Sigmoid function](https://en.wikipedia.org/wiki/Sigmoid_function)
+- Wikipedia, [P-value](https://en.wikipedia.org/wiki/P-value) and [Welch's t-test](https://en.wikipedia.org/wiki/Welch%27s_t-test)
 - Wikipedia, [Multiple comparisons problem](https://en.wikipedia.org/wiki/Multiple_comparisons_problem), [False discovery rate](https://en.wikipedia.org/wiki/False_discovery_rate), and [Volcano plot (statistics)](https://en.wikipedia.org/wiki/Volcano_plot_(statistics))
-- Wikipedia, [Exponential function](https://en.wikipedia.org/wiki/Exponential_function), [Logarithm](https://en.wikipedia.org/wiki/Logarithm), and [Sigmoid function](https://en.wikipedia.org/wiki/Sigmoid_function)
+- Wikipedia, [Bayes' theorem](https://en.wikipedia.org/wiki/Bayes%27_theorem) (optional)
 - d2l.ai, [Probability and Statistics](https://d2l.ai/chapter_preliminaries/probability.html) — connects this directly to how machine-learning models are evaluated
 
 ### Further watching
-
-[*But what is the Central Limit Theorem?*](https://www.youtube.com/watch?v=zeJD6dqJ5lo) (3Blue1Brown) — why sums/averages of many random variables tend toward a normal distribution regardless of the shape of the individual variables, directly extending the variance/normal-distribution section above:
-
-```{=html}
-<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
-<iframe src="https://www.youtube.com/embed/zeJD6dqJ5lo" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="But what is the Central Limit Theorem?, 3Blue1Brown"></iframe>
-</div>
-```
-
-[*Binomial distributions \| Probabilities of probabilities, part 1*](https://www.youtube.com/watch?v=8idr1WZ1A7Q) (3Blue1Brown) — the natural extension of this page's die-roll example: repeating a yes/no trial many times and counting successes:
-
-```{=html}
-<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
-<iframe src="https://www.youtube.com/embed/8idr1WZ1A7Q" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="Binomial distributions, Probabilities of probabilities part 1, 3Blue1Brown"></iframe>
-</div>
-```
-
-[*Why "probability of 0" does not mean "impossible" \| Probabilities of probabilities, part 2*](https://www.youtube.com/watch?v=ZA4JkHKZM50) (3Blue1Brown) — the same series' follow-up, on continuous distributions (like the normal distribution above), where any single exact value has probability zero without being impossible:
-
-```{=html}
-<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
-<iframe src="https://www.youtube.com/embed/ZA4JkHKZM50" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="Why probability of 0 does not mean impossible, Probabilities of probabilities part 2, 3Blue1Brown"></iframe>
-</div>
-```
-
-[*Bayes theorem, the geometry of changing beliefs*](https://www.youtube.com/watch?v=HZGCoVF3YvM) (3Blue1Brown):
-
-```{=html}
-<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
-<iframe src="https://www.youtube.com/embed/HZGCoVF3YvM" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="Bayes theorem, the geometry of changing beliefs, 3Blue1Brown"></iframe>
-</div>
-```
 
 [*What Is A P-Value? - Clearly Explained*](https://www.youtube.com/watch?v=ukcFrzt6cHk) (Steven Bradburn):
 
@@ -800,9 +842,15 @@ renderQuiz("day01-quiz-3", [
 </div>
 ```
 
+**Optional extras** (3Blue1Brown), for the Bayes box and the recap:
+[*Bayes theorem, the geometry of changing beliefs*](https://www.youtube.com/watch?v=HZGCoVF3YvM),
+[*But what is the Central Limit Theorem?*](https://www.youtube.com/watch?v=zeJD6dqJ5lo),
+[*Binomial distributions*](https://www.youtube.com/watch?v=8idr1WZ1A7Q) and
+[*Why "probability of 0" does not mean "impossible"*](https://www.youtube.com/watch?v=ZA4JkHKZM50).
+
 ## The notebook
 
-`notebooks/day01-math-in-code.ipynb` recomputes every worked example and practice problem above in code — vector length and the Frobenius norm, the dot product and normalization, matrix shapes and the transpose (1,000 proteins × 20 features), eigenvalues found by the computer, the optional cross product, the gradient (checked two ways: by hand and via automatic differentiation), the die-roll probabilities (checked two ways: exactly, and by simulating a few hundred thousand rolls), the t-test worked example, the full simulated RNA-seq/volcano-plot analysis (reproducing the figure above from scratch), and logarithms/the sigmoid function — so you can confirm code and math agree before Day 2 introduces the code side properly. The version below is a static, read-only copy; open it in [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day01-math-in-code.ipynb) via the badge at the top of the notebook page to edit and run it yourself.
+`notebooks/day01-math-in-code.ipynb` recomputes every worked example and practice problem above in code — vector length, the dot product, matrix shapes and the transpose (1,000 proteins × 20 features), normalization, eigenvalues found by the computer and the optional cross product; the gradient (by hand and via automatic differentiation) and gradient descent; conditional probability (exactly and by simulation), log-odds scores, the GC likelihood, the t-test, and the simulated RNA-seq/volcano-plot analysis — so you can confirm code and math agree before Day 2 introduces the code side properly. The version below is a static, read-only copy; open it in [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day01-math-in-code.ipynb) via the badge at the top of the notebook page to edit and run it yourself.
 
 ## What's next
 
