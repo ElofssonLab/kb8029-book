@@ -4,15 +4,15 @@
 
 # Day 1: Math Prerequisites
 
-This is not "all the mathematics you might need". It is the mathematical vocabulary we will use during the next 11 days, worked through with real numbers, with a pointer to where each idea shows up later. There's no coding today; that's Day 2, though the notebook linked at the bottom lets you check today's answers in code.
+This is not "all the mathematics you might need". It is the mathematical vocabulary we will use in this course, worked through with real numbers. We try to include pointers to where each idea shows up later. There's no coding today; that's Day 2, though the notebook linked at the bottom lets you check today's answers in code, but if you have not gotten the ssh connection to our server working through VS code, talk to us after the lecture.
 
-The session is in three parts:
+The session focuses on three parts:
 
-1. **Vectors and matrices:** vectors, dimensions and shapes, the dot product, matrix multiplication (and the transpose), normalization, and an intuitive look at eigenvectors and PCA.
-2. **Calculus for machine learning:** derivatives, partial derivatives, the gradient, gradient descent and the chain rule.
-3. **Probability and statistics:** a short recap, conditional probability, logs and log-odds, likelihood, p-values and multiple testing, and an RNA-seq example.
+1.  **Vectors and matrices:** vectors, dimensions and shapes, the dot product, matrix multiplication (and the transpose), normalization, and an intuitive look at eigenvectors and PCA.
+2.  **Calculus for machine learning:** derivatives, partial derivatives, the gradient, gradient descent and the chain rule.
+3.  **Probability and statistics:** a short recap, conditional probability, logs and log-odds, likelihood, p-values and multiple testing, and an RNA-seq example.
 
-Each part ends with practice problems, a quick self-check and a short video.
+Each part ends with practice problems, a quick self-check and a short video (not done by us).
 
 ## Learning goals
 
@@ -20,7 +20,7 @@ By the end of this session you should:
 
 - work comfortably with vectors, matrices, dot products and dimensions;
 - understand derivatives, gradients and why gradient descent works;
-- understand conditional probability and likelihood;
+- understand conditional probability and how $P(A \mid B)$ differs from $P(B \mid A)$
 - understand logs, likelihood and why bioinformatics uses log-scores;
 - understand p-values and why multiple testing requires FDR control.
 
@@ -36,9 +36,7 @@ He's not wrong: that's the geometric picture of a vector this session builds on.
 
 ### Vectors
 
-A vector is just an ordered list of numbers. You already know how to add two vectors (add corresponding entries) and how to scale one (multiply every entry by the same number).
-
-For a single number, $|x|$ measures its distance from zero — how big it is, ignoring sign. Vectors and matrices generalize this the same way they generalize everything else in this session.
+A vector is just an ordered list of numbers. You already know how to add two vectors (add corresponding entries) and how to scale one (multiply every entry by the same number). For a single number, $|x|$ measures its distance from zero — how big it is, ignoring sign. Vectors and matrices generalize this the same way they generalize everything else in this session.
 
 For a vector, the natural generalization is its **length** (also called its **norm**), written $\lVert \mathbf{v} \rVert$: a direct extension of the Pythagorean theorem to more than two dimensions,
 
@@ -52,11 +50,13 @@ $$
 \lVert \mathbf{v} \rVert = \sqrt{3^2 + 4^2} = \sqrt{25} = 5
 $$
 
-— literally the hypotenuse of a 3-4-5 right triangle.
+![5 is literally the hypotenuse of a 3-4-5 right triangle.](figs/day01-triangle.png){width="10%"}
+
+—
 
 ### Dimensions and shapes
 
-The number of entries in a vector is its **dimension**: $(3, 4)$ is 2-dimensional, and the 20-number amino acid composition of a protein is a 20-dimensional vector. A matrix is a rectangular grid of numbers, and its **shape** is its number of rows and columns: a matrix with $n$ rows and $m$ columns has shape $(n, m)$, also written $n \times m$. For everything you will do in NumPy and PyTorch, one habit matters more than any formula: **always know the shape of every matrix and vector.** In biology, a matrix is almost always a data table:
+The number of entries in a vector is its **dimension**: $(3, 4)$ is 2-dimensional, and the 20-number amino acid composition of a protein is a 20-dimensional vector. A matrix is a rectangular grid of numbers, and its **shape** is its number of rows and columns: a matrix with $n$ rows and $m$ columns has shape $(n, m)$, also written $n \times m$. For everything you will do in NumPy and PyTorch, one habit matters more than any formula: **always know the shape of every matrix and vector.** In most of biology, a matrix is almost always a data table:
 
 - **Gene expression.** Measure 20,000 genes in 50 patient samples, and you have a matrix of shape $(50, 20000)$. Row $i$ is one sample's expression profile; column $j$ is one gene across all the samples.
 - **Protein features.** Describe 1,000 proteins by their amino acid composition (the fraction of each of the 20 amino acids), and you have a matrix $X$ of shape $(1000, 20)$: one row per protein, one column per feature.
@@ -65,13 +65,13 @@ Vectors and matrices are the first two members of a bigger family called **tenso
 
 ### The dot product
 
-The operation that matters most is the **dot product**:
+Once you have vectors, matrics and tensors, you need to to calculations (or **operations**) using them. The first operation that we will discuss is the **dot product**:
 
 $$
 \mathbf{w} \cdot \mathbf{x} = w_1 x_1 + w_2 x_2 + \dots + w_n x_n
 $$
 
-This is nothing more than "multiply corresponding entries, then add everything up" — but it's worth naming because it shows up constantly. It's a **weighted sum**: each $x_i$ contributes to the total in proportion to its own weight $w_i$.
+The dot product is nothing more than "multiply corresponding entries, then add everything up" — but it's worth naming because it shows up constantly. It's a **weighted sum**: each $x_i$ contributes to the total in proportion to its own weight $w_i$.
 
 **Worked example.** For $\mathbf{w} = (2, -1)$ and $\mathbf{x} = (1, 4)$:
 
@@ -113,7 +113,7 @@ $$
 \underbrace{X}_{(1000,\ 20)} \; \underbrace{\mathbf{w}}_{(20,)} \;=\; \underbrace{X\mathbf{w}}_{(1000,)}
 $$
 
-**One matrix–vector product gives 1,000 scores, one per protein.** No loop is needed. This is how Day 6's perceptron and Day 8's classifiers are written: stack every example as a row of $X$ and compute `X @ w`.
+**One matrix–vector product gives 1,000 scores, one per protein.** No loop is needed. This is how Day 6's perceptron and Day 8's classifiers are written: stack every example as a row of $X$ and compute $X\mathbf{w}$.
 
 The rule behind it: **the inner dimensions must match, and the outer ones give the shape of the result.**
 
@@ -122,7 +122,7 @@ $$
 $$
 
 - Three classes instead of one (say secreted, nuclear or cytoplasmic, as on Day 8): the weights become a matrix $W$ of shape $(20, 3)$, and $XW$ has shape $(1000, 3)$, three scores per protein.
-- A weight vector of the wrong length, say 21, cannot be multiplied: $(1000 \times 20)(21)$ has mismatched inner dimensions. PyTorch stops with `size mismatch, got input (1000), mat (1000x20), vec (21)`, and NumPy with a similar complaint about mismatched dimensions. This is the most common error in this course's code, and reading the shapes is how you fix it.
+- A weight vector of the wrong length, say 21, cannot be multiplied: $(1000 \times 20)(21)$ has mismatched inner dimensions. PyTorch stops and gives this error message: `size mismatch, got input (1000), mat (1000x20), vec (21)`, and NumPy with a similar complaint about mismatched dimensions. This is the most common error in this course's code, and reading the shapes is how you fix it.
 
 **Worked example.** Three proteins, two features each (say, the fraction of hydrophobic residues and of charged residues), and a weight vector $\mathbf{w} = (2, -1)$:
 
@@ -143,7 +143,7 @@ $$
 You will meet it constantly, because it is how the shapes are made to fit:
 
 - **The dot product** is often written $\mathbf{w}^\top \mathbf{x}$: a row vector times a column vector, $(1 \times m)(m \times 1) \rightarrow (1 \times 1)$, a single number.
-- **$X^\top X$** has shape $(20, 1000)(1000, 20) \rightarrow (20, 20)$: it compares every feature with every other feature, summed over all proteins. For data with the column means subtracted, $X^\top X / (n-1)$ is the **covariance matrix** of the features, the matrix PCA works on (below).
+- $X^\top X$ has shape $(20, 1000)(1000, 20) \rightarrow (20, 20)$: it compares every feature with every other feature, summed over all proteins. For data with the column means subtracted, $X^\top X / (n-1)$ is the **covariance matrix** of the features, the matrix PCA works on (below).
 - **Transposing a product reverses the order:** $(AB)^\top = B^\top A^\top$. Check it with shapes: $AB$ is $(n \times k)$, so its transpose must be $(k \times n)$, and only $B^\top A^\top$, $(k \times m)(m \times n)$, gives that.
 
 ### Normalization
@@ -160,7 +160,7 @@ $$
 \hat{\mathbf{w}} = \left( \frac{2}{\sqrt{5}}, \frac{-1}{\sqrt{5}} \right) \approx (0.894, -0.447)
 $$
 
-Normalizing removes the $\lVert \mathbf{w} \rVert$ factor from the geometric dot-product formula above, leaving only the angle behind. This matters in practice: two "profile" weight vectors that point in the same direction but were written down at different scales — say, one is exactly ten times the other — give wildly different raw dot products, even though they represent the same underlying match; normalizing both to unit vectors first makes their scores directly comparable. (This is the surprise in this session's in-class discussion problem, if you've done it.)
+Normalizing removes the $\lVert \mathbf{w} \rVert$ factor from the geometric dot-product formula above, leaving only the angle behind. The dot product of two **unit vectors** is therefore their **cosine similarity**; a common way of comparing feature or embedding vectors when direction matters more than magnitude., an important feature of most modern machine learning algorithms. Normalization matters in practice: two vectors that point in the same direction but were written down at different scales — say, one is exactly ten times the other — give wildly different raw dot products, even though they represent the same underlying match; normalizing both to unit vectors first makes their scores directly comparable. (This is the surprise in this session's in-class discussion problem, if you've done it.)
 
 The length of a matrix works the same way: treat every entry as part of one long vector, and the length formula gives the matrix's **Frobenius norm**,
 
@@ -193,7 +193,7 @@ $$
 
 For example, $(2, -1, 3) \times (1, 4, 0) = \big((-1)(0) - (3)(4),\ (3)(1) - (2)(0),\ (2)(4) - (-1)(1)\big) = (-12,\ 3,\ 9)$.
 
-Its length equals $\lVert \mathbf{a} \rVert \, \lVert \mathbf{b} \rVert \sin\theta$ — the *sine*, where the dot product uses *cosine* — so it is largest when the two vectors are perpendicular and zero when they're parallel. It exists only in three dimensions. In structural biology it gives the direction perpendicular to a plane, such as the plane of three backbone atoms. This is how AlphaFold2 (Day 12) builds a local coordinate frame for every residue from its N, Cα and C atoms.
+Its length equals $\lVert \mathbf{a} \rVert \, \lVert \mathbf{b} \rVert \sin\theta$ — the *sine*, where the dot product uses *cosine* — so it is largest when the two vectors are perpendicular and zero when they're parallel. It exists only in three dimensions. In structural biology it gives the direction perpendicular to a plane, such as the plane of three backbone atoms. This is often used when transforming and rotating protein structures (Day 7 and 12).
 
 **Practice.** Compute $(1, 2, 0) \times (0, 1, 3)$. *Answer:* $\big((2)(3)-(0)(1),\ (0)(0)-(1)(3),\ (1)(1)-(2)(0)\big) = (6, -3, 1)$.
 :::
@@ -511,117 +511,64 @@ renderQuiz("day01-quiz-2", [
 
 ## Part 3: Probability and statistics
 
-The biostatistics course covers probability in general. This part is the
-vocabulary the rest of this course uses: a short recap, then
-**conditional probability**, **log probabilities and log-odds**,
-**likelihood**, and **p-values with multiple testing**, ending in an
-RNA-seq example.
+The biostatistics course covers probability in general. This part is the vocabulary the rest of this course uses: a short recap, then **conditional probability**, **log probabilities and log-odds**, **likelihood**, and **p-values with multiple testing**, ending in an RNA-seq example.
 
 ### A short recap: expectation and variance
 
-The **expectation** of a random variable is its probability-weighted
-average, $\mathbb{E}[X] = \sum_i x_i \, P(X = x_i)$; for a fair die,
-$3.5$. **Variance**, $\text{Var}(X) = \mathbb{E}\big[(X-\mu)^2\big]$,
-measures the spread around the mean, and the **standard deviation**
-$\sigma = \sqrt{\text{Var}(X)}$ puts it back in the units of $X$ (for the
-die, $\sigma \approx 1.71$). For a normal distribution, about 95% of
-values lie within $2\sigma$ of the mean.
+The **expectation** of a random variable is its probability-weighted average, $\mathbb{E}[X] = \sum_i x_i \, P(X = x_i)$; for a fair die, $3.5$. **Variance**, $\text{Var}(X) = \mathbb{E}\big[(X-\mu)^2\big]$, measures the spread around the mean, and the **standard deviation** $\sigma = \sqrt{\text{Var}(X)}$ puts it back in the units of $X$ (for the die, $\sigma \approx 1.71$). For a normal distribution, about 95% of values lie within $2\sigma$ of the mean.
 
 ### Conditional probability
 
-The probability of $A$ *given* that $B$ has happened, written
-$P(A \mid B)$, restricts attention to the cases where $B$ is true:
+The probability of $A$ *given* that $B$ has happened, written $P(A \mid B)$, restricts attention to the cases where $B$ is true:
 
 $$
 P(A \mid B) = \frac{P(A \text{ and } B)}{P(B)}
 $$
 
-**Worked example.** A fair die is rolled. Given that the result is
-greater than 3, what is the probability that it is even? Only 4, 5 and 6
-remain, and two of them are even, so $P(\text{even} \mid X > 3) = 2/3$,
-not the unconditional $1/2$.
+**Worked example.** A fair die is rolled. Given that the result is greater than 3, what is the probability that it is even? Only 4, 5 and 6 remain, and two of them are even, so $P(\text{even} \mid X > 3) = 2/3$, not the unconditional $1/2$.
 
-**The direction matters.** $P(A \mid B)$ and $P(B \mid A)$ are different
-numbers. Among 200 proteins, 60 are membrane proteins, and 30 of those
-have a signal peptide; so do 20 of the 140 others. Then
-$P(\text{signal peptide} \mid \text{membrane}) = 30/60 = 0.5$, but
-$P(\text{membrane} \mid \text{signal peptide}) = 30/50 = 0.6$. Mixing the
-two up is one of the most common errors in reading statistics, and it is
-the error behind misreading p-values (below).
+**The direction matters.** $P(A \mid B)$ and $P(B \mid A)$ are different numbers. Among 200 proteins, 60 are membrane proteins, and 30 of those have a signal peptide; so do 20 of the 140 others. Then $P(\text{signal peptide} \mid \text{membrane}) = 30/60 = 0.5$, but $P(\text{membrane} \mid \text{signal peptide}) = 30/50 = 0.6$. Mixing the two up is one of the most common errors in reading statistics, and it is the error behind misreading p-values (below).
 
-Conditional probabilities are everywhere in this course. A profile or
-hidden Markov model (Day 5) gives the probability of a residue *given*
-the position in the family, and a classifier (Day 8) gives the
-probability of a class *given* the input.
+Conditional probabilities are everywhere in this course. A profile or hidden Markov model (Day 5) gives the probability of a residue *given* the position in the family, and a classifier (Day 8) gives the probability of a class *given* the input.
 
 ::: {.callout-note collapse="true"}
 ## Optional: Bayes' rule
 
-Bayes' rule turns one conditional probability around into the other. It
-follows from the definition of conditional probability, applied both ways
-round:
+Bayes' rule turns one conditional probability around into the other. It follows from the definition of conditional probability, applied both ways round:
 
 $$
 P(A \mid B) = \frac{P(B \mid A) \, P(A)}{P(B)}
 $$
 
-**Example.** A diagnostic test for a condition affecting 1% of a
-population detects it in 95% of people who have it,
-$P(\text{positive} \mid \text{disease}) = 0.95$, and gives a false
-positive in 5% of people who don't. If someone tests positive, what is the
-probability that they have the condition? Positives come from both groups:
-$P(\text{positive}) = (0.95)(0.01) + (0.05)(0.99) = 0.059$. So
+**Example.** A diagnostic test for a condition affecting 1% of a population detects it in 95% of people who have it, $P(\text{positive} \mid \text{disease}) = 0.95$, and gives a false positive in 5% of people who don't. If someone tests positive, what is the probability that they have the condition? Positives come from both groups: $P(\text{positive}) = (0.95)(0.01) + (0.05)(0.99) = 0.059$. So
 
 $$
 P(\text{disease} \mid \text{positive}) = \frac{(0.95)(0.01)}{0.059} \approx 0.16
 $$
 
-Despite a 95%-sensitive test, a positive result means only about a 16%
-chance of having the condition, because the condition is rare and false
-positives from the large healthy group outnumber the true positives. Bayes'
-rule combines a **prior** (1% have the condition) with **evidence** (the
-test). Maximum likelihood, below, uses only the likelihood and no prior.
+Despite a 95%-sensitive test, a positive result means only about a 16% chance of having the condition, because the condition is rare and false positives from the large healthy group outnumber the true positives. Bayes' rule combines a **prior** (1% have the condition) with **evidence** (the test). Maximum likelihood, below, uses only the likelihood and no prior.
 :::
 
 ### Log probabilities and log-odds
 
-The probability of a whole sequence is a product of per-position
-probabilities, and products of many small numbers become impossibly small. A random 1,000-base sequence has
-probability $0.25^{1000} \approx 10^{-602}$ under a uniform model, far
-below the smallest number a computer can store (about $10^{-308}$); it
-rounds to zero. The **logarithm** fixes this, because it turns
-multiplication into addition:
+The probability of a whole sequence is a product of per-position probabilities, and products of many small numbers become impossibly small. Any particular 1,000-base sequence has the probability $0.25^{1000} \approx 10^{-602}$ assuming a uniform model (i.e. where A,C,G and T are equally likely), a number smaller than what is normally possible to store in a computer, i.e a computer might round it to zero. The **logarithm** fixes this, because it turns multiplication into addition:
 
 $$
 \log(xy) = \log(x) + \log(y)
 $$
 
-The log-probability of the sequence is a sum of 1,000 per-base terms,
-$1000 \times \log_{10}(0.25) \approx -602$: an ordinary number. (Logs to
-different bases, $\ln$, $\log_2$ and $\log_{10}$, differ only by a
-constant factor.)
+The log-probability of the sequence is a sum of 1,000 per-base terms, $1000 \times \log_{10}(0.25) \approx -602$: an ordinary number. (Logs to different bases, $\ln$, $\log_2$ and $\log_{10}$, differ only by a constant factor.)
 
-**Log-odds scores.** Bioinformatics usually compares two models: is this
-sequence better explained by a family model or by background
-frequencies? The **log-odds score** is the log of the ratio of the sequence's
-probabilities under the two models, and for independent positions it is a *sum* of per-position
-terms:
+**Log-odds scores.** Bioinformatics usually compares two models: is this sequence better explained by a family model or by background frequencies? The **log-odds score** is the log of the ratio of the sequence's probabilities under the two models, and for independent positions it is a *sum* of per-position terms:
 
 $$
 S = \log \frac{P(\text{sequence} \mid \text{model})}{P(\text{sequence} \mid \text{background})}
   = \sum_i \log \frac{P(x_i \mid \text{model})}{P(x_i \mid \text{background})}
 $$
 
-A positive score means the model explains the sequence better, a negative
-one that the background does. This is how substitution matrices (Day 4:
-BLOSUM entries are scaled log-odds) and profile scores (Day 5: a PSSM
-column is a list of log-odds) work, and why their scores are added along
-an alignment.
+A positive score means the model explains the sequence better, a negative one that the background does. This is how substitution matrices (Day 4: BLOSUM entries are scaled log-odds) and profile scores (Day 5: a PSSM column is a list of log-odds) work, and why their scores are added along an alignment.
 
-**Worked example.** A GC-rich model gives G and C probability 0.35 each
-and A and T 0.15 each; the background gives every base 0.25. Per base, in
-bits ($\log_2$): G or C scores $\log_2(0.35/0.25) = +0.49$, and A or T
-scores $\log_2(0.15/0.25) = -0.74$. The sequence GCGCAT scores
+**Worked example.** A GC-rich model gives G and C probability 0.35 each and A and T 0.15 each; the background gives every base 0.25. Per base, in bits ($\log_2$): G or C scores $\log_2(0.35/0.25) = +0.49$, and A or T scores $\log_2(0.15/0.25) = -0.74$. The sequence GCGCAT scores
 
 $$
 S = 4 \times 0.49 + 2 \times (-0.74) \approx +0.47 \text{ bits}
@@ -629,48 +576,25 @@ $$
 
 so it is $2^{0.47} \approx 1.4$ times more likely under the GC-rich model.
 
-**Logs of p-values.** Very small p-values are also shown on a log scale:
-$-\log_{10}(p)$ turns $p = 0.001$ into 3 and $p = 10^{-6}$ into 6, the
-y-axis of the volcano plot below.
+**Logs of p-values.** Very small p-values are also shown on a log scale: $-\log_{10}(p)$ turns $p = 0.001$ into 3 and $p = 10^{-6}$ into 6, the y-axis of the volcano plot below.
 
-**Back from log-odds to probability.** The **sigmoid function**,
-$\sigma(z) = 1/(1+e^{-z})$, undoes a (natural) log-odds: if
-$z = \ln\big(p/(1-p)\big)$, then $\sigma(z) = p$. Logistic regression
-(Day 8) models the log-odds of a class as a weighted sum of the inputs and
-uses the sigmoid to turn it into a probability. Applied to an arbitrary
-score, the sigmoid still gives a number between 0 and 1, but that is only
-a calibrated probability if the model was trained for it. (Its derivative
-is on the cheat sheet in Part 2.)
+**Back from log-odds to probability.** The **sigmoid function**, $\sigma(z) = 1/(1+e^{-z})$, undoes a (natural) log-odds: if $z = \ln\big(p/(1-p)\big)$, then $\sigma(z) = p$. Logistic regression (Day 8) models the log-odds of a class as a weighted sum of the inputs and uses the sigmoid to turn it into a probability. Applied to an arbitrary score, the sigmoid still gives a number between 0 and 1, but that is only a calibrated probability if the model was trained for it. (Its derivative is on the cheat sheet in Part 2.)
 
 ### Likelihood
 
-A probability model tells you how likely data are, given the model's
-parameters: $P(\text{data} \mid \text{parameters})$. Read the other way
-round, as a function of the parameters for data you have already
-observed, the same number is called the **likelihood**:
+A probability model tells you how likely data are, given the model's parameters: $P(\text{data} \mid \text{parameters})$. Read the other way round, as a function of the parameters for data you have already observed, the same number is called the **likelihood**:
 
 $$
 L(\text{parameters}) = P(\text{data} \mid \text{parameters})
 $$
 
-**Worked example.** A 10-base DNA fragment contains 7 G or C and 3 A or
-T. Model each base as independently G/C with probability $p$. Because the
-bases are independent, the probability of the whole fragment is the
-product of the per-base probabilities:
+**Worked example.** A 10-base DNA fragment contains 7 G or C and 3 A or T. If a model treats each base as independently G/C with probability $p$. Because the bases are independent, the probability of the whole fragment is the product of the per-base probabilities:
 
 $$
 L(p) = p^7 (1-p)^3
 $$
 
-For $p = 0.5$, $L = 0.5^{10} \approx 0.00098$. For $p = 0.7$,
-$L = 0.7^7 \times 0.3^3 \approx 0.0022$, about 2.3 times higher: the data
-are better explained by a GC-rich model. No value of $p$ does better than
-0.7, the observed fraction. Choosing the parameters that make the observed
-data most probable is **maximum likelihood**, and it is how most models
-in this course are trained. Because a likelihood is a product, it is computed as a sum of logs (the
-**log-likelihood**, previous section), and the loss functions of Day 6
-onwards are **negative log-likelihoods**: minimizing the loss maximizes
-the likelihood.
+For $p = 0.5$, $L = 0.5^{10} \approx 0.00098$. For $p = 0.7$, $L = 0.7^7 \times 0.3^3 \approx 0.0022$, about 2.3 times higher: the data are better explained by a GC-rich model. No value of $p$ does better than 0.7, the observed fraction. Choosing the parameters that make the observed data most probable is **maximum likelihood**, and it is how most models in this course are trained. Because a likelihood is a product, it is computed as a sum of logs (the **log-likelihood**, previous section), and many important loss functions used later in this course, incliding **cross entropy** are **negative log-likelihoods**: minimizing the loss maximizes the likelihood.
 
 ### p-values and hypothesis testing
 
@@ -678,14 +602,7 @@ Statistical testing starts from a **null hypothesis** ($H_0$) — the assumption
 
 A p-value is a conditional probability, $P(\text{data this extreme} \mid H_0)$, *not* $P(H_0 \mid \text{data})$. This is the direction error from the conditional-probability section. A small p-value tells you the data would be surprising if there were truly no effect; it does not, by itself, tell you the probability that there's no effect.
 
-**The t-test, briefly.** The biostatistics course covers it in depth. A
-classical test for comparing two group means is the t-test; Welch's
-version, $t = (\bar{x}_1 - \bar{x}_2)/\sqrt{s_1^2/n_1 + s_2^2/n_2}$, is
-usually preferred when equal variances cannot be assumed. A larger
-difference between the means, or less noisy data, gives a larger $|t|$
-and a smaller p-value. Four control measurements $(5.1, 4.9, 5.3, 5.0)$
-against four treatment measurements $(7.2, 6.8, 7.5, 7.0)$ give
-$t \approx -11.9$ and $p \approx 0.0001$.
+**The t-test, briefly.** The biostatistics course covers it in depth. A classical test for comparing two group means is the t-test; Welch's version, $t = (\bar{x}_1 - \bar{x}_2)/\sqrt{s_1^2/n_1 + s_2^2/n_2}$, is usually preferred when equal variances cannot be assumed. A larger difference between the means, or less noisy data, gives a larger $|t|$ and a smaller p-value. Four control measurements $(5.1, 4.9, 5.3, 5.0)$ against four treatment measurements $(7.2, 6.8, 7.5, 7.0)$ give $t \approx -11.9$ and $p \approx 0.0001$.
 
 ### The multiple testing problem
 
@@ -701,7 +618,7 @@ A **volcano plot** shows both at once: $\log_2$ fold change on the x-axis, $-\lo
 
 ![](figs/day01-volcano-plot.png){width="85%"}
 
-Applying just the naive $p<0.05$ threshold to this simulated data (Welch's t-test for each gene) flags 135 genes as "significant" — but 85 of those are false positives among the 1950 genes with no real effect, close to the \~97.5 expected by chance. Applying the Benjamini-Hochberg procedure at an FDR of 5% instead brings that down to 44 flagged genes, all 44 of them among the 50 real differentially expressed genes, with no false positives — recovering the large majority of the true effects while controlling the false-positive flood the naive threshold let straight through.
+Applying just the naive $p<0.05$ threshold to this simulated data (Welch's t-test for each gene) flags 135 genes as "significant" — but 85 of those are false positives among the 1950 genes with no real effect, close to the \~97.5 expected by chance. Applying the Benjamini-Hochberg procedure at an FDR of 5% instead brings that down to 44 flagged genes, all 44 of them among the 50 real differentially expressed genes, with no false positives in this particular test — recovering the large majority of the true effects while controlling the false-positive flood the naive threshold let straight through. It should be noted that although it this particular simulation none of the 44 discoveries happned to be false, and FDR threshold of 5% does **not** guarantee zero false discoveries.
 
 **Practice problems.**
 
@@ -842,11 +759,7 @@ renderQuiz("day01-quiz-3", [
 </div>
 ```
 
-**Optional extras** (3Blue1Brown), for the Bayes box and the recap:
-[*Bayes theorem, the geometry of changing beliefs*](https://www.youtube.com/watch?v=HZGCoVF3YvM),
-[*But what is the Central Limit Theorem?*](https://www.youtube.com/watch?v=zeJD6dqJ5lo),
-[*Binomial distributions*](https://www.youtube.com/watch?v=8idr1WZ1A7Q) and
-[*Why "probability of 0" does not mean "impossible"*](https://www.youtube.com/watch?v=ZA4JkHKZM50).
+**Optional extras** (3Blue1Brown), for the Bayes box and the recap: [*Bayes theorem, the geometry of changing beliefs*](https://www.youtube.com/watch?v=HZGCoVF3YvM), [*But what is the Central Limit Theorem?*](https://www.youtube.com/watch?v=zeJD6dqJ5lo), [*Binomial distributions*](https://www.youtube.com/watch?v=8idr1WZ1A7Q) and [*Why "probability of 0" does not mean "impossible"*](https://www.youtube.com/watch?v=ZA4JkHKZM50).
 
 ## The notebook
 
