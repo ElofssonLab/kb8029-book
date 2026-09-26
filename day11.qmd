@@ -423,7 +423,7 @@ with MMseqs2:
   and 0.776, while the ESM-2 classifier stays at 0.960.
 
 The middle bins hold only 78-288 proteins each and are noisy. The overall
-pattern matches SignalP 6.0's finding: the advantage appears exactly where
+pattern matches SignalP 6.0's finding: the advantage appears where
 there is no close homolog to copy from.
 
 **Caveats, stated plainly.** Our task is easier than SignalP's (one
@@ -504,7 +504,7 @@ renderQuiz("day11-quiz", [
   {
     question: "SignalP 6.0 outperformed a retrained SignalP 5.0 mainly for test proteins below 60% identity to the training set, and we see the same pattern. What does this say?",
     choices: [
-      "Pretrained representations help most where there is no close homolog to copy from, which is exactly where a predictor is most needed",
+      "Pretrained representations help most where there is no close homolog to copy from, which is where a predictor is most needed",
       "Language models are worse on close homologs",
       "Homology partitioning is unnecessary with language models",
       "Identity to the training set does not matter"

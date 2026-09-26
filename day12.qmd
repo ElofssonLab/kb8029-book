@@ -641,7 +641,7 @@ of moving beyond AlphaFold3.
   - binding pockets found from sequence alone.
 
   There is no code, no model and no independent test, so these are
-  claims, not results. Notice where the claimed gains are: on exactly the
+  claims, not results. Notice where the claimed gains are: on the
   examples unlike the training set, where AlphaFold3 is weakest.
 - **OpenDDE** (2026, [GitHub](https://github.com/contact-ajmal/opendde),
   MIT licence) is a community project by a single developer, not
@@ -675,7 +675,7 @@ interact, not *whether* and *when* they do in a cell.
 | III, missing coevolution | No joint selective pressure | Antibody-antigen, host-pathogen | AlphaFold3-class models help, partly through memorisation |
 | IV, missing context or dynamics | Transient, conditional, disordered | p53 transactivation domain binding MDM2 | Static structure prediction is the wrong tool |
 
-The lab tests exactly this: one AlphaFold3 Server prediction per region,
+The lab tests this: one AlphaFold3 Server prediction per region,
 and a look at whether the model's confidence tracks how hard each problem
 really is.
 

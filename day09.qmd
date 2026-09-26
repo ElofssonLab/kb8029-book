@@ -64,7 +64,7 @@ layers. **Backpropagation is not a different algorithm from the chain
 rule — it is the chain rule**, applied systematically from the output
 layer backward to the input layer, reusing each layer's already-computed
 derivative rather than recomputing it from scratch for every weight
-individually. PyTorch's `loss.backward()` does exactly this
+individually. PyTorch's `loss.backward()` does this
 automatically for a computation graph of any depth — automation that
 becomes essential the moment a model has more than one layer, which is
 why Day 6's from-scratch gradient descent doesn't scale past a single
@@ -185,7 +185,7 @@ This is the same quantity Day 4 introduced from the other direction. Day
 4's "Statistical significance of an alignment score" section used
 **relative entropy** (KL-divergence) to measure how surprising a real
 alignment's substitutions are compared to a random background — and
-cross-entropy is built from exactly that: $H(P, Q) = H(P) +
+cross-entropy is built from it: $H(P, Q) = H(P) +
 D_{\text{KL}}(P \| Q)$, the true distribution's own entropy plus the
 extra cost of using the model's imperfect distribution $Q$ instead of
 the true one $P$. Minimizing cross-entropy during training *is*,
@@ -263,7 +263,7 @@ The derivatives of Day 8's activation functions tell the story:
 
 Tanh is zero-centered, which is why it was long preferred over sigmoid
 for *hidden* layers. Sigmoid stays standard for a binary *output*, where
-a $(0, 1)$ probability is exactly what is needed. ReLU never shrinks the
+a $(0, 1)$ probability is what is needed. ReLU never shrinks the
 gradient for positive inputs, and it is cheap to compute. Its weakness is
 the flat side. **Leaky ReLU** ($\max(0.01z, z)$) and **GELU** (a smooth
 ReLU-like curve used in transformers) keep a small slope for $z < 0$ so
@@ -382,7 +382,7 @@ Breast cancer is nearly additive, so the hidden layer has nothing to add.
 Localization may well be non-additive, but with 0.003 examples per weight
 the network mostly memorizes. The way out is more data, or an
 architecture that needs far fewer weights for the same input. That is
-exactly what Day 10's convolutional network does: 19,237 weights instead
+what Day 10's convolutional network does: 19,237 weights instead
 of 192,389.
 
 ## The payoff: PHD
@@ -473,7 +473,7 @@ renderQuiz("day09-quiz", [
       "It is unrelated to the profile/PSSM methods introduced on Day 5"
     ],
     correctIndex: 0,
-    explanation: "PHD is exactly this combination, plus a second structure-to-structure network and a jury of networks. It reached 70.8% three-state accuracy in 1993."
+    explanation: "PHD is this combination, plus a second structure-to-structure network and a jury of networks. It reached 70.8% three-state accuracy in 1993."
   },
   {
     question: "On California housing a 64/64 network cuts the test error by about a third compared with linear regression, but on the breast-cancer data the two tie. What best explains the difference?",

@@ -42,7 +42,7 @@ significant rather than just high.
 Two sequences are called **homologous** if they share a common
 evolutionary origin — a qualitative, yes/no property. **Identity** and
 **similarity** are how homology gets measured in practice: identity is
-the fraction of positions with the exact same residue; similarity is
+the fraction of positions with the same residue; similarity is
 looser, also counting positions with residues that share physicochemical
 properties (e.g. two hydrophobic residues). Homologous proteins found in
 different species are **orthologs**; homologous proteins found within the
@@ -64,7 +64,7 @@ identical if placed naively.
 Could you just try every possible placement and keep the best one? For
 two sequences of length $n$, allowing gaps, the number of possible
 alignments grows so fast that for $n = 100$ it's already around
-$10^{59}$ — utterly infeasible to search exhaustively. This is exactly
+$10^{59}$ — utterly infeasible to search exhaustively. This is
 why **dynamic programming** algorithms exist for this problem: they find
 the guaranteed-optimal alignment without ever checking most of the
 possibilities.
@@ -110,7 +110,7 @@ candidates and keeping the largest — here's cell $V(1,1)$ for a pair of
 
 ![](figs/day04-cell-fill.png){width=90%}
 
-Every other cell is filled the exact same way; the only thing that
+Every other cell is filled the same way; the only thing that
 changes is which numbers go into the three candidates. **Worked
 example**, small enough to do completely by hand: align $x =
 \texttt{GCAT}$ against $y = \texttt{GAC}$, with match $= +1$, mismatch $=
@@ -174,7 +174,7 @@ g(n) = g_{\text{op}} + (n-1) \times g_{\text{ext}}
 $$
 
 This makes a single long gap cheaper than the same number of gaps
-scattered as many separate short ones, which is exactly the behavior you
+scattered as many separate short ones, which is the behavior you
 want. The example below makes this concrete: the same two sequences,
 aligned once with a linear penalty (top pair — gaps scattered, breaking up
 the shared "QQW" motif) and once with an affine penalty (bottom pair —
@@ -243,7 +243,7 @@ doesn't scale to comparing one sequence against an entire database.
 matrix itself (Section "Substitution matrices" above), applied to score
 the significance of the whole alignment rather than one comparison. Day
 5's BLAST uses a related, highly efficient significance measure of its
-own — the **E-value** — built on exactly this kind of reasoning about
+own — the **E-value** — built on this kind of reasoning about
 what you'd expect to see by chance.
 
 ### Further reading
@@ -265,9 +265,9 @@ main strategies:
 The pattern is a genuine speed/accuracy tradeoff: progressive is fast but
 an early mistake in the guide tree propagates forward uncorrected;
 iterative and consistency-based methods spend more computation to correct
-exactly that weakness.
+that weakness.
 
-Building the guide tree for progressive alignment uses exactly the kind
+Building the guide tree for progressive alignment uses the kind
 of hierarchical clustering you'd use on any distance matrix: treat every
 sequence as its own cluster, repeatedly merge the closest pair of
 clusters, and stop once only one cluster remains — the merge order *is*

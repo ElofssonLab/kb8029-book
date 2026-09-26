@@ -12,12 +12,12 @@ By the end of this session you should be able to explain why sequence data is ke
 
 Sequencing produces far more data than any single lab — or even any single country — can curate alone. As of today, UniProtKB's automatically annotated tier (TrEMBL) alone holds around 149 million protein sequence entries, growing continuously; GenBank's own raw nucleotide sequence files run into the hundreds of gigabytes. Keeping a private, local copy of "the" database quickly becomes impractical — it goes stale the moment anyone else in the world submits a new sequence.
 
-The field's answer is the **International Nucleotide Sequence Database Collaboration (INSDC)**: three sister databases — GenBank (NCBI, USA), the European Nucleotide Archive (ENA, EMBL-EBI, Europe), and DDBJ (Japan) — that mirror the same underlying data and synchronize daily. A sequence submitted to any one of the three becomes visible, in the same format, through all three within a day. This has been INSDC's policy since its founding: free and unrestricted access, with no limits on reuse, redistribution, or republication. Since the 1990s, most major journals have required that new sequence data be deposited in an INSDC database as a condition of publication — which is exactly why a sequence you look up today reflects essentially everything published on it.
+The field's answer is the **International Nucleotide Sequence Database Collaboration (INSDC)**: three sister databases — GenBank (NCBI, USA), the European Nucleotide Archive (ENA, EMBL-EBI, Europe), and DDBJ (Japan) — that mirror the same underlying data and synchronize daily. A sequence submitted to any one of the three becomes visible, in the same format, through all three within a day. This has been INSDC's policy since its founding: free and unrestricted access, with no limits on reuse, redistribution, or republication. Since the 1990s, most major journals have required that new sequence data be deposited in an INSDC database as a condition of publication — which is why a sequence you look up today reflects essentially everything published on it.
 
 ### Further reading
 
 - Wikipedia, [Biological database](https://en.wikipedia.org/wiki/Biological_database) and [International Nucleotide Sequence Database Collaboration](https://en.wikipedia.org/wiki/International_Nucleotide_Sequence_Database_Collaboration)
-- EMBL-EBI Training, [What is ENA?](https://www.ebi.ac.uk/training/online/courses/ena-quick-tour/what-is-ena/) — ENA's own side of exactly this collaboration
+- EMBL-EBI Training, [What is ENA?](https://www.ebi.ac.uk/training/online/courses/ena-quick-tour/what-is-ena/) — ENA's own side of this collaboration
 
 ## The hierarchy of sequence databases: DNA, RNA, protein
 
@@ -25,7 +25,7 @@ Biological databases are organized to mirror the **central dogma**: DNA is trans
 
 - **DNA level** — raw genomic sequence and assemblies. GenBank/ENA/DDBJ hold submitted sequences directly; RefSeq (a curated subset at NCBI) and Ensembl provide annotated, "cleaned up" genome assemblies with gene models already marked out.
 - **RNA level** — transcripts. mRNA/cDNA sequences, with their own accession series (RefSeq's `NM_` prefix, met below), represent what's actually expressed from a gene.
-- **Protein level** — the translated product. UniProt is the central resource here (below), alongside structure databases like PDB (Day 7) and domain/family databases like Pfam, which classifies protein families using profile Hidden Markov Models — exactly the profile methods Day 5 covers in depth.
+- **Protein level** — the translated product. UniProt is the central resource here (below), alongside structure databases like PDB (Day 7) and domain/family databases like Pfam, which classifies protein families using profile Hidden Markov Models — the profile methods Day 5 covers in depth.
 
 Working out *which level* you actually need is the single most useful habit for searching these databases effectively — a theme this whole session keeps coming back to.
 
@@ -76,7 +76,7 @@ A single sequence record tells you what a gene or protein *is*; a family databas
 | IPR012292          | Globin/Protoglobin                         |
 | IPR050056          | Hemoglobin and related oxygen transporters |
 
-Entries nest from broad (Globin-like superfamily) to specific (Hemoglobin, beta-type) — exactly the profile-HMM-based family classification whose algorithm Day 5 covers in depth.
+Entries nest from broad (Globin-like superfamily) to specific (Hemoglobin, beta-type) — the profile-HMM-based family classification whose algorithm Day 5 covers in depth.
 
 **Rfam** is InterPro's RNA-side counterpart: families of non-coding RNA (tRNAs, rRNAs, riboswitches, snoRNAs...) classified not by a profile HMM over sequence alone but by a **covariance model**, which scores sequence *and* conserved secondary structure (base-pairing pattern) together, since a non-coding RNA's function usually depends on the shape it folds into as much as its exact sequence. *HBB* itself has no Rfam entry — it's protein-coding, and Rfam is specifically for the non-coding side — but the mechanism is worth seeing on a real family: **RF00005** ("tRNA") is Rfam's transfer RNA family, matching the four short double-helical elements and three loops (D, anticodon, T loops) every tRNA folds into, regardless of which amino acid it carries.
 
@@ -122,7 +122,7 @@ Put the last two sections together on the same beta-globin (*HBB*) locus this co
 | Domain | InterPro | `IPR000971` | "Globin" — the conserved fold this protein shares with every other globin |
 | Structure | PDB | `2HHB` | Human deoxyhemoglobin — the actual HBA/HBB tetramer, determined by X-ray diffraction at 1.74 Å (Fermi & Perutz), not just its sequence |
 
-Each row is a different database's record for the *same* underlying biology, linked by explicit cross-references rather than by everyone agreeing to reuse one accession number — exactly the "why an accession number alone isn't enough" point from the previous section, made concrete. The notebook fetches every one of these records live and shows the actual cross-reference text.
+Each row is a different database's record for the *same* underlying biology, linked by explicit cross-references rather than by everyone agreeing to reuse one accession number — the "why an accession number alone isn't enough" point from the previous section, made concrete. The notebook fetches every one of these records live and shows the actual cross-reference text.
 
 ## Structure databases: PDB and AlphaFold DB
 
@@ -144,7 +144,7 @@ The **AlphaFold Protein Structure Database** (EBI, built on DeepMind's AlphaFold
 
 A structure database shows one molecule (or, like 2HHB, one fixed assembly) at a time. **IntAct** (EBI, part of the IMEx consortium) instead catalogs individual physical *interactions* between molecules — curated from published experiments, not predicted. A real query against *HBB*'s own protein turns up, among others, an interaction with **HBZ** (hemoglobin subunit zeta, another real globin-family paralog).
 
-**Complex Portal** (EBI, IntAct's sister resource) goes one level up: not pairwise interactions, but curated, stable **complexes** — named assemblies with known composition and stoichiometry. Searching it for HBB surfaces **CPX-2158**, "Hemoglobin HbA complex": two copies of HBA1 (alpha), two copies of HBB (beta), and four heme groups — exactly the real tetramer that 2HHB's structure, above, is a picture of. The complex record and the structure record describe the same real biological object from two different angles: composition versus atomic geometry.
+**Complex Portal** (EBI, IntAct's sister resource) goes one level up: not pairwise interactions, but curated, stable **complexes** — named assemblies with known composition and stoichiometry. Searching it for HBB surfaces **CPX-2158**, "Hemoglobin HbA complex": two copies of HBA1 (alpha), two copies of HBB (beta), and four heme groups — the real tetramer that 2HHB's structure, above, is a picture of. The complex record and the structure record describe the same real biological object from two different angles: composition versus atomic geometry.
 
 ### Further reading
 
@@ -190,7 +190,7 @@ Raw sequence and structure records are only half the picture — the biological 
 | `hemoglobin OR malaria` | 408,769 | 287,934 + 125,280 − 4,445 — exact set-theory inclusion-exclusion |
 | `hemoglobin NOT malaria` | 283,489 | 287,934 − 4,445 — exactly "hemoglobin" minus the overlap |
 
-`AND` narrows (only items with both terms survive), `OR` broadens (either term is enough), and `NOT` excludes. The middle column isn't a coincidence: `OR` and `NOT` here behave exactly like set union and set difference, which is a genuinely useful way to predict what a query will do before running it.
+`AND` narrows (only items with both terms survive), `OR` broadens (either term is enough), and `NOT` excludes. The middle column isn't a coincidence: `OR` and `NOT` here behave like set union and set difference, which is a genuinely useful way to predict what a query will do before running it.
 
 The second tool is **quotation marks**. Typing two words with a space between them (`hemoglobin beta`) is treated as `hemoglobin AND beta` — it matches records with both words *anywhere*, in any order, even in different fields. Wrapping them in quotes (`"hemoglobin beta"`) instead requires the exact phrase, adjacent and in that order — a much more precise, and usually much smaller, result set.
 
@@ -246,7 +246,7 @@ renderQuiz("day03-quiz", [
       "Because local copies of the combined data are cheaper to maintain than synchronization"
     ],
     correctIndex: 0,
-    explanation: "INSDC's daily synchronization is exactly what makes 'which of the three you search' not matter for whether you find a given sequence."
+    explanation: "INSDC's daily synchronization is what makes 'which of the three you search' not matter for whether you find a given sequence."
   },
   {
     question: "Which pair correctly matches a database level to what it stores?",
@@ -268,7 +268,7 @@ renderQuiz("day03-quiz", [
       "Swiss-Prot and TrEMBL contain completely different, non-overlapping proteins"
     ],
     correctIndex: 0,
-    explanation: "The size difference is exactly the cost of manual review &mdash; far fewer entries, but each one checked by a person."
+    explanation: "The size difference is the cost of manual review &mdash; far fewer entries, but each one checked by a person."
   },
   {
     question: "A colleague gives you the accession number NP_000509.1 with no other context. From the prefix alone, what do you know about this record?",
@@ -378,4 +378,4 @@ This lab is administered through Canvas, not this book — see the course's Canv
 
 ## What's next
 
-Day 4 picks up exactly where the *HBB* cross-references above leave off: once you can retrieve two related sequences, the next question is how to line them up and score how similar they are — sequence alignment.
+Day 4 picks up where the *HBB* cross-references above leave off: once you can retrieve two related sequences, the next question is how to line them up and score how similar they are — sequence alignment.

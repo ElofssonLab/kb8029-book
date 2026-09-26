@@ -88,7 +88,7 @@ interactive.
   keys.
 - For anything that needs a GPU, **Google Colab** is the recommended
   fallback (every notebook in this book has a "Open in Colab" badge for
-  exactly this reason) — it's free up to some usage limits, needs a
+  this reason) — it's free up to some usage limits, needs a
   Google account, and disconnects a session left idle too long, so don't
   leave one open and walk away.
 - **PyMOL** is the recommended protein-structure viewer for the

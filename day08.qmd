@@ -105,7 +105,7 @@ which turns any number into a probability between 0 and 1. Despite its
 name, logistic regression is a *classifier*: it outputs
 $P(\text{secreted} \mid x)$. In the notebook, one nuclear protein gets
 $P = 0.008$ and one secreted protein gets $P = 0.980$. The decision
-boundary ($P = 0.5$, i.e. $z = 0$) is exactly the perceptron's straight
+boundary ($P = 0.5$, i.e. $z = 0$) is the perceptron's straight
 line. What changes is that the output is now smooth and differentiable,
 which is what Day 9's training needs.
 
@@ -173,7 +173,7 @@ Accuracy is a single number, and it hides *which* mistakes are made. The
 **confusion matrix** cross-tabulates the true class (rows) against the
 predicted class (columns):
 
-![Left: test-set confusion matrix for the 3×3 perceptrons. Almost all mistakes involve "cross": 9 crosses predicted as "vertical", and 4 horizontals and 2 verticals predicted as "cross". These are exactly the pairs that share pixels. Right: the ROC curve of the "cross" perceptron's score, cross vs. everything else.](figs/day08-3x3-evaluation.png){width=100%}
+![Left: test-set confusion matrix for the 3×3 perceptrons. Almost all mistakes involve "cross": 9 crosses predicted as "vertical", and 4 horizontals and 2 verticals predicted as "cross". These are the pairs that share pixels. Right: the ROC curve of the "cross" perceptron's score, cross vs. everything else.](figs/day08-3x3-evaluation.png){width=100%}
 
 For any one class, treated as "positive" against all the rest, each
 prediction is a true or false positive (TP, FP) or a true or false

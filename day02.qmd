@@ -22,7 +22,7 @@ data by [VolcaNoseR](https://huygens.science.uva.nl/VolcaNoseR/)
 (Goedhart, J. & Luijsterburg, M.S., 2020,
 ["VolcaNoseR is a web app for creating, exploring, labeling and sharing
 volcano plots"](https://doi.org/10.1038/s41598-020-76603-3), *Scientific
-Reports* 10:20560), a tool built for exactly this kind of plot.
+Reports* 10:20560), a tool built for this kind of plot.
 :::
 
 # Day 2: Programming Prerequisites
@@ -120,7 +120,7 @@ be certain what you're looking at matches what's on the page.
 in your browser, with free (rate-limited) access to a GPU — relevant
 starting Day 6, and essential from Day 8 onward — and no local Python
 installation required. Every notebook page in this book has an "Open in
-Colab" badge at the top for exactly this reason. See
+Colab" badge at the top for this reason. See
 [Course Information & Logistics](course-info.qmd) for Colab's practical
 limits (it disconnects an idle session; don't leave one open and
 unattended for a long stretch).
@@ -152,7 +152,7 @@ print("translated:        ", bio_seq.translate())
 
 A single `Seq` is the building block; real work means parsing a *file*
 of them. `Bio.SeqIO` does that for any common format (FASTA here, but
-the same call works for GenBank, and more) — exactly the mechanism
+the same call works for GenBank, and more) — the mechanism
 Day 3's database work builds on, just applied there to files fetched
 live from NCBI/UniProt at real scale instead of a small local example.
 
@@ -177,7 +177,7 @@ the specific object it was called on (conventionally named `self`) so
 it knows *whose* data to work with. `Bio.Entrez.efetch` doesn't hand
 back a plain dictionary of values — it hands back a real `SeqRecord`
 object, built from a class Biopython defines, with sequence-specific
-methods already attached. This exact pattern — an object that owns its
+methods already attached. This pattern — an object that owns its
 data and knows how to compute things about itself — becomes taught,
 hands-on material on Day 8, when a PyTorch model is itself written as a
 class you define yourself; for now, recognizing the shape of it here is
@@ -206,24 +206,24 @@ r, p_value = stats.pearsonr(genes["length"], genes["gc_content"])
 print(f"Pearson r = {r:.3f}, p = {p_value:.2e}")
 ```
 
-**`scipy.stats.ttest_ind`** is what actually computes a two-sample
-t-test — the exact test Day 1 worked through *by hand*. Reusing Day 1's
-own numbers ($5.1, 4.9, 5.3, 5.0$ control vs. $7.2, 6.8, 7.5, 7.0$
-treatment) confirms SciPy reproduces the same $t \approx -11.9,\ p
-\approx 0.00002$ Day 1 computed with the formula directly — the
-library isn't doing anything different, just doing it for you:
+**`scipy.stats.ttest_ind`** computes a two-sample t-test, the test
+Day 1 reminded you of. Reusing Day 1's numbers ($5.1, 4.9, 5.3, 5.0$
+control vs. $7.2, 6.8, 7.5, 7.0$ treatment) reproduces Day 1's
+$t \approx -11.9,\ p \approx 0.0001$. Pass `equal_var=False` to get
+Welch's test, as on Day 1; SciPy's default, `equal_var=True`, is
+Student's original test, which assumes equal variances:
 
 ```python
 control = [5.1, 4.9, 5.3, 5.0]
 treatment = [7.2, 6.8, 7.5, 7.0]
 
-t_stat, p_value = stats.ttest_ind(control, treatment)
+t_stat, p_value = stats.ttest_ind(control, treatment, equal_var=False)   # Welch's t-test
 print(f"t = {t_stat:.2f}, p = {p_value:.5f}")
 ```
 
 **`scipy.cluster.hierarchy`** builds a guide tree from a distance
-matrix by repeatedly merging the closest pair of clusters — precisely
-the algorithm behind Day 4's own guide-tree worked example (built there
+matrix by repeatedly merging the closest pair of clusters — the
+algorithm behind Day 4's own guide-tree worked example (built there
 by hand, on five small toy sequences) and progressive multiple sequence
 alignment generally. `linkage` does the merging, `dendrogram` draws the
 result:
@@ -319,7 +319,7 @@ matrices, just generalized.
 
 Day 1 also introduced the gradient and worked it out by hand using the
 chain rule. Doing that by hand does not scale to a function with
-thousands or millions of variables — exactly what a neural network's
+thousands or millions of variables — what a neural network's
 weights are. **Automatic differentiation** (autograd) is the mechanism
 that makes this practical: PyTorch tracks every operation performed on
 a tensor, and when you ask for the gradient of some final result, it
@@ -363,7 +363,7 @@ step at all. That matters for this course specifically because
 `Bio.SeqIO.parse` (introduced earlier on this page) doesn't care whether
 the file handle it's given is compressed or not — hand it a
 `gzip.open(...)` handle directly, and it parses records out of the
-compressed file exactly as if it had been decompressed to disk first.
+compressed file as if it had been decompressed to disk first.
 
 Two more, briefly, since you'll meet them eventually: **`.tar`** and
 **`.tar.gz`**/**`.tgz`** files (common from Linux-world bioinformatics
@@ -459,7 +459,7 @@ didn't generate itself — before Matplotlib plots all 3,001 genes at
 once and Day 1's honesty about a "wall of points" becomes visible for
 real, not just described:
 
-![3,001 real differentially-expressed genes, mouse liver, high-fat/high-cholesterol diet vs. control (Becares et al. 2019). The single most significant gene is labeled; the rest form exactly the "wall of points" shape Day 1 described for simulated data — now real.](figs/day02-volcano-plot.png){width=80%}
+![3,001 real differentially-expressed genes, mouse liver, high-fat/high-cholesterol diet vs. control (Becares et al. 2019). The single most significant gene is labeled; the rest form the "wall of points" shape Day 1 described for simulated data — now real.](figs/day02-volcano-plot.png){width=80%}
 
 **Step 3 — the notebook payoff.** The notebook re-runs the plotting cell
 twice more on this same real data: once with a different color scheme,
@@ -467,7 +467,7 @@ once highlighting a *different* gene by name — the one with the single
 largest fold change, which (worth noticing) isn't the same gene as the
 most statistically significant one from the first plot. Each re-plot is
 one small edit and a re-run of a single cell — a few seconds, not a
-from-scratch rebuild — which is exactly the "run a piece, look, adjust,
+from-scratch rebuild — which is the "run a piece, look, adjust,
 re-run" workflow the notebooks section above described, now made
 concrete instead of asserted.
 

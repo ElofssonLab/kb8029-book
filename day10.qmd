@@ -210,7 +210,7 @@ rotations and flips.
   An ImageNet-pretrained Inception-v3, fine-tuned on 129,450 skin images,
   performed on par with 21 dermatologists (Esteva et al.,
   [*Nature* 542:115](https://pubmed.ncbi.nlm.nih.gov/28117445/)): transfer
-  learning, exactly as above. In the CAMELYON16 challenge (lymph-node
+  learning, as above. In the CAMELYON16 challenge (lymph-node
   metastases of breast cancer), the best of 32 algorithms reached AUC
   0.994, against 0.810 for pathologists working under time constraints
   (Ehteshami Bejnordi et al.,
@@ -225,7 +225,7 @@ rotations and flips.
 ### DNA: filters become motifs
 
 A CNN reading one-hot DNA has first-layer filters of shape 4 × *k*: a
-weight for each base at each of *k* positions. That is exactly a
+weight for each base at each of *k* positions. That is a
 **position weight matrix** (Day 5), except that it is learned from the
 data. It happened fast:
 

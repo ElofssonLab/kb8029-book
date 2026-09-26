@@ -133,7 +133,7 @@ peak of **9** right after `...brown`/`...brown`, then falls steadily as
 dropped 5 points below that peak of 9, extension stops — and the
 reported alignment is trimmed back to the peak itself: `Thequickbrown`
 paired with `Thequietbrown`, not the lower-scoring tail beyond it. The
-notebook reproduces this exact computation in code.
+notebook reproduces this computation in code.
 
 ### Further watching
 
@@ -206,7 +206,7 @@ below 50" rule of thumb — a real example of a genuine remote homolog that
 a single BLAST pass can't confidently detect. Note also that these
 E-values are relative to a tiny five-sequence database; the same
 alignments against the whole of GenBank would report much larger
-(less impressive-looking) E-values for exactly the reason the formula
+(less impressive-looking) E-values for the reason the formula
 predicts, even though the underlying alignments haven't changed at all.
 
 ### Further reading
@@ -216,9 +216,9 @@ predicts, even though the underlying alignments haven't changed at all.
 
 ## From one sequence to many: PSI-BLAST and the PSSM
 
-The myoglobin result above is exactly the motivating case: ordinary BLAST
+The myoglobin result above is the motivating case: ordinary BLAST
 scores everything against one fixed substitution matrix, no matter which
-family the query belongs to, and that's precisely why it struggles with a
+family the query belongs to, and that's why it struggles with a
 real but distant relative like myoglobin. **PSI-BLAST**
 (Position-Specific Iterated BLAST) does better by building a
 *query-specific* scoring matrix and refining it over several rounds:
@@ -278,10 +278,10 @@ means a score of $+1$ means "twice as likely here as by chance," $+3$
 means "8× as likely," and so on. Arrange $S_{i,j}$ into a matrix — one
 row per alignment position, one column per residue — and that matrix
 *is* the PSSM: scoring a candidate sequence against it means looking up
-one value per position and **summing**, exactly the weighted-sum/dot-product
+one value per position and **summing**, the weighted-sum/dot-product
 idea from Day 1, generalized to sequence positions.
 
-The notebook builds this exact PSSM from the alignment above and confirms
+The notebook builds this PSSM from the alignment above and confirms
 that the highest-scoring sequence the matrix can produce is `AGLSP` — the
 alignment's own consensus, as it should be.
 
@@ -294,7 +294,7 @@ show alanine (background frequency 7.4%) and 1 shows the much rarer
 tryptophan (background frequency 1.3%), alanine's raw log-odds score is
 $\log_2(0.8/0.074) \approx 3.43$, but tryptophan's is
 $\log_2(0.2/0.013) \approx 3.94$ — the single rare occurrence outscores
-the four common ones. Pseudocounts damp exactly this effect.
+the four common ones. Pseudocounts damp this effect.
 
 **Handling gaps.** A gap column doesn't have to be a special case: treat
 `–` as one more "residue" with its own background frequency (gaps are
@@ -340,7 +340,7 @@ explains the whole sequence, using the emission and transition
 probabilities together. The states generate what you observe; they
 themselves stay hidden.
 
-This is exactly the extra structure PSSMs lack, and it's why profile HMMs
+This is the extra structure PSSMs lack, and it's why profile HMMs
 (not PSSMs) are the standard tool behind large-scale protein family
 databases like **Pfam**: a profile HMM trained on a protein family can
 recognize a new sequence as a member even when it has a genuinely
@@ -369,7 +369,7 @@ Pfam's library of profile HMMs against the real UniProt entry `P68871`
 **PF00042 ("Globin")**, spanning residues 27-142 of the 147-residue
 protein, with a domain score corresponding to an E-value around
 $1.3\times10^{-29}$. That's a profile HMM doing, on a real sequence and at
-production scale, exactly what the toy PSSM above did on paper: scoring
+production scale, what the toy PSSM above did on paper: scoring
 how well a sequence matches a family, position by position.
 
 ## The notebook
@@ -427,7 +427,7 @@ renderQuiz("day05-quiz", [
     explanation: "The drop-off rule is when to STOP looking further, not what to report &mdash; the reported alignment is trimmed back to its own best point."
   },
   {
-    question: "An alignment gets a very good E-value against a small custom database of 500 sequences. If you ran the exact same alignment's score against the whole of GenBank instead, what would you expect?",
+    question: "An alignment gets a very good E-value against a small custom database of 500 sequences. If you ran the same alignment's score against the whole of GenBank instead, what would you expect?",
     choices: [
       "A much larger (worse) E-value, since E is proportional to database size and a bigger database gives chance more opportunities to produce an equally good false hit",
       "Exactly the same E-value, since E-value doesn't depend on database size",
@@ -446,7 +446,7 @@ renderQuiz("day05-quiz", [
       "Raw scores and bit scores are actually the same number under a different name"
     ],
     correctIndex: 0,
-    explanation: "S' = (&lambda;S - ln K) / ln 2 removes exactly the scoring-system-dependent part of the raw score."
+    explanation: "S' = (&lambda;S - ln K) / ln 2 removes the scoring-system-dependent part of the raw score."
   },
   {
     question: "In the PSSM worked example, position 1 of the toy alignment has alanine (A) in 4 of 5 sequences and arginine (R) in 1. Without pseudocounts, what happens to every OTHER residue's score at that position (e.g. tryptophan, which never appears there)?",
@@ -457,7 +457,7 @@ renderQuiz("day05-quiz", [
       "PSSMs cannot be built for positions where a residue never appears"
     ],
     correctIndex: 0,
-    explanation: "log2(0/q) is negative infinity for any residue with zero observed count &mdash; exactly the problem pseudocounts are added to avoid."
+    explanation: "log2(0/q) is negative infinity for any residue with zero observed count &mdash; the problem pseudocounts are added to avoid."
   },
   {
     question: "At a position where alanine (background frequency 7.4%) appears in 4 of 5 sequences and tryptophan (background frequency 1.3%) appears in just 1, which residue gets the HIGHER log-odds score without pseudocounts, and why?",
@@ -468,7 +468,7 @@ renderQuiz("day05-quiz", [
       "Neither can be scored without a full profile HMM"
     ],
     correctIndex: 0,
-    explanation: "log2(0.2/0.013) &asymp; 3.94 exceeds log2(0.8/0.074) &asymp; 3.43 &mdash; a single rare-residue occurrence can outscore four common ones, exactly why pseudocounts matter."
+    explanation: "log2(0.2/0.013) &asymp; 3.94 exceeds log2(0.8/0.074) &asymp; 3.43 &mdash; a single rare-residue occurrence can outscore four common ones, which is why pseudocounts matter."
   },
   {
     question: "What does PSI-BLAST do differently from ordinary BLAST?",
@@ -479,7 +479,7 @@ renderQuiz("day05-quiz", [
       "It replaces the seed-and-extend heuristic with full dynamic programming"
     ],
     correctIndex: 0,
-    explanation: "The PSSM, refined each round from the previous round's hits, is exactly what makes PSI-BLAST more sensitive to remote homologs than a single BLAST pass."
+    explanation: "The PSSM, refined each round from the previous round's hits, is what makes PSI-BLAST more sensitive to remote homologs than a single BLAST pass."
   },
   {
     question: "What can a profile HMM represent that a PSSM cannot represent directly?",
@@ -501,7 +501,7 @@ renderQuiz("day05-quiz", [
       "Because profile HMMs are only used for confidential/unpublished sequences"
     ],
     correctIndex: 0,
-    explanation: "The states generate what you observe, but which state produced any specific observation is inferred, not directly seen -- exactly the general meaning of \"hidden\" in a hidden Markov model."
+    explanation: "The states generate what you observe, but which state produced any specific observation is inferred, not directly seen -- the general meaning of \"hidden\" in a hidden Markov model."
   }
 ]);
 </script>
@@ -541,7 +541,7 @@ mechanism.
 
 ## What's next
 
-Day 6 formalizes the exact computation a PSSM performs — a weighted sum
+Day 6 formalizes the computation a PSSM performs — a weighted sum
 over positions — as a **perceptron**, and shows that its weights can be
 *learned* from labelled examples by gradient descent instead of derived
 from alignment statistics the way this session's PSSM was.

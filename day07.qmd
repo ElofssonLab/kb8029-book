@@ -192,7 +192,7 @@ were developed, each with a real limitation:
   so expensive it was, for a long time, only practical for small
   proteins (under roughly 100 residues). **Rosetta** (Baker lab,
   University of Washington) is the best-known real software built
-  around exactly this approach — originally assembling structures from
+  around this approach — originally assembling structures from
   short fragments of similar, already-solved sequences rather than
   searching the full physical space from nothing, later extended well
   beyond ab initio prediction into comparative modeling and protein
@@ -257,7 +257,7 @@ makes it practical to search a single query against the hundreds of
 millions of structures in the AlphaFold Structure Database and the PDB
 combined, in seconds rather than days. Before Foldseek, **DALI** (Holm
 & Sander, 1993) and **TM-align** (Zhang & Skolnick, 2005) were the
-standard tools for exactly this kind of comparison — both real,
+standard tools for this kind of comparison — both real,
 accurate, and still used for a single careful pairwise alignment, just
 far too slow to run at Foldseek's database scale.
 
@@ -273,7 +273,7 @@ types (alpha vs. beta globin — related by evolution, but only ~43%
 identical in sequence) still gives a TM-score around **0.90-0.91**
 (RMSD ~1.7-1.8 Å) — the fold stays clearly recognizable as the same
 globin family even once sequence identity has dropped a long way,
-exactly the "structure is more conserved than sequence" point Day 5's
+the "structure is more conserved than sequence" point Day 5's
 evolutionary methods rely on, now shown geometrically rather than
 asserted. Searching `2HHB` against GFP (`1EMA`) returns **zero hits**,
 even with an artificially loosened significance threshold — Foldseek
@@ -366,7 +366,7 @@ renderQuiz("day07-quiz", [
       "Because sequence information is insufficient in principle, not just in practice"
     ],
     correctIndex: 0,
-    explanation: "The dogma is about what information exists in principle, not about how easy it is to compute the answer &mdash; that gap is exactly why decades of classical methods, each with real limitations, were needed before deep learning changed things."
+    explanation: "The dogma is about what information exists in principle, not about how easy it is to compute the answer &mdash; that gap is why decades of classical methods, each with real limitations, were needed before deep learning changed things."
   },
   {
     question: "The notebook measures the distance between the two beta-chain heme iron atoms in both deoxyhemoglobin (2HHB) and oxyhemoglobin (1HHO), finding it about 5 &Aring; shorter in the oxy state. What does this real, measured change represent?",
@@ -377,7 +377,7 @@ renderQuiz("day07-quiz", [
       "A change in hemoglobin's primary structure upon oxygen binding"
     ],
     correctIndex: 0,
-    explanation: "This is exactly the T (tense, deoxy) to R (relaxed, oxy) quaternary shift Baldwin & Chothia (1979) described &mdash; a real, measurable change in quaternary structure, not primary structure."
+    explanation: "This is the T (tense, deoxy) to R (relaxed, oxy) quaternary shift Baldwin & Chothia (1979) described &mdash; a real, measurable change in quaternary structure, not primary structure."
   },
   {
     question: "SCOP, CATH, ECOD, and TED all classify protein domains. How do they differ from Day 3/5's InterPro/Pfam domain classification?",
