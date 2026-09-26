@@ -1,96 +1,34 @@
-::: {.callout-note}
-**Sources for this page:** d2l.ai, *Dive into Deep Learning*,
-[Preliminaries](https://d2l.ai/chapter_preliminaries/index.html) (§2.3
-Linear Algebra, §2.5 Calculus, §2.6 Probability and Statistics) — CC BY-SA
-4.0; Wikipedia, [Dot product](https://en.wikipedia.org/wiki/Dot_product),
-[Norm (mathematics)](https://en.wikipedia.org/wiki/Norm_(mathematics)),
-[Matrix norm](https://en.wikipedia.org/wiki/Matrix_norm),
-[Cross product](https://en.wikipedia.org/wiki/Cross_product),
-[Unit vector](https://en.wikipedia.org/wiki/Unit_vector),
-[Eigenvalues and eigenvectors](https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors),
-[Tensor](https://en.wikipedia.org/wiki/Tensor),
-[Gradient](https://en.wikipedia.org/wiki/Gradient),
-[Chain rule](https://en.wikipedia.org/wiki/Chain_rule),
-[Bayes' theorem](https://en.wikipedia.org/wiki/Bayes%27_theorem),
-[P-value](https://en.wikipedia.org/wiki/P-value),
-[Student's t-test](https://en.wikipedia.org/wiki/Student%27s_t-test),
-[Multiple comparisons problem](https://en.wikipedia.org/wiki/Multiple_comparisons_problem),
-[False discovery rate](https://en.wikipedia.org/wiki/False_discovery_rate),
-[Volcano plot (statistics)](https://en.wikipedia.org/wiki/Volcano_plot_(statistics)),
-[Exponential function](https://en.wikipedia.org/wiki/Exponential_function),
-[Logarithm](https://en.wikipedia.org/wiki/Logarithm),
-[Sigmoid function](https://en.wikipedia.org/wiki/Sigmoid_function),
-[Integral](https://en.wikipedia.org/wiki/Integral),
-[Variance](https://en.wikipedia.org/wiki/Variance),
-[Standard deviation](https://en.wikipedia.org/wiki/Standard_deviation),
-[Normal distribution](https://en.wikipedia.org/wiki/Normal_distribution) —
-CC BY-SA 4.0. Text below is written from scratch, not copied, following
-these ideas; standard results (the geometric dot-product formula, the
-chain rule, Bayes' theorem, the t-test formula) are stated in the
-conventional way found in any of these sources. The volcano-plot figure
-uses simulated data, generated for this book.
+::: callout-note
+**Sources for this page:** d2l.ai, *Dive into Deep Learning*, [Preliminaries](https://d2l.ai/chapter_preliminaries/index.html) (§2.3 Linear Algebra, §2.5 Calculus, §2.6 Probability and Statistics) — CC BY-SA 4.0; Wikipedia, [Dot product](https://en.wikipedia.org/wiki/Dot_product), [Norm (mathematics)](https://en.wikipedia.org/wiki/Norm_(mathematics)), [Matrix norm](https://en.wikipedia.org/wiki/Matrix_norm), [Cross product](https://en.wikipedia.org/wiki/Cross_product), [Unit vector](https://en.wikipedia.org/wiki/Unit_vector), [Eigenvalues and eigenvectors](https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors), [Tensor](https://en.wikipedia.org/wiki/Tensor), [Gradient](https://en.wikipedia.org/wiki/Gradient), [Chain rule](https://en.wikipedia.org/wiki/Chain_rule), [Bayes' theorem](https://en.wikipedia.org/wiki/Bayes%27_theorem), [P-value](https://en.wikipedia.org/wiki/P-value), [Student's t-test](https://en.wikipedia.org/wiki/Student%27s_t-test), [Multiple comparisons problem](https://en.wikipedia.org/wiki/Multiple_comparisons_problem), [False discovery rate](https://en.wikipedia.org/wiki/False_discovery_rate), [Volcano plot (statistics)](https://en.wikipedia.org/wiki/Volcano_plot_(statistics)), [Exponential function](https://en.wikipedia.org/wiki/Exponential_function), [Logarithm](https://en.wikipedia.org/wiki/Logarithm), [Sigmoid function](https://en.wikipedia.org/wiki/Sigmoid_function), [Integral](https://en.wikipedia.org/wiki/Integral), [Variance](https://en.wikipedia.org/wiki/Variance), [Standard deviation](https://en.wikipedia.org/wiki/Standard_deviation), [Normal distribution](https://en.wikipedia.org/wiki/Normal_distribution) — CC BY-SA 4.0. Text below is written from scratch, not copied, following these ideas; standard results (the geometric dot-product formula, the chain rule, Bayes' theorem, the t-test formula) are stated in the conventional way found in any of these sources. The volcano-plot figure uses simulated data, generated for this book.
 :::
 
 # Day 1: Math Prerequisites
 
-This is a refresher, not a first encounter. The goal isn't to re-teach
-linear algebra, calculus, or probability from zero — it's to consolidate
-exactly the pieces this course actually uses, work through them with real
-numbers, and show you *where* each one shows up later, so none of it
-feels like disconnected math-for-its-own-sake. There's no coding today;
-that's Day 2 — though the notebook linked at the bottom lets you check
-today's by-hand answers in code if you're curious.
+This is a refresher, not a first encounter. The goal isn't to re-teach linear algebra, calculus, or probability from zero — it's to consolidate exactly the pieces this course actually uses, work through them with real numbers, and show you *where* each one shows up later, so none of it feels like disconnected math-for-its-own-sake. There's no coding today; that's Day 2 — though the notebook linked at the bottom lets you check today's by-hand answers in code if you're curious.
 
-The session is in three parts: vectors and matrices (including the dot
-product, cross product, eigenvalues, and a first look ahead to tensors),
-derivatives and gradient descent, then probability and Bayes' rule. Each
-part ends with a practice problem, a quick self-check, and a short video
-if you'd like the idea animated.
+The session is in three parts: vectors and matrices (including the dot product, cross product, eigenvalues, and a first look ahead to tensors), derivatives and gradient descent, then probability and Bayes' rule. Each part ends with a practice problem, a quick self-check, and a short video if you'd like the idea animated.
 
 ## Learning goals
 
-By the end of this session you should be able to compute the length of a
-vector and the Frobenius norm of a matrix, compute a dot product by hand
-and interpret it geometrically, normalize a vector and compute a cross
-product, find the eigenvalues of a small matrix by hand, take a partial
-derivative of a simple multivariable function and use it to run a step
-of gradient descent, recall the derivative of the handful of functions
-that come up constantly in this course, explain integration as the
-reverse of differentiation, compute the variance and standard deviation
-of a simple random variable and describe the 68-95-99.7 rule for a
-normal distribution, apply Bayes' rule to a concrete
-conditional-probability problem, explain what a p-value does and doesn't
-mean, run a two-sample t-test, explain why testing thousands of genes at
-once requires correcting for multiple testing, and explain why
-logarithms turn multiplication into addition and what the sigmoid
-function does.
+By the end of this session you should be able to compute the length of a vector and the Frobenius norm of a matrix, compute a dot product by hand and interpret it geometrically, normalize a vector and compute a cross product, find the eigenvalues of a small matrix by hand, take a partial derivative of a simple multivariable function and use it to run a step of gradient descent, recall the derivative of the handful of functions that come up constantly in this course, explain integration as the reverse of differentiation, compute the variance and standard deviation of a simple random variable and describe the 68-95-99.7 rule for a normal distribution, apply Bayes' rule to a concrete conditional-probability problem, explain what a p-value does and doesn't mean, run a two-sample t-test, explain why testing thousands of genes at once requires correcting for multiple testing, and explain why logarithms turn multiplication into addition and what the sigmoid function does.
 
 ## Part 1: Vectors and matrices
 
 ::: {.callout-tip icon="false"}
 ## A more villainous definition
 
-> "It's a mathematical term, represented by an arrow with both direction
-> and magnitude. Vector! That's me, because I commit crimes with both
-> direction and magnitude." — Vector, in *Despicable Me* (2010)
+> "It's a mathematical term, represented by an arrow with both direction and magnitude. Vector! That's me, because I commit crimes with both direction and magnitude." — Vector, in *Despicable Me* (2010)
 
-He's not wrong — that's exactly the geometric picture of a vector this
-session builds on.
+He's not wrong — that's exactly the geometric picture of a vector this session builds on.
 :::
 
-A vector is just an ordered list of numbers. You already know how to add
-two vectors (add corresponding entries) and how to scale one (multiply
-every entry by the same number).
+A vector is just an ordered list of numbers. You already know how to add two vectors (add corresponding entries) and how to scale one (multiply every entry by the same number).
 
 ### Length, absolute value, and size
 
-For a single number, $|x|$ measures its distance from zero — how big it
-is, ignoring sign. Vectors and matrices generalize this the same way
-they generalize everything else in this session.
+For a single number, $|x|$ measures its distance from zero — how big it is, ignoring sign. Vectors and matrices generalize this the same way they generalize everything else in this session.
 
-For a vector, the natural generalization is its **length** (also called
-its **norm**), written $\lVert \mathbf{v} \rVert$: a direct extension of
-the Pythagorean theorem to more than two dimensions,
+For a vector, the natural generalization is its **length** (also called its **norm**), written $\lVert \mathbf{v} \rVert$: a direct extension of the Pythagorean theorem to more than two dimensions,
 
 $$
 \lVert \mathbf{v} \rVert = \sqrt{v_1^2 + v_2^2 + \dots + v_n^2}
@@ -104,18 +42,13 @@ $$
 
 — literally the hypotenuse of a 3-4-5 right triangle.
 
-Matrices generalize the same idea once more: treat every entry as part
-of one long vector, and the same formula gives the matrix's **Frobenius
-norm**,
+Matrices generalize the same idea once more: treat every entry as part of one long vector, and the same formula gives the matrix's **Frobenius norm**,
 
 $$
 \lVert A \rVert_F = \sqrt{\textstyle\sum_{i,j} a_{ij}^2}
 $$
 
-a single number measuring how "big" a matrix is overall. This turns out
-to be useful throughout the rest of this course — for instance, for
-measuring how much two matrices differ (the norm of their difference),
-or how large a set of learned weights has grown during training.
+a single number measuring how "big" a matrix is overall. This turns out to be useful throughout the rest of this course — for instance, for measuring how much two matrices differ (the norm of their difference), or how large a set of learned weights has grown during training.
 
 The one operation worth slowing down on next is the **dot product**:
 
@@ -123,10 +56,7 @@ $$
 \mathbf{w} \cdot \mathbf{x} = w_1 x_1 + w_2 x_2 + \dots + w_n x_n
 $$
 
-This is nothing more than "multiply corresponding entries, then add
-everything up" — but it's worth naming because it shows up constantly. It's
-a **weighted sum**: each $x_i$ contributes to the total in proportion to
-its own weight $w_i$.
+This is nothing more than "multiply corresponding entries, then add everything up" — but it's worth naming because it shows up constantly. It's a **weighted sum**: each $x_i$ contributes to the total in proportion to its own weight $w_i$.
 
 **Worked example.** For $\mathbf{w} = (2, -1)$ and $\mathbf{x} = (1, 4)$:
 
@@ -134,69 +64,39 @@ $$
 \mathbf{w} \cdot \mathbf{x} = (2)(1) + (-1)(4) = 2 - 4 = -2
 $$
 
-The dot product also has a geometric meaning that's worth having in your
-head, not just the arithmetic definition:
+The dot product also has a geometric meaning that's worth having in your head, not just the arithmetic definition:
 
 $$
 \mathbf{w} \cdot \mathbf{x} = \lVert \mathbf{w} \rVert \, \lVert \mathbf{x} \rVert \cos\theta
 $$
 
 where $\theta$ is the angle between the two vectors and $\lVert \cdot
-\rVert$ is the length defined above. This tells you the *sign* of a
-dot product for free, without computing anything: it's positive when the
-angle between the vectors is less than 90° (they point in broadly the
-same direction), zero when they're exactly perpendicular, and negative
-when the angle exceeds 90° (they point in broadly opposite directions). In
-the worked example above, $\mathbf{w}$ and $\mathbf{x}$ are about 103°
-apart — just past perpendicular — which is exactly why their dot product
-came out negative:
+\rVert$ is the length defined above. This tells you the *sign* of a dot product for free, without computing anything: it's positive when the angle between the vectors is less than 90° (they point in broadly the same direction), zero when they're exactly perpendicular, and negative when the angle exceeds 90° (they point in broadly opposite directions). In the worked example above, $\mathbf{w}$ and $\mathbf{x}$ are about 103° apart — just past perpendicular — which is exactly why their dot product came out negative:
 
-![](figs/day01-vector-angle.png){width=55%}
+![](figs/day01-vector-angle.png){width="55%"}
 
-Why does this one specific computation deserve a whole session's worth of
-attention before we've even started the course proper? Because it
-reappears, unchanged, in two very different-looking places later in this
-course. A **profile score** (Day 5) — the standard way of asking "how well
-does this sequence match a known family?" — is computed by multiplying
-each position's observed value by a position-specific weight and summing.
-And a **perceptron** (Day 6), the simplest kind of artificial neuron,
-computes its output the exact same way: a dot product between a weight
-vector and an input vector. When we get there, you'll already know the
-arithmetic *and* the geometric intuition; the only new part will be what
-to *do* with the result.
+Why does this one specific computation deserve a whole session's worth of attention before we've even started the course proper? Because it reappears, unchanged, in two very different-looking places later in this course. A **profile score** (Day 5) — the standard way of asking "how well does this sequence match a known family?" — is computed by multiplying each position's observed value by a position-specific weight and summing. And a **perceptron** (Day 6), the simplest kind of artificial neuron, computes its output the exact same way: a dot product between a weight vector and an input vector. When we get there, you'll already know the arithmetic *and* the geometric intuition; the only new part will be what to *do* with the result.
 
 ### Normalization
 
-Dividing a vector by its own length produces a **unit vector** — a
-vector pointing the same direction, but with length exactly 1:
+Dividing a vector by its own length produces a **unit vector** — a vector pointing the same direction, but with length exactly 1:
 
 $$
 \hat{\mathbf{w}} = \frac{\mathbf{w}}{\lVert \mathbf{w} \rVert}
 $$
 
-**Worked example.** For $\mathbf{w} = (2, -1)$ from above, the length
-formula gives $\lVert \mathbf{w} \rVert = \sqrt{5} \approx 2.236$, so
+**Worked example.** For $\mathbf{w} = (2, -1)$ from above, the length formula gives $\lVert \mathbf{w} \rVert = \sqrt{5} \approx 2.236$, so
 
 $$
 \hat{\mathbf{w}} = \left( \frac{2}{\sqrt{5}}, \frac{-1}{\sqrt{5}} \right) \approx (0.894, -0.447)
 $$
 
-Normalizing is exactly what removes the $\lVert \mathbf{w} \rVert$
-factor from the geometric dot-product formula above, leaving only the
-angle behind. This matters in practice: two "profile" weight vectors
-that point in the same direction but were written down at different
-scales — say, one is exactly ten times the other — give wildly
-different raw dot products, even though they represent the same
-underlying match; normalizing both to unit vectors first makes their
-scores directly comparable. (This is exactly the surprise in this
-session's in-class discussion problem, if you've done it.)
+Normalizing is exactly what removes the $\lVert \mathbf{w} \rVert$ factor from the geometric dot-product formula above, leaving only the angle behind. This matters in practice: two "profile" weight vectors that point in the same direction but were written down at different scales — say, one is exactly ten times the other — give wildly different raw dot products, even though they represent the same underlying match; normalizing both to unit vectors first makes their scores directly comparable. (This is exactly the surprise in this session's in-class discussion problem, if you've done it.)
 
 ### Cross product
 
-The dot product isn't the only way to combine two vectors. For vectors
-in three dimensions specifically, the **cross product** $\mathbf{a}
-\times \mathbf{b}$ produces a *new vector* — not a number — perpendicular
-to both $\mathbf{a}$ and $\mathbf{b}$:
+The dot product isn't the only way to combine two vectors. For vectors in three dimensions specifically, the **cross product** $\mathbf{a}
+\times \mathbf{b}$ produces a *new vector* — not a number — perpendicular to both $\mathbf{a}$ and $\mathbf{b}$:
 
 $$
 \mathbf{a} \times \mathbf{b} = \begin{pmatrix} a_2 b_3 - a_3 b_2 \\ a_3 b_1 - a_1 b_3 \\ a_1 b_2 - a_2 b_1 \end{pmatrix}
@@ -210,22 +110,11 @@ $$
 $$
 
 Its length equals $\lVert \mathbf{a} \rVert \, \lVert \mathbf{b} \rVert
-\sin\theta$ — the *sine*, where the dot product uses *cosine* — so the
-cross product is largest when the two vectors are perpendicular and zero
-when they're parallel, the opposite pattern from the dot product. Unlike
-the dot product, the cross product doesn't generalize to arbitrary
-dimensions the same way — it's specifically a 3-dimensional operation.
-It shows up in structural biology whenever a direction perpendicular to
-a plane is needed, e.g. the normal to the plane defined by three
-backbone atoms.
+\sin\theta$ — the *sine*, where the dot product uses *cosine* — so the cross product is largest when the two vectors are perpendicular and zero when they're parallel, the opposite pattern from the dot product. Unlike the dot product, the cross product doesn't generalize to arbitrary dimensions the same way — it's specifically a 3-dimensional operation. It shows up in structural biology whenever a direction perpendicular to a plane is needed, e.g. the normal to the plane defined by three backbone atoms.
 
 ### Matrices
 
-A matrix is a rectangular grid of numbers — you can think of it as a
-table, or as a stack of vectors (its rows, or equally its columns).
-Matrix–vector and matrix–matrix multiplication are the dot product done
-many times at once: a matrix–vector product is just a batch of dot
-products, one per row of the matrix. For example,
+A matrix is a rectangular grid of numbers — you can think of it as a table, or as a stack of vectors (its rows, or equally its columns). Matrix–vector and matrix–matrix multiplication are the dot product done many times at once: a matrix–vector product is just a batch of dot products, one per row of the matrix. For example,
 
 $$
 \begin{pmatrix} 2 & -1 \\ 0 & 3 \end{pmatrix}
@@ -236,79 +125,48 @@ $$
 \begin{pmatrix} -2 \\ 12 \end{pmatrix}
 $$
 
-— the first entry of the result is exactly the worked-example dot
-product from above; the second is a new dot product between the
-matrix's second row and the same vector.
+— the first entry of the result is exactly the worked-example dot product from above; the second is a new dot product between the matrix's second row and the same vector.
 
-This "many dot products in one operation" view is exactly how Day 6's
-perceptron code is written: instead of looping over training examples one
-at a time and computing $w_1 x_1 + w_2 x_2 + b$ by hand for each, stacking
-every example as a row of a matrix $X$ and computing `X @ w` performs all
-of those weighted sums — one matrix-vector product, no explicit loop.
-Same arithmetic as above, just applied to many rows at once.
+This "many dot products in one operation" view is exactly how Day 6's perceptron code is written: instead of looping over training examples one at a time and computing $w_1 x_1 + w_2 x_2 + b$ by hand for each, stacking every example as a row of a matrix $X$ and computing `X @ w` performs all of those weighted sums — one matrix-vector product, no explicit loop. Same arithmetic as above, just applied to many rows at once.
 
 ### Eigenvalues and eigenvectors
 
-A matrix $A$ transforms any vector it multiplies — usually changing both
-its length and its direction. For most matrices, though, a handful of
-special directions are left *unchanged in orientation* by the
-transformation — only stretched or shrunk. Such a vector $\mathbf{v}$ is
-an **eigenvector** of $A$, and the factor it's scaled by is the
-corresponding **eigenvalue** $\lambda$:
+A matrix $A$ transforms any vector it multiplies — usually changing both its length and its direction. For most matrices, though, a handful of special directions are left *unchanged in orientation* by the transformation — only stretched or shrunk. Such a vector $\mathbf{v}$ is an **eigenvector** of $A$, and the factor it's scaled by is the corresponding **eigenvalue** $\lambda$:
 
 $$
 A \mathbf{v} = \lambda \mathbf{v}
 $$
 
-**Worked example.** For $A = \begin{pmatrix} 2 & 1 \\ 1 & 2 \end{pmatrix}$,
-solving $\det(A - \lambda I) = 0$:
+**Worked example.** For $A = \begin{pmatrix} 2 & 1 \\ 1 & 2 \end{pmatrix}$, solving $\det(A - \lambda I) = 0$:
 
 $$
 (2-\lambda)^2 - 1 = 0 \quad\Rightarrow\quad 2 - \lambda = \pm 1 \quad\Rightarrow\quad \lambda = 1 \text{ or } 3
 $$
 
-For $\lambda = 3$: $(A - 3I)\mathbf{v} = 0$ gives $\mathbf{v} = (1, 1)$
-(any scalar multiple works just as well — eigenvectors are only defined
-up to scale, which is exactly why normalizing them, as above, is
-standard practice: $\hat{\mathbf{v}} = (1/\sqrt2,\, 1/\sqrt2)$). For
-$\lambda = 1$: $\mathbf{v} = (1, -1)$.
+For $\lambda = 3$: $(A - 3I)\mathbf{v} = 0$ gives $\mathbf{v} = (1, 1)$ (any scalar multiple works just as well — eigenvectors are only defined up to scale, which is exactly why normalizing them, as above, is standard practice: $\hat{\mathbf{v}} = (1/\sqrt2,\, 1/\sqrt2)$). For $\lambda = 1$: $\mathbf{v} = (1, -1)$.
 
-Geometrically: multiplying any vector along the direction $(1,1)$ by $A$
-just stretches it by 3; multiplying any vector along $(1,-1)$ stretches
-it by only 1. Every other vector gets rotated toward $(1,1)$ as well as
-stretched, because it's some mixture of both eigenvectors. Eigenvalues
-and eigenvectors turn up throughout data analysis and machine learning
-wherever you need to understand what a matrix *does* to space — for
-instance, dimensionality-reduction methods like PCA find the directions
-of greatest variance in a dataset by finding the eigenvectors of its
-covariance matrix.
+Geometrically: multiplying any vector along the direction $(1,1)$ by $A$ just stretches it by 3; multiplying any vector along $(1,-1)$ stretches it by only 1. Every other vector gets rotated toward $(1,1)$ as well as stretched, because it's some mixture of both eigenvectors. Eigenvalues and eigenvectors turn up throughout data analysis and machine learning wherever you need to understand what a matrix *does* to space — for instance, dimensionality-reduction methods like PCA find the directions of greatest variance in a dataset by finding the eigenvectors of its covariance matrix.
 
 ### A first look ahead: tensors
 
-Vectors and matrices are the first two members of a bigger family called
-**tensors**: a single number is a 0-dimensional tensor, a vector is
-1-dimensional, a matrix is 2-dimensional, and a tensor can keep going to
-3 dimensions (a stack of matrices) or higher still. Day 2 introduces
-tensors properly — as the one data structure PyTorch uses for
-everything, precisely because the same operations used throughout this
-page (addition, scaling, the dot product) generalize cleanly to any
-number of dimensions.
+Vectors and matrices are the first two members of a bigger family called **tensors**: a single number is a 0-dimensional tensor, a vector is 1-dimensional, a matrix is 2-dimensional, and a tensor can keep going to 3 dimensions (a stack of matrices) or higher still. Day 2 introduces tensors properly — as the one data structure PyTorch uses for everything, precisely because the same operations used throughout this page (addition, scaling, the dot product) generalize cleanly to any number of dimensions.
 
 **Practice problems.**
 
-1. Compute the length of $\mathbf{v} = (1, 2, 2)$ and the Frobenius norm of $A = \begin{pmatrix} 1 & 0 \\ 0 & 1 \end{pmatrix}$.
-2. Compute $(2, -1, 3) \cdot (1, 4, 0)$.
-3. Normalize $\mathbf{v} = (3, 4)$.
-4. Compute $(1, 2, 0) \times (0, 1, 3)$.
-5. Find the eigenvalues of $A = \begin{pmatrix} 1 & 2 \\ 2 & 1 \end{pmatrix}$.
+1.  Compute the length of $\mathbf{v} = (1, 2, 2)$ and the Frobenius norm of $A = \begin{pmatrix} 1 & 0 \\ 0 & 1 \end{pmatrix}$.
+2.  Compute $(2, -1, 3) \cdot (1, 4, 0)$.
+3.  Normalize $\mathbf{v} = (3, 4)$.
+4.  Compute $(1, 2, 0) \times (0, 1, 3)$.
+5.  Find the eigenvalues of $A = \begin{pmatrix} 1 & 2 \\ 2 & 1 \end{pmatrix}$.
 
 ::: {.callout-note collapse="true"}
 ## Solutions
-1. $\lVert \mathbf{v} \rVert = \sqrt{1^2+2^2+2^2} = \sqrt{9} = 3$; $\lVert A \rVert_F = \sqrt{1^2+0^2+0^2+1^2} = \sqrt{2} \approx 1.414$.
-2. $(2)(1) + (-1)(4) + (3)(0) = 2 - 4 + 0 = -2$.
-3. $\lVert \mathbf{v} \rVert = \sqrt{3^2+4^2} = 5$, so $\hat{\mathbf{v}} = (0.6, 0.8)$.
-4. $\big((2)(3)-(0)(1),\ (0)(0)-(1)(3),\ (1)(1)-(2)(0)\big) = (6, -3, 1)$.
-5. $(1-\lambda)^2 - 4 = 0 \Rightarrow 1-\lambda = \pm 2 \Rightarrow \lambda = 3$ or $\lambda = -1$.
+
+1.  $\lVert \mathbf{v} \rVert = \sqrt{1^2+2^2+2^2} = \sqrt{9} = 3$; $\lVert A \rVert_F = \sqrt{1^2+0^2+0^2+1^2} = \sqrt{2} \approx 1.414$.
+2.  $(2)(1) + (-1)(4) + (3)(0) = 2 - 4 + 0 = -2$.
+3.  $\lVert \mathbf{v} \rVert = \sqrt{3^2+4^2} = 5$, so $\hat{\mathbf{v}} = (0.6, 0.8)$.
+4.  $\big((2)(3)-(0)(1),\ (0)(0)-(1)(3),\ (1)(1)-(2)(0)\big) = (6, -3, 1)$.
+5.  $(1-\lambda)^2 - 4 = 0 \Rightarrow 1-\lambda = \pm 2 \Rightarrow \lambda = 3$ or $\lambda = -1$.
 :::
 
 **Check your understanding:**
@@ -410,16 +268,9 @@ renderQuiz("day01-quiz-1", [
 
 ## Part 2: Derivatives, the gradient, and gradient descent
 
-A derivative tells you how much a function's output changes for a small
-change in its input — the slope of the tangent line at a point. If you've
-seen this before, that's the whole idea; what's worth reviewing is what
-happens once there's more than one input.
+A derivative tells you how much a function's output changes for a small change in its input — the slope of the tangent line at a point. If you've seen this before, that's the whole idea; what's worth reviewing is what happens once there's more than one input.
 
-A **partial derivative** of a function of several variables, written
-$\partial y / \partial x_i$, is computed by treating every variable except
-$x_i$ as a constant and differentiating as usual. If you stack all of a
-function's partial derivatives into a single vector, you get its
-**gradient**:
+A **partial derivative** of a function of several variables, written $\partial y / \partial x_i$, is computed by treating every variable except $x_i$ as a constant and differentiating as usual. If you stack all of a function's partial derivatives into a single vector, you get its **gradient**:
 
 $$
 \nabla y = \left( \frac{\partial y}{\partial x_1}, \dots, \frac{\partial y}{\partial x_n} \right)
@@ -431,147 +282,89 @@ $$
 \frac{\partial f}{\partial x_1} = 6x_1 + 2x_2, \qquad \frac{\partial f}{\partial x_2} = 2x_1
 $$
 
-(For $\partial f/\partial x_1$, $x_2$ is held constant, so $2x_1 x_2$
-differentiates like $2x_2 \cdot x_1$, giving $2x_2$; for $\partial
-f/\partial x_2$, $x_1$ is held constant, so $3x_1^2$ contributes nothing
-and $2x_1 x_2$ differentiates to $2x_1$.) At the point $(1, 2)$:
+(For $\partial f/\partial x_1$, $x_2$ is held constant, so $2x_1 x_2$ differentiates like $2x_2 \cdot x_1$, giving $2x_2$; for $\partial
+f/\partial x_2$, $x_1$ is held constant, so $3x_1^2$ contributes nothing and $2x_1 x_2$ differentiates to $2x_1$.) At the point $(1, 2)$:
 
 $$
 \nabla f(1, 2) = (6(1) + 2(2), \ 2(1)) = (10, 2)
 $$
 
-Geometrically, the gradient at a point tells you two things at once: the
-*direction* in which the function increases fastest, and (via its length)
-*how steeply*. Point yourself in the opposite direction, and you're headed
-downhill as fast as possible from where you're standing.
+Geometrically, the gradient at a point tells you two things at once: the *direction* in which the function increases fastest, and (via its length) *how steeply*. Point yourself in the opposite direction, and you're headed downhill as fast as possible from where you're standing.
 
-That last sentence is the entire idea behind **gradient descent**, which
-Day 6 uses to train the perceptron introduced above. Given a function
-that measures how wrong a model's predictions are (a *loss function*),
-repeatedly step a small amount in the direction opposite its gradient,
-and the error goes down. Concretely, the update rule is
+That last sentence is the entire idea behind **gradient descent**, which Day 6 uses to train the perceptron introduced above. Given a function that measures how wrong a model's predictions are (a *loss function*), repeatedly step a small amount in the direction opposite its gradient, and the error goes down. Concretely, the update rule is
 
 $$
 x_{n+1} = x_n - \eta \, f'(x_n)
 $$
 
-where $\eta$ (eta) is a small positive **learning rate** controlling the
-step size. Let's watch this actually converge, one step at a time, for
-the one-variable function $f(x) = (x - 3)^2$, whose derivative is $f'(x) =
+where $\eta$ (eta) is a small positive **learning rate** controlling the step size. Let's watch this actually converge, one step at a time, for the one-variable function $f(x) = (x - 3)^2$, whose derivative is $f'(x) =
 2(x-3)$, starting from $x_0 = 0$ with $\eta = 0.3$:
 
 | $n$ | $x_n$ | $f(x_n)$ | $f'(x_n)$ | $x_{n+1} = x_n - 0.3 f'(x_n)$ |
-|---|---|---|---|---|
-| 0 | 0.000 | 9.00 | -6.00 | 1.800 |
-| 1 | 1.800 | 1.44 | -2.40 | 2.520 |
-| 2 | 2.520 | 0.23 | -0.96 | 2.808 |
-| 3 | 2.808 | 0.037 | -0.384 | 2.923 |
+|-----|-------|----------|-----------|-------------------------------|
+| 0   | 0.000 | 9.00     | -6.00     | 1.800                         |
+| 1   | 1.800 | 1.44     | -2.40     | 2.520                         |
+| 2   | 2.520 | 0.23     | -0.96     | 2.808                         |
+| 3   | 2.808 | 0.037    | -0.384    | 2.923                         |
 
-Notice two things: $x_n$ is closing in on 3 (the true minimum, where
-$f'(x) = 0$), and the *steps themselves* shrink as it gets closer, purely
-because the derivative shrinks — nobody had to manually decrease $\eta$.
-This exact table-of-iterations idea is what you'll watch happen inside a
-real model's training loop, starting Day 6, except with many weights
-being updated at once via the gradient vector instead of one number via a
-single derivative.
+Notice two things: $x_n$ is closing in on 3 (the true minimum, where $f'(x) = 0$), and the *steps themselves* shrink as it gets closer, purely because the derivative shrinks — nobody had to manually decrease $\eta$. This exact table-of-iterations idea is what you'll watch happen inside a real model's training loop, starting Day 6, except with many weights being updated at once via the gradient vector instead of one number via a single derivative.
 
-One more idea from calculus matters more than any other for this course:
-the **chain rule**. For a composite function $y = f(g(x))$, its derivative
-is
+One more idea from calculus matters more than any other for this course: the **chain rule**. For a composite function $y = f(g(x))$, its derivative is
 
 $$
 \frac{dy}{dx} = \frac{df}{dg} \cdot \frac{dg}{dx}
 $$
 
-— the derivative of a function of a function is the product of their
-individual derivatives. It looks unremarkable written down, but it is,
-quite literally, the one idea backpropagation (Day 9) is built from: a
-neural network's output is a function of a function of a function of its
-weights, and the chain rule is what lets us compute how each weight,
-however deeply buried, should change, by multiplying together the
-derivatives of every function it passes through on the way to the output.
+— the derivative of a function of a function is the product of their individual derivatives. It looks unremarkable written down, but it is, quite literally, the one idea backpropagation (Day 9) is built from: a neural network's output is a function of a function of a function of its weights, and the chain rule is what lets us compute how each weight, however deeply buried, should change, by multiplying together the derivatives of every function it passes through on the way to the output.
 
 ### Derivative cheat sheet
 
-A short table of the derivatives that come up constantly throughout this
-course — worth having memorized rather than re-derived every time:
+A short table of the derivatives that come up constantly throughout this course — worth having memorized rather than re-derived every time:
 
-| $f(x)$ | $f'(x)$ |
-|---|---|
-| constant $c$ | $0$ |
-| $x^n$ | $n x^{n-1}$ |
-| $e^x$ | $e^x$ |
-| $\ln(x)$ | $1/x$ |
-| $\sin(x)$ | $\cos(x)$ |
-| $\cos(x)$ | $-\sin(x)$ |
+| $f(x)$                     | $f'(x)$                    |
+|----------------------------|----------------------------|
+| constant $c$               | $0$                        |
+| $x^n$                      | $n x^{n-1}$                |
+| $e^x$                      | $e^x$                      |
+| $\ln(x)$                   | $1/x$                      |
+| $\sin(x)$                  | $\cos(x)$                  |
+| $\cos(x)$                  | $-\sin(x)$                 |
 | $\sigma(z) = 1/(1+e^{-z})$ | $\sigma(z)\,(1-\sigma(z))$ |
 
-The last row is worth flagging specifically: it's the exact derivative
-Day 9's backpropagation needs for every sigmoid-activated unit in a
-network, and the reason it's usually written in terms of $\sigma(z)$
-itself (rather than re-expanded in $e^{-z}$) is that, once you've
-already computed $\sigma(z)$ on the forward pass, its derivative costs
-nothing extra to get.
+The last row is worth flagging specifically: it's the exact derivative Day 9's backpropagation needs for every sigmoid-activated unit in a network, and the reason it's usually written in terms of $\sigma(z)$ itself (rather than re-expanded in $e^{-z}$) is that, once you've already computed $\sigma(z)$ on the forward pass, its derivative costs nothing extra to get.
 
-A derivative is zero exactly where a function is momentarily flat — at a
-peak, a trough, or an inflection with a horizontal tangent. $\sin(x)$
-and its derivative $\cos(x)$ make this visible directly:
+A derivative is zero exactly where a function is momentarily flat — at a peak, a trough, or an inflection with a horizontal tangent. $\sin(x)$ and its derivative $\cos(x)$ make this visible directly:
 
-![$f(x)=\sin(x)$ (solid) and $f'(x)=\cos(x)$ (dashed). Wherever $\sin(x)$ reaches a peak or trough (dotted vertical lines), $\cos(x)$ crosses exactly zero.](figs/day01-derivative-cheat-sheet.png){width=85%}
+![$f(x)=\sin(x)$ (solid) and $f'(x)=\cos(x)$ (dashed). Wherever $\sin(x)$ reaches a peak or trough (dotted vertical lines), $\cos(x)$ crosses exactly zero.](figs/day01-derivative-cheat-sheet.png){width="85%"}
 
 ### Integrals
 
-Integration is differentiation run backwards: given a derivative, find
-the function it came from. Geometrically, the **definite integral**
-$\int_a^b f(x)\,dx$ is the area under $f$'s curve between $a$ and $b$;
-the **indefinite integral** $\int f(x)\,dx$ recovers a whole family of
-functions differing only by a constant $C$ (since a constant's own
-derivative is always zero, per the cheat sheet above, integration alone
-can never tell which constant the original function had).
+Integration is differentiation run backwards: given a derivative, find the function it came from. Geometrically, the **definite integral** $\int_a^b f(x)\,dx$ is the area under $f$'s curve between $a$ and $b$; the **indefinite integral** $\int f(x)\,dx$ recovers a whole family of functions differing only by a constant $C$ (since a constant's own derivative is always zero, per the cheat sheet above, integration alone can never tell which constant the original function had).
 
-**Worked example.** This page already differentiated $f(x) = (x-3)^2$
-into $f'(x) = 2(x-3)$, for the gradient-descent table further up.
-Integrating goes the other direction and should recover $f$ itself, up
-to a constant:
+**Worked example.** This page already differentiated $f(x) = (x-3)^2$ into $f'(x) = 2(x-3)$, for the gradient-descent table further up. Integrating goes the other direction and should recover $f$ itself, up to a constant:
 
 $$
 \int 2(x-3)\,dx = (x-3)^2 + C
 $$
 
-— exactly the $f(x)$ this whole worked example started from. This is
-the informal **Fundamental Theorem of Calculus**: integration and
-differentiation are inverse operations.
+— exactly the $f(x)$ this whole worked example started from. This is the informal **Fundamental Theorem of Calculus**: integration and differentiation are inverse operations.
 
-Two places this shows up later in the course, both without ever needing
-to solve an integral symbolically by hand: a continuous probability
-density (introduced in Part 3 below) is not itself a probability — it's
-the *area under* a stretch of it, i.e. its integral over that range,
-that gives an actual probability. And starting Day 8, "area under the
-ROC curve" (AUROC) and "area under the precision-recall curve" (AUPR)
-are two of this course's standard classifier-evaluation metrics — both
-literally integrals, computed numerically (the trapezoidal rule, summing
-up thin strips under a finite set of points) rather than solved in
-closed form, since a real ROC curve isn't a tidy algebraic function.
+Two places this shows up later in the course, both without ever needing to solve an integral symbolically by hand: a continuous probability density (introduced in Part 3 below) is not itself a probability — it's the *area under* a stretch of it, i.e. its integral over that range, that gives an actual probability. And starting Day 8, "area under the ROC curve" (AUROC) and "area under the precision-recall curve" (AUPR) are two of this course's standard classifier-evaluation metrics — both literally integrals, computed numerically (the trapezoidal rule, summing up thin strips under a finite set of points) rather than solved in closed form, since a real ROC curve isn't a tidy algebraic function.
 
-**Practice problem.** For $f(x) = 4x^3$, find $f'(x)$ using the cheat
-sheet above, then integrate your answer and confirm you recover (a
-constant multiple of) $f(x)$ itself.
+**Practice problem.** For $f(x) = 4x^3$, find $f'(x)$ using the cheat sheet above, then integrate your answer and confirm you recover (a constant multiple of) $f(x)$ itself.
 
 ::: {.callout-note collapse="true"}
 ## Solution
-$f'(x) = 12x^2$ (power rule: $n=4$, so $4x^{4-1} \times$ coefficient
-$1 = 12x^2$... concretely $\frac{d}{dx}(4x^3) = 4 \cdot 3x^2 = 12x^2$).
-Integrating back: $\int 12x^2\,dx = 4x^3 + C$ — exactly $f(x)$, up to the
-constant integration can never recover.
+
+$f'(x) = 12x^2$, by the power rule $\frac{d}{dx}x^n = nx^{n-1}$ with $n = 3$, times the constant factor 4: $\frac{d}{dx}(4x^3) = 4 \cdot 3x^2 = 12x^2$. Integrating back: $\int 12x^2\,dx = 4x^3 + C$ — exactly $f(x)$, up to the constant integration can never recover.
 :::
 
-**Practice problem.** For $f(x_0, x_1) = 3x_0^2 + 2x_0 x_1$, compute
-$\nabla f$ at the point $(1, 2)$.
+**Practice problem.** For $f(x_0, x_1) = 3x_0^2 + 2x_0 x_1$, compute $\nabla f$ at the point $(1, 2)$.
 
 ::: {.callout-note collapse="true"}
 ## Solution
-$\partial f/\partial x_0 = 6x_0 + 2x_1 = 6(1) + 2(2) = 10$;
-$\partial f/\partial x_1 = 2x_0 = 2(1) = 2$. So $\nabla f(1,2) = (10, 2)$.
+
+$\partial f/\partial x_0 = 6x_0 + 2x_1 = 6(1) + 2(2) = 10$; $\partial f/\partial x_1 = 2x_0 = 2(1) = 2$. So $\nabla f(1,2) = (10, 2)$.
 :::
 
 **Check your understanding:**
@@ -663,51 +456,37 @@ renderQuiz("day01-quiz-2", [
 
 ## Part 3: Probability basics
 
-A **random variable** takes on different values with different
-probabilities — a discrete one (like a die roll) has a countable list of
-outcomes, each with a probability; a continuous one (like a measured
-concentration) has a probability *density* instead. The **expectation**
-of a random variable is its probability-weighted average value:
+A **random variable** takes on different values with different probabilities — a discrete one (like a die roll) has a countable list of outcomes, each with a probability; a continuous one (like a measured concentration) has a probability *density* instead. The **expectation** of a random variable is its probability-weighted average value:
 
 $$
 \mathbb{E}[X] = \sum_i x_i \, P(X = x_i)
 $$
 
-**Worked example.** For a fair six-sided die, each outcome has probability
-$1/6$, so
+**Worked example.** For a fair six-sided die, each outcome has probability $1/6$, so
 
 $$
 \mathbb{E}[X] = \frac{1+2+3+4+5+6}{6} = 3.5
 $$
 
-Note that 3.5 isn't even a possible outcome of a single roll — expectation
-is a long-run average, not a prediction of any one result.
+Note that 3.5 isn't even a possible outcome of a single roll — expectation is a long-run average, not a prediction of any one result.
 
 ### Variance, standard deviation, and the normal distribution
 
-The mean alone doesn't say how *spread out* a distribution is. Two
-datasets can share the same mean while looking completely different —
-one tightly clustered, one scattered widely. **Variance** measures that
-spread, as the expected squared distance from the mean:
+The mean alone doesn't say how *spread out* a distribution is. Two datasets can share the same mean while looking completely different — one tightly clustered, one scattered widely. **Variance** measures that spread, as the expected squared distance from the mean:
 
 $$
 \text{Var}(X) = \mathbb{E}\big[(X-\mu)^2\big]
 $$
 
-Squaring keeps positive and negative deviations from cancelling out, but
-it also changes the units (a variance in, say, squared micrograms is
-awkward to interpret). **Standard deviation** fixes that by undoing the
-square:
+Squaring keeps positive and negative deviations from cancelling out, but it also changes the units (a variance in, say, squared micrograms is awkward to interpret). **Standard deviation** fixes that by undoing the square:
 
 $$
 \sigma = \sqrt{\text{Var}(X)}
 $$
 
-— back in the same units as $X$ itself, and directly comparable to the
-mean.
+— back in the same units as $X$ itself, and directly comparable to the mean.
 
-**Worked example.** The same fair six-sided die as above, with mean
-$\mu = 3.5$:
+**Worked example.** The same fair six-sided die as above, with mean $\mu = 3.5$:
 
 $$
 \text{Var}(X) = \frac{(1-3.5)^2+(2-3.5)^2+(3-3.5)^2+(4-3.5)^2+(5-3.5)^2+(6-3.5)^2}{6} = \frac{35}{12} \approx 2.917
@@ -717,218 +496,121 @@ $$
 \sigma = \sqrt{35/12} \approx 1.708
 $$
 
-Standard deviation is the same quantity the Student's t-test uses
-further down this page: its $s_p$ term is exactly this, a *pooled*
-standard deviation estimated from real sample data rather than computed
-exactly from a known die.
+Standard deviation is the same quantity the t-test uses further down this page: its $s_1$ and $s_2$ are exactly this, standard deviations estimated from real sample data rather than computed exactly from a known die.
 
-The single most common continuous distribution is the **normal**
-(Gaussian) distribution — the familiar bell curve, fully described by
-just its mean $\mu$ and standard deviation $\sigma$:
+The single most common continuous distribution is the **normal** (Gaussian) distribution — the familiar bell curve, fully described by just its mean $\mu$ and standard deviation $\sigma$:
 
 $$
 f(x) = \frac{1}{\sigma\sqrt{2\pi}} \, e^{-\frac{1}{2}\left(\frac{x-\mu}{\sigma}\right)^2}
 $$
 
-(notice the $e^x$ sitting inside this formula — the next section below
-explains exactly why exponentials show up here and almost everywhere
-else in this course.) A normal distribution's spread follows the
-**68-95-99.7 rule**: about 68% of values fall within one standard
-deviation of the mean, 95% within two, and 99.7% within three — worth
-having as a rough intuition for "how surprising is this value" without
-running any calculation.
+(notice the $e^x$ sitting inside this formula — the next section below explains exactly why exponentials show up here and almost everywhere else in this course.) A normal distribution's spread follows the **68-95-99.7 rule**: about 68% of values fall within one standard deviation of the mean, 95% within two, and 99.7% within three — worth having as a rough intuition for "how surprising is this value" without running any calculation.
 
 ### Logarithms and exponential functions
 
-Two more functions are worth having solid, since they appear constantly
-from here on: the **exponential function** $e^x$ (where $e \approx
-2.718$) — you just saw it inside the normal distribution's own formula
-above — and its inverse, the **logarithm** $\log(x)$ — asking "$e$ to
-what power gives $x$?" Different bases are common: $\log_{10}$ and
-$\log_2$ (both used below, for a volcano plot's axes) are the same idea
-with a different base, related to the natural log by a constant factor.
+Two more functions are worth having solid, since they appear constantly from here on: the **exponential function** $e^x$ (where $e \approx
+2.718$) — you just saw it inside the normal distribution's own formula above — and its inverse, the **logarithm** $\log(x)$ — asking "$e$ to what power gives $x$?" Different bases are common: $\log_{10}$ and $\log_2$ (both used below, for a volcano plot's axes) are the same idea with a different base, related to the natural log by a constant factor.
 
-The property that matters most: logarithms turn multiplication into
-addition,
+The property that matters most: logarithms turn multiplication into addition,
 
 $$
 \log(xy) = \log(x) + \log(y)
 $$
 
-This is exactly why substitution-matrix scores (Day 4) and profile
-scores (Day 5) are **sums** of per-position log-odds terms rather than
-products of odds ratios — adding numbers is easier to reason about (and
-far less prone to numerical underflow) than multiplying many small
-probabilities together, and the log turns one into the other without
-changing which alignment or match scores best.
+This is exactly why substitution-matrix scores (Day 4) and profile scores (Day 5) are **sums** of per-position log-odds terms rather than products of odds ratios — adding numbers is easier to reason about (and far less prone to numerical underflow) than multiplying many small probabilities together, and the log turns one into the other without changing which alignment or match scores best.
 
-**Worked example.** $\log_{10}(0.001) = -3$, since $10^{-3} = 0.001$ —
-exactly why a p-value of 0.001 gives $-\log_{10}(p) = 3$ on a volcano
-plot's y-axis (introduced further down this page): smaller p-values
-(stronger evidence) become larger, more-positive bars.
+**Worked example.** $\log_{10}(0.001) = -3$, since $10^{-3} = 0.001$ — exactly why a p-value of 0.001 gives $-\log_{10}(p) = 3$ on a volcano plot's y-axis (introduced further down this page): smaller p-values (stronger evidence) become larger, more-positive bars.
 
-The exponential function shows up just as often, usually to turn an
-unbounded number into a positive one (since $e^x > 0$ for every $x$) or
-into a probability. Day 6's perceptron uses exactly this: the **sigmoid
-function**, $\sigma(z) = 1/(1+e^{-z})$, squashes any real-valued $z$
-into the range $(0, 1)$, turning a weighted sum into something that can
-be read as a probability. (Its derivative is on the cheat sheet in Part
-2 above.)
+The exponential function shows up just as often, usually to turn an unbounded number into a positive one (since $e^x > 0$ for every $x$) or into a probability. Day 6's perceptron uses exactly this: the **sigmoid function**, $\sigma(z) = 1/(1+e^{-z})$, squashes any real-valued $z$ into the range $(0, 1)$. That alone does not make the output a probability: squashing an arbitrary score into $(0, 1)$ gives a number between 0 and 1, not a calibrated probability. The output can be interpreted as a probability when the model is built and trained for it, as in logistic regression or a binary classifier trained with the matching loss (Day 8). (Its derivative is on the cheat sheet in Part 2 above.)
 
-**Conditional probability** — the probability of one event given that
-another has occurred, written $P(A \mid B)$ — and **Bayes' rule**, which
-lets you flip a conditional probability around, are worth having solid
-before Day 5, where they're exactly the machinery underneath a Hidden
-Markov Model. Bayes' rule follows directly from the definition of
-conditional probability ($P(A \mid B) = P(A \cap B)/P(B)$, applied both
-ways round) and reads:
+**Conditional probability** — the probability of one event given that another has occurred, written $P(A \mid B)$ — and **Bayes' rule**, which lets you flip a conditional probability around, are worth having solid before Day 5, where they're exactly the machinery underneath a Hidden Markov Model. Bayes' rule follows directly from the definition of conditional probability ($P(A \mid B) = P(A \cap B)/P(B)$, applied both ways round) and reads:
 
 $$
 P(A \mid B) = \frac{P(B \mid A) \, P(A)}{P(B)}
 $$
 
-**Worked example** (the classic illustration of why this matters): a
-diagnostic test for a rare condition affecting 1% of a population is 95%
-accurate on people who have it ($P(\text{positive} \mid \text{disease}) =
-0.95$) and gives a false positive 5% of the time on people who don't
-($P(\text{positive} \mid \text{no disease}) = 0.05$). If someone tests
-positive, what's the actual probability they have the condition?
+**Worked example** (the classic illustration of why this matters): a diagnostic test for a rare condition affecting 1% of a population is 95% accurate on people who have it ($P(\text{positive} \mid \text{disease}) =
+0.95$) and gives a false positive 5% of the time on people who don't ($P(\text{positive} \mid \text{no disease}) = 0.05$). If someone tests positive, what's the actual probability they have the condition?
 
 $$
 P(\text{disease} \mid \text{positive}) = \frac{P(\text{positive} \mid \text{disease}) \, P(\text{disease})}{P(\text{positive})}
 $$
 
-The denominator, $P(\text{positive})$, has to account for positives from
-*both* groups: $P(\text{positive}) = (0.95)(0.01) + (0.05)(0.99) =
+The denominator, $P(\text{positive})$, has to account for positives from *both* groups: $P(\text{positive}) = (0.95)(0.01) + (0.05)(0.99) =
 0.0095 + 0.0495 = 0.059$. So
 
 $$
 P(\text{disease} \mid \text{positive}) = \frac{(0.95)(0.01)}{0.059} \approx 0.161
 $$
 
-Despite a 95%-accurate test, a positive result only means about a 16%
-chance of actually having the condition — because the condition is rare,
-false positives from the large healthy population outnumber true
-positives from the small affected one. This kind of reasoning — combining
-a prior probability with new evidence — underpins the loss functions used
-everywhere from Day 6 onward: minimizing a loss function during training
-is, in most of the models in this course, equivalent to finding the model
-parameters that make the observed data most probable.
+Despite a 95%-accurate test, a positive result only means about a 16% chance of actually having the condition — because the condition is rare, false positives from the large healthy population outnumber true positives from the small affected one. This is what Bayes' rule does: it combines a prior belief (1% of people have the condition) with evidence (a positive test). A related but different idea runs through the loss functions used from Day 6 onward. Many of them can be understood as **negative log-likelihoods**: minimizing the loss finds the model parameters under which the observed data are most probable (maximum likelihood). That uses the likelihood, $P(\text{data} \mid \text{parameters})$, but no prior, so it is not Bayes' rule itself.
 
 ### p-values and hypothesis testing
 
-Statistical testing starts from a **null hypothesis** ($H_0$) — the
-assumption that there's no real effect, and any difference you observe
-is just chance. A **p-value** is the probability of seeing a result at
-least as extreme as what you actually observed, *if the null hypothesis
-were true*. By convention, $p < 0.05$ is often treated as "statistically
-significant," but that threshold is a convention, not a law of nature.
+Statistical testing starts from a **null hypothesis** ($H_0$) — the assumption that there's no real effect, and any difference you observe is just chance. A **p-value** is the probability of seeing a result at least as extreme as what you actually observed, *if the null hypothesis were true*. By convention, $p < 0.05$ is often treated as "statistically significant," but that threshold is a convention, not a law of nature. What the threshold guarantees is this: if the null hypothesis is true and the assumptions of the test hold, a test using a significance threshold of 0.05 has a 5% probability of rejecting the null hypothesis.
 
-This is a genuinely easy idea to misread, and worth contrasting directly
-with the disease-test example above: a p-value is $P(\text{data this
-extreme} \mid H_0)$, *not* $P(H_0 \mid \text{data})$ — exactly the same
-kind of "backwards" conditional-probability confusion. A small p-value
-tells you the data would be surprising if there were truly no effect; it
-does not, by itself, tell you the probability that there's no effect.
+This is a genuinely easy idea to misread, and worth contrasting directly with the disease-test example above: a p-value is $P(\text{data this
+extreme} \mid H_0)$, *not* $P(H_0 \mid \text{data})$ — exactly the same kind of "backwards" conditional-probability confusion. A small p-value tells you the data would be surprising if there were truly no effect; it does not, by itself, tell you the probability that there's no effect.
 
-### Student's t-test
+### Comparing two group means: the t-test
 
-The most common way to test whether two groups' means genuinely differ
-is **Student's t-test**:
+The biostatistics course covers this in depth, so here is only a reminder.
+A classical test for comparing two group means is the **t-test**; Welch's
+version is usually preferred when equal variances cannot be assumed, and
+it is a safer default for most biological data. Welch's t-statistic is
 
 $$
-t = \frac{\bar{x}_1 - \bar{x}_2}{s_p \sqrt{1/n_1 + 1/n_2}}
+t = \frac{\bar{x}_1 - \bar{x}_2}{\sqrt{s_1^2/n_1 + s_2^2/n_2}}
 $$
 
-where $\bar{x}_1, \bar{x}_2$ are the two sample means, $n_1, n_2$ their
-sample sizes, and $s_p$ a pooled estimate of their standard deviation.
-Larger differences between the means, or less noisy data (smaller
-$s_p$), push $|t|$ up; a bigger $|t|$ gives a smaller p-value.
+where $\bar{x}_1, \bar{x}_2$ are the two sample means, $s_1, s_2$ their
+sample standard deviations and $n_1, n_2$ their sample sizes. (Student's
+original version pools $s_1$ and $s_2$ into one standard deviation, which
+assumes the two groups are equally variable.) Larger differences between
+the means, or less noisy data, push $|t|$ up, and a bigger $|t|$ gives a
+smaller p-value.
 
-**Worked example.** Four expression measurements in a control condition,
-$(5.1, 4.9, 5.3, 5.0)$, and four in a treatment condition, $(7.2, 6.8,
+**Worked example.** Four expression measurements in a control condition, $(5.1, 4.9, 5.3, 5.0)$, and four in a treatment condition, $(7.2, 6.8,
 7.5, 7.0)$:
 
 $$
-\bar{x}_{\text{control}} = 5.075, \qquad \bar{x}_{\text{treatment}} = 7.125, \qquad t \approx -11.9, \qquad p \approx 0.00002
+\bar{x}_{\text{control}} = 5.075, \qquad \bar{x}_{\text{treatment}} = 7.125, \qquad t \approx -11.9, \qquad p \approx 0.0001
 $$
 
-With means this far apart relative to how little the four replicates in
-each group vary, the difference is extremely unlikely to be chance —
-matching the tiny p-value.
+With means this far apart relative to how little the four replicates in each group vary, the difference is extremely unlikely to be chance — matching the tiny p-value.
 
 ### The multiple testing problem
 
-A p-value threshold of 0.05 means: even when the null hypothesis is
-exactly true, there's a 5% chance of a false positive *for that one
-test*. That's a fine risk to accept once. It's a very different story
-once the same test runs on every gene in a genome. Simulate 2000 genes,
-none of which are actually differentially expressed, test each one at
-$p<0.05$, and you get roughly $2000 \times 0.05 = 100$ "significant"
-genes purely by chance — a wall of false positives, not a list of real
-findings.
+A p-value threshold of 0.05 means: if the null hypothesis is true and the test's assumptions hold, there's a 5% chance of a false positive *for that one test*. That's a fine risk to accept once. It's a very different story once the same test runs on every gene in a genome. Simulate 2000 genes, none of which are actually differentially expressed, test each one at $p<0.05$, and you get roughly $2000 \times 0.05 = 100$ "significant" genes purely by chance — a wall of false positives, not a list of real findings.
 
-The fix is a **multiple testing correction**. Bonferroni's is the
-simplest — divide the significance threshold by the number of tests —
-but it's often needlessly conservative for genomics, where thousands of
-tests are routine. The standard alternative is the **false discovery
-rate (FDR)**, typically estimated with the Benjamini-Hochberg procedure:
-rather than controlling the chance of *any* false positive, it controls
-the *expected proportion* of false positives among everything called
-significant, which stays informative even with tens of thousands of
-tests.
+The fix is a **multiple testing correction**. Bonferroni's is the simplest — divide the significance threshold by the number of tests — but it's often needlessly conservative for genomics, where thousands of tests are routine. The standard alternative is to control the **false discovery rate (FDR)**: rather than the chance of *any* false positive, the *expected proportion* of false positives among everything called significant. The Benjamini-Hochberg procedure is commonly used to control the false discovery rate. It does so under specified assumptions (independent or positively correlated tests), and it stays informative even with tens of thousands of tests.
 
 ### Worked example: RNA-seq differential expression and the volcano plot
 
-Put all three ideas together on a realistic-shaped problem: comparing
-gene expression between a treatment and a control condition across 2000
-genes, of which 50 are simulated to be genuinely differentially
-expressed and the rest are pure noise. For each gene, a t-test gives a
-p-value, and the **fold change** — how many-fold higher or lower its
-expression is in treatment vs. control, usually reported as $\log_2$ of
-that ratio — measures the size of the effect, independently of its
-statistical significance.
+Put all three ideas together on a realistic-shaped problem: comparing gene expression between a treatment and a control condition across 2000 genes, of which 50 are simulated to be genuinely differentially expressed and the rest are pure noise. For each gene, a t-test gives a p-value, and the **fold change** — how many-fold higher or lower its expression is in treatment vs. control, usually reported as $\log_2$ of that ratio — measures the size of the effect, independently of its statistical significance.
 
-A **volcano plot** shows both at once: $\log_2$ fold change on the
-x-axis, $-\log_{10}(p\text{-value})$ on the y-axis (so smaller p-values —
-stronger evidence — plot higher up). Genes that are both far from the
-centre (a big effect) and high up (strong evidence) are the interesting
-ones — the shape that gives the plot its name:
+A **volcano plot** shows both at once: $\log_2$ fold change on the x-axis, $-\log_{10}(p\text{-value})$ on the y-axis (so smaller p-values — stronger evidence — plot higher up). Genes that are both far from the centre (a big effect) and high up (strong evidence) are the interesting ones — the shape that gives the plot its name:
 
-![](figs/day01-volcano-plot.png){width=85%}
+![](figs/day01-volcano-plot.png){width="85%"}
 
-Applying just the naive $p<0.05$ threshold to this simulated data flags
-140 genes as "significant" — but 90 of those are false positives among
-the 1950 genes with no real effect, almost exactly the ~97.5 expected by
-chance. Applying Benjamini-Hochberg FDR correction at 5% instead brings
-that down to 48 flagged genes, of which 47 are correctly among the 50
-real differentially expressed genes and only 1 is a false positive —
-recovering the large majority of the true effects while controlling the
-false-positive flood the naive threshold let straight through.
+Applying just the naive $p<0.05$ threshold to this simulated data (Welch's t-test for each gene) flags 135 genes as "significant" — but 85 of those are false positives among the 1950 genes with no real effect, close to the \~97.5 expected by chance. Applying the Benjamini-Hochberg procedure at an FDR of 5% instead brings that down to 44 flagged genes, all 44 of them among the 50 real differentially expressed genes, with no false positives — recovering the large majority of the true effects while controlling the false-positive flood the naive threshold let straight through.
 
 **Practice problems.**
 
-1. A fair six-sided die is rolled once. What is $P(\text{even} \mid X >
-   3)$ — the probability of an even result, given that the result
-   exceeds 3?
-2. If you test 100 genes with no real difference at $p<0.05$ and apply
-   no correction, about how many false positives should you expect by
-   chance alone?
-3. A gene has a p-value of $10^{-6}$. What is its height on a volcano
-   plot's y-axis, $-\log_{10}(p)$?
-4. A random variable takes value 2 with probability 0.5 and value 6 with
-   probability 0.5. Compute its mean, variance, and standard deviation.
+1.  A fair six-sided die is rolled once. What is $P(\text{even} \mid X >
+    3)$ — the probability of an even result, given that the result exceeds 3?
+2.  If you test 100 genes with no real difference at $p<0.05$ and apply no correction, about how many false positives should you expect by chance alone?
+3.  A gene has a p-value of $10^{-6}$. What is its height on a volcano plot's y-axis, $-\log_{10}(p)$?
+4.  A random variable takes value 2 with probability 0.5 and value 6 with probability 0.5. Compute its mean, variance, and standard deviation.
 
 ::: {.callout-note collapse="true"}
 ## Solutions
-1. $X > 3$ means the outcome is 4, 5, or 6 — three equally likely
-   outcomes. Of those, 4 and 6 are even: two out of three. So
-   $P(\text{even} \mid X > 3) = 2/3$.
-2. $100 \times 0.05 = 5$ false positives expected, even though every one
-   of the 100 genes is truly non-differentially-expressed.
-3. $-\log_{10}(10^{-6}) = 6$.
-4. $\mu = 0.5(2) + 0.5(6) = 4$. $\text{Var}(X) = 0.5(2-4)^2 + 0.5(6-4)^2
-   = 0.5(4) + 0.5(4) = 4$. $\sigma = \sqrt{4} = 2$.
+
+1.  $X > 3$ means the outcome is 4, 5, or 6 — three equally likely outcomes. Of those, 4 and 6 are even: two out of three. So $P(\text{even} \mid X > 3) = 2/3$.
+2.  $100 \times 0.05 = 5$ false positives expected, even though every one of the 100 genes is truly non-differentially-expressed.
+3.  $-\log_{10}(10^{-6}) = 6$.
+4.  $\mu = 0.5(2) + 0.5(6) = 4$. $\text{Var}(X) = 0.5(2-4)^2 + 0.5(6-4)^2
+    = 0.5(4) + 0.5(4) = 4$. $\sigma = \sqrt{4} = 2$.
 :::
 
 **Check your understanding:**
@@ -1003,7 +685,7 @@ renderQuiz("day01-quiz-3", [
     question: "What range of values does the sigmoid function &sigma;(z) = 1/(1+e&#8315;&#7611;) always produce, no matter what z is?",
     choices: ["(0, 1)", "(-1, 1)", "(0, &infin;)", "Any real number"],
     correctIndex: 0,
-    explanation: "The sigmoid squashes any real-valued input into the open interval (0, 1), which is exactly why it can be read as a probability."
+    explanation: "The sigmoid squashes any real-valued input into the open interval (0, 1). That makes it suitable as the output of a model trained to predict probabilities, such as logistic regression, but squashing an arbitrary score does not by itself make it a calibrated probability."
   },
   {
     question: "For a normal distribution with mean &mu; and standard deviation &sigma;, roughly what fraction of values fall within 2&sigma; of the mean?",
@@ -1018,7 +700,7 @@ renderQuiz("day01-quiz-3", [
 ### Further reading
 
 - Wikipedia, [Bayes' theorem](https://en.wikipedia.org/wiki/Bayes%27_theorem) — more worked examples and the different interpretations of probability behind it
-- Wikipedia, [P-value](https://en.wikipedia.org/wiki/P-value) and [Student's t-test](https://en.wikipedia.org/wiki/Student%27s_t-test)
+- Wikipedia, [P-value](https://en.wikipedia.org/wiki/P-value), [Student's t-test](https://en.wikipedia.org/wiki/Student%27s_t-test) and [Welch's t-test](https://en.wikipedia.org/wiki/Welch%27s_t-test)
 - Wikipedia, [Multiple comparisons problem](https://en.wikipedia.org/wiki/Multiple_comparisons_problem), [False discovery rate](https://en.wikipedia.org/wiki/False_discovery_rate), and [Volcano plot (statistics)](https://en.wikipedia.org/wiki/Volcano_plot_(statistics))
 - Wikipedia, [Exponential function](https://en.wikipedia.org/wiki/Exponential_function), [Logarithm](https://en.wikipedia.org/wiki/Logarithm), and [Sigmoid function](https://en.wikipedia.org/wiki/Sigmoid_function)
 - d2l.ai, [Probability and Statistics](https://d2l.ai/chapter_preliminaries/probability.html) — connects this directly to how machine-learning models are evaluated
@@ -1033,7 +715,7 @@ renderQuiz("day01-quiz-3", [
 </div>
 ```
 
-[*Binomial distributions | Probabilities of probabilities, part 1*](https://www.youtube.com/watch?v=8idr1WZ1A7Q) (3Blue1Brown) — the natural extension of this page's die-roll example: repeating a yes/no trial many times and counting successes:
+[*Binomial distributions \| Probabilities of probabilities, part 1*](https://www.youtube.com/watch?v=8idr1WZ1A7Q) (3Blue1Brown) — the natural extension of this page's die-roll example: repeating a yes/no trial many times and counting successes:
 
 ```{=html}
 <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
@@ -1041,7 +723,7 @@ renderQuiz("day01-quiz-3", [
 </div>
 ```
 
-[*Why "probability of 0" does not mean "impossible" | Probabilities of probabilities, part 2*](https://www.youtube.com/watch?v=ZA4JkHKZM50) (3Blue1Brown) — the same series' follow-up, on continuous distributions (like the normal distribution above), where any single exact value has probability zero without being impossible:
+[*Why "probability of 0" does not mean "impossible" \| Probabilities of probabilities, part 2*](https://www.youtube.com/watch?v=ZA4JkHKZM50) (3Blue1Brown) — the same series' follow-up, on continuous distributions (like the normal distribution above), where any single exact value has probability zero without being impossible:
 
 ```{=html}
 <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
@@ -1075,22 +757,8 @@ renderQuiz("day01-quiz-3", [
 
 ## The notebook
 
-`notebooks/day01-math-in-code.ipynb` recomputes every worked example and
-practice problem above in code — vector length and the Frobenius norm,
-the dot product, cross product, and normalization, the eigenvalues of a
-small matrix, the gradient (checked two ways: by hand and via automatic
-differentiation), the die-roll probabilities (checked two ways: exactly,
-and by simulating a few hundred thousand rolls), the t-test worked
-example, the full simulated RNA-seq/volcano-plot analysis (reproducing
-the figure above from scratch), and logarithms/the sigmoid function — so
-you can confirm code and math agree before Day 2 introduces the code
-side properly. The version below is a static, read-only copy; open it in
-[Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day01-math-in-code.ipynb)
-via the badge at the top of the notebook page to edit and run it
-yourself.
+`notebooks/day01-math-in-code.ipynb` recomputes every worked example and practice problem above in code — vector length and the Frobenius norm, the dot product, cross product, and normalization, the eigenvalues of a small matrix, the gradient (checked two ways: by hand and via automatic differentiation), the die-roll probabilities (checked two ways: exactly, and by simulating a few hundred thousand rolls), the t-test worked example, the full simulated RNA-seq/volcano-plot analysis (reproducing the figure above from scratch), and logarithms/the sigmoid function — so you can confirm code and math agree before Day 2 introduces the code side properly. The version below is a static, read-only copy; open it in [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day01-math-in-code.ipynb) via the badge at the top of the notebook page to edit and run it yourself.
 
 ## What's next
 
-Day 2 takes every idea above and writes it in code the idiomatic way: the
-dot product becomes a line of PyTorch, and the gradient becomes something
-the framework computes for you automatically.
+Day 2 takes every idea above and writes it in code the idiomatic way: the dot product becomes a line of PyTorch, and the gradient becomes something the framework computes for you automatically.
