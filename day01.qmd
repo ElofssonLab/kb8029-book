@@ -10,7 +10,13 @@ The session is in three parts: vectors and matrices (including the dot product, 
 
 ## Learning goals
 
-By the end of this session you should be able to compute the length of a vector and the Frobenius norm of a matrix, compute a dot product by hand and interpret it geometrically, normalize a vector, work out the shape of a matrix product (including with the transpose) for a real data matrix, explain what eigenvectors are and why PCA uses them, take a partial derivative of a simple multivariable function and use it to run a step of gradient descent, recall the derivative of the handful of functions that come up constantly in this course, explain integration as the reverse of differentiation, compute the variance and standard deviation of a simple random variable and describe the 68-95-99.7 rule for a normal distribution, apply Bayes' rule to a concrete conditional-probability problem, explain what a p-value does and doesn't mean, run a two-sample t-test, explain why testing thousands of genes at once requires correcting for multiple testing, and explain why logarithms turn multiplication into addition and what the sigmoid function does.
+By the end of this session you should:
+
+- work comfortably with vectors, matrices, dot products and dimensions;
+- understand derivatives, gradients and why gradient descent works;
+- understand conditional probability and Bayes' rule;
+- understand logs, likelihood and why bioinformatics uses log-scores;
+- understand p-values and why multiple testing requires FDR control.
 
 ## Part 1: Vectors and matrices
 
