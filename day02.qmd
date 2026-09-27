@@ -345,12 +345,15 @@ renderQuiz("day02-quiz-3", [
 The lab notebook, [`notebooks/day02-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day02-lab.ipynb), continues from the mini challenge, with less help at each step. Lines to complete are marked with `todo(...)`, which stops the cell with a message saying what is missing.
 
 1.  **Fill in:** complete marked lines in working code. Explore the same RNA-seq table with other columns and thresholds, plot first and test second, run `Seq` operations on a mystery fragment, and fetch its record from NCBI into a local file and back.
+
 2.  **Adapt:** change working code to answer new questions. Find the most strongly down-regulated gene, fix a cell with three realistic bugs (one of which runs without an error), and apply the mini challenge's function to six more globin genes.
+
 3.  **Solve:** four open challenges, each with a specification and hints only:
-    -   download a gene (human leptin) with Entrez and Biopython, report its length, GC and protein, and plot GC content along the mRNA;
-    -   explore the RNA-seq table with seaborn: a joint plot, a heatmap of the correlations between its columns, and a plot of your own choice;
-    -   a statistical analysis, plot first and test second: are up-regulated genes expressed at a different level than down-regulated ones?
-    -   all twelve globins: does a longer mRNA mean a longer protein?
+
+    - download a gene (human leptin) with Entrez and Biopython, report its length, GC and protein, and plot GC content along the mRNA;
+    - explore the RNA-seq table with seaborn: a joint plot, a heatmap of the correlations between its columns, and a plot of your own choice;
+    - a statistical analysis, plot first and test second: are up-regulated genes expressed at a different level than down-regulated ones?
+    - all twelve globins: does a longer mRNA mean a longer protein?
 
     Each asks you to explain what you found in a few sentences.
 
@@ -362,24 +365,21 @@ This lab is administered through Canvas, not this book — see the course's Canv
 
 ## Further watching
 
-The animations in the 3Blue1Brown videos used throughout this course are
-made with **Manim**, an open-source Python library written by Grant
-Sanderson, 3Blue1Brown's creator. Two views of Python used for something
-very different from data analysis:
-
-[*How I animate 3Blue1Brown | A Manim demo with Ben Sparks*](https://www.youtube.com/watch?v=rbu7Zu5X1zI) (3Blue1Brown), a long demonstration of how the videos are built, scene by scene, in code:
-
-```{=html}
-<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
-<iframe src="https://www.youtube.com/embed/rbu7Zu5X1zI" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="How I animate 3Blue1Brown, A Manim demo with Ben Sparks"></iframe>
-</div>
-```
+The animations in the 3Blue1Brown videos used throughout this course are made with **Manim**, an open-source Python library written by Grant Sanderson, 3Blue1Brown's creator. Two views of Python used for something very different from data analysis:
 
 [*Animate Like 3Blue1Brown - No Coding Required (Manim Animation Using A.I.)*](https://www.youtube.com/watch?v=InHuoGkOb2s) (Sycamore), generating Manim animations with an AI assistant. Watch it with Section 7 in mind: how do you check that what the assistant produced is what you wanted?
 
 ```{=html}
 <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
 <iframe src="https://www.youtube.com/embed/InHuoGkOb2s" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="Animate Like 3Blue1Brown - No Coding Required (Manim Animation Using A.I.), Sycamore"></iframe>
+</div>
+```
+
+[*How I animate 3Blue1Brown \| A Manim demo with Ben Sparks*](https://www.youtube.com/watch?v=rbu7Zu5X1zI) (3Blue1Brown), a long demonstration of how the videos are built, scene by scene, in code:
+
+```{=html}
+<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
+<iframe src="https://www.youtube.com/embed/rbu7Zu5X1zI" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="How I animate 3Blue1Brown, A Manim demo with Ben Sparks"></iframe>
 </div>
 ```
 
