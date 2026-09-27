@@ -141,6 +141,10 @@ The course data are on the server in **`/data/kb8029/`** **\[to be confirmed\]**
 
 For GPU work you need a (free) Google account. There are two ways to use Colab.
 
+### Using the PDC cluster. 
+
+A limited number of GPU machines (gpuX.bioinfo.se) will be made available during the course. These can be used. However, the GPU can (in general) only be used by one student at a time, and we only have a limited set of such machines, Therefore, they might not always be available.
+
 ### In the browser
 
 Click the **Open in Colab** badge at the top of any notebook in this book. In Colab, choose **Runtime → Change runtime type → T4 GPU**, then run the cells. This is the simplest way, and it works from any computer.
@@ -187,11 +191,11 @@ The file named after `Offering public key:` must be the private half of the publ
 
 VS Code uses Windows' OpenSSH (`C:\Windows\System32\OpenSSH\ssh.exe`) unless the setting **Remote.SSH: Path** says otherwise. Check that setting is empty, or points to that file.
 
-**`UNPROTECTED PRIVATE KEY FILE` or `bad permissions`.** SSH refuses a private key that other users can read. On Mac and Linux: `chmod 600 ~/.ssh/id_ed25519`. On Windows this happens when the key file was copied from elsewhere; creating the key with `ssh-keygen` as in Part 1 avoids it.
+**`UNPROTECTED PRIVATE KEY FILE` or `bad permissions`.** SSH refuses a private key that other users can read. On Mac and Linux you can change this using this command `chmod 600 ~/.ssh/id_ed25519`. On Windows this happens when the key file was copied from elsewhere; creating the key with `ssh-keygen` as in Part 1 avoids it.
 
 **VS Code keeps reconnecting or hangs at "Setting up SSH host".** Check that `ssh kb8029-server` works in a terminal. Then Command Palette → **Remote-SSH: Kill VS Code Server on Host...** → `kb8029-server`, and connect again. **Remote-SSH: Show Log** shows what went wrong.
 
-**`conda: command not found`.** Your shell on the server has not been set up for conda. Run `conda init` once **\[to be confirmed: path to the server's conda installation\]**, then open a new terminal.
+**`conda: command not found`.** Your shell on the server has not been set up for conda. Run `conda init` once , then open a new terminal.
 
 ## Further reading
 
