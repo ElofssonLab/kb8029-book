@@ -1,0 +1,295 @@
+# Setup: VS Code, the course server and Colab {.unnumbered}
+
+::: {.callout-warning}
+**Draft.** A few details are still to be confirmed and are marked
+**[to be confirmed]**: how you receive your username, where the course
+data live on the server, and the name of the course's conda environment
+(called `kb8029` below).
+:::
+
+You will write and run code in three places during this course:
+
+| Where | What it gives you | Use it for |
+|---|---|---|
+| **The course server**, `students.bioinfo.se`, through VS Code | A Linux machine with the course's conda environment, the command-line tools (BLAST, HMMER, MMseqs2, ...) and all course data; no GPU | Most labs and notebooks that need tools or large data |
+| **Google Colab**, in the browser or through VS Code | A free GPU for a limited time | Training neural networks (mainly Days 8-12) |
+| **Your own laptop** | Whatever you install | Editing, small experiments, PyMOL (Day 7) |
+
+We do not yet have GPUs for every student on the server, so anything
+that needs a GPU runs on Colab. Every notebook in this book has an
+"Open in Colab" badge, and fetches its data from the course's GitHub
+repository, so it runs the same way on all three.
+
+This page assumes you have used VS Code on your own computer. It covers
+the parts that are probably new: connecting VS Code to a remote machine
+over SSH, and running a notebook on Colab from VS Code. Do Part 1 well
+before the first lab, because the teachers need your public key in
+advance.
+
+## Part 1: An SSH key
+
+The server does not use passwords. You log in with an **SSH key pair**:
+
+- a **private key** (for example `id_ed25519`), which stays on your
+  computer and is never shared, not even with the teachers;
+- a **public key** (the same name ending in `.pub`), which you send to
+  the teachers. It is added to the server, and only someone holding the
+  matching private key can then log in as you.
+
+Most login problems last year came from Windows computers holding more
+than one set of keys, so that the key sent in was not the key VS Code
+used. The steps below avoid that by creating the key in one known place
+and telling VS Code explicitly which file to use.
+
+### Mac and Linux
+
+Open a terminal and run:
+
+```sh
+ls ~/.ssh/                       # do you already have id_ed25519 and id_ed25519.pub?
+ssh-keygen -t ed25519 -C "your-su-username"
+```
+
+If `id_ed25519` already exists, you can reuse it (skip `ssh-keygen`).
+Otherwise accept the default location and choose a passphrase (you can
+leave it empty, but a passphrase protects the key if your laptop is
+stolen). Your public key is now in `~/.ssh/id_ed25519.pub`:
+
+```sh
+cat ~/.ssh/id_ed25519.pub
+```
+
+### Windows
+
+Use **PowerShell**, and Windows' own OpenSSH, which comes with Windows 10
+and 11 and is the SSH that VS Code uses by default. Do **not** create the
+key with PuTTY/PuTTYgen, Git Bash or WSL for this course: each of those
+can store keys somewhere else, or in another format, which is how the
+wrong key ends up being used.
+
+1. Open **PowerShell** (Start menu → type "PowerShell").
+2. Check which `ssh` you have, and what keys already exist:
+
+   ```powershell
+   Get-Command ssh              # should be C:\Windows\System32\OpenSSH\ssh.exe
+   ls $HOME\.ssh                # existing keys, if any
+   ```
+
+   If `Get-Command ssh` finds nothing, install the OpenSSH client:
+   Settings → System → Optional features → Add a feature → "OpenSSH
+   Client".
+3. Create the key:
+
+   ```powershell
+   ssh-keygen -t ed25519 -C "your-su-username"
+   ```
+
+   Accept the default location. It saves the key pair as
+   `C:\Users\<you>\.ssh\id_ed25519` and `C:\Users\<you>\.ssh\id_ed25519.pub`.
+   If `ssh-keygen` asks whether to overwrite an existing key, answer
+   **no** and reuse the existing one instead (overwriting breaks
+   anything that key was used for).
+4. Show the public key:
+
+   ```powershell
+   Get-Content $HOME\.ssh\id_ed25519.pub
+   ```
+
+### Send the public key
+
+The public key is **one line** that starts with `ssh-ed25519` and ends
+with the comment you gave (your username). Send that line, and only that
+line, to the teachers **[to be confirmed: by email to Arne Elofsson, or
+through Canvas]**. Never send the file without `.pub`. You will get your
+username on the server back **[to be confirmed]**.
+
+## Part 2: Connect VS Code to the server
+
+### The SSH configuration file
+
+An entry in your SSH configuration file gives the server a short name
+and fixes which key is used. Open it from VS Code, so it ends up in the
+right place with the right name:
+
+1. Install the extension **Remote - SSH** (by Microsoft; Extensions view,
+   Ctrl+Shift+X or Cmd+Shift+X).
+2. Command Palette (Ctrl+Shift+P or Cmd+Shift+P) →
+   **Remote-SSH: Open SSH Configuration File...** → choose the file in
+   your home folder (`~/.ssh/config` on Mac and Linux,
+   `C:\Users\<you>\.ssh\config` on Windows).
+3. Add these lines, with your own username:
+
+   ```
+   Host kb8029-server
+       HostName students.bioinfo.se
+       User your-username
+       IdentityFile ~/.ssh/id_ed25519
+       IdentitiesOnly yes
+   ```
+
+   On Windows, write the key's full path instead:
+   `IdentityFile C:/Users/<you>/.ssh/id_ed25519` (forward slashes work).
+   `IdentitiesOnly yes` makes SSH offer only that key, and nothing else
+   it finds.
+
+If you edit the file in Notepad instead, make sure it is saved as
+`config` with no extension (Notepad likes to add `.txt`).
+
+### Test from a terminal first
+
+Once the teachers confirm that your key has been added:
+
+```sh
+ssh kb8029-server
+```
+
+The first time, SSH shows the server's fingerprint and asks whether to
+continue: answer `yes`. You should get a Linux prompt on
+`students.bioinfo.se`; type `exit` to leave. If it fails, see
+[Troubleshooting](#troubleshooting) below before trying VS Code, because
+VS Code only adds another layer on top.
+
+### Connect from VS Code
+
+1. Command Palette → **Remote-SSH: Connect to Host...** → `kb8029-server`.
+   (Or click the green `><` button in the bottom-left corner.)
+2. A new VS Code window opens. If asked, choose **Linux** as the
+   server's platform. The first connection takes a minute while VS Code
+   installs its helper on the server (in `~/.vscode-server`).
+3. The bottom-left corner now says **SSH: kb8029-server**. Everything in
+   this window, the file explorer, the terminal and running code, happens
+   on the server, not on your laptop.
+4. **File → Open Folder...** and open your home folder (for example
+   `/home/your-username`), or a `kb8029` folder you create inside it.
+
+### Python and notebooks on the server
+
+Extensions for a remote window run on the server, so they are installed
+separately there:
+
+1. Extensions view → search **Python** and **Jupyter** (both by
+   Microsoft) → **Install in SSH: kb8029-server**.
+2. Open a terminal in VS Code (Terminal → New Terminal) and activate the
+   course environment:
+
+   ```sh
+   conda activate kb8029            # [to be confirmed: environment name]
+   python -c "import torch, Bio; print(torch.__version__)"
+   ```
+
+3. Open or create a notebook (`.ipynb`), click **Select Kernel** (top
+   right) → **Python Environments** → **kb8029**. For a plain `.py` file,
+   the same choice is under **Python: Select Interpreter**.
+
+To get the course notebooks onto the server, clone the book's
+repository into your home folder:
+
+```sh
+git clone https://github.com/ElofssonLab/kb8029-book.git
+```
+
+The course data are on the server in **`/data/kb8029/`** **[to be
+confirmed]**. Read them from there; don't copy large files into your
+home folder.
+
+## Part 3: GPUs on Google Colab
+
+For GPU work you need a (free) Google account. There are two ways to use
+Colab.
+
+### In the browser
+
+Click the **Open in Colab** badge at the top of any notebook in this
+book. In Colab, choose **Runtime → Change runtime type → T4 GPU**, then
+run the cells. This is the simplest way, and it works from any computer.
+
+### From VS Code
+
+Google's **Colab** extension for VS Code (released November 2025) lets a
+notebook open in VS Code run on a Colab machine:
+
+1. In a **local** VS Code window (not the one connected to the server),
+   install the extension **Google Colab** (publisher Google). It also
+   installs the Jupyter extension if needed.
+2. Open the notebook. Download it from the book, or clone the repository
+   on your laptop:
+   `git clone https://github.com/ElofssonLab/kb8029-book.git`.
+3. Click **Select Kernel** → **Colab** → **Auto Connect** (or choose a
+   runtime with a GPU), and sign in with your Google account when asked.
+4. Check that you got a GPU:
+
+   ```python
+   import torch
+   print(torch.cuda.is_available(), torch.cuda.get_device_name(0) if torch.cuda.is_available() else "")
+   ```
+
+Things to know:
+
+- **The code runs on Google's machine.** It cannot see files on your
+  laptop or on the course server, even though the notebook file is open
+  in VS Code. The course notebooks download what they need from the
+  course's GitHub repository, so they work anyway. For your own files,
+  upload them, or mount Google Drive (Command Palette → **Colab: Mount
+  Google Drive to Server...**).
+- **Colab machines are temporary.** Everything on them disappears when
+  the session ends. Save results you want to keep (download them, or
+  write them to Drive).
+- **The free GPU is limited.** A session is closed after a period of
+  inactivity or when your quota is used up, and a GPU is not always
+  available. When you are done, release it with **Colab: Remove Server**.
+- Use the Colab extension from a local VS Code window. We have not
+  tested it inside a window connected to the course server, and it would
+  not see the server's files anyway.
+
+## Troubleshooting
+
+**`Permission denied (publickey)`.** The server did not accept any key
+you offered. Either your key has not been added yet, or SSH offered a
+different key from the one you sent. Run the connection with verbose
+output and look for the lines `Offering public key:` and
+`Server accepts key:`:
+
+```sh
+ssh -v kb8029-server
+```
+
+The file named after `Offering public key:` must be the private half of
+the public key you sent. If it isn't, fix `IdentityFile` in your
+configuration file. You can compare fingerprints: `ssh-keygen -lf
+~/.ssh/id_ed25519.pub` prints the fingerprint of the key you sent.
+
+**Windows: several SSH programs.** If you have Git for Windows, PuTTY or
+WSL, you may have keys in several places:
+
+- **WSL** keeps its own `~/.ssh` inside Linux, invisible to Windows'
+  SSH and to VS Code.
+- **PuTTYgen** saves keys as `.ppk`, which OpenSSH cannot read. If that
+  is your only key, open it in PuTTYgen and use **Conversions → Export
+  OpenSSH key**, or simply make a new key as in Part 1.
+- **Git Bash** can have a different home folder from PowerShell, and
+  put its keys elsewhere.
+
+VS Code uses Windows' OpenSSH (`C:\Windows\System32\OpenSSH\ssh.exe`)
+unless the setting **Remote.SSH: Path** says otherwise. Check that
+setting is empty, or points to that file.
+
+**`UNPROTECTED PRIVATE KEY FILE` or `bad permissions`.** SSH refuses a
+private key that other users can read. On Mac and Linux:
+`chmod 600 ~/.ssh/id_ed25519`. On Windows this happens when the key file
+was copied from elsewhere; creating the key with `ssh-keygen` as in
+Part 1 avoids it.
+
+**VS Code keeps reconnecting or hangs at "Setting up SSH host".** Check
+that `ssh kb8029-server` works in a terminal. Then Command Palette →
+**Remote-SSH: Kill VS Code Server on Host...** → `kb8029-server`, and
+connect again. **Remote-SSH: Show Log** shows what went wrong.
+
+**`conda: command not found`.** Your shell on the server has not been
+set up for conda. Run `conda init` once **[to be confirmed: path to the
+server's conda installation]**, then open a new terminal.
+
+## Further reading
+
+- VS Code documentation, [Remote development using SSH](https://code.visualstudio.com/docs/remote/ssh) and [Remote development tips and tricks](https://code.visualstudio.com/docs/remote/troubleshooting) (including SSH keys on Windows)
+- Google Developers Blog, [Google Colab is coming to VS Code](https://developers.googleblog.com/google-colab-is-coming-to-vs-code/) (2025)
+- Microsoft, [Get started with OpenSSH for Windows](https://learn.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse)

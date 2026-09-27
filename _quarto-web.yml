@@ -4,6 +4,7 @@ book:
     - index.qmd
     - schedule.qmd
     - course-info.qmd
+    - setup.qmd
     - day01.qmd
     - href: notebooks/day01-math-in-code.ipynb
       text: "Day 1 — Notebook"

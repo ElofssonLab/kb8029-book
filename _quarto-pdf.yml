@@ -8,6 +8,7 @@ book:
     - index.qmd
     - schedule.qmd
     - course-info.qmd
+    - setup.qmd
     - day01.qmd
     - day02.qmd
     - day03.qmd

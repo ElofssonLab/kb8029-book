@@ -178,7 +178,7 @@ $$
 A \mathbf{v} = \lambda \mathbf{v}
 $$
 
-**Example.** For $A = \begin{pmatrix} 2 & 1 \\ 1 & 2 \end{pmatrix}$, the vector $(1, 1)$ is an eigenvector with eigenvalue 3. You can check this with one matrix–vector product: $A(1, 1) = (2 + 1,\ 1 + 2) = (3, 3) = 3 \times (1, 1)$. Its other eigenvector is $(1, -1)$, with eigenvalue 1. Geometrically: $A$ stretches anything along $(1, 1)$ by 3 and leaves $(1, -1)$ alone; every other vector, a mixture of the two, is turned toward $(1, 1)$.
+**Example.** For $A = \begin{pmatrix} 2 & 1 \\ 1 & 2 \end{pmatrix}$, the vector $(1, 1)$ is an eigenvector with eigenvalue 3. You can check this with one matrix–vector product: $A(1, 1) = (2 + 1,\ 1 + 2) = (3, 3) = 3 \times (1, 1)$. Its other eigenvector is $(1, -1)$, with eigenvalue 1. Geometrically: $A$ stretches anything along $(1, 1)$ by 3 and leaves $(1, -1)$ alone; every other vector, a mixture of the two, is turned toward the $(1, 1)$ axis.
 
 You will not need to compute eigenvalues by hand in this course; a computer does it (`np.linalg.eigh`, as in the notebook). What matters is the idea, and where it is used: **principal component analysis (PCA)** finds the directions of greatest variance in a dataset, and those directions are the eigenvectors of the covariance matrix $X^\top X/(n-1)$ from the section above. The eigenvalues say how much of the variance each direction explains. PCA is the standard first look at a gene-expression matrix: plot every sample along the first two eigenvectors, and samples with similar expression cluster together.
 
@@ -319,6 +319,14 @@ renderQuiz("day01-quiz-1", [
 
 ## Part 2: Calculus for machine learning
 
+::: {.callout-tip icon="false"}
+## Derivatives
+
+> **What’s the integral of** $(1/cabin)d(cabin)$**?**
+>
+> A natural log cabin!
+:::
+
 ### Derivatives
 
 A derivative tells you how much a function's output changes for a small change in its input — the slope of the tangent line at a point. If you've seen this before, that's the whole idea; what's worth reviewing is what happens once there's more than one input.
@@ -366,7 +374,7 @@ Geometrically, the gradient at a point tells you two things at once: the *direct
 
 ### Gradient descent
 
-Stepping against the gradient is the whole idea behind **gradient descent**, which Day 6 uses to train the perceptron introduced above. Given a function that measures how wrong a model's predictions are (a *loss function*), repeatedly step a small amount in the direction opposite its gradient, and the error goes down. Concretely, the update rule is
+Stepping against the gradient is the whole idea behind **gradient descent**, which Day 6 uses to train the perceptron introduced above. Given a function that measures how wrong a model's predictions are (a *loss function*), repeatedly take a sufficiently small step in the direction opposite its gradient, and locally the loss decreases. Concretely, the update rule is
 
 $$
 x_{n+1} = x_n - \eta \, f'(x_n)
@@ -511,11 +519,19 @@ renderQuiz("day01-quiz-2", [
 
 ## Part 3: Probability and statistics
 
+::: {.callout-tip icon="false"}
+## Probability
+
+> I surveyed many people who had played Russian roulette. Seems like the probability of dying is actually 0%.
+:::
+
 The biostatistics course covers probability in general. This part is the vocabulary the rest of this course uses: a short recap, then **conditional probability**, **log probabilities and log-odds**, **likelihood**, and **p-values with multiple testing**, ending in an RNA-seq example.
 
 ### A short recap: expectation and variance
 
-The **expectation** of a random variable is its probability-weighted average, $\mathbb{E}[X] = \sum_i x_i \, P(X = x_i)$; for a fair die, $3.5$. **Variance**, $\text{Var}(X) = \mathbb{E}\big[(X-\mu)^2\big]$, measures the spread around the mean, and the **standard deviation** $\sigma = \sqrt{\text{Var}(X)}$ puts it back in the units of $X$ (for the die, $\sigma \approx 1.71$). For a normal distribution, about 95% of values lie within $2\sigma$ of the mean.
+The **expectation** of a random variable is its probability-weighted average, $\mathbb{E}[X] = \sum_i x_i \, P(X = x_i)$; for a fair die, $3.5$.
+
+**Variance**, $\text{Var}(X) = \mathbb{E}\big[(X-\mu)^2\big]$, measures the spread around the mean, and the **standard deviation** $\sigma = \sqrt{\text{Var}(X)}$ puts it back in the units of $X$ (for the die, $\sigma \approx 1.71$). For a normal distribution, about 95% of values lie within $2\sigma$ of the mean.
 
 ### Conditional probability
 
@@ -588,7 +604,9 @@ $$
 L(\text{parameters}) = P(\text{data} \mid \text{parameters})
 $$
 
-**Worked example.** A 10-base DNA fragment contains 7 G or C and 3 A or T. If a model treats each base as independently G/C with probability $p$. Because the bases are independent, the probability of the whole fragment is the product of the per-base probabilities:
+**Worked example.**
+
+Suppose we observe a particular 10-base fragment in which seven positions are G/C and three are A/T. Treating the ten positions as independent G/C with probability $p$. Because the bases are independent, the probability of the whole fragment is the product of the per-base probabilities is then:
 
 $$
 L(p) = p^7 (1-p)^3
@@ -768,3 +786,5 @@ renderQuiz("day01-quiz-3", [
 ## What's next
 
 Day 2 takes every idea above and writes it in code the idiomatic way: the dot product becomes a line of PyTorch, and the gradient becomes something the framework computes for you automatically.
+
+**Before Day 2:** set up your computing environment, following [Setup: VS Code, the course server and Colab](setup.qmd). Create your SSH key and send the public key to the teachers now, since it has to be added to the server before you can log in.
