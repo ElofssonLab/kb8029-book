@@ -153,6 +153,22 @@ Spearman's correlation uses only the ranks, so it doesn't care about the scale. 
 - `scipy.cluster.hierarchy.linkage` builds a tree by repeatedly merging the closest clusters: the algorithm behind Day 4's guide tree.
 - scikit-learn has ready-made models (`LinearRegression`, `LogisticRegression`, `train_test_split`, `MLPClassifier`, ...). Days 6-9 build these by hand, so that you see the mechanics; in practice you would call the library.
 
+**Check your understanding:**
+
+```{=html}
+<div id="day02-quiz-1"></div>
+<script>
+renderQuiz("day02-quiz-1", [
+  {"question": "You have transcript lengths in a Python list, lengths = [628, 577, 576]. What does lengths * 2 give?", "choices": ["The list repeated twice: [628, 577, 576, 628, 577, 576]", "Each length doubled: [1256, 1154, 1152]", "An error", "The sum of the lengths, doubled"], "correctIndex": 0, "explanation": "A list is a general container, and * repeats it. For elementwise maths use a NumPy array: np.array(lengths) * 2."},
+  {"question": "What does np.array([628, 577, 576]) > 600 return?", "choices": ["array([ True, False, False]): one True/False per element", "True, because one element is above 600", "An error: arrays cannot be compared with numbers", "The number 628"], "correctIndex": 0, "explanation": "Comparisons on arrays work element by element and give a boolean mask, which can then select elements: arr[arr > 600]."},
+  {"question": "describe() on an RNA-seq results table shows that the largest p-value is 0.12. What should you conclude?", "choices": ["The file is pre-filtered: it holds only genes with p below about 0.12, not all genes", "Every gene in the genome changed significantly", "The p-values were computed wrongly", "Nothing: the maximum p-value is not informative"], "correctIndex": 0, "explanation": "Genome-wide p-values range up to 1. Summaries reveal how the data were made, and conclusions about 'all genes' from a filtered list would be wrong."},
+  {"question": "df[(df['padj'] &lt; 0.05) and (df['log2_FoldChange'] > 1)] raises 'ValueError: The truth value of a Series is ambiguous'. What is the fix?", "choices": ["Use &amp; instead of and: df[(df['padj'] &lt; 0.05) &amp; (df['log2_FoldChange'] > 1)]", "Remove the parentheses", "Convert the DataFrame to a list first", "Use a smaller threshold"], "correctIndex": 0, "explanation": "Python's and needs a single True or False; &amp; combines two columns of True/False element by element. Keep the parentheses: &amp; binds more tightly than &lt;."},
+  {"question": "Which plot shows the distribution of a single variable, such as the log2 fold changes of 3,001 genes?", "choices": ["A histogram", "A scatter plot", "A volcano plot", "A heatmap"], "correctIndex": 0, "explanation": "A histogram counts how many values fall in each bin. A scatter plot shows the relationship between two variables."},
+  {"question": "Pearson's r between raw mean expression and |log2 fold change| is -0.01, but a scatter plot with expression on a log axis shows a clear trend. What is the best next step?", "choices": ["Test what the plot shows: log-transform expression, or use Spearman's rank correlation", "Report that there is no relationship, since the test said so", "Remove the genes that don't fit the trend", "Use a larger significance threshold"], "correctIndex": 0, "explanation": "Pearson measures a linear relationship and is dominated by a few huge values on the raw scale. Plot first, test second: here r = -0.30 on the log scale, Spearman rho = -0.42."}
+]);
+</script>
+```
+
 ## 5. Biological objects
 
 Biopython's `Seq` is a sequence that knows biology, so you never write a complement table yourself. Here we will use (as an example) the human beta-globin (*HBB*, accession `NM_000518.5`). If you want to see the first ten codons and the corresponding amino acids you can do this:
@@ -204,6 +220,21 @@ print(record.description, len(record.seq))             # Homo sapiens hemoglobin
 ```
 
 NCBI allows about three requests per second without an API key, so fetch many records in one request, or pause between requests, rather than hammering the server in a fast loop.
+
+**Check your understanding:**
+
+```{=html}
+<div id="day02-quiz-2"></div>
+<script>
+renderQuiz("day02-quiz-2", [
+  {"question": "hbb = Seq('ATGGTGCATCTGACTCCTGAGGAGAAGTCT') translates to MVHLTPEEKS. Predict: what does hbb[1:].translate() give, the same sequence read from its second base?", "choices": ["A different, meaningless peptide with a stop codon: WCI*LLRRS (and a warning about a partial codon)", "The same protein, MVHLTPEEKS", "An error, because the sequence does not start with ATG", "An empty sequence"], "correctIndex": 0, "explanation": "Biopython translates whatever you give it, three bases at a time. Shifted by one base, every codon changes, and a stop codon (*) appears. Nothing stops you translating the wrong frame: a mistake of the third kind (Section 7)."},
+  {"question": "You translate the whole HBB mRNA (628 nt) from its first base. The result does not start with M and contains 7 stop codons (*). Why?", "choices": ["The mRNA begins with a 50-nt untranslated region, so translation from base 1 is in the wrong frame; the protein starts at the CDS (base 51)", "The mRNA is corrupted", "Biopython cannot translate human sequences", "Hemoglobin has seven separate proteins"], "correctIndex": 0, "explanation": "Only the coding sequence is translated. Use the record's CDS feature, cds.extract(record.seq).translate(to_stop=True), to get the 147-residue protein."},
+  {"question": "Why open files with 'with open(path) as handle:' rather than handle = open(path)?", "choices": ["The file is closed automatically when the block ends, even if an error happens inside it", "It reads the file faster", "It is the only way to read FASTA files", "It decompresses the file automatically"], "correctIndex": 0, "explanation": "The same pattern works for gzip.open and for Entrez.efetch handles."},
+  {"question": "What does gzip.open('reads.fasta.gz', 'rt') give you?", "choices": ["A text file handle that SeqIO.parse can read directly, with no separate unpacking", "An unpacked copy of the file on disk", "A list of sequences", "An error, because FASTA files cannot be compressed"], "correctIndex": 0, "explanation": "'rt' means read as text. The decompression happens as you read."},
+  {"question": "You need 50 records from NCBI. What is the best way to fetch them?", "choices": ["One Entrez.efetch request with all 50 accessions, separated by commas", "50 requests in a fast loop", "50 requests, each in a new notebook", "Copy them from the NCBI web page by hand"], "correctIndex": 0, "explanation": "NCBI allows about three requests per second without an API key; one request for many records is faster and polite."}
+]);
+</script>
+```
 
 ## 7. When you don't know how to do something
 
@@ -289,110 +320,68 @@ The notebook has a worked solution. What it finds:
 
 The proteins are all about the same size (142-190 amino acids, one globin fold each), but the mRNAs differ more than threefold. The difference is almost all untranslated sequence (UTRs), from 147 nt in *HBA2* to 1,389 nt in *CYGB*. A transcript's length says little about its protein. With six genes, Pearson's correlation between mRNA and protein length is $r = 0.78$ but $p = 0.07$: a strong-looking correlation from few points is weak evidence (the second discussion problem).
 
-## The notebook
-
-`notebooks/day02-working-in-python.ipynb` follows this page section by section and runs everything above: the objects, the exploration and plots of the Becares data, the tests, Biopython, reading local, compressed and remote data, a debugging walk-through, and the mini challenge's solution. Open it in [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day02-working-in-python.ipynb) or on the course server.
-
-## Check your understanding
+**Check your understanding:**
 
 ```{=html}
-<div id="day02-quiz"></div>
+<div id="day02-quiz-3"></div>
 <script>
-renderQuiz("day02-quiz", [
-  {
-    question: "You have transcript lengths in a Python list, lengths = [628, 577, 576]. What does lengths * 2 give?",
-    choices: [
-      "The list repeated twice: [628, 577, 576, 628, 577, 576]",
-      "Each length doubled: [1256, 1154, 1152]",
-      "An error",
-      "The sum of the lengths, doubled"
-    ],
-    correctIndex: 0,
-    explanation: "A list is a general container, and * repeats it. For elementwise maths use a NumPy array: np.array(lengths) * 2."
-  },
-  {
-    question: "describe() on an RNA-seq results table shows that the largest p-value is 0.12. What should you conclude?",
-    choices: [
-      "The file is pre-filtered: it holds only genes with p below about 0.12, not all genes",
-      "Every gene in the genome changed significantly",
-      "The p-values were computed wrongly",
-      "Nothing: the maximum p-value is not informative"
-    ],
-    correctIndex: 0,
-    explanation: "Genome-wide p-values range up to 1. Summaries reveal how the data were made, and conclusions about 'all genes' from a filtered list would be wrong."
-  },
-  {
-    question: "Pearson's r between raw mean expression and |log2 fold change| is -0.01, but a scatter plot with expression on a log axis shows a clear trend. What is the best next step?",
-    choices: [
-      "Test what the plot shows: log-transform expression, or use Spearman's rank correlation",
-      "Report that there is no relationship, since the test said so",
-      "Remove the genes that don't fit the trend",
-      "Use a larger significance threshold"
-    ],
-    correctIndex: 0,
-    explanation: "Pearson measures a linear relationship and is dominated by a few huge values on the raw scale. Plot first, test second: here r = -0.30 on the log scale, Spearman rho = -0.42."
-  },
-  {
-    question: "Why open files with 'with open(path) as handle:' rather than handle = open(path)?",
-    choices: [
-      "The file is closed automatically when the block ends, even if an error happens inside it",
-      "It reads the file faster",
-      "It is the only way to read FASTA files",
-      "It decompresses the file automatically"
-    ],
-    correctIndex: 0,
-    explanation: "The same pattern works for gzip.open and for Entrez.efetch handles."
-  },
-  {
-    question: "An AI assistant suggests 'from Bio.SeqUtils import GC' and the import fails. What is the most likely explanation?",
-    choices: [
-      "The suggestion is outdated: GC no longer exists in current Biopython, and the documentation names its replacement (gc_fraction)",
-      "Biopython is not installed",
-      "The sequence is too short",
-      "Imports only work in the first cell of a notebook"
-    ],
-    correctIndex: 0,
-    explanation: "Assistants learn from old tutorials. Check the documentation for your version, and verify any suggested code on a small example with a known answer."
-  },
-  {
-    question: "You edit cell 3 but do not re-run it, then re-run cell 7, which uses a variable from cell 3. What does cell 7 use?",
-    choices: [
-      "Cell 3's old value, still in memory from its last run",
-      "Cell 3's new value, since notebooks stay in sync with the page",
-      "Nothing: editing a cell deletes its variables",
-      "An error is always raised"
-    ],
-    correctIndex: 0,
-    explanation: "Variables reflect what was last run, not what the page shows. Restart and Run All makes them match."
-  },
-  {
-    question: "The six globin mRNAs range from 576 to 1,962 nt, but their proteins are all 142-190 amino acids. Where is the difference?",
-    choices: [
-      "In the untranslated regions (UTRs) of the mRNAs",
-      "In the introns of the mRNAs",
-      "The longer mRNAs code for several proteins",
-      "In the start codons"
-    ],
-    correctIndex: 0,
-    explanation: "Mature mRNAs have no introns; the untranslated regions range from 147 nt (HBA2) to 1,389 nt (CYGB)."
-  }
+renderQuiz("day02-quiz-3", [
+  {"question": "An AI assistant suggests 'from Bio.SeqUtils import GC' and the import fails. What is the most likely explanation?", "choices": ["The suggestion is outdated: GC no longer exists in current Biopython, and the documentation names its replacement (gc_fraction)", "Biopython is not installed", "The sequence is too short", "Imports only work in the first cell of a notebook"], "correctIndex": 0, "explanation": "Assistants learn from old tutorials. Check the documentation for your version, and verify any suggested code on a small example with a known answer."},
+  {"question": "You meant to plot GC content against mRNA length, but typed plt.scatter(genes['gc_content'], genes['length']). The plot appears without errors. Which kind of mistake is this?", "choices": ["Correct code, wrong analysis: it runs, but does not show what you intended", "A Python error", "A biologically nonsensical result", "Not a mistake: the order of the arguments does not matter"], "correctIndex": 0, "explanation": "Nothing fails. Catch it by checking what each axis shows, for example by locating one point you know (the longest mRNA should be furthest right)."},
+  {"question": "You compute each globin's protein length as its mRNA length divided by 3 and get 654 amino acids for cytoglobin. Which kind of mistake is this, and how do you notice it?", "choices": ["A biologically nonsensical result: globins are about 150 amino acids, and the mRNA includes untranslated regions", "A Python error: division by 3 fails for odd lengths", "Correct: every 3 nucleotides code for one amino acid", "Correct code, wrong analysis: the column is named wrongly"], "correctIndex": 0, "explanation": "The code runs and the number looks reasonable unless you know the biology. Sanity-check results against what you know."},
+  {"question": "An AI assistant's code runs without errors. What should you still do before using its result?", "choices": ["Verify it: run it on a small example with a known answer, and check shapes and ranges", "Nothing: code that runs is correct", "Run it twice to see if the result changes", "Ask the assistant whether it is correct"], "correctIndex": 0, "explanation": "Assistants are good at removing Python errors, and much less good at noticing that the analysis or the biology is wrong."},
+  {"question": "You edit cell 3 but do not re-run it, then re-run cell 7, which uses a variable from cell 3. What does cell 7 use?", "choices": ["Cell 3's old value, still in memory from its last run", "Cell 3's new value, since notebooks stay in sync with the page", "Nothing: editing a cell deletes its variables", "An error is always raised"], "correctIndex": 0, "explanation": "Variables reflect what was last run, not what the page shows. Restart and Run All makes them match."},
+  {"question": "The six globin mRNAs range from 576 to 1,962 nt, but their proteins are all 142-190 amino acids. Where is the difference?", "choices": ["In the untranslated regions (UTRs) of the mRNAs", "In the introns of the mRNAs", "The longer mRNAs code for several proteins", "In the start codons"], "correctIndex": 0, "explanation": "Mature mRNAs have no introns; the untranslated regions range from 147 nt (HBA2) to 1,389 nt (CYGB)."}
 ]);
 </script>
 ```
+
+## The notebook
+
+`notebooks/day02-working-in-python.ipynb` follows this page section by section and runs everything above: the objects, the exploration and plots of the Becares data, the tests, Biopython, reading local, compressed and remote data, a debugging walk-through, and the mini challenge's solution. Open it in [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day02-working-in-python.ipynb) or on the course server.
 
 ## The lab
 
 The lab notebook, [`notebooks/day02-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day02-lab.ipynb), continues from the mini challenge, with less help at each step. Lines to complete are marked with `todo(...)`, which stops the cell with a message saying what is missing.
 
 1.  **Fill in:** complete marked lines in working code. Explore the same RNA-seq table with other columns and thresholds, plot first and test second, run `Seq` operations on a mystery fragment, and fetch its record from NCBI into a local file and back.
-2.  **Adapt:** change working code to answer new questions. Find the most strongly down-regulated gene, fix a cell with three realistic bugs (one of which runs without an error), and turn the mini challenge into a function applied to six more globin genes.
-3.  **Solve:** from a specification only, analyse all twelve globins: does a longer mRNA mean a longer protein? Build the table, compute, plot, and explain what you found in a few sentences.
+2.  **Adapt:** change working code to answer new questions. Find the most strongly down-regulated gene, fix a cell with three realistic bugs (one of which runs without an error), and apply the mini challenge's function to six more globin genes.
+3.  **Solve:** four open challenges, each with a specification and hints only:
+    -   download a gene (human leptin) with Entrez and Biopython, report its length, GC and protein, and plot GC content along the mRNA;
+    -   explore the RNA-seq table with seaborn: a joint plot, a heatmap of the correlations between its columns, and a plot of your own choice;
+    -   a statistical analysis, plot first and test second: are up-regulated genes expressed at a different level than down-regulated ones?
+    -   all twelve globins: does a longer mRNA mean a longer protein?
+
+    Each asks you to explain what you found in a few sentences.
 
 Answer the Day 2 lab quiz on Canvas with your notebook's own output.
 
 ### Submitting this lab
 
 This lab is administered through Canvas, not this book — see the course's Canvas page for the current quiz, deadline, and submission mechanism.
+
+## Further watching
+
+The animations in the 3Blue1Brown videos used throughout this course are
+made with **Manim**, an open-source Python library written by Grant
+Sanderson, 3Blue1Brown's creator. Two views of Python used for something
+very different from data analysis:
+
+[*How I animate 3Blue1Brown | A Manim demo with Ben Sparks*](https://www.youtube.com/watch?v=rbu7Zu5X1zI) (3Blue1Brown), a long demonstration of how the videos are built, scene by scene, in code:
+
+```{=html}
+<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
+<iframe src="https://www.youtube.com/embed/rbu7Zu5X1zI" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="How I animate 3Blue1Brown, A Manim demo with Ben Sparks"></iframe>
+</div>
+```
+
+[*Animate Like 3Blue1Brown - No Coding Required (Manim Animation Using A.I.)*](https://www.youtube.com/watch?v=InHuoGkOb2s) (Sycamore), generating Manim animations with an AI assistant. Watch it with Section 7 in mind: how do you check that what the assistant produced is what you wanted?
+
+```{=html}
+<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
+<iframe src="https://www.youtube.com/embed/InHuoGkOb2s" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="Animate Like 3Blue1Brown - No Coding Required (Manim Animation Using A.I.), Sycamore"></iframe>
+</div>
+```
 
 ## What's next
 
