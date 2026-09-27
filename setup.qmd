@@ -31,10 +31,10 @@ Open a terminal and run:
 
 ``` sh
 ls ~/.ssh/                       # do you already have id_ed25519 and id_ed25519.pub?
-ssh-keygen -t ed25519 -C "your-su-username"
+ssh-keygen -t ed25519 -C "your-username"
 ```
 
-If `id_ed25519` already exists, you can reuse it (skip `ssh-keygen`). Otherwise accept the default location and choose a passphrase (you can leave it empty, but a passphrase protects the key if your laptop is stolen). Your public key is now in `~/.ssh/id_ed25519.pub`:
+If `id_ed25519` already exists, you can reuse it (skip `ssh-keygen`). Otherwise accept the default location and choose a passphrase (you can leave it empty, but a passphrase protects the key if your laptop is stolen). Your public key is now in `~/.ssh/id_ed25519.pub`, to see it do:
 
 ``` sh
 cat ~/.ssh/id_ed25519.pub
@@ -42,7 +42,7 @@ cat ~/.ssh/id_ed25519.pub
 
 ### Windows
 
-Use **PowerShell**, and Windows' own OpenSSH, which comes with Windows 10 and 11 and is the SSH that VS Code uses by default. Do **not** create the key with PuTTY/PuTTYgen, Git Bash or WSL for this course: each of those can store keys somewhere else, or in another format, which is how the wrong key ends up being used.
+Use **PowerShell**, and Windows' own OpenSSH, which comes with Windows 10 and 11 and is the SSH that VS Code uses by default. **IMPORTANT:** Do **not** create the key with PuTTY/PuTTYgen, Git Bash or WSL for this course: each of those can store keys somewhere else, or in another format, which is how the wrong key ends up being used.
 
 1.  Open **PowerShell** (Start menu → type "PowerShell").
 
@@ -58,7 +58,7 @@ Use **PowerShell**, and Windows' own OpenSSH, which comes with Windows 10 and 11
 3.  Create the key:
 
     ``` powershell
-    ssh-keygen -t ed25519 -C "your-su-username"
+    ssh-keygen -t ed25519 -C "your-username"
     ```
 
     Accept the default location. It saves the key pair as `C:\Users\<you>\.ssh\id_ed25519` and `C:\Users\<you>\.ssh\id_ed25519.pub`. If `ssh-keygen` asks whether to overwrite an existing key, answer **no** and reuse the existing one instead (overwriting breaks anything that key was used for).
@@ -71,7 +71,7 @@ Use **PowerShell**, and Windows' own OpenSSH, which comes with Windows 10 and 11
 
 ### Send the public key
 
-The public key is **one line** that starts with `ssh-ed25519` and ends with the comment you gave (your username). Send that line, and only that line, to the teachers **\[to be confirmed: by email to Arne Elofsson, or through Canvas\]**. Never send the file without `.pub`. You will get your username on the server back **\[to be confirmed\]**.
+The public key is **one line** that starts with `ssh-ed25519` and ends with the comment you gave (your username). Send that line, and only that line, to the Arne Elofsson [mailto://arne\@bioinfo.se](mailto://arne@bioinfo.se){.uri} . Never send the file without `.pub`. Once you have sent the key and it has been added to the setup system you should be able to access the server without using a password.
 
 ## Part 2: Connect VS Code to the server
 
@@ -99,7 +99,7 @@ If you edit the file in Notepad instead, make sure it is saved as `config` with 
 
 ### Test from a terminal first
 
-Once the teachers confirm that your key has been added:
+Once the teachers confirm that your key has been added you can:
 
 ``` sh
 ssh kb8029-server

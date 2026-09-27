@@ -374,7 +374,9 @@ Geometrically, the gradient at a point tells you two things at once: the *direct
 
 ### Gradient descent
 
-Stepping against the gradient is the whole idea behind **gradient descent**, which Day 6 uses to train the perceptron introduced above. Given a function that measures how wrong a model's predictions are (a *loss function*), repeatedly take a sufficiently small step in the direction opposite its gradient, and locally the loss decreases. Concretely, the update rule is
+Stepping against the gradient is the whole idea behind **gradient descent**, which Day 6 uses to train the perceptron introduced above. Given a function that measures how wrong a model's predictions are (a *loss function*), repeatedly take a sufficiently small step in the direction opposite its gradient, and locally the loss decreases-
+
+. Concretely, the update rule is
 
 $$
 x_{n+1} = x_n - \eta \, f'(x_n)
@@ -786,5 +788,3 @@ renderQuiz("day01-quiz-3", [
 ## What's next
 
 Day 2 takes every idea above and writes it in code the idiomatic way: the dot product becomes a line of PyTorch, and the gradient becomes something the framework computes for you automatically.
-
-**Before Day 2:** set up your computing environment, following [Setup: VS Code, the course server and Colab](setup.qmd). Create your SSH key and send the public key to the teachers now, since it has to be added to the server before you can log in.
