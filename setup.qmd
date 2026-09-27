@@ -129,7 +129,7 @@ Extensions for a remote window run on the server, so they are installed separate
 
 3.  Open or create a notebook (`.ipynb`), click **Select Kernel** (top right) → **Python Environments** → **kb8029**. For a plain `.py` file, the same choice is under **Python: Select Interpreter**.
 
-To get the course notebooks onto the server, clone the book's repository into your home folder:
+To get the course notebooks onto the server, clone the book's repository into your home folder (this might be useful so you do not have to copy the notebooks):
 
 ``` sh
 git clone https://github.com/ElofssonLab/kb8029-book.git

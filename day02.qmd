@@ -39,7 +39,7 @@ Every notebook in this book runs on the course server (through VS Code) or on Go
 
 ## 1. Scientific Python objects
 
-Different objects represent different kinds of data, and each gives you the operations that make sense for that kind of data. Here are the same three transcript lengths (in nucleotides) held in increasingly specialized objects:
+Different objects represent different kinds of data, and each gives you the operations that make sense for that kind of data. Here are the same three transcript lengths (in nucleotides) held in increasingly specialized objects. Here are some examples that can be run (in the notebook):
 
 ``` python
 lengths = [628, 577, 576]                  # a list: a general container
@@ -62,9 +62,9 @@ print(genes[genes["length"] > 600])        # a table with named columns and mixe
 | Biopython `Seq` / `SeqRecord` | a biological sequence / a sequence with its identifier, description and annotations | reverse complement, translate, GC content, parse and write FASTA or GenBank (Section 5) |
 | PyTorch `Tensor` | an array that can live on a GPU and remember how it was computed | everything an array does, plus automatic gradients (Day 6 onwards) |
 
-Choosing the right object is most of the work: `lengths * 2` on a list silently does something you did not mean, while on an array it does the maths.
+Choosing the right object is important, for instance `lengths * 2` on a list silently does something you did not mean, while on an array it does the math as expected (multiplying all numbers by 2).
 
-**Looking ahead: tensors and autograd.** A PyTorch **tensor** is the array of deep learning, and its extra trick is **automatic differentiation**: PyTorch records every operation on a tensor, and `.backward()` replays them in reverse, applying Day 1's chain rule at each step. Day 1's gradient practice problem, done by hand there, takes three lines:
+**Looking ahead: tensors and autograd.** A PyTorch **tensor** is the array of deep learning, and its extra trick is **automatic differentiation**: PyTorch records every operation on a tensor, and `.backward()` replays them in reverse, applying Day 1's chain rule at each step. Day 1's gradient practice problem, done by hand there, takes only three lines of PyTorch code:
 
 ``` python
 import torch
@@ -79,7 +79,7 @@ From Day 6 onwards you never write a derivative by hand again; you call `.backwa
 
 ## 2. Exploring a biological dataset
 
-The dataset: mouse liver RNA-seq, high-fat/high-cholesterol diet against control (Becares et al. 2019), already analysed with DESeq2. One row per gene, with its mean expression (`baseMean`), log2 fold change, p-value and adjusted p-value.
+The first dataset we will use is a mouse liver RNA-seq, high-fat/high-cholesterol diet against control (Becares et al. 2019)- The dataset is already analysed with DESeq2 and we will just analyze the outputs. The set contains one row per gene, with its mean expression (`baseMean`), log2 fold change, p-value and adjusted p-value.
 
 ``` python
 url = "https://raw.githubusercontent.com/JoachimGoedhart/VolcaNoseR/master/Becares-diffgenes_HFHC.csv"
@@ -108,7 +108,7 @@ The most significant gene is *Osbpl3* (adjusted $p = 8 \times 10^{-18}$, down 3.
 
 A summary is a handful of numbers; a plot shows all 3,001 genes at once. Three plots answer three different questions:
 
-![Three views of the same 3,001 genes, drawn in the notebook. Left: histogram of log2 fold changes. There is a gap around zero: genes with very small changes rarely reach p \< 0.12, so the filtering removed them. Slightly more genes go down than up. Middle: fold change against mean expression, with expression on a log scale: lowly expressed genes show the largest changes in both directions. Right: volcano plot of effect size against significance; genes with adjusted p \< 0.05 are coloured.](figs/day02-explore.png){width="100%"}
+![Three views of the same 3,001 genes, drawn in the notebook. Left: histogram of log2 fold changes. There is a gap around zero: genes with very small changes rarely reach p \< 0.12, so the filtering removed them. You can notice that slightly more genes go down than up. Middle: fold change against mean expression, with expression on a log scale: lowly expressed genes show the largest changes in both directions. Right: volcano plot of effect size against significance; genes with adjusted p \< 0.05 are coloured (this will be discussed in much more details in later courses).](figs/day02-explore.png){width="100%"}
 
 ``` python
 import matplotlib.pyplot as plt
@@ -127,7 +127,7 @@ sns.scatterplot(data=df, x="log2_FoldChange", y="minus_log10_pvalue",
 - A **scatter plot** shows the relationship between two.
 - **seaborn** draws from a DataFrame by column name, and colours points by a third column (`hue=`) in one argument.
 - **Plots reveal how data were made, too.** The empty band around zero in the left and middle panels is the pre-filtering from Section 2 seen again: genes whose expression barely changed rarely reach $p < 0.12$, so they are not in the file. A complete experiment would have its tallest histogram bar at zero.
-- Label your axes with units, and use a **log scale** for data that span orders of magnitude, like expression levels. On a linear axis, the middle panel would be 3,000 points squeezed against the left edge and a few outliers.
+- Label your axes with units, and use a **log scale** for data that span orders of magnitude, like expression levels. On a linear axis, the middle panel would be 3,001 points squeezed against the left edge and a few outliers.
 
 ## 4. Asking quantitative questions
 
@@ -155,7 +155,7 @@ Spearman's correlation uses only the ranks, so it doesn't care about the scale. 
 
 ## 5. Biological objects
 
-Biopython's `Seq` is a sequence that knows biology, so you never write a complement table yourself. The first ten codons of human beta-globin (*HBB*, accession `NM_000518.5`):
+Biopython's `Seq` is a sequence that knows biology, so you never write a complement table yourself. Here we will use (as an example) the human beta-globin (*HBB*, accession `NM_000518.5`). If you want to see the first ten codons you can do this:
 
 ``` python
 from Bio.Seq import Seq

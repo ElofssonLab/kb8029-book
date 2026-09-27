@@ -10,7 +10,7 @@ The session focuses on three parts:
 
 1.  **Vectors and matrices:** vectors, dimensions and shapes, the dot product, matrix multiplication (and the transpose), normalization, and an intuitive look at eigenvectors and PCA.
 2.  **Calculus for machine learning:** derivatives, partial derivatives, the gradient, gradient descent and the chain rule.
-3.  **Probability and statistics:** a short recap, conditional probability, logs and log-odds, likelihood, p-values and multiple testing, and an RNA-seq example.
+3.  **Probability and statistics:** a short recap, correlation (Pearson and Spearman), conditional probability, logs and log-odds, likelihood, p-values and multiple testing, and an RNA-seq example.
 
 Each part ends with practice problems, a quick self-check and a short video (not done by us).
 
@@ -527,13 +527,46 @@ renderQuiz("day01-quiz-2", [
 > I surveyed many people who had played Russian roulette. Seems like the probability of dying is actually 0%.
 :::
 
-The biostatistics course covers probability in general. This part is the vocabulary the rest of this course uses: a short recap, then **conditional probability**, **log probabilities and log-odds**, **likelihood**, and **p-values with multiple testing**, ending in an RNA-seq example.
+The biostatistics course covers probability in general. This part is the vocabulary the rest of this course uses: a short recap and **correlation**, then **conditional probability**, **log probabilities and log-odds**, **likelihood**, and **p-values with multiple testing**, ending in an RNA-seq example.
 
 ### A short recap: expectation and variance
 
 The **expectation** of a random variable is its probability-weighted average, $\mathbb{E}[X] = \sum_i x_i \, P(X = x_i)$; for a fair die, $3.5$.
 
 **Variance**, $\text{Var}(X) = \mathbb{E}\big[(X-\mu)^2\big]$, measures the spread around the mean, and the **standard deviation** $\sigma = \sqrt{\text{Var}(X)}$ puts it back in the units of $X$ (for the die, $\sigma \approx 1.71$). For a normal distribution, about 95% of values lie within $2\sigma$ of the mean.
+
+### Correlation: Pearson and Spearman
+
+A **correlation coefficient** measures how strongly two variables go
+together, from $-1$ (one goes up as the other goes down) through $0$ to
+$+1$ (they go up together).
+
+- **Pearson's $r$** measures how well the points fit a *straight line*:
+  the covariance of $x$ and $y$ divided by the product of their standard
+  deviations,
+  $$
+  r = \frac{\sum_i (x_i - \bar{x})(y_i - \bar{y})}{\sqrt{\sum_i (x_i - \bar{x})^2}\,\sqrt{\sum_i (y_i - \bar{y})^2}}
+  $$
+- **Spearman's $\rho$** is Pearson's $r$ computed on the *ranks* of the
+  values instead of the values themselves. It measures whether $y$ tends
+  to increase when $x$ does (a monotonic relationship), whether or not
+  along a straight line, and a single extreme value cannot dominate it.
+
+**Worked example.** Five genes have mRNA levels $(1, 2, 3, 4, 100)$ and
+protein levels $(2, 4, 6, 8, 10)$. Every increase in mRNA goes with an
+increase in protein, so Spearman's $\rho = 1$. Pearson's $r = 0.72$,
+because the one extreme value does not lie on the line through the
+others; with 5 instead of 100 it would be exactly 1.
+
+Three cautions, all used on Day 2:
+
+- **Plot first.** Both coefficients are 0 for a U-shaped relationship,
+  and a single number can hide what a scatter plot shows at once.
+- **A correlation has a p-value too**, and it depends on the number of
+  points: a strong-looking correlation from five points can easily
+  arise by chance.
+- **Correlation is not causation.** Two variables can move together
+  because both depend on a third.
 
 ### Conditional probability
 
@@ -699,6 +732,17 @@ renderQuiz("day01-quiz-3", [
     explanation: "A negative log-odds favours the background; 2 bits is a factor of 2^2 = 4."
   },
   {
+    question: "mRNA levels (1, 2, 3, 4, 100) and protein levels (2, 4, 6, 8, 10): every increase in one goes with an increase in the other. Which is true?",
+    choices: [
+      "Spearman's rho is 1, but Pearson's r is lower (0.72), because the extreme value is off the straight line",
+      "Both are exactly 1",
+      "Pearson's r is 1, but Spearman's rho is lower",
+      "Both are close to 0"
+    ],
+    correctIndex: 0,
+    explanation: "Spearman uses ranks and measures a monotonic relationship; Pearson measures fit to a straight line and is pulled by extreme values."
+  },
+  {
     question: "What does a p-value actually represent?",
     choices: [
       "P(data at least this extreme | the null hypothesis is true)",
@@ -754,6 +798,7 @@ renderQuiz("day01-quiz-3", [
 
 ### Further reading
 
+- Wikipedia, [Pearson correlation coefficient](https://en.wikipedia.org/wiki/Pearson_correlation_coefficient) and [Spearman's rank correlation coefficient](https://en.wikipedia.org/wiki/Spearman%27s_rank_correlation_coefficient)
 - Wikipedia, [Conditional probability](https://en.wikipedia.org/wiki/Conditional_probability) and [Likelihood function](https://en.wikipedia.org/wiki/Likelihood_function)
 - Wikipedia, [Logarithm](https://en.wikipedia.org/wiki/Logarithm), [Log probability](https://en.wikipedia.org/wiki/Log_probability) and [Sigmoid function](https://en.wikipedia.org/wiki/Sigmoid_function)
 - Wikipedia, [P-value](https://en.wikipedia.org/wiki/P-value) and [Welch's t-test](https://en.wikipedia.org/wiki/Welch%27s_t-test)
@@ -783,7 +828,7 @@ renderQuiz("day01-quiz-3", [
 
 ## The notebook
 
-`notebooks/day01-math-in-code.ipynb` recomputes every worked example and practice problem above in code — vector length, the dot product, matrix shapes and the transpose (1,000 proteins × 20 features), normalization, eigenvalues found by the computer (with a small PCA) and the optional cross product; the gradient (by hand and via automatic differentiation) and gradient descent; conditional probability (exactly and by simulation) and the optional Bayes example, log-odds scores, the GC likelihood, the t-test, and the simulated RNA-seq/volcano-plot analysis — so you can confirm code and math agree before Day 2 introduces the code side properly. The version below is a static, read-only copy; open it in [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day01-math-in-code.ipynb) via the badge at the top of the notebook page to edit and run it yourself.
+`notebooks/day01-math-in-code.ipynb` recomputes every worked example and practice problem above in code — vector length, the dot product, matrix shapes and the transpose (1,000 proteins × 20 features), normalization, eigenvalues found by the computer (with a small PCA) and the optional cross product; the gradient (by hand and via automatic differentiation) and gradient descent; Pearson and Spearman correlation; conditional probability (exactly and by simulation) and the optional Bayes example, log-odds scores, the GC likelihood, the t-test, and the simulated RNA-seq/volcano-plot analysis — so you can confirm code and math agree before Day 2 introduces the code side properly. The version below is a static, read-only copy; open it in [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/day01-math-in-code.ipynb) via the badge at the top of the notebook page to edit and run it yourself.
 
 ## What's next
 
