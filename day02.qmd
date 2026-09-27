@@ -207,7 +207,13 @@ NCBI allows about three requests per second without an API key, so fetch many re
 
 ## 7. When you don't know how to do something
 
-Everyone's code fails, all the time. What distinguishes experienced programmers is a routine for getting unstuck:
+Everyone's code fails, all the time. There are three kinds of mistakes, and they are not equally easy to catch:
+
+1.  **A Python error.** Python stops and tells you what went wrong, for example a `KeyError` when a column name is misspelled.
+2.  **Correct code, wrong analysis.** The code runs, but it does not answer your question: plotting GC content on the x-axis when you meant length, or filtering on the p-value when you meant the adjusted p-value. Nothing fails.
+3.  **A biologically nonsensical result.** The code runs and the numbers look reasonable, but they cannot be right: computing a globin's protein length as its mRNA length divided by three gives 654 amino acids for cytoglobin, while globins are about 150 amino acids long. (The mRNA includes untranslated regions; only the coding sequence is translated.)
+
+AI assistants are very good at removing mistakes of the first kind. They do much less to stop the second and third, which you catch only by asking whether the result answers your question and whether it is biologically plausible. For the first kind, experienced programmers have a routine for getting unstuck:
 
 **read the error → inspect → documentation → AI assistant (or google) → verify.**
 
@@ -238,7 +244,7 @@ The documentation shows its replacement, `gc_fraction`.
 **Ask an AI assistant (if useful)**, well. Assistants are good at explaining an error message, suggesting which function to use, and writing a first draft. Give them what a human helper would need:
 
 - the full error message;
-- a small example of your data (`df.head()`);
+  - a small example of your data (`df.head()`);pdb
 - the library versions;
 - what you expected, and what you tried.
 
