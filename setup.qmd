@@ -135,7 +135,7 @@ To get the course notebooks onto the server, clone the book's repository into yo
 git clone https://github.com/ElofssonLab/kb8029-book.git
 ```
 
-The course data are on the server in **`/data/kb8029/`** **\[to be confirmed\]**. Read them from there; don't copy large files into your home folder.
+The course data are on the server in **`/data/kb8029/`**. Read them from there; don't copy large files into your home folder as the hard drive space on the machine is limited. For convenience we put all the notebooks there.
 
 ## Part 3: GPUs on Google Colab
 

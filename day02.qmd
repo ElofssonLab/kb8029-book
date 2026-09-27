@@ -155,7 +155,7 @@ Spearman's correlation uses only the ranks, so it doesn't care about the scale. 
 
 ## 5. Biological objects
 
-Biopython's `Seq` is a sequence that knows biology, so you never write a complement table yourself. Here we will use (as an example) the human beta-globin (*HBB*, accession `NM_000518.5`). If you want to see the first ten codons you can do this:
+Biopython's `Seq` is a sequence that knows biology, so you never write a complement table yourself. Here we will use (as an example) the human beta-globin (*HBB*, accession `NM_000518.5`). If you want to see the first ten codons and the corresponding amino acids you can do this:
 
 ``` python
 from Bio.Seq import Seq
@@ -209,7 +209,7 @@ NCBI allows about three requests per second without an API key, so fetch many re
 
 Everyone's code fails, all the time. What distinguishes experienced programmers is a routine for getting unstuck:
 
-**read the error → inspect → documentation → AI assistant → verify.**
+**read the error → inspect → documentation → AI assistant (or google) → verify.**
 
 **Read the error message, from the bottom.** The last line says *what* went wrong; the arrow above it says *where* in your code. For example, asking for a column that doesn't exist:
 
@@ -235,7 +235,7 @@ ImportError: cannot import name 'GC' from 'Bio.SeqUtils'
 
 The documentation shows its replacement, `gc_fraction`.
 
-**Ask an AI assistant**, well. Assistants are good at explaining an error message, suggesting which function to use, and writing a first draft. Give them what a human helper would need:
+**Ask an AI assistant (if useful)**, well. Assistants are good at explaining an error message, suggesting which function to use, and writing a first draft. Give them what a human helper would need:
 
 - the full error message;
 - a small example of your data (`df.head()`);
