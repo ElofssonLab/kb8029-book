@@ -11,11 +11,20 @@ By the end of this session you should be able to:
 - explain that a profile score and a perceptron share the same mathematical core, a weighted sum (dot product), and how they differ;
 - explain how a model's weights can be *learned* from labelled examples by gradient descent, rather than derived from alignment statistics;
 - explain, with a real biological example, why some patterns cannot be captured by any linear model, and why a hidden layer only helps if its activation function is nonlinear;
-- describe how Rost & Sander's PHD method (1993) combined profile input from multiple alignments with a neural network to predict secondary structure better than earlier methods.
+- describe how Rost & Sander's PHD method (1993) combined profile input from multiple alignments with a neural network to predict secondary structure better than earlier methods;
+- explain why a more powerful model cannot compensate for an input representation that lacks the relevant information.
 
-## A profile score and a perceptron: the same weighted sum
+## Two pictures to keep in mind
 
-Session 5 introduced the profile score: to check how well a sequence matches a known family, you multiply each position's observed value by a position-specific weight and add the results up — a dot product, in Session 1's terms. A **perceptron** has the same mathematical core. It computes the weighted sum
+This session uses many names: profile score (PSSM), perceptron, linear and logistic regression, sigmoid, tanh, hidden layer, multilayer perceptron, PHD. Behind them are only two pictures:
+
+![Top: one weighted sum followed by an activation. A PSSM score, a perceptron and logistic regression are all this picture, and all of them draw one straight boundary. Bottom: a hidden layer of weighted sums with a nonlinear activation, followed by one more weighted sum. This is a multilayer perceptron (MLP), such as PHD, and it can combine several boundaries.](figs/session06-two-diagrams.png){width="95%"}
+
+Keep them in mind as you read. The goal of the session is to understand what changed between the two, and why that change makes XOR possible.
+
+## 1. A profile score and a perceptron: the same weighted sum
+
+**You already know the central computation of a neural network.** Session 5 introduced the profile score: to check how well a sequence matches a known family, you multiply each position's observed value by a position-specific weight and add the results up — a dot product, in Session 1's terms. A **perceptron** has the same mathematical core. It computes the weighted sum
 
 $$
 z = w_1 x_1 + w_2 x_2 + \dots + w_n x_n + b
@@ -23,11 +32,9 @@ $$
 
 (the extra term $b$, a **bias**, just shifts the whole thing by a constant amount, letting the model's decision threshold sit somewhere other than zero) and then passes $z$ through an **activation function** to produce an output. The two share the weighted sum, and differ in what they do with it: a PSSM reports the sum itself as a *score*, while a perceptron passes it through an activation, originally a threshold (output 1 if $z > 0$, else 0), to make a *classification*. Keeping the two terms apart helps later: "profile score" means a linear score, "perceptron" a (thresholded) classifier built on the same weighted sum.
 
-**Where the name actually comes from.** Frank Rosenblatt, who built the first perceptron in 1958, modeled it directly on a simplified picture of a biological neuron: dendrites collect incoming signals, each synapse weights its own input by how strong that connection is, the cell body sums everything up, and the axon fires an output once that sum crosses a threshold. $w_1, \dots, w_n$ are literally standing in for synaptic connection strengths, and $b$ for how easily the cell fires overall. The figure below is Rosenblatt's own — the left half is the brain circuit he was modeling (retina → association areas → motor output), the right half his perceptron built to mirror it (sensory points → association units → response units) — the same correspondence this session keeps coming back to, drawn by the person who first made it:
+**Where the name comes from.** Frank Rosenblatt built the first perceptron in 1958, modelled on a simplified neuron: each synapse weights its input, the cell sums them, and it fires once the sum crosses a threshold. The weights $w_i$ stand for connection strengths and $b$ for how easily the cell fires. His own diagram set the brain's circuit next to the perceptron built to mirror it:
 
-![Rosenblatt's own 1958 diagram: a biological brain's circuit (top) next to the perceptron he built to mirror it (bottom) — retina/sensory input, an association layer, and motor/response output on both sides. Public domain (US federal government work) — Rosenblatt, F., "The Design of an Intelligent Automaton," *Research Reviews*, Office of Naval Research, October 1958, pp. 5-13.](figs/session06-rosenblatt-brain-perceptron.png){width="85%"}
-
-A modern perceptron drops the anatomical framing entirely — no retina, no association layer, just the weighted sum above — but the name, and the weights-as-connection-strengths intuition, are inherited directly from this picture. Section "A brief history" below picks up what Rosenblatt did with this idea, and its real limitation.
+![Rosenblatt's own 1958 diagram: a biological brain's circuit (top) next to the perceptron he built to mirror it (bottom) — retina/sensory input, an association layer, and motor/response output on both sides. Public domain (US federal government work) — Rosenblatt, F., "The Design of an Intelligent Automaton," *Research Reviews*, Office of Naval Research, October 1958, pp. 5-13.](figs/session06-rosenblatt-brain-perceptron.png){width="75%"}
 
 Geometrically, $z = 0$ is a line (in two dimensions — a plane, or hyperplane, in higher ones): the model's **decision boundary**. Solving $w_1 x_1 + w_2 x_2 + b = 0$ for $x_2$ gives $x_2 = -\frac{w_1}{w_2} x_1 -
 \frac{b}{w_2}$ — the familiar $y = mx + c$ form of a line, with the bias $b$ playing the role of the intercept $c$ (scaled by $-1/w_2$): change $b$ and the whole line slides sideways, without changing its slope. That's the same role the intercept $b_0$ plays in ordinary linear regression, a connection the next section makes precise.
@@ -46,7 +53,7 @@ Geometrically, $z = 0$ is a line (in two dimensions — a plane, or hyperplane, 
 </div>
 ```
 
-## Learning the weights, instead of deriving them
+## 2. Learning the weights from examples
 
 A profile's weights come from counting: look at a multiple alignment, count how often each residue appears at each position, and turn those counts into log-odds scores. That works well when you already have a trustworthy alignment to count from.
 
@@ -100,9 +107,9 @@ This is a way to *write* the solution, not how to compute it: numerical librarie
 </div>
 ```
 
-## Perceptrons can compute logical functions
+## 3. What one weighted sum can represent
 
-Before seeing what a perceptron *can't* do, it's worth seeing concretely what it can. A single perceptron with a step activation (output 1 if $z >
+A single perceptron with a step activation (output 1 if $z >
 0$, else 0) can implement basic logic gates directly — no training required, just weights chosen by hand:
 
 | Gate | $w_1$ | $w_2$ | $b$  |
@@ -113,7 +120,43 @@ Before seeing what a perceptron *can't* do, it's worth seeing concretely what it
 
 Checking AND, for instance: at $(1,1)$, $z = 1+1-1.5 = 0.5 > 0 \to 1$; at every other corner, $z \le -0.5 \to 0$ — exactly AND's truth table. (NAND is just AND with both weights and the bias negated, flipping every output.) All three check out exactly against their truth tables in the notebook.
 
-Combining more than one perceptron goes further than any single one can. **OR** and **NAND**, computed separately from the same two inputs, then fed as the two inputs to an **AND** perceptron, reproduces **XOR** exactly:
+Each gate is one straight decision boundary through the square of four inputs, with the "1" corners on one side and the "0" corners on the other: for AND, only $(1,1)$ lies on the positive side of the line $x_1 + x_2 = 1.5$. The second discussion problem asks you to find weights for OR yourself.
+
+## 4. What one weighted sum can never represent: XOR
+
+A model built purely from weighted sums has a real limitation: there's a whole class of patterns it can never represent, no matter how its weights are chosen. The classic illustration is the **XOR problem**: a function of two binary inputs that outputs `1` when its inputs *differ* and `0` when they're the *same*.
+
+| $x_1$ | $x_2$ | XOR |
+|-------|-------|-----|
+| 0     | 0     | 0   |
+| 0     | 1     | 1   |
+| 1     | 0     | 1   |
+| 1     | 1     | 0   |
+
+**Before reading on, try it:** find weights $w_1, w_2, b$ that reproduce this table with one perceptron. You won't succeed: the two "1" outputs sit on opposite corners of the input square from each other, and no straight line can put both of them on one side while leaving both "0" outputs on the other.
+
+![A linear model trained on XOR (left) settles on predicting 0.5 everywhere — every straight-line boundary it could draw leaves at least one point on the wrong side, so gradient descent gives up at the least-wrong compromise. A hidden-layer model on the same data (right) combines two linear boundaries into a non-linear one that separates all four points correctly. Both panels are the real notebook's own trained models, not illustrative sketches.](figs/session06-xor-boundary.png){width="95%"}
+
+::: {.callout-note collapse="true"}
+## Optional: the algebraic proof
+
+The geometric argument can be turned into a short proof. A perceptron with a sign-style activation outputs 1 when $z = w_1 x_1 + w_2 x_2 + b > 0$ and 0 otherwise. Reproducing the XOR table requires all four of:
+
+$$
+b \le 0, \qquad w_1 + b > 0, \qquad w_2 + b > 0, \qquad w_1 + w_2 + b \le 0
+$$
+
+(the first and last come from the two "0" rows, the middle two from the "1" rows). Adding the second and third inequalities gives $w_1 + w_2 + 2b
+> 0$, i.e. $w_1 + w_2 + b > -b \ge 0$ (using $b \le 0$ from the first inequality) — but the fourth inequality says $w_1 + w_2 + b \le 0$ directly. No values of $w_1$, $w_2$, $b$ can satisfy both at once, so no such weights exist. This is the same fact the geometric picture showed, just derived without needing to draw anything.
+:::
+
+### Further reading
+
+- Wikipedia, [Linear separability](https://en.wikipedia.org/wiki/Linear_separability) — generalizes the geometric argument above beyond the two-input case shown here
+
+## 5. Why a hidden layer helps
+
+One perceptron draws one line; XOR needs two. Combining perceptrons goes further than any single one can. **OR** and **NAND**, computed separately from the same two inputs, then fed as the two inputs to an **AND** perceptron, reproduces **XOR** exactly:
 
 | $x_1$ | $x_2$ | OR  | NAND | AND(OR, NAND) | XOR |
 |-------|-------|-----|------|---------------|-----|
@@ -122,9 +165,9 @@ Combining more than one perceptron goes further than any single one can. **OR** 
 | 1     | 0     | 1   | 1    | 1             | 1   |
 | 1     | 1     | 1   | 0    | 0             | 0   |
 
-Two perceptrons computing OR and NAND form a **hidden layer**; a third perceptron combining their outputs is the model's final output — this is the shape (two hidden units feeding one output unit) that the notebook's own hidden-layer network below finds by gradient descent, rather than by hand. Seeing both — a hand-built exact solution here, a learned approximate one later — makes clear that gradient descent isn't discovering some exotic new trick; it's finding weights for a structure that could, in principle, be written down directly.
+Two perceptrons computing OR and NAND form a **hidden layer**; a third perceptron combining their outputs is the model's final output — this is the shape (two hidden units feeding one output unit) that the notebook's hidden-layer network finds by gradient descent, rather than by hand. Seeing both — a hand-built exact solution here, a learned approximate one later — makes clear that gradient descent isn't discovering some exotic new trick; it's finding weights for a structure that could, in principle, be written down directly.
 
-## Why the activation must be nonlinear
+### The activation must be nonlinear
 
 The construction above works only because each unit applies a **nonlinear** activation (here a step) before its output is passed on. Without one, stacking layers buys nothing. Write the hidden layer as $\mathbf{h} = W_1 \mathbf{x} + \mathbf{b}_1$ and the output as $z = W_2 \mathbf{h} + b_2$, with no activation. Then
 
@@ -146,29 +189,15 @@ which is again a single weighted sum of the inputs, one matrix $W_2 W_1$ and one
 
 If you can follow these shapes, the training loop in the notebook is just this table in code.
 
-## When linear scoring fails
+::: {.callout-tip icon="false"}
+## A short history
 
-A model built purely from weighted sums has a real limitation: there's a whole class of patterns it can never represent, no matter how its weights are chosen. The classic illustration is the **XOR problem**: a function of two binary inputs that outputs `1` when its inputs *differ* and `0` when they're the *same*.
+Minsky and Papert's book *Perceptrons* (1969) proved rigorously that single-layer perceptrons cannot solve problems like XOR, and it is widely credited with contributing to a drop in neural-network research in the 1970s, the first "AI winter". Multi-layer networks were known to be more powerful, but training them became practical only with **backpropagation** (popularized by Rumelhart, Hinton & Williams in 1986), which applies Session 1's chain rule through the hidden layers. Session 9 covers it.
+:::
 
-| $x_1$ | $x_2$ | XOR |
-|-------|-------|-----|
-| 0     | 0     | 0   |
-| 0     | 1     | 1   |
-| 1     | 0     | 1   |
-| 1     | 1     | 0   |
+## 6. Biological analogues
 
-Try to find weights $w_1, w_2, b$ that reproduce this table through a weighted sum, and you'll find you can't: the two "1" outputs sit on opposite corners of the input square from each other, and no straight line can put both of them on one side while leaving both "0" outputs on the other.
-
-![A linear model trained on XOR (left) settles on predicting 0.5 everywhere — every straight-line boundary it could draw leaves at least one point on the wrong side, so gradient descent gives up at the least-wrong compromise. A hidden-layer model on the same data (right) combines two linear boundaries into a non-linear one that separates all four points correctly. Both panels are the real notebook's own trained models, not illustrative sketches.](figs/session06-xor-boundary.png){width="95%"}
-
-That geometric argument can be turned into a short algebraic proof, which is worth seeing once. A perceptron with a sign-style activation outputs 1 when $z = w_1 x_1 + w_2 x_2 + b > 0$ and 0 otherwise. Reproducing the XOR table requires all four of:
-
-$$
-b \le 0, \qquad w_1 + b > 0, \qquad w_2 + b > 0, \qquad w_1 + w_2 + b \le 0
-$$
-
-(the first and last come from the two "0" rows, the middle two from the "1" rows). Adding the second and third inequalities gives $w_1 + w_2 + 2b
-> 0$, i.e. $w_1 + w_2 + b > -b \ge 0$ (using $b \le 0$ from the first inequality) — but the fourth inequality says $w_1 + w_2 + b \le 0$ directly. No values of $w_1$, $w_2$, $b$ can satisfy both at once, so no such weights exist. This is the same fact the geometric picture showed, just derived without needing to draw anything.
+### Interactions between positions: Bulyk et al.
 
 This isn't just a toy puzzle for logic gates — the same structure shows up in real sequence motifs. Bulyk, Johnson & Church (2002) used protein-binding microarrays to measure how a zinc-finger transcription factor's binding affinity depended on the nucleotides at different positions of its binding site, and found that positions do **not** contribute independently: the effect of one position's identity depends on what's at another position. That directly violates the assumption a profile score depends on — that each position's contribution can simply be added to the others.
 
@@ -181,9 +210,9 @@ To see why that specific kind of dependency is an XOR-shaped problem, consider a
 | R          | Y          | strong  |
 | R          | R          | weak    |
 
-Relabel "weak" as 0 and "strong" as 1, and this is the XOR table above. Neither position predicts binding on its own — only their combination does — and that is what no profile score, and no single perceptron, can represent. Resolving this requires several units combined with a nonlinear activation between them, which is what a hidden layer is, and where Session 9 picks this up again.
+Relabel "weak" as 0 and "strong" as 1, and this is the XOR table above. Neither position predicts binding on its own — only their combination does — and that is what no profile score, and no single perceptron, can represent. A hidden layer with a nonlinear activation (Section 5) can represent such an interaction.
 
-A hidden layer isn't the only possible fix, though — it's worth seeing an older one to appreciate why the hidden-layer version is actually better. For 0/1-valued $x_1, x_2$, it happens that
+**A different fix: change the input.** For 0/1-valued $x_1, x_2$, it happens that
 
 $$
 \text{XOR}(x_1, x_2) = x_1 + x_2 - 2\,x_1 x_2
@@ -191,24 +220,9 @@ $$
 
 exactly (check all four rows: $(0,0) \to 0$, $(0,1) \to 1$, $(1,0) \to
 1$, $(1,1) \to 1+1-2 = 0$). That right-hand side is *linear* — in the three inputs $x_1$, $x_2$, and the hand-engineered feature $x_1 x_2$. Adding that one extra, human-chosen feature turns an unsolvable problem back into an exactly-solvable linear regression, with weights $(1, 1,
--2)$ and bias $0$. This is a real, older alternative to a hidden layer — and it works — but it required a person to notice, in advance, that $x_1 x_2$ was the interaction that mattered. For Bulyk et al.'s real binding-site data, or for the secondary-structure problem below, nobody knows the useful interaction terms in advance. A hidden layer's real advantage is that it *learns* useful nonlinear features like this one directly from data, instead of requiring someone to engineer them by hand — what the notebook's hidden-layer network below does.
+-2)$ and bias $0$. This is a real, older alternative to a hidden layer — and it works — but it required a person to notice, in advance, that $x_1 x_2$ was the interaction that mattered. For Bulyk et al.'s real binding-site data, or for the secondary-structure problem below, nobody knows the useful interaction terms in advance. A hidden layer's advantage is that it *learns* useful nonlinear features like this from data, instead of requiring someone to engineer them. And the engineered feature makes a point of its own: changing the *input representation*, not the model, turned an impossible problem into an easy one (Section 7).
 
-### Further reading
-
-- Wikipedia, [Linear separability](https://en.wikipedia.org/wiki/Linear_separability) — generalizes the geometric argument above beyond the two-input case shown here
-
-## A brief history: why this problem mattered so much
-
-The XOR limitation isn't just a textbook exercise — it's a real episode in the history of the field. The perceptron itself predates this session's generic gradient-descent framing: Frank Rosenblatt's original 1958 algorithm updated each weight only when a training example was misclassified, by a fixed rule $\Delta w_i = \eta (y - \hat y) x_i$ (update in the direction that would have fixed *this* mistake, nothing more elaborate) — a special case of, not a replacement for, what "Learning the weights" above describes in general. Marvin Minsky and Seymour Papert's 1969 book *Perceptrons* proved this limitation rigorously and generalized it well beyond XOR, to a broad class of problems single-layer perceptrons cannot solve. The book's pessimism about perceptrons is widely credited with contributing to a sharp drop in funding and interest in neural-network research through the 1970s — a period often called the first "AI winter."
-
-The resolution came later, once **backpropagation** (an efficient way to apply Session 1's chain rule through a network with hidden layers, popularized by Rumelhart, Hinton & Williams in 1986) made it practical to *train* multi-layer networks rather than just prove, in principle, that they were more powerful. Minsky and Papert's proof was correct — a single perceptron really can't solve XOR — but it was a limitation of a *one-layer* model, not of neural networks generally. Session 9 picks up this thread once you've seen, in today's notebook, a hidden layer solve the problem Minsky and Papert showed a single perceptron cannot.
-
-### Further reading
-
-- Wikipedia, [AI winter](https://en.wikipedia.org/wiki/AI_winter) — the broader funding/research history
-- Wikipedia, [Backpropagation](https://en.wikipedia.org/wiki/Backpropagation) — the full derivation Session 9 builds on
-
-## Secondary structure prediction: a real historical example
+### Secondary structure prediction: PHD
 
 Bulyk et al.'s zinc-finger microarrays make the XOR-shaped limitation concrete on a small, hand-built example. Secondary structure prediction, a much larger real problem, illustrates the same general limitation of additive, position-by-position scores, and how better input and a more flexible model moved past it. (XOR itself is not a historical explanation of that plateau; it is a clean example of the kind of limitation involved.)
 
@@ -228,6 +242,26 @@ Bulyk et al.'s zinc-finger microarrays make the XOR-shaped limitation concrete o
 - Chou & Fasman (1974), "Prediction of protein conformation," *Biochemistry* 13(2):222-245 — [PubMed](https://pubmed.ncbi.nlm.nih.gov/4358940/)
 - Garnier, Osguthorpe & Robson (1978), "Analysis of the accuracy and implications of simple methods for predicting the secondary structure of globular proteins," *Journal of Molecular Biology* 120(1):97-120 — [PubMed](https://pubmed.ncbi.nlm.nih.gov/642007/)
 - Rost & Sander (1993), *Journal of Molecular Biology* 232:584-599 — the original PHD paper
+
+## 7. Representation matters as much as the model
+
+Three examples on this page make the same point:
+
+- **XOR** becomes a linear problem once the input includes the feature $x_1 x_2$.
+- **Secondary structure prediction** plateaued with single sequences, whatever the method, and improved when the input became a profile of homologous sequences.
+- **Today's lab** predicts a protein's helix fraction from its 20 amino-acid frequencies. A linear model and a neural network come out essentially tied. Before you read the lab's explanation, it asks you what information the 20 numbers have thrown away that a per-residue prediction would need. Try to answer it yourself.
+
+A more powerful model cannot recover information that is not in its input. What a model can learn is set by how the data are represented, at least as much as by the model's capacity. This is one of the central lessons of modern deep learning: Sessions 10 and 11 build models (convolutional networks, language models) that *learn* their representations of sequences, including order and local context.
+
+## Summary: the two pictures again
+
+![The same two pictures as at the start of the page. Everything in this session is one of them.](figs/session06-two-diagrams.png){width="95%"}
+
+- **Top:** one weighted sum, then an activation. A PSSM reports the sum as a score, a perceptron thresholds it, logistic regression passes it through a sigmoid. Its weights can be learned from examples by gradient descent (Section 2). Whatever the weights, it draws one straight boundary: it can represent AND, OR and NAND, but never XOR (Sections 3–4).
+- **Bottom:** a hidden layer of weighted sums with a nonlinear activation, then one more weighted sum. Each hidden unit draws its own boundary, and the output combines them, so XOR becomes possible (Section 5). Remove the nonlinear activation and the two layers collapse back into the top picture.
+- **Either picture** can only use the information in its input (Sections 6–7).
+
+If you can explain what changed between the two pictures and why that allows XOR, you have understood this session. You do not need to be able to write the PyTorch training loop from memory.
 
 ## Check your understanding
 
@@ -359,11 +393,11 @@ renderQuiz("session06-quiz", [
 
 ## The notebook
 
-The lab notebook for today (`notebooks/session06-gradient-descent-xor.ipynb`) works through this progression concretely: it opens by comparing a least-squares solver against gradient descent on the same tiny dataset, confirming they agree; a linear model trained by gradient descent then successfully learns AND (a linearly separable function), and the same model trained on XOR visibly fails to converge; a hand-built version of AND/OR/NAND (verified against their truth tables) shows XOR being solved exactly by combining two perceptrons, and a second hand-built version solves it again by engineering the $x_1 x_2$ feature directly; a small network with one hidden layer then learns XOR where the linear model couldn't, with the shape of every tensor printed and a plot showing why, and the same network with its activation removed fails, like the linear model. It closes by fetching *HBB*'s real secondary structure breakdown live from EBI's PDBe API, confirming the 80%-helix, 0%-strand figure quoted above, with the chain length taken from the structure itself. The version below is a static, read-only copy; open it in [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session06-gradient-descent-xor.ipynb) via the badge at the top of the notebook page to edit and run it yourself.
+The lab notebook for today (`notebooks/session06-gradient-descent-xor.ipynb`) follows the order of this page: it opens by comparing a least-squares solver against gradient descent on the same tiny dataset, confirming they agree; hand-chosen weights implement AND, OR and NAND (checked against their truth tables), and gradient descent learns AND by itself; the same model trained on XOR visibly fails; combining the OR and NAND perceptrons with AND solves XOR exactly, a small network with one hidden layer then learns it, with the shape of every tensor printed and a plot showing why, and the same network with its activation removed fails like the linear model; a single engineered input, $x_1 x_2$, makes XOR linear without changing the model. It closes by fetching *HBB*'s real secondary structure breakdown live from EBI's PDBe API, confirming the 80%-helix, 0%-strand figure quoted above, with the chain length taken from the structure itself. The version below is a static, read-only copy; open it in [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session06-gradient-descent-xor.ipynb) via the badge at the top of the notebook page to edit and run it yourself.
 
 ## The lab
 
-**A teaser, not a full treatment** (Session 8 covers train/validation/test splitting and evaluation properly; Session 9 covers regularization and architecture choices — neither is front-run here): assemble a real dataset — 55 real proteins' amino-acid composition, fetched live from EBI's PDBe API, against their real alpha-helix fraction — then fit linear regression and a small from-scratch multilayer perceptron on the same data and compare their error on held-out proteins. The two come out essentially tied on this small split, and the lab asks why a more flexible model does not help here: amino-acid composition throws away the order of the residues, and no model can recover information that is not in its input. (A cached copy of the dataset is used if the live fetch fails.) [`notebooks/session06-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session06-lab.ipynb) has the real pipeline, end to end.
+**A teaser, not a full treatment** (Session 8 covers train/validation/test splitting and evaluation properly; Session 9 covers regularization and architecture choices — neither is front-run here): assemble a real dataset — 55 real proteins' amino-acid composition, fetched live from EBI's PDBe API, against their real alpha-helix fraction — then fit linear regression and a small from-scratch multilayer perceptron on the same data and compare their error on held-out proteins. The two come out essentially tied on this small split, and the lab asks why a more flexible model does not help here. You first answer that question yourself (what has a composition vector thrown away?), then a scrambled-sequence demonstration shows the answer, which links back to the windows and profiles PHD used. (A cached copy of the dataset is used if the live fetch fails.) [`notebooks/session06-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session06-lab.ipynb) has the real pipeline, end to end.
 
 ### Submitting this lab
 
