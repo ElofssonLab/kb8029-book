@@ -26,7 +26,7 @@ The course has two teachers — one covering the machine-learning half, one cove
 
 ## Lab quizzes
 
-Each day with a lab (see the [Course Schedule](schedule.qmd)) has a short online lab-report quiz, graded pass/fail against a **50% correct** threshold. A few things about how these work, unchanged from year to year:
+Each session with a lab (see the [Course Schedule](schedule.qmd)) has a short online lab-report quiz, graded pass/fail against a **50% correct** threshold. A few things about how these work, unchanged from year to year:
 
 - **Mandatory** — every lab quiz needs to be passed, not just attempted.
 - **Same deadline for every lab** in a given run of the course, rather than one deadline per lab — check Canvas for what that date actually is this year.
@@ -36,14 +36,14 @@ Each day with a lab (see the [Course Schedule](schedule.qmd)) has a short online
 
 ## Lectures: come prepared
 
-Every lecture has an **at-home preparation part** before you show up — in this rebuilt book, that's literally what each day's own on-page "Check your understanding" quiz widget and pre-lecture discussion notebooks are for (see `CONTRIBUTING.md`'s authoring recipe if you're looking at how these get built, not just how to use them). **Lectures are not recorded** — past experience is that recording lectures measurably reduces how many students actually show up, which defeats a course this interactive.
+Every lecture has an **at-home preparation part** before you show up — in this rebuilt book, that's literally what each session's own on-page "Check your understanding" quiz widget and pre-lecture discussion notebooks are for (see `CONTRIBUTING.md`'s authoring recipe if you're looking at how these get built, not just how to use them). **Lectures are not recorded** — past experience is that recording lectures measurably reduces how many students actually show up, which defeats a course this interactive.
 
 ## Coding environment
 
 - **Visual Studio Code** is the recommended editor, but any editor you're comfortable with works.
 - The course server, `students.bioinfo.se`, has the course's conda environment, tools and data. You log in with an SSH key: generate one and send the public key in advance, as described on the [Setup](setup.qmd) page, which also covers connecting VS Code to the server.
 - For anything that needs a GPU, **Google Colab** is the recommended option, in the browser or from VS Code (see [Setup](setup.qmd)); every notebook in this book has an "Open in Colab" badge for this reason — it's free up to some usage limits, needs a Google account, and disconnects a session left idle too long, so don't leave one open and walk away.
-- **PyMOL** is the recommended protein-structure viewer for the structure-focused labs (Day 7's lab already assumes you have it installed) — it's free for students and runs on most platforms. If you don't have a computer that can run it, ask early rather than the day of the lab.
+- **PyMOL** is the recommended protein-structure viewer for the structure-focused labs (Session 7's lab already assumes you have it installed) — it's free for students and runs on most platforms. If you don't have a computer that can run it, ask early rather than the day of the lab.
 
 ## Plagiarism
 

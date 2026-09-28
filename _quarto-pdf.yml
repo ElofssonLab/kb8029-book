@@ -9,18 +9,18 @@ book:
     - schedule.qmd
     - course-info.qmd
     - setup.qmd
-    - day01.qmd
-    - day02.qmd
-    - day03.qmd
-    - day04.qmd
-    - day05.qmd
-    - day06.qmd
-    - day07.qmd
-    - day08.qmd
-    - day09.qmd
-    - day10.qmd
-    - day11.qmd
-    - day12.qmd
+    - session01.qmd
+    - session02.qmd
+    - session03.qmd
+    - session04.qmd
+    - session05.qmd
+    - session06.qmd
+    - session07.qmd
+    - session08.qmd
+    - session09.qmd
+    - session10.qmd
+    - session11.qmd
+    - session12.qmd
     - capstone.qmd
     - references.qmd
 format:

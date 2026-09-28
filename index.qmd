@@ -3,7 +3,7 @@
 This is an open, interactive companion to the redesigned KB8029
 Bioinformatics course. Rather than teaching classical bioinformatics and
 machine learning as two separate blocks, this book follows the course's
-integrated day-by-day structure — see the [Course Schedule](schedule.qmd)
+integrated session-by-session structure — see the [Course Schedule](schedule.qmd)
 for the full plan, or `course-redesign.md` in the repository root for the
 rationale behind it.
 
@@ -68,10 +68,10 @@ Most session pages have three parts:
 
 ## Status
 
-Work in progress. Day 1 (math prerequisites) and Day 6 (linear models,
+Work in progress. Session 1 (math prerequisites) and Session 6 (linear models,
 gradient descent, the XOR problem, and secondary structure prediction)
 are drafted as complete examples —
-Day 6 in particular showcases the course's central design idea: machine
+Session 6 in particular showcases the course's central design idea: machine
 learning is motivated from inside the bioinformatics material (a profile
 score turns out to already be a linear model) rather than introduced as an
 unrelated new topic. The remaining days will follow the same pattern.

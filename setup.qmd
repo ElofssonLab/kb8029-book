@@ -9,8 +9,8 @@ You will write and run code in three places during this course:
 | Where | What it gives you | Use it for |
 |------------------------|------------------------|------------------------|
 | **The course server**, `students.bioinfo.se`, through VS Code | A Linux machine with the course's conda environment, the command-line tools (BLAST, HMMER, MMseqs2, ...) and all course data; no GPU | Most labs and notebooks that need tools or large data |
-| **Google Colab**, in the browser or through VS Code | A free GPU for a limited time | Training neural networks (mainly Days 8-12) |
-| **Your own laptop** | Whatever you install | Editing, small experiments, PyMOL (Day 7) |
+| **Google Colab**, in the browser or through VS Code | A free GPU for a limited time | Training neural networks (mainly Sessions 8-12) |
+| **Your own laptop** | Whatever you install | Editing, small experiments, PyMOL (Session 7) |
 
 We do not yet have GPUs for every student on the server, so anything that needs a GPU runs on Colab. Every notebook in this book has an "Open in Colab" badge, and fetches its data from the course's GitHub repository, so it runs the same way on all three.
 

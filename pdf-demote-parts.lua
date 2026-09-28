@@ -1,5 +1,5 @@
--- For the PDF version only: Days 8-12 use "# Part N: ..." headings at the
--- same level as the day's title, which would make every part a chapter.
+-- For the PDF version only: Sessions 8-12 use "# Part N: ..." headings at the
+-- same level as the session's title, which would make every part a chapter.
 -- Demote each "# Part ..." heading, and the headings beneath it, by one
 -- level, until the next ordinary level-1 heading (the next chapter).
 function Pandoc(doc)
