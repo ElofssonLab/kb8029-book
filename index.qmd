@@ -51,6 +51,9 @@ makes "how far should I read?" an unanswerable question. Every session
 gets one bounded, authored page instead, with sources listed for further
 reading, never as an inline dependency.
 
+**New to the course?** Start with [Session 0: Introduction to the Course](session00.qmd):
+what the course covers, how a session works, and what to do before Session 1.
+
 ## How to use this alongside the course
 
 Most session pages have three parts:

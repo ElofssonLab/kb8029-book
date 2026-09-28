@@ -1,0 +1,113 @@
+::: callout-note
+**Sources for this page:** the course's own introduction slides from earlier years, updated for this version of the course. Dates, rooms, deadlines and this year's teaching assistants are on Canvas, not here.
+:::
+
+# Session 0: Introduction to the Course
+
+## What this course is about
+
+KB8029 brings two subjects together: **bioinformatics**, the computational
+analysis of biological sequences and structures, and **machine learning**,
+in particular the neural networks behind today's methods. They are not
+taught as two separate halves. The classical bioinformatics methods
+motivate the machine learning, and the machine learning is applied to the
+same biological problems.
+
+![The course at a glance. Sessions 1-2 refresh the mathematics and programming the rest of the course uses. Sessions 3-5 cover classical bioinformatics: databases, alignment, and database searches with profiles. In Sessions 6-9 the two subjects meet: a profile score turns out to be a simple neural network, and the networks are trained properly. Sessions 10-12 cover modern deep learning, up to AlphaFold. One problem, predicting protein structure from sequence, runs through the second half and ends in your capstone project.](figs/session00-roadmap.png){width="100%"}
+
+By the end of the course you should be able to
+
+- find, retrieve and compare biological sequences and structures using the main databases and tools;
+- explain how the classical methods work: alignment, substitution matrices, profiles and database searches;
+- build, train and evaluate neural networks in PyTorch, and judge whether a result is real;
+- explain how modern deep-learning methods for proteins work, from convolutional networks and protein language models to AlphaFold;
+- design, train and evaluate your own secondary-structure predictor (the [capstone project](capstone.qmd)).
+
+The full plan is on the [Course Schedule](schedule.qmd) page.
+
+## How a session works
+
+Each of the twelve sessions has the same parts:
+
+| Part | Where | What it is for |
+|---|---|---|
+| **The page** | this book, e.g. [Session 1](session01.qmd) | the material of the session, with self-study questions and a short quiz at the end |
+| **The notebook** | this book, linked from each page, with an "Open in Colab" badge | the same material in code; read it, then run and change it |
+| **The lecture** | on site | explanations, live coding, and short **discussion problems** you work on in groups (notebooks opened by QR code) |
+| **Live quizzes** | [quiz.bioinfo.se](https://quiz.bioinfo.se), on your phone | quick questions during the lecture, to check what has landed |
+| **The lab** | notebook in this book, questions on [Canvas](https://canvas.su.se/) | most sessions; hands-on work with real data, submitted as a short online quiz |
+
+Read the page before the lecture: the lectures assume you have seen the
+material once, and use the time for the parts that are hard to learn alone.
+**Lectures are not recorded.**
+
+## Where to find everything
+
+| What | Where |
+|---|---|
+| Course pages and notebooks (this book) | [course.bioinfo.se](https://course.bioinfo.se/) |
+| All course pages as one PDF | [KB8029-course-notes.pdf](/KB8029-course-notes.pdf) |
+| Schedule, rooms, deadlines, announcements, lab quizzes, discussion forum | [Canvas](https://canvas.su.se/) |
+| Live quizzes during lectures | [quiz.bioinfo.se](https://quiz.bioinfo.se) |
+| Setting up your computer, the course server and Colab | [Setup](setup.qmd) |
+| The session-by-session plan | [Course Schedule](schedule.qmd) |
+| Grading, lab rules, plagiarism | [Course Information & Logistics](course-info.qmd) |
+| The capstone project | [Capstone](capstone.qmd) |
+| Past exams | [Exam preparation](schedule.qmd#exam-preparation) |
+| Further reading for the whole course | [References](references.qmd) |
+
+## People
+
+The course has two teachers: **Arne Elofsson** (machine learning) and
+**Petras Kundrotas** (bioinformatics). Teaching assistants run the lab
+sessions; this year's are listed on Canvas.
+
+Ask questions in the Canvas discussion forum, where everyone can see the
+answers. The teaching assistants help during the scheduled lab hours; do
+not expect immediate help at other times.
+
+## The rules, in brief
+
+The details are on the [Course Information & Logistics](course-info.qmd)
+page. In short:
+
+- **Labs are mandatory.** Each lab ends in a short online quiz on Canvas; you need 50% to pass it. You can do a lab as soon as it is published.
+- **The capstone project** is a secondary-structure predictor of your own, handed in as a Colab notebook and a short written report.
+- **The exam** is in person, on paper, with a limited number of pages of your own notes. The project and the exam are both graded, and each needs a minimum score.
+- **Your work must be your own.** Discussing methods and approaches with other students is encouraged; submitting someone else's answers, code or text as your own is plagiarism, and written reports are checked for it.
+
+## At SciLifeLab
+
+The lectures and labs are at SciLifeLab in Solna. You need a SciLifeLab
+access card to enter and leave the building; when and where to collect it
+is announced on Canvas.
+
+- Use your card **every time** you pass the speed gates, on the way in and on the way out.
+- The gates let **one person through at a time**. To let a visitor in, use your card twice, with a few seconds in between, or the alarm goes off.
+- Never force your way through a gate.
+
+## Computers
+
+You can do almost everything on your own laptop. Some labs use the course
+server, which you reach with an **SSH key**, and the heavier computations
+use **Google Colab**, which gives free access to a GPU. The
+[Setup](setup.qmd) page takes you through all of it: creating and sending
+your SSH key, connecting VS Code to the server, and running notebooks on
+Colab. Session 7's lab uses **PyMOL** to look at protein structures.
+
+If you do not have a laptop that can do this, tell us now, not on the day
+of a lab.
+
+## Before Session 1
+
+1. Accept the course invitation on [Canvas](https://canvas.su.se/), and check the schedule there.
+2. Work through the [Setup](setup.qmd) page: create an SSH key and send the public key, and make sure you can open a notebook in Colab.
+3. Open [quiz.bioinfo.se](https://quiz.bioinfo.se) on your phone and check that you can log in.
+4. Read the [Session 1](session01.qmd) page, the mathematics refresher, and try its practice problems.
+
+## What's next
+
+[Session 1](session01.qmd) refreshes the mathematics the course relies on:
+vectors and matrices, derivatives and gradients, and probability,
+likelihood and entropy. [Session 2](session02.qmd) does the same for
+programming in Python.

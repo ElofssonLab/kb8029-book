@@ -5,6 +5,7 @@ book:
     - schedule.qmd
     - course-info.qmd
     - setup.qmd
+    - session00.qmd
     - session01.qmd
     - href: notebooks/session01-math-in-code.ipynb
       text: "Session 1 — Notebook"

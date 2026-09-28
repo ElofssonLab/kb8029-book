@@ -9,6 +9,7 @@ book:
     - schedule.qmd
     - course-info.qmd
     - setup.qmd
+    - session00.qmd
     - session01.qmd
     - session02.qmd
     - session03.qmd
