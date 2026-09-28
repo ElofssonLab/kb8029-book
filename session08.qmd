@@ -114,7 +114,7 @@ The choice of problem type fixes three things downstream:
 | | Regression | Classification |
 |---|---|---|
 | Output unit | linear (no activation) | sigmoid (2 classes) / softmax ($K$ classes) |
-| Loss minimized in training (Session 9) | mean squared error | cross-entropy |
+| Loss minimized in training (Session 9) | mean squared error | cross-entropy (Session 1) |
 | Evaluation metrics (Part 2) | RMSE, Pearson $r$, $R^2$ | confusion matrix, precision, recall, F1, MCC, AUROC |
 
 ## A running toy example: 3×3 pixel patterns
@@ -395,6 +395,13 @@ probabilities 0.06, 0.24, 0.05, 0.04 and 0.62, most of it on "cross".
 Softmax never changes *which* class wins, but it shows how confident the
 decision is. With $K = 2$, softmax reduces to the sigmoid. So softmax
 regression is logistic regression for more than two classes.
+
+Because softmax gives a probability distribution, its **entropy**
+(Session 1) measures how uncertain the prediction is: 1.56 bits for the
+example above, against a maximum of $\log_2 5 \approx 2.32$ bits for a
+model that cannot tell the five classes apart at all, and 0 bits for a
+completely confident one. Session 9 trains the network by minimizing the
+**cross-entropy** between these probabilities and the true labels.
 
 In PyTorch, a classifier's last layer outputs raw logits. The loss
 function (`nn.CrossEntropyLoss`, Session 9) applies softmax internally, and

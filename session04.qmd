@@ -21,7 +21,13 @@ Structure*, pp. 345-352 (origin of the PAM matrices); Henikoff & Henikoff
 — CC BY-SA 4.0; the notebook's core algorithm code is adapted from Lukas
 Käll's [*bibook*](https://github.com/statisticalbiotechnology/bibook)
 — CC BY 4.0. The guide-tree worked-example figure is original to this
-book, not from the lecture.
+book, not from the lecture. The globin sequence logo is drawn for this
+book from the Pfam Globin family (PF00042) seed alignment, via
+[InterPro](https://www.ebi.ac.uk/interpro/entry/pfam/PF00042/) (CC0),
+with [logomaker](https://logomaker.readthedocs.io/); sequence logos were
+introduced by Schneider & Stephens (1990), *Nucleic Acids Research*
+18:6097-6100; Wikipedia, [Sequence logo](https://en.wikipedia.org/wiki/Sequence_logo)
+— CC BY-SA 4.0.
 :::
 
 # Session 4: Sequence Alignment
@@ -35,7 +41,9 @@ the difference between global and local alignment, explain why an affine
 gap penalty is usually preferred over a linear one, explain what
 distinguishes the PAM and BLOSUM families of substitution matrices, and
 explain what it means for an alignment score to be statistically
-significant rather than just high.
+significant rather than just high, and read a sequence logo: how the
+entropy of each column of a multiple alignment shows which positions are
+conserved.
 
 ## Why alignment needs an algorithm
 
@@ -279,9 +287,64 @@ reflecting how clearly separate it is from the other four:
 
 ![](figs/session04-guidetree-worked-example.png){width=90%}
 
+## Reading an alignment: entropy and sequence logos
+
+A multiple alignment of a whole family is too large to read row by row.
+What matters is how each **column** varies: a position where every
+sequence has the same residue has been conserved through evolution,
+usually because it matters for structure or function, while a position
+with many different residues is free to change.
+
+Session 1's **entropy** puts a number on this. For the residue
+frequencies $p_a$ in a column,
+
+$$
+H = -\sum_a p_a \log_2 p_a
+$$
+
+is 0 bits for a fully conserved column and at most
+$\log_2 20 \approx 4.32$ bits for a protein column where all 20 amino
+acids are equally common ($\log_2 4 = 2$ bits for DNA). The column's
+**information content** is the distance from that maximum,
+$\log_2 20 - H$: high for conserved columns, near zero for variable
+ones.
+
+A **sequence logo** (Schneider & Stephens 1990) draws each column as a
+stack of letters. The height of the stack is the column's information
+content, and each letter's height within the stack is its frequency. A
+tall stack with one big letter is a conserved position; a low stack of
+many small letters is a variable one. Here, gaps also lower the stack:
+the height is multiplied by the fraction of sequences that have a residue
+in that column.
+
+The logo of the Pfam globin family, 73 globins from bacteria, plants,
+worms, insects and vertebrates, shows how few positions are conserved
+across the whole family:
+
+![Sequence logo of the Pfam Globin (PF00042) seed alignment: 73 sequences, 141 columns. Stack height is the information content in bits; letter height is the residue's frequency. Colours by chemistry: hydrophobic black, polar green, basic blue, acidic red, amide purple. The three labelled columns are numbered as in human beta-globin (HBB, mature chain).](figs/session04-globin-logo.png){width=100%}
+
+Two columns are identical in all 73 sequences: **His92** (F8, the
+"proximal" histidine, whose side chain binds the heme iron) and
+**Phe42** (CD1, which packs against the heme). **His63** (E7, the
+"distal" histidine, on the oxygen-binding side of the heme) is His in
+73% of them. The average column carries only 1.2 bits. The rest of the
+fold is held together by positions that stay hydrophobic (the black
+L, V, I and F stacks, often with several residues sharing a column)
+rather than by identical residues. This is how an alignment points to
+the residues a protein cannot do without, and how the same globin fold
+is kept even though most pairs of sequences in this alignment share fewer than 20% of their residues.
+
+Two practical notes. With few sequences, the frequencies are noisy, and
+a column can look conserved by chance; logo programs often apply a
+small-sample correction. And closely related sequences are
+over-represented in most alignments, so real tools also weight the
+sequences. Session 5's profiles use the same column frequencies to score
+new sequences.
+
 ### Further reading
 
 - Wikipedia, [Multiple sequence alignment](https://en.wikipedia.org/wiki/Multiple_sequence_alignment) — additional methods and applications, e.g. profile HMMs, which Session 5 picks up in full
+- Wikipedia, [Sequence logo](https://en.wikipedia.org/wiki/Sequence_logo); Schneider & Stephens (1990), "Sequence logos: a new way to display consensus sequences," *Nucleic Acids Research* 18:6097-6100
 
 ## The notebook
 
@@ -319,6 +382,17 @@ used for this course's live in-class peer-instruction quizzes (see
 <div id="session04-quiz"></div>
 <script>
 renderQuiz("session04-quiz", [
+  {
+    question: "In a sequence logo of a protein family, one column is a single tall letter about 4.3 bits high. What does that tell you?",
+    choices: [
+      "Almost every sequence has the same residue there (entropy near 0), so the position is conserved",
+      "The position is the most variable one in the family",
+      "The column is mostly gaps",
+      "The residue is the most common amino acid in proteins"
+    ],
+    correctIndex: 0,
+    explanation: "Stack height is the information content, log2(20) - H. A height near log2(20) = 4.32 bits means entropy near 0: one residue in every sequence."
+  },
   {
     question: "Human hemoglobin and human myoglobin arose from an ancient gene duplication within the same genome. What relationship do they have?",
     choices: ["Orthologs", "Paralogs", "Analogs", "They are not homologous"],
@@ -370,7 +444,7 @@ renderQuiz("session04-quiz", [
 
 ## The lab
 
-Three steps, all reached through
+Four steps, all reached through
 [`notebooks/session04-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session04-lab.ipynb):
 
 1. **By hand**: fill in a small Needleman-Wunsch dynamic-programming
@@ -387,8 +461,12 @@ Three steps, all reached through
    alignment — the "Progressive" strategy from the section above, made
    concrete on three real, short windows from proteins already used
    throughout this course.
+4. **By hand, then in code**: work out the entropy of three columns of
+   that alignment by hand, then draw the sequence logo of the Pfam
+   globin family, map its most conserved columns onto human HBB, and
+   (optionally) see how few sequences it takes to be fooled by chance.
 
-Once all three steps are done, answer the Session 4 lab quiz on Canvas using
+Once all four steps are done, answer the Session 4 lab quiz on Canvas using
 your own results.
 
 ### Submitting this lab

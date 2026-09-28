@@ -117,8 +117,10 @@ signal was too weak to fold proteins. Three things changed that.
    (APC) removes much of the background (Dunn, Wahl & Gloor 2008,
    [*Bioinformatics* 24:333](https://doi.org/10.1093/bioinformatics/btm604)).
    **Direct coupling analysis** (DCA) fits one global statistical model
-   (a Potts model, Session 10) to the whole alignment. It separates direct
-   couplings from indirect ones. DCA was first used between interacting
+   (a Potts model) to the whole alignment. Of all models that reproduce
+   the alignment's single-column and column-pair frequencies, it uses the
+   one with **maximum entropy** (Session 1), the one that assumes nothing
+   else. It separates direct couplings from indirect ones. DCA was first used between interacting
    bacterial signalling proteins (Weigt et al. 2009,
    [*PNAS* 106:67](https://doi.org/10.1073/pnas.0805923106)), then for
    contacts within hundreds of protein families (Morcos et al. 2011,

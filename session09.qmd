@@ -171,7 +171,12 @@ $$
 \text{CE} = -\log p(\text{true class})
 $$
 
-— the negative log of the probability the model gave the correct answer.
+— the negative log of the probability the model gave the correct answer:
+its *surprise*, in the language of Session 1's "Entropy: average surprise"
+section. Averaged over a dataset, this is the cross-entropy $H(P, Q)$
+between the true labels $P$ and the model's predictions $Q$, and also the
+negative log-likelihood per example, so minimizing it is maximum
+likelihood (Session 1).
 Confidently wrong is punished far more than hedged: probability 0.9 on
 the truth costs $-\log(0.9) \approx 0.105$, while probability 0.01 costs
 $-\log(0.01) \approx 4.6$, over 40 times more. With two classes this is
@@ -186,7 +191,7 @@ This is the same quantity Session 4 introduced from the other direction. Session
 **relative entropy** (KL-divergence) to measure how surprising a real
 alignment's substitutions are compared to a random background — and
 cross-entropy is built from it: $H(P, Q) = H(P) +
-D_{\text{KL}}(P \| Q)$, the true distribution's own entropy plus the
+D_{\text{KL}}(P \| Q)$, the true distribution's own entropy (Session 1) plus the
 extra cost of using the model's imperfect distribution $Q$ instead of
 the true one $P$. Minimizing cross-entropy during training *is*,
 precisely, minimizing that same KL-divergence between the model's

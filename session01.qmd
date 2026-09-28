@@ -22,6 +22,7 @@ By the end of this session you should:
 - understand derivatives, gradients and why gradient descent works;
 - understand conditional probability and how $P(A \mid B)$ differs from $P(B \mid A)$
 - understand logs, likelihood and why bioinformatics uses log-scores;
+- understand entropy as average surprise, and cross-entropy as its link to likelihood;
 - understand p-values and why multiple testing requires FDR control.
 
 ## Part 1: Vectors and matrices
@@ -631,7 +632,41 @@ $$
 L(p) = p^7 (1-p)^3
 $$
 
-For $p = 0.5$, $L = 0.5^{10} \approx 0.00098$. For $p = 0.7$, $L = 0.7^7 \times 0.3^3 \approx 0.0022$, about 2.3 times higher: the data are better explained by a GC-rich model. No value of $p$ does better than 0.7, the observed fraction. Choosing the parameters that make the observed data most probable is **maximum likelihood**, and it is how most models in this course are trained. Because a likelihood is a product, it is computed as a sum of logs (the **log-likelihood**, previous section), and many important loss functions used later in this course, incliding **cross entropy** are **negative log-likelihoods**: minimizing the loss maximizes the likelihood.
+For $p = 0.5$, $L = 0.5^{10} \approx 0.00098$. For $p = 0.7$, $L = 0.7^7 \times 0.3^3 \approx 0.0022$, about 2.3 times higher: the data are better explained by a GC-rich model. No value of $p$ does better than 0.7, the observed fraction. Choosing the parameters that make the observed data most probable is **maximum likelihood**, and it is how most models in this course are trained. Because a likelihood is a product, it is computed as a sum of logs (the **log-likelihood**, previous section), and many important loss functions used later in this course, including **cross-entropy** (next section), are **negative log-likelihoods**: minimizing the loss maximizes the likelihood.
+
+### Entropy: average surprise
+
+The log of a probability also measures how *surprising* an outcome is. An outcome with probability $p$ carries a **surprise** of $-\log_2 p$ bits: a certain outcome ($p = 1$) carries 0 bits, a fair coin flip 1 bit, and one of four equally likely bases 2 bits. The **entropy** of a distribution is its average surprise:
+
+$$
+H(P) = -\sum_x P(x) \log_2 P(x)
+$$
+
+Entropy measures how unpredictable, or how *variable*, the outcomes are:
+
+| Distribution | Entropy |
+|---|---|
+| one base always (a fully conserved alignment column) | 0 bits |
+| A or G, half each | 1 bit |
+| the GC-rich model above (0.35, 0.35, 0.15, 0.15) | 1.88 bits |
+| all four bases equally likely | 2 bits, the maximum for DNA |
+| all 20 amino acids equally likely | $\log_2 20 \approx 4.32$ bits, the maximum for proteins |
+
+The difference from the maximum, for example $2 - H$ for a DNA column, is the column's **information content**: how much knowing the family tells you about that position. This is what the height of a stack in a sequence logo shows (Session 4).
+
+**Cross-entropy.** Suppose the data really come from a distribution $P$, but you describe them with a model $Q$. The average surprise you then experience is the **cross-entropy**:
+
+$$
+H(P, Q) = -\sum_x P(x) \log_2 Q(x)
+$$
+
+It is never smaller than $H(P)$, and equals it only when $Q = P$. The extra cost, $H(P,Q) - H(P)$, is the **relative entropy** (Kullback–Leibler divergence) of Session 4.
+
+**The link to likelihood.** Take the 10-base fragment above, with observed frequencies 0.7 G/C and 0.3 A/T, and a model that gives G/C the probability $p$. The cross-entropy is $-(0.7 \log_2 p + 0.3 \log_2 (1-p))$: 1.00 bit for $p = 0.5$ and 0.88 bits for $p = 0.7$, the lowest possible. That is exactly the log-likelihood per base, with the sign changed: $\log_2 L(0.5) = -10$ bits for ten bases, and $\log_2 L(0.7) = \log_2 0.0022 \approx -8.8$. So **minimizing cross-entropy is maximum likelihood**. This is why cross-entropy is the loss used to train classifiers from Session 8 on.
+
+**Maximum entropy.** Entropy can also be used to choose a model: among all distributions that agree with what you have measured, pick the one with the highest entropy, the one that assumes nothing more. Session 12 meets this idea in the contact-prediction method DCA.
+
+The same formula, with a different constant and natural logs, is the entropy of statistical physics, which is where Shannon borrowed the name. The hydrophobic effect that drives protein folding (Session 7) is largely an effect of this physical entropy, the entropy of the surrounding water.
 
 ### p-values and hypothesis testing
 
@@ -664,6 +699,7 @@ Applying just the naive $p<0.05$ threshold to this simulated data (Welch's t-tes
 3.  With the GC-rich model of the worked example, what is the log-odds score of the sequence AT, in bits? Which model does it favour?
 4.  If you test 100 genes with no real difference at $p<0.05$ and apply no correction, about how many false positives should you expect by chance alone?
 5.  A gene has a p-value of $10^{-6}$. What is its height on a volcano plot's y-axis, $-\log_{10}(p)$?
+6.  An alignment column of a DNA motif has A in 70% of the sequences and C, G and T in 10% each. What is its entropy, and its information content, in bits?
 
 ::: {.callout-note collapse="true"}
 ## Solutions
@@ -673,6 +709,7 @@ Applying just the naive $p<0.05$ threshold to this simulated data (Welch's t-tes
 3.  $2 \times \log_2(0.15/0.25) = 2 \times (-0.74) \approx -1.47$ bits: negative, so the background model explains AT better.
 4.  $100 \times 0.05 = 5$ false positives expected, even though every one of the 100 genes is truly non-differentially-expressed.
 5.  $-\log_{10}(10^{-6}) = 6$.
+6.  $H = -(0.7 \log_2 0.7 + 3 \times 0.1 \log_2 0.1) \approx 0.36 + 1.00 = 1.36$ bits; information content $2 - 1.36 \approx 0.64$ bits. Less variable than a random column (2 bits), far from fully conserved (0 bits).
 :::
 
 **Check your understanding:**
@@ -714,6 +751,12 @@ renderQuiz("session01-quiz-3", [
     ],
     correctIndex: 0,
     explanation: "A negative log-odds favours the background; 2 bits is a factor of 2^2 = 4."
+  },
+  {
+    question: "An alignment column has A in half of the sequences and G in the other half. What is its entropy?",
+    choices: ["1 bit", "0 bits", "2 bits", "0.5 bits"],
+    correctIndex: 0,
+    explanation: "H = -(0.5 log2 0.5 + 0.5 log2 0.5) = 1 bit, the surprise of a fair coin flip. A fully conserved column has 0 bits and a random DNA column 2 bits."
   },
   {
     question: "mRNA levels (1, 2, 3, 4, 100) and protein levels (2, 4, 6, 8, 10): every increase in one goes with an increase in the other. Which is true?",
