@@ -234,7 +234,15 @@ Bulyk et al.'s zinc-finger microarrays make the XOR-shaped limitation concrete o
 
 **What changed with PHD.** Neural networks on single sequences did not solve the problem on their own. Qian & Sejnowski (1988, *J Mol Biol* 202:865) trained a network with a hidden layer on windows of single sequences and reached **64.3%**, and concluded that "no method based solely on local information in the protein sequence is likely to produce significantly better results". The limit was the information in the input, not only the model. Rost & Sander (1993) changed the input: their **PHD** method fed a feed-forward network a *profile* built from a multiple alignment of homologs (Session 5's representation) instead of a single sequence. That family information added "six to eight percentage points", and the full method reached **70.8%** three-state accuracy. The lesson combines both halves of this session: a better representation of the input (profiles) and a model flexible enough to use it (a network with a hidden layer) together did what additive scores on single sequences could not.
 
-**A concrete example: *HBB*.** Secondary structure isn't an abstraction — it's a real, measurable property of a real structure. The crystal structure of human hemoglobin (PDB entry `2HHB`) shows that *HBB* (beta-globin, this course's running example) is almost entirely one secondary structure type: of the 146 residues of chain B in this structure, **117 (about 80%)** sit in one of 12 separate alpha helices, and **none** are part of a beta strand — the rest is coil connecting the helices together. (UniProt's *HBB* sequence has 147 residues; the mature chain in the crystal structure lacks the initiator methionine, so it has 146. Use the length of the chain you are actually counting.) The notebook fetches the breakdown and the chain length live from EBI's PDBe API.
+**What a per-residue predictor has to do: *HBB*.** Take beta-globin (*HBB*), this course's running example. In the crystal structure of human hemoglobin (PDB entry `2HHB`), every residue of its chain has a label: helix (H) or coil (C); there are no strands.
+
+![*HBB* (chain B of PDB 2HHB): helices in blue, coil in grey. The heme (red, iron in orange) sits in a pocket between helices; His63 (upper, blue sticks) and His92 (lower) are the distal and proximal histidines that Session 4's globin logo showed to be conserved. The orange helix is the 13-residue window around His63 in the next figure. Rendered with PyMOL by tools/builders/make_session06_hbb_structure.py.](figs/session06-hbb-structure.png){width="60%"}
+
+A secondary-structure predictor has to produce that whole string from the sequence. PHD-style methods label one residue at a time, from a *window* of its neighbours:
+
+![Two views of the same protein. Top: HBB's sequence with the secondary structure of each residue in 2HHB (blue = helix, grey = coil), and the 13-residue window a PHD-style predictor reads to label His63. Bottom: the same protein as 20 amino-acid fractions, the input of today's lab, and its single target, the helix fraction. Secondary structure from EBI's PDBe API, drawn by tools/builders/make_session06_hbb_views.py.](figs/session06-hbb-two-views.png){width="100%"}
+
+The top view keeps what matters for the label: which residues are neighbours, in what order, and where helices start and stop (five of HBB's helices begin at a proline). A single sequence in that window gave Qian and Sejnowski their 64%; PHD replaced each position of the window by a profile of its homologs (Session 5). The bottom view is what today's lab uses: *HBB* becomes 20 numbers, and the question becomes "what fraction is helix?" (0.80, 117 of its 146 residues). Everything in the top view that is not a count has been thrown away. Keep both views in mind for the lab.
 
 ### Further reading
 
@@ -355,15 +363,15 @@ renderQuiz("session06-quiz", [
     explanation: "Chou-Fasman is a propensity- and rule-based method, not a one-residue-at-a-time classifier. Neither method uses information from homologous sequences, which is what PHD added."
   },
   {
-    question: "In the crystal structure 2HHB, 117 of the 146 residues of HBB's chain B are in alpha helices and none in beta strands. What does this tell you about HBB?",
+    question: "The Session 6 lab describes HBB by its amino-acid composition (20 numbers) and predicts its helix fraction, 0.80. What can such a model never tell you?",
     choices: [
-      "HBB is an almost entirely alpha-helical protein, with the remaining ~20% classified as coil connecting the helices",
-      "HBB has no secondary structure at all",
-      "HBB is roughly half helix and half sheet, a typical mixed protein",
-      "Secondary structure cannot be determined from a real crystal structure, only predicted"
+      "Which residues are in helices, and where each helix starts and stops",
+      "Whether HBB is mostly helical",
+      "How many alanines HBB contains",
+      "Anything at all about HBB"
     ],
     correctIndex: 0,
-    explanation: "117/146 &asymp; 80% helix and 0% strand is about as clean an all-alpha example as real proteins get. (The chain has 146 residues, not UniProt's 147: the mature protein lacks the initiator methionine.)"
+    explanation: "Composition keeps only counts, so it can predict an overall fraction but not the per-residue labels. A per-residue predictor such as PHD reads a window of neighbours around each residue instead."
   },
   {
     question: "A single perceptron can implement AND, OR, and NAND by hand-chosen weights. What does combining an OR perceptron and a NAND perceptron, then feeding both outputs into an AND perceptron, compute?",
@@ -393,7 +401,7 @@ renderQuiz("session06-quiz", [
 
 ## The notebook
 
-The lab notebook for today (`notebooks/session06-gradient-descent-xor.ipynb`) follows the order of this page: it opens by comparing a least-squares solver against gradient descent on the same tiny dataset, confirming they agree; hand-chosen weights implement AND, OR and NAND (checked against their truth tables), and gradient descent learns AND by itself; the same model trained on XOR visibly fails; combining the OR and NAND perceptrons with AND solves XOR exactly, a small network with one hidden layer then learns it, with the shape of every tensor printed and a plot showing why, and the same network with its activation removed fails like the linear model; a single engineered input, $x_1 x_2$, makes XOR linear without changing the model. It closes by fetching *HBB*'s real secondary structure breakdown live from EBI's PDBe API, confirming the 80%-helix, 0%-strand figure quoted above, with the chain length taken from the structure itself. The version below is a static, read-only copy; open it in [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session06-gradient-descent-xor.ipynb) via the badge at the top of the notebook page to edit and run it yourself.
+The lab notebook for today (`notebooks/session06-gradient-descent-xor.ipynb`) follows the order of this page: it opens by comparing a least-squares solver against gradient descent on the same tiny dataset, confirming they agree; hand-chosen weights implement AND, OR and NAND (checked against their truth tables), and gradient descent learns AND by itself; the same model trained on XOR visibly fails; combining the OR and NAND perceptrons with AND solves XOR exactly, a small network with one hidden layer then learns it, with the shape of every tensor printed and a plot showing why, and the same network with its activation removed fails like the linear model; a single engineered input, $x_1 x_2$, makes XOR linear without changing the model. It closes by fetching *HBB*'s per-residue secondary structure live from EBI's PDBe API and printing the two views of the protein from the figure above: the labels with a 13-residue window, and the 20 composition numbers. The version below is a static, read-only copy; open it in [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session06-gradient-descent-xor.ipynb) via the badge at the top of the notebook page to edit and run it yourself.
 
 ## The lab
 
