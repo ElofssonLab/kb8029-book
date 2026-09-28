@@ -6,17 +6,22 @@
 
 ## Learning goals
 
-By the end of this session you should be able to recognize a perceptron as a formal version of Session 5's profile score, explain how such a model's weights can be *learned* from labelled examples rather than derived from alignment statistics, explain — using a real biological example — why some patterns cannot be captured by any linear model, no matter how its weights are chosen, and describe, using the historical PHD method, how combining Session 5's profile input with a hidden layer resolved this kind of limitation for real protein secondary structure prediction.
+By the end of this session you should be able to:
 
-## A profile score, formalized
+- explain that a profile score and a perceptron share the same mathematical core, a weighted sum (dot product), and how they differ;
+- explain how a model's weights can be *learned* from labelled examples by gradient descent, rather than derived from alignment statistics;
+- explain, with a real biological example, why some patterns cannot be captured by any linear model, and why a hidden layer only helps if its activation function is nonlinear;
+- describe how Rost & Sander's PHD method (1993) combined profile input from multiple alignments with a neural network to predict secondary structure better than earlier methods.
 
-Session 5 introduced the profile score: to check how well a sequence matches a known family, you multiply each position's observed value by a position-specific weight and add the results up — a dot product, in Session 1's terms. Today we give that computation a name and generalize it. A **perceptron** computes this weighted sum,
+## A profile score and a perceptron: the same weighted sum
+
+Session 5 introduced the profile score: to check how well a sequence matches a known family, you multiply each position's observed value by a position-specific weight and add the results up — a dot product, in Session 1's terms. A **perceptron** has the same mathematical core. It computes the weighted sum
 
 $$
 z = w_1 x_1 + w_2 x_2 + \dots + w_n x_n + b
 $$
 
-(the extra term $b$, a **bias**, just shifts the whole thing by a constant amount, letting the model's decision threshold sit somewhere other than zero) and then passes $z$ through an **activation function** to produce an output. There is nothing biological or sequence-specific left in this definition — it's the same computation Session 5 used for scoring motifs, stripped down to its general-purpose form.
+(the extra term $b$, a **bias**, just shifts the whole thing by a constant amount, letting the model's decision threshold sit somewhere other than zero) and then passes $z$ through an **activation function** to produce an output. The two share the weighted sum, and differ in what they do with it: a PSSM reports the sum itself as a *score*, while a perceptron passes it through an activation, originally a threshold (output 1 if $z > 0$, else 0), to make a *classification*. Keeping the two terms apart helps later: "profile score" means a linear score, "perceptron" a (thresholded) classifier built on the same weighted sum.
 
 **Where the name actually comes from.** Frank Rosenblatt, who built the first perceptron in 1958, modeled it directly on a simplified picture of a biological neuron: dendrites collect incoming signals, each synapse weights its own input by how strong that connection is, the cell body sums everything up, and the axon fires an output once that sum crosses a threshold. $w_1, \dots, w_n$ are literally standing in for synaptic connection strengths, and $b$ for how easily the cell fires overall. The figure below is Rosenblatt's own — the left half is the brain circuit he was modeling (retina → association areas → motor output), the right half his perceptron built to mirror it (sensory points → association units → response units) — the same correspondence this session keeps coming back to, drawn by the person who first made it:
 
@@ -65,15 +70,21 @@ Two iterations of gradient descent, $w_{n+1} = w_n - \eta \, dL/dw$:
 | 2 | 1.92 | 3.84 | $2(3.84-6)(2) = -8.64$ | 1.92 − 0.05 × (−8.64) = 2.35 |
 
 The weight is climbing toward $w = 3$, where the prediction $wx = 3 \times
-2 = 6$ would exactly match the target — and, just as in Session 1's one-variable example, the size of each correction ($dL/dw$) shrinks on its own as the prediction gets closer, with no manual adjustment to $\eta$ required.
+2 = 6$ would exactly match the target — and, just as in Session 1's one-variable example, the size of each correction ($dL/dw$) shrinks on its own as the prediction gets closer, with no manual adjustment to $\eta$ required — provided the learning rate is not too large. With an excessive learning rate, gradient descent overshoots the minimum and can oscillate or diverge (Session 1's second discussion problem).
 
-**Deriving vs. learning, on the simplest possible model.** Ordinary linear regression — fitting a line $\hat y = b_0 + b_1 x$ to data — is a useful sanity check here, because unlike a perceptron's classification loss, its squared-error loss has an exact **closed-form** solution: the **normal equations**. Stack the inputs into a matrix $X$ (a column of 1s for $b_0$, alongside the $x$ values) and solve
+**Deriving vs. learning, on the simplest possible model.** Ordinary linear regression — fitting a line $\hat y = b_0 + b_1 x$ to data — has a direct numerical solution, so it makes a useful check: gradient descent should reach the same optimum, iteratively. For five noisy points roughly following $y \approx 2x$, $x = (1,2,3,4,5)$ and $y = (2.1, 3.9, 6.2, 7.8, 10.1)$, a least-squares solver gives $b_0 = 0.05$, $b_1 = 1.99$ in one step, and gradient descent (learning rate $\eta = 0.01$, thousands of small steps) converges to the same $b_0 = 0.050$, $b_1 = 1.990$. This mirrors Session 5's PSSM (weights *derived* directly from alignment counts) against today's gradient descent (weights *learned* iteratively). Gradient descent is what the rest of the course uses, because most models, a perceptron's classification loss included, have no direct solution.
+
+::: {.callout-note collapse="true"}
+## Optional: the formula
+
+The least-squares solution can be written with the **normal equations**. Stack the inputs into a matrix $X$ (a column of 1s for $b_0$, next to the $x$ values); then
 
 $$
 \hat{\boldsymbol\beta} = (X^\top X)^{-1} X^\top \mathbf{y}
 $$
 
-**Worked example.** Five noisy points roughly following $y \approx 2x$: $x = (1,2,3,4,5)$, $y = (2.1, 3.9, 6.2, 7.8, 10.1)$. Solving the normal equations directly gives $\hat b_0 = 0.05$, $\hat b_1 = 1.99$ — computed in one step, no iteration. Running gradient descent on the same data (learning rate $\eta = 0.01$, squared-error loss, thousands of small steps) converges to $b_0 = 0.050$, $b_1 = 1.990$ — the same answer, reached the slow way. This is the same distinction as Session 5's PSSM (weights *derived* directly from alignment counts, like the normal equations here) versus today's gradient descent (weights *learned* iteratively): when a closed form exists, deriving it is exact and instant; gradient descent is the fallback for the cases — a perceptron's classification loss included — where no such closed form exists.
+This is a way to *write* the solution, not how to compute it: numerical libraries (`np.linalg.lstsq`, scikit-learn) use more stable methods than inverting $X^\top X$. And when the columns of $X$ are exactly linearly dependent, $X^\top X$ cannot be inverted at all. Today's lab comes close: the 20 amino-acid fractions of a protein sum to 1 (for 54 of its 55 proteins; one contains unknown residues), so together with the intercept column they are almost exactly linearly dependent. A least-squares solver still finds a best fit, but the individual weights are poorly determined.
+:::
 
 ### Further reading
 
@@ -113,6 +124,28 @@ Combining more than one perceptron goes further than any single one can. **OR** 
 
 Two perceptrons computing OR and NAND form a **hidden layer**; a third perceptron combining their outputs is the model's final output — this is the shape (two hidden units feeding one output unit) that the notebook's own hidden-layer network below finds by gradient descent, rather than by hand. Seeing both — a hand-built exact solution here, a learned approximate one later — makes clear that gradient descent isn't discovering some exotic new trick; it's finding weights for a structure that could, in principle, be written down directly.
 
+## Why the activation must be nonlinear
+
+The construction above works only because each unit applies a **nonlinear** activation (here a step) before its output is passed on. Without one, stacking layers buys nothing. Write the hidden layer as $\mathbf{h} = W_1 \mathbf{x} + \mathbf{b}_1$ and the output as $z = W_2 \mathbf{h} + b_2$, with no activation. Then
+
+$$
+z = W_2 (W_1 \mathbf{x} + \mathbf{b}_1) + b_2 = (W_2 W_1)\,\mathbf{x} + (W_2 \mathbf{b}_1 + b_2)
+$$
+
+which is again a single weighted sum of the inputs, one matrix $W_2 W_1$ and one bias. Any number of linear layers collapses into one linear layer, and one linear layer cannot solve XOR. A nonlinear activation between the layers (a step, sigmoid, tanh or ReLU) is what lets the hidden units bend the decision boundary. The notebook shows it directly: the same two-hidden-unit network, trained on XOR with the activation removed, gets stuck at 0.5 for every input, like the plain linear model.
+
+**Keeping track of shapes.** In the notebook's network for XOR, with the four input rows stacked into one matrix (Session 1's shape rules):
+
+| | Shape | |
+|---|---|---|
+| inputs $X$ | $(4, 2)$ | four examples, two inputs each |
+| weights $W_1$ | $(2, 2)$ | two inputs → two hidden units |
+| hidden layer $h = \tanh(X W_1 + \mathbf{b}_1)$ | $(4, 2)$ | two hidden values per example |
+| weights $W_2$ | $(2, 1)$ | two hidden units → one output |
+| output $y = \sigma(h W_2 + b_2)$ | $(4, 1)$ | one prediction per example |
+
+If you can follow these shapes, the training loop in the notebook is just this table in code.
+
 ## When linear scoring fails
 
 A model built purely from weighted sums has a real limitation: there's a whole class of patterns it can never represent, no matter how its weights are chosen. The classic illustration is the **XOR problem**: a function of two binary inputs that outputs `1` when its inputs *differ* and `0` when they're the *same*.
@@ -148,7 +181,7 @@ To see why that specific kind of dependency is an XOR-shaped problem, consider a
 | R          | Y          | strong  |
 | R          | R          | weak    |
 
-Relabel "weak" as 0 and "strong" as 1, and this is the XOR table above. Neither position predicts binding on its own — only their combination does — and that is what no profile score, and no single perceptron, can represent. Resolving this requires combining more than one linear unit, which is what a hidden layer does, and where Session 9 picks this up again.
+Relabel "weak" as 0 and "strong" as 1, and this is the XOR table above. Neither position predicts binding on its own — only their combination does — and that is what no profile score, and no single perceptron, can represent. Resolving this requires several units combined with a nonlinear activation between them, which is what a hidden layer is, and where Session 9 picks this up again.
 
 A hidden layer isn't the only possible fix, though — it's worth seeing an older one to appreciate why the hidden-layer version is actually better. For 0/1-valued $x_1, x_2$, it happens that
 
@@ -177,17 +210,17 @@ The resolution came later, once **backpropagation** (an efficient way to apply S
 
 ## Secondary structure prediction: a real historical example
 
-Bulyk et al.'s zinc-finger microarrays make the XOR-shaped limitation concrete on a small, hand-built example. A much larger, real prediction problem hit the same wall — and its resolution is a genuine historical instance of the fix this session has been building toward: add a hidden layer.
+Bulyk et al.'s zinc-finger microarrays make the XOR-shaped limitation concrete on a small, hand-built example. Secondary structure prediction, a much larger real problem, illustrates the same general limitation of additive, position-by-position scores, and how better input and a more flexible model moved past it. (XOR itself is not a historical explanation of that plateau; it is a clean example of the kind of limitation involved.)
 
 **What secondary structure is.** A protein's *secondary structure* is the local, repeating shape its backbone folds into, well short of the full 3D fold (its *tertiary* structure, which Session 7 covers properly). Two patterns dominate: the **alpha helix**, a right-handed coil held together by hydrogen bonds between backbone atoms four residues apart, and the **beta sheet**, made of extended strands lying alongside each other, hydrogen-bonded edge to edge. Everything that's neither is usually just called **coil** (or loop/turn). Predicting secondary structure means labelling every residue in a sequence with one of these three classes — a per-residue classification problem, not a single yes/no like XOR, but built from the same kind of position-by-position scoring this whole course has been using.
 
-**Two classical methods, before neural networks entered the picture.** The first real attempts at this problem predate neural networks by decades, and are worth seeing on their own terms — both are genuinely linear, per-residue scoring schemes, the kind this session has been building up from Session 5's PSSM. **Chou & Fasman (1974)** derived empirical propensity values for helix/sheet/turn/coil from the (then small) set of known structures — alanine, glutamate, leucine, and methionine are strong helix-formers, proline and glycine are helix-breakers — and predicted by finding short runs of high-propensity residues and extending them. It reached roughly **50-60%** three-state accuracy: a real, usable improvement over guessing, but only a single residue's own propensity ever factored into its score. **Garnier, Osguthorpe & Robson (1978)** — the **GOR** method — improved on this by scoring each residue using a whole *window* of its neighbors (not just itself), an information-theoretic approach that pushed accuracy to roughly **65%**, and was substantially better at predicting helices than sheets. Both are still, fundamentally, linear scores — no method managed to represent genuine positional interdependence until neural networks entered the picture.
+**Two classical methods, before neural networks entered the picture.** The first real attempts predate neural networks by decades. **Chou & Fasman (1974)** derived empirical propensities for helix, sheet and turn from the (then small) set of known structures — alanine, glutamate, leucine and methionine are strong helix-formers, proline and glycine helix-breakers — and combined them with rules: find short *nucleation* regions of high-propensity residues, then *extend* them along the chain until breakers stop them. It is a propensity- and rule-based method, not a simple one-residue-at-a-time classifier, and it reached roughly **50-60%** three-state accuracy. **Garnier, Osguthorpe & Robson (1978)** — the **GOR** method — scored each residue using an information-theoretic sum of contributions from a whole *window* of neighbours, reaching roughly **65%**, and was better at helices than at sheets. Neither is literally a perceptron, but both build their score mostly by adding up per-residue contributions, which is where the limitation lies.
 
-![The real historical accuracy progression: Chou-Fasman's single-residue propensities, GOR's neighbor-window information-theoretic score, and Rost & Sander's profile-fed hidden-layer network. Figures are the broadly-cited historical consensus (Wikipedia, "Protein structure prediction") — the three original papers used different, non-identical benchmark sets, not one shared modern test set.](figs/session06-ss-accuracy-history.png){width="75%"}
+![The real historical accuracy progression: Chou-Fasman's propensities and nucleation/extension rules, GOR's neighbour-window information-theoretic score, and Rost & Sander's profile-fed neural network. Figures are the broadly-cited historical consensus (Wikipedia, "Protein structure prediction") — the three original papers used different, non-identical benchmark sets, not one shared modern test set.](figs/session06-ss-accuracy-history.png){width="75%"}
 
-**Why a profile score alone still wasn't enough.** Predicting secondary structure from a single sequence — essentially a position-specific linear score, like Session 5's PSSM, Chou-Fasman, or GOR above — plateaus in this same 50-65% range no matter how the propensities are tuned. Rost & Sander (1993) broke past that wall with their **PHD** method, and the two changes that mattered most map directly onto this session's own arc: they fed the network a *profile* built from a multiple alignment of homologs (Session 5's representation, not a single sequence), and — critically — they used a neural network **with a hidden layer**, not a single linear unit. Profile input without a hidden layer, or a hidden layer without profile input, both fell short; combining them pushed accuracy past 70% for the first time, precisely because a hidden layer can represent the kind of positional interdependence a single linear score — Chou-Fasman, GOR, PSSM, or perceptron — provably cannot, the limitation demonstrated above.
+**What changed with PHD.** Neural networks on single sequences did not solve the problem on their own. Qian & Sejnowski (1988, *J Mol Biol* 202:865) trained a network with a hidden layer on windows of single sequences and reached **64.3%**, and concluded that "no method based solely on local information in the protein sequence is likely to produce significantly better results". The limit was the information in the input, not only the model. Rost & Sander (1993) changed the input: their **PHD** method fed a feed-forward network a *profile* built from a multiple alignment of homologs (Session 5's representation) instead of a single sequence. That family information added "six to eight percentage points", and the full method reached **70.8%** three-state accuracy. The lesson combines both halves of this session: a better representation of the input (profiles) and a model flexible enough to use it (a network with a hidden layer) together did what additive scores on single sequences could not.
 
-**A concrete example: *HBB*.** Secondary structure isn't an abstraction — it's a real, measurable property of a real structure. The crystal structure of human hemoglobin (PDB entry `2HHB`) shows that *HBB* (beta-globin, this course's running example) is almost entirely one secondary structure type: of its 147 residues, **117 (about 80%)** sit in one of 12 separate alpha helices, and **none** are part of a beta strand — the rest is coil connecting the helices together. The notebook fetches this breakdown live from EBI's PDBe API.
+**A concrete example: *HBB*.** Secondary structure isn't an abstraction — it's a real, measurable property of a real structure. The crystal structure of human hemoglobin (PDB entry `2HHB`) shows that *HBB* (beta-globin, this course's running example) is almost entirely one secondary structure type: of the 146 residues of chain B in this structure, **117 (about 80%)** sit in one of 12 separate alpha helices, and **none** are part of a beta strand — the rest is coil connecting the helices together. (UniProt's *HBB* sequence has 147 residues; the mature chain in the crystal structure lacks the initiator methionine, so it has 146. Use the length of the chain you are actually counting.) The notebook fetches the breakdown and the chain length live from EBI's PDBe API.
 
 ### Further reading
 
@@ -244,6 +277,17 @@ renderQuiz("session06-quiz", [
     explanation: "A profile/perceptron score assumes each position's contribution simply adds to the others &mdash; this finding is the XOR-shaped exception to that assumption."
   },
   {
+    question: "A network has a hidden layer, but no activation function: h = W1 x + b1, then z = W2 h + b2. Can it solve XOR?",
+    choices: [
+      "No: W2(W1 x + b1) + b2 = (W2 W1) x + (W2 b1 + b2) is again a single linear function of x",
+      "Yes: any hidden layer is enough to solve XOR",
+      "Yes, if the hidden layer has at least 100 units",
+      "Only if trained for long enough"
+    ],
+    correctIndex: 0,
+    explanation: "Linear layers collapse into one linear layer. A nonlinear activation (step, sigmoid, tanh, ReLU) between the layers is what lets a hidden layer bend the decision boundary."
+  },
+  {
     question: "What later development made it practical to train multi-layer networks, resolving the XOR limitation Minsky and Papert identified?",
     choices: [
       "Backpropagation &mdash; an efficient way to apply the chain rule through a network with hidden layers",
@@ -255,7 +299,7 @@ renderQuiz("session06-quiz", [
     explanation: "Backpropagation, popularized by Rumelhart, Hinton &amp; Williams in 1986, is Session 1's chain rule applied through a network with hidden layers."
   },
   {
-    question: "For decades, predicting secondary structure from a single sequence with a linear, PSSM-style score plateaued around 60-65% three-state accuracy. What two changes did Rost &amp; Sander's PHD method combine to push past 70%?",
+    question: "Methods that predicted secondary structure from single sequences, including an early neural network (Qian &amp; Sejnowski 1988, 64.3%), stayed around 60-65% three-state accuracy. What did Rost &amp; Sander's PHD method (1993) change to reach about 71%?",
     choices: [
       "Profile input (a multiple-alignment-derived representation, not a single sequence) together with a neural network that has a hidden layer",
       "A much larger single-sequence database, with no change to the linear scoring model",
@@ -263,21 +307,21 @@ renderQuiz("session06-quiz", [
       "Switching from BLOSUM62 to PAM250 as the scoring matrix"
     ],
     correctIndex: 0,
-    explanation: "Profile input alone, or a hidden layer alone, both fell short on their own — combining them is what mattered, mirroring the profile+hidden-layer story built up earlier in this session."
+    explanation: "The family information from multiple alignments added six to eight percentage points (Rost &amp; Sander's abstract). Qian &amp; Sejnowski had already concluded that local information from a single sequence limits any method: the input mattered as much as the model."
   },
   {
-    question: "Chou-Fasman (1974, ~50-60% accuracy) and GOR (1978, ~65%) both predate Rost & Sander's neural network by over a decade. What do both of them still have in common with a single-perceptron PSSM, despite being real, useful improvements over guessing?",
+    question: "Which description of Chou-Fasman (1974) and GOR (1978) is most accurate?",
     choices: [
-      "They're still fundamentally linear, per-residue scoring schemes — neither represents positional interdependence the way a hidden layer can",
-      "They both use a hidden layer, just a smaller one than PHD's",
-      "They ignore protein sequence entirely and use only structural data",
-      "They are mathematically identical to each other, just published under different names"
+      "Chou-Fasman combines residue propensities with nucleation and extension rules; GOR sums information from a window of neighbouring residues. Both build scores mostly from per-residue contributions, from single sequences",
+      "Both are neural networks with a hidden layer, smaller than PHD's",
+      "Both ignore the protein sequence and use only structural data",
+      "Chou-Fasman classifies each residue independently from its own propensity alone"
     ],
     correctIndex: 0,
-    explanation: "GOR's real improvement over Chou-Fasman was using a window of neighboring residues instead of just one — but that's still a fixed linear combination, not the kind of interdependence a hidden layer represents."
+    explanation: "Chou-Fasman is a propensity- and rule-based method, not a one-residue-at-a-time classifier. Neither method uses information from homologous sequences, which is what PHD added."
   },
   {
-    question: "HBB's real crystal structure (PDB 2HHB) shows 117 of its 147 residues in alpha helices and none in beta strands. What does this tell you about HBB specifically?",
+    question: "In the crystal structure 2HHB, 117 of the 146 residues of HBB's chain B are in alpha helices and none in beta strands. What does this tell you about HBB?",
     choices: [
       "HBB is an almost entirely alpha-helical protein, with the remaining ~20% classified as coil connecting the helices",
       "HBB has no secondary structure at all",
@@ -285,7 +329,7 @@ renderQuiz("session06-quiz", [
       "Secondary structure cannot be determined from a real crystal structure, only predicted"
     ],
     correctIndex: 0,
-    explanation: "117/147 &asymp; 80% helix and 0% strand is about as clean an all-alpha example as real proteins get."
+    explanation: "117/146 &asymp; 80% helix and 0% strand is about as clean an all-alpha example as real proteins get. (The chain has 146 residues, not UniProt's 147: the mature protein lacks the initiator methionine.)"
   },
   {
     question: "A single perceptron can implement AND, OR, and NAND by hand-chosen weights. What does combining an OR perceptron and a NAND perceptron, then feeding both outputs into an AND perceptron, compute?",
@@ -315,11 +359,11 @@ renderQuiz("session06-quiz", [
 
 ## The notebook
 
-The lab notebook for today (`notebooks/session06-gradient-descent-xor.ipynb`) works through this progression concretely: it opens by comparing the linear-regression closed form against gradient descent on the same tiny dataset, confirming they agree; a linear model trained by gradient descent then successfully learns AND (a linearly separable function), and the same model trained on XOR visibly fails to converge; a hand-built version of AND/OR/NAND (verified against their truth tables) shows XOR being solved exactly by combining two perceptrons, and a second hand-built version solves it again by engineering the $x_1 x_2$ feature directly; finally, a small network with one hidden layer succeeds at learning XOR where the linear model couldn't — with a plot showing why. It closes by fetching *HBB*'s real secondary structure breakdown live from EBI's PDBe API, confirming the 80%-helix, 0%-strand figure quoted above. The version below is a static, read-only copy; open it in [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session06-gradient-descent-xor.ipynb) via the badge at the top of the notebook page to edit and run it yourself.
+The lab notebook for today (`notebooks/session06-gradient-descent-xor.ipynb`) works through this progression concretely: it opens by comparing a least-squares solver against gradient descent on the same tiny dataset, confirming they agree; a linear model trained by gradient descent then successfully learns AND (a linearly separable function), and the same model trained on XOR visibly fails to converge; a hand-built version of AND/OR/NAND (verified against their truth tables) shows XOR being solved exactly by combining two perceptrons, and a second hand-built version solves it again by engineering the $x_1 x_2$ feature directly; a small network with one hidden layer then learns XOR where the linear model couldn't, with the shape of every tensor printed and a plot showing why, and the same network with its activation removed fails, like the linear model. It closes by fetching *HBB*'s real secondary structure breakdown live from EBI's PDBe API, confirming the 80%-helix, 0%-strand figure quoted above, with the chain length taken from the structure itself. The version below is a static, read-only copy; open it in [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session06-gradient-descent-xor.ipynb) via the badge at the top of the notebook page to edit and run it yourself.
 
 ## The lab
 
-**A teaser, not a full treatment** (Session 8 covers train/validation/test splitting and evaluation properly; Session 9 covers regularization and architecture choices — neither is front-run here): assemble a real dataset — 55 real proteins' amino-acid composition, fetched live from EBI's PDBe API, against their real alpha-helix fraction — then fit linear regression and a small from-scratch multilayer perceptron on the same real data and compare their real held-out error, honestly (the two turn out to be close, with linear regression very slightly ahead — small, largely-additive biological features are the regime a plain linear model can hold its own in). [`notebooks/session06-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session06-lab.ipynb) has the real pipeline, end to end.
+**A teaser, not a full treatment** (Session 8 covers train/validation/test splitting and evaluation properly; Session 9 covers regularization and architecture choices — neither is front-run here): assemble a real dataset — 55 real proteins' amino-acid composition, fetched live from EBI's PDBe API, against their real alpha-helix fraction — then fit linear regression and a small from-scratch multilayer perceptron on the same data and compare their error on held-out proteins. The two come out essentially tied on this small split, and the lab asks why a more flexible model does not help here: amino-acid composition throws away the order of the residues, and no model can recover information that is not in its input. (A cached copy of the dataset is used if the live fetch fails.) [`notebooks/session06-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session06-lab.ipynb) has the real pipeline, end to end.
 
 ### Submitting this lab
 
