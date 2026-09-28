@@ -537,36 +537,20 @@ The **expectation** of a random variable is its probability-weighted average, $\
 
 ### Correlation: Pearson and Spearman
 
-A **correlation coefficient** measures how strongly two variables go
-together, from $-1$ (one goes up as the other goes down) through $0$ to
-$+1$ (they go up together).
+A **correlation coefficient** measures how strongly two variables go together, from $-1$ (one goes up as the other goes down) through $0$ to $+1$ (they go up together).
 
-- **Pearson's $r$** measures how well the points fit a *straight line*:
-  the covariance of $x$ and $y$ divided by the product of their standard
-  deviations,
-  $$
+- **Pearson's** $r$ measures how well the points fit a *straight line*: the covariance of $x$ and $y$ divided by the product of their standard deviations, $$
   r = \frac{\sum_i (x_i - \bar{x})(y_i - \bar{y})}{\sqrt{\sum_i (x_i - \bar{x})^2}\,\sqrt{\sum_i (y_i - \bar{y})^2}}
   $$
-- **Spearman's $\rho$** is Pearson's $r$ computed on the *ranks* of the
-  values instead of the values themselves. It measures whether $y$ tends
-  to increase when $x$ does (a monotonic relationship), whether or not
-  along a straight line, and a single extreme value cannot dominate it.
+- **Spearman's** $\rho$ is Pearson's $r$ computed on the *ranks* of the values instead of the values themselves. It measures whether $y$ tends to increase when $x$ does (a monotonic relationship), whether or not along a straight line, and a single extreme value cannot dominate it.
 
-**Worked example.** Five genes have mRNA levels $(1, 2, 3, 4, 100)$ and
-protein levels $(2, 4, 6, 8, 10)$. Every increase in mRNA goes with an
-increase in protein, so Spearman's $\rho = 1$. Pearson's $r = 0.72$,
-because the one extreme value does not lie on the line through the
-others; with 5 instead of 100 it would be exactly 1.
+**Worked example.** Five genes have mRNA levels $(1, 2, 3, 4, 100)$ and protein levels $(2, 4, 6, 8, 10)$. Every increase in mRNA goes with an increase in protein, so Spearman's $\rho = 1$. Pearson's $r = 0.72$, because the one extreme value does not lie on the line through the others; with 5 instead of 100 it would be exactly 1.
 
 Three cautions, all used on Day 2:
 
-- **Plot first.** Both coefficients are 0 for a U-shaped relationship,
-  and a single number can hide what a scatter plot shows at once.
-- **A correlation has a p-value too**, and it depends on the number of
-  points: a strong-looking correlation from five points can easily
-  arise by chance.
-- **Correlation is not causation.** Two variables can move together
-  because both depend on a third.
+- **Plot first.** Both coefficients are 0 for a U-shaped relationship, and a single number can hide what a scatter plot shows at once.
+- **A correlation has a p-value too**, and it depends on the number of points: a strong-looking correlation from five points can easily arise by chance.
+- **Correlation is not causation.** Two variables can move together because both depend on a third.
 
 ### Conditional probability
 
