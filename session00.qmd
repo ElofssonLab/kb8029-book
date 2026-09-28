@@ -2,7 +2,7 @@
 **Sources for this page:** the course's own introduction slides from earlier years, updated for this version of the course. Dates, rooms, deadlines and this year's teaching assistants are on Canvas, not here.
 :::
 
-# Session 0: Introduction to the Course
+# Session 0: Introduction to the Course {.unnumbered}
 
 ## What this course is about
 
