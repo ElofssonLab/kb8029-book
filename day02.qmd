@@ -33,9 +33,25 @@ By the end of this session you should be able to:
 - read biological records from a local file or from NCBI;
 - get unstuck: read an error message, inspect objects, use the documentation and an AI assistant, and verify the answer.
 
-## Where the code runs
+## Notebooks: what they are and why we use them
 
-Every notebook in this book runs on the course server (through VS Code) or on Google Colab (for a GPU); see [Setup](setup.qmd). A notebook is a sequence of cells, run in whatever order you choose, with results shown underneath. That is ideal for exploring data: run a small piece, look at the result, adjust, re-run. It also has one well-known trap, covered in Section 7.
+Every notebook in this book runs on the course server (through VS Code) or on Google Colab (for a GPU); see [Setup](setup.qmd).
+
+A **notebook** (a `.ipynb` file, the Jupyter format) mixes three things in one document: **text** (explanations, like this page), **code cells**, and each cell's **output** (numbers, tables, plots, error messages) shown directly underneath it. You run one cell at a time, in whatever order you choose.
+
+That makes notebooks well suited to exploring data:
+
+- **Run a small piece, look, adjust, re-run** just that piece, without starting the whole analysis from the top.
+- **Results stay next to the code that made them**, so you, a teacher or a colleague can see what was done and what came out.
+- **Text explains the reasoning**, which a plain script does not.
+
+The price is **hidden state**. A notebook's variables live in the memory of a running Python process (the *kernel*), not on the page. Running cells out of order, re-running one cell several times, or editing a cell without re-running it all leave the memory different from what the page shows. The notebook has a small demonstration (Section 7): a cell that adds 1 to `counter` gives a new number every time you re-run it, although its code never changes. This is one of the most common sources of confusion for new notebook users.
+
+::: callout-important
+**Before submitting or sharing a notebook: Restart Kernel → Run All.**
+
+This clears the memory and runs every cell from top to bottom, in order. If the notebook still runs and gives the same results, what the page shows is what the code does.
+:::
 
 ## 1. Scientific Python objects
 
@@ -79,7 +95,7 @@ From Day 6 onwards you never write a derivative by hand again; you call `.backwa
 
 ## 2. Exploring a biological dataset
 
-The first dataset we will use is a mouse liver RNA-seq, high-fat/high-cholesterol diet against control (Becares et al. 2019)- The dataset is already analysed with DESeq2 and we will just analyze the outputs. The set contains one row per gene, with its mean expression (`baseMean`), log2 fold change, p-value and adjusted p-value.
+The first dataset is from a mouse-liver RNA-seq experiment comparing a high-fat/high-cholesterol diet with a control diet (Becares et al., 2019). The data have already been analysed with DESeq2; here we will explore the resulting table. git coThe set contains one row per gene, with its mean expression (`baseMean`), log2 fold change, p-value and adjusted p-value.
 
 ``` python
 url = "https://raw.githubusercontent.com/JoachimGoedhart/VolcaNoseR/master/Becares-diffgenes_HFHC.csv"
@@ -161,7 +177,7 @@ Spearman's correlation uses only the ranks, so it doesn't care about the scale. 
 renderQuiz("day02-quiz-1", [
   {"question": "You have transcript lengths in a Python list, lengths = [628, 577, 576]. What does lengths * 2 give?", "choices": ["The list repeated twice: [628, 577, 576, 628, 577, 576]", "Each length doubled: [1256, 1154, 1152]", "An error", "The sum of the lengths, doubled"], "correctIndex": 0, "explanation": "A list is a general container, and * repeats it. For elementwise maths use a NumPy array: np.array(lengths) * 2."},
   {"question": "What does np.array([628, 577, 576]) > 600 return?", "choices": ["array([ True, False, False]): one True/False per element", "True, because one element is above 600", "An error: arrays cannot be compared with numbers", "The number 628"], "correctIndex": 0, "explanation": "Comparisons on arrays work element by element and give a boolean mask, which can then select elements: arr[arr > 600]."},
-  {"question": "describe() on an RNA-seq results table shows that the largest p-value is 0.12. What should you conclude?", "choices": ["The file is pre-filtered: it holds only genes with p below about 0.12, not all genes", "Every gene in the genome changed significantly", "The p-values were computed wrongly", "Nothing: the maximum p-value is not informative"], "correctIndex": 0, "explanation": "Genome-wide p-values range up to 1. Summaries reveal how the data were made, and conclusions about 'all genes' from a filtered list would be wrong."},
+  {"question": "describe() on an RNA-seq results table shows that the largest **raw** p-value is 0.12. What does this strongly suggest about the file?", "choices": ["The file is likely prefiltered rather than the complete genome-wide DESeq2 output.", "Every gene in the genome changed significantly", "The p-values were computed wrongly", "Nothing: the maximum p-value is not informative"], "correctIndex": 0, "explanation": "Genome-wide p-values range up to 1. Summaries reveal how the data were made, and conclusions about 'all genes' from a filtered list would be wrong."},
   {"question": "df[(df['padj'] &lt; 0.05) and (df['log2_FoldChange'] > 1)] raises 'ValueError: The truth value of a Series is ambiguous'. What is the fix?", "choices": ["Use &amp; instead of and: df[(df['padj'] &lt; 0.05) &amp; (df['log2_FoldChange'] > 1)]", "Remove the parentheses", "Convert the DataFrame to a list first", "Use a smaller threshold"], "correctIndex": 0, "explanation": "Python's and needs a single True or False; &amp; combines two columns of True/False element by element. Keep the parentheses: &amp; binds more tightly than &lt;."},
   {"question": "Which plot shows the distribution of a single variable, such as the log2 fold changes of 3,001 genes?", "choices": ["A histogram", "A scatter plot", "A volcano plot", "A heatmap"], "correctIndex": 0, "explanation": "A histogram counts how many values fall in each bin. A scatter plot shows the relationship between two variables."},
   {"question": "Pearson's r between raw mean expression and |log2 fold change| is -0.01, but a scatter plot with expression on a log axis shows a clear trend. What is the best next step?", "choices": ["Test what the plot shows: log-transform expression, or use Spearman's rank correlation", "Report that there is no relationship, since the test said so", "Remove the genes that don't fit the trend", "Use a larger significance threshold"], "correctIndex": 0, "explanation": "Pearson measures a linear relationship and is dominated by a few huge values on the raw scale. Plot first, test second: here r = -0.30 on the log scale, Spearman rho = -0.42."}
@@ -244,6 +260,12 @@ Everyone's code fails, all the time. There are three kinds of mistakes, and they
 2.  **Correct code, wrong analysis.** The code runs, but it does not answer your question: plotting GC content on the x-axis when you meant length, or filtering on the p-value when you meant the adjusted p-value. Nothing fails.
 3.  **A biologically nonsensical result.** The code runs and the numbers look reasonable, but they cannot be right: computing a globin's protein length as its mRNA length divided by three gives 654 amino acids for cytoglobin, while globins are about 150 amino acids long. (The mRNA includes untranslated regions; only the coding sequence is translated.)
 
+::: {.callout-tip icon="false"}
+## Remember
+
+> > **Code running without an error does not mean the analysis is correct.**
+:::
+
 AI assistants are very good at removing mistakes of the first kind. They do much less to stop the second and third, which you catch only by asking whether the result answers your question and whether it is biologically plausible. For the first kind, experienced programmers have a routine for getting unstuck:
 
 **read the error → inspect → documentation → AI assistant (or google) → verify.**
@@ -279,6 +301,14 @@ The documentation shows its replacement, `gc_fraction`.
 - the library versions;
 - what you expected, and what you tried.
 
+::: {.callout-tip icon="false"}
+## How to use chatbots.
+
+> Never ask only “fix my code.” Tell the assistant what you **intended the code to do**, show the relevant data/object, and ask it to **explain the proposed change**.
+>
+> Afterwards, verify the result independently whenever possible.
+:::
+
 **Then verify.** Assistants can invent functions and arguments that don't exist, use outdated APIs (like `GC` above: they learned from the same old tutorials), or write code that runs but computes the wrong thing. That last case is the dangerous one, because nothing fails. Treat the answer as a suggestion:
 
 - run it on a tiny example whose answer you know;
@@ -295,7 +325,7 @@ assert not df["Gene"].duplicated().any(), "one row per gene"
 assert len(record.seq) == 628, "HBB mRNA should be 628 nt"
 ```
 
-**The notebook trap: stale state.** A notebook's variables live in memory, independent of where cells sit on the page. Run cell 3, then cell 7, then edit cell 3 without re-running it, and cell 7 still uses the *old* value. The page says one thing, and the memory holds another. When a result surprises you, use **Restart and Run All**: it clears the memory and runs every cell top to bottom, the only way to be sure the output matches the code.
+**The notebook trap: stale state.** A notebook's variables live in memory, independent of where cells sit on the page. Run cell 3, then cell 7, then edit cell 3 without re-running it, and cell 7 still uses the *old* value. The page says one thing, and the memory holds another. When a result surprises you, use **Restart Kernel → Run All**: it clears the memory and runs every cell top to bottom, the only way to be sure the output matches the code (see the box at the start of the page).
 
 ## 8. Mini challenge: a small analysis, start to finish
 
