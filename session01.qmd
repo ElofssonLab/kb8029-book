@@ -645,7 +645,7 @@ $$
 Entropy measures how unpredictable, or how *variable*, the outcomes are:
 
 | Distribution | Entropy |
-|---|---|
+|------------------------------------|------------------------------------|
 | one base always (a fully conserved alignment column) | 0 bits |
 | A or G, half each | 1 bit |
 | the GC-rich model above (0.35, 0.35, 0.15, 0.15) | 1.88 bits |
