@@ -4,8 +4,6 @@
 
 # Session 6: Linear Models, Gradient Descent, the XOR Problem & Secondary Structure Prediction
 
-## 
-
 ::: {.callout-tip icon="false"}
 ## A fast learner
 
@@ -21,8 +19,6 @@
 >
 > *Me*: It's 121
 :::
-
-### 
 
 ## Learning goals
 
