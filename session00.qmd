@@ -51,7 +51,7 @@ Read the page before the lecture: the lectures assume you have seen the material
 
 ## People
 
-The course has two teachers: **Arne Elofsson** (machine learning) and **Petras Kundrotas** (bioinformatics). Teaching assistants run the lab sessions; this year's are listed on Canvas.
+The course has two teachers, one for machine learning and one for bioinformatics, and teaching assistants who run the lab sessions. This year's teachers and teaching assistants are listed on Canvas.
 
 Ask questions in the Canvas discussion forum, where everyone can see the answers. The teaching assistants help during the scheduled lab hours; do not expect immediate help at other times.
 
