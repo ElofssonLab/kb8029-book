@@ -4,40 +4,50 @@
 
 # Session 8: Machine Learning Foundations & Practical PyTorch
 
+::: {.callout-tip icon="false"}
+## A fast learner
+
+> Why did the deep learning model refuse to attend the party?
+
+> It didn't want to overfit in.
+:::
+
 ## Learning goals
 
 By the end of this session you should be able to:
 
-- explain what training, validation and test sets are for, and why performance on the training data says little about a model;
-- name the ways information can leak from the test data into a model (through the samples, the preprocessing or the model choices), homologous sequences above all;
-- compute and interpret a confusion matrix, precision, recall, F1, MCC and ROC/AUROC for a classifier, and RMSE, Pearson $r$ and $R^2$ for a regression model, and explain what each of them does and does not tell you;
 - tell regression from classification, and choose the output, loss and evaluation metric that go with each;
-- write (not yet train) a PyTorch `nn.Module` classifier and count its parameters.
+- explain what training, validation and test sets are for, and name the ways biological data can leak between them, homologous sequences above all;
+- compute and interpret a confusion matrix, precision, recall, F1, MCC, ROC/AUROC, and RMSE, Pearson $r$ and $R^2$;
+- relate artificial neurons and networks to biological ones, and place the architectures of Sessions 9-13 on one map;
+- describe softmax as the multi-class version of Session 6's model, and write (not yet train) a PyTorch `nn.Module` classifier.
 
-Session 6 asked what a model *can* represent. This session asks the question that matters in practice: **how do we know whether a model has learned anything useful?** Part 1 poses the problem (regression or classification), Part 2, the heart of the session, is about evaluation and generalization, and Part 3 builds the bridge to Session 9: activations, softmax and a PyTorch model. A tiny 3×3-pixel pattern problem runs through all three as a toy example, and a real protein-localization dataset carries the biology.
+The session has three parts: **what learning from data means**, **data and evaluation**, and **from neurons to networks**. A tiny 3×3-pixel pattern problem runs through all three as a toy example, and a real protein-localization dataset carries the biology.
 
-# Part 1: Posing the problem
+# Part 1: What does it mean to learn from data?
 
 ## Supervised and unsupervised learning
 
-**Supervised learning** fits a model to *labelled* examples, where the correct answer for each input is already known, so that it can predict the label of new inputs: for example, a perceptron trained on known binding and non-binding sites (Session 6). **Unsupervised learning** finds structure in data *without* labels: clustering sequences into families, or projecting expression profiles with PCA. The MMseqs2 clustering in Part 2 of this page is unsupervised. (A PSSM, Session 5, sits in between: it is estimated by counting residues in an alignment of family members, not fitted to labelled positive and negative examples.) Everything we train in this course is supervised.
+In general in machine learning you discuss two types of models, **Supervised** and **Unsupervised** learning. **Supervised learning** fits a model to *labelled* examples, where the correct answer for each input is already known: a PSSM built from known family members (Session 5), or a perceptron trained on known binding sites (Session 6). **Unsupervised learning** finds structure in data *without* labels: clustering sequences into families, or projecting expression profiles with PCA. The MMseqs2 clustering in Part 2 of this page is an unsupervised example. Both models are useful, however almost everything we train in this course is supervised, so therefore we will almost exclusively focus n that.
 
 ## Regression vs. classification
 
-What decides the kind of supervised problem is the *label*:
+The next level of distinctions for machine learning is what decides what kind of supervised problem we have. This is decuded the *label*:
 
-- **Regression**: the label is a **number**.
-- **Classification**: the label is one of a fixed set of **categories**.
+- In **Regression**: the label is a **number**.
+- In **Classification**: the label is one of a fixed set of **categories**.
 
-| Regression (predict a number) | Classification (predict a category) |
+|  |  |
 |------------------------------------|------------------------------------|
+| ***Examples:*** |  |
+| Regression (predict a number) | Classification (predict a category) |
 | Fraction of residues in helices (below) | Subcellular compartment: 5 classes (below) |
 | Protein melting temperature, or stability change $\Delta\Delta G$ of a mutation | Is this mutation pathogenic or benign? |
 | mRNA expression level in a tissue | Does this protein have a signal peptide? (Session 11) |
 | Binding affinity (pK~d~) of a drug to a target | Helix / strand / coil for each residue (Session 6, Session 9) |
 | Relative solvent accessibility of a residue (0-1) | Is this residue buried or exposed? |
 
-The last row shows that the same biology can often be posed either way. Thresholding a continuous quantity turns regression into classification. That makes the problem easier, but throws information away.
+The last row shows that the same biology can often be posed either way,often be defining a threshold. Thresholding a continuous quantity turns regression into classification. That makes the problem easier, but throws information away.
 
 ![Two real problems. **Left, regression:** for 55 PDB entries (fetched live from PDBe), the fraction of residues in helices against the fraction of strong Chou-Fasman helix formers (E, M, A, L, K, F, Q) in the sequence. A straight line captures a real trend ($r = 0.71$) with plenty of scatter. **Right, classification:** 488 secreted and 497 nuclear human proteins from UniProt, plotted by the hydrophobicity of their first 25 residues and their lysine + arginine content. Logistic regression draws the black boundary where $P(\text{secreted}) = 0.5$.](figs/session08-regression-vs-classification.png){width="100%"}
 
@@ -45,13 +55,13 @@ The classifier on the right tells a biological story. It gives N-terminal hydrop
 
 ### Logistic regression: the bridge between the two
 
-Logistic regression computes the same weighted sum as Session 6's perceptron, $z = w_1x_1 + w_2x_2 + b$. Instead of a hard step, it passes $z$ through the **sigmoid**
+Logistic regression computes the same weighted sum as Session 6's perceptron, $z = w_1x_1 + w_2x_2 + b$. Instead of a hard step, it passes $z$ through the **sigmoid** function:
 
 $$
 \sigma(z) = \frac{1}{1+e^{-z}},
 $$
 
-which maps any number to a value between 0 and 1. Despite its name, logistic regression is a *classifier*. Because it is fitted with the log-loss (cross-entropy), its output can be read as an estimate of $P(\text{secreted} \mid x)$: in the notebook, one nuclear protein gets 0.008 and one secreted protein 0.980. Whether such estimates are well *calibrated* (a predicted 0.8 being right 80% of the time) is a separate question that has to be checked on held-out data; a sigmoid applied to an arbitrary score does not make it a probability. The decision boundary ($P = 0.5$, i.e. $z = 0$) is the perceptron's straight line. What changes is that the output is now smooth and differentiable, which is what Session 9's training needs.
+which turns any number into a probability between 0 and 1. Despite its name, logistic regression is a *classifier*: it outputs $P(\text{secreted} \mid x)$. In the notebook, one nuclear protein gets $P = 0.008$ and one secreted protein gets $P = 0.980$. The decision boundary ($P = 0.5$, i.e. $z = 0$) is the perceptron's straight line. What changes is that the output is now smooth and differentiable, which is what Session 9's training needs.
 
 The choice of problem type fixes three things downstream:
 
@@ -63,7 +73,7 @@ The choice of problem type fixes three things downstream:
 
 ## A running toy example: 3×3 pixel patterns
 
-The smallest classification problem worth the name: nine pixels (dark = +1, light = −1) and five classes. Every example is a clean pattern plus random noise on each pixel (Gaussian, σ = 0.8). "Cross" shares its middle row with "horizontal" and its middle column with "vertical", so we can expect some confusion there.
+Deep learning had his great breakthrough in the area of image classification (more about that later). In image classification the computer should learn if an image contains a cat, a house etc. Here we will play with the smallest image classification problem worth the name: Consider an image with nine pixels, a continous scale (dark = +1, light = −1) and five classes (horizontal, vertical, diagonal, anti-diagonal and cross). Every example is a clean pattern plus random noise on each pixel (Gaussian, σ = 0.8). "Cross" shares its middle row with "horizontal" and its middle column with "vertical", so we can expect some confusion there.
 
 ![The five clean 3×3 patterns (top row) and two noisy examples of each. The noise is strong enough that some examples are hard even for a human.](figs/session08-3x3-patterns.png){width="75%"}
 
@@ -76,17 +86,31 @@ The classifier is five Day-6 perceptrons, one per pattern, each trained to outpu
 - Wikipedia, [Chou-Fasman method](https://en.wikipedia.org/wiki/Chou%E2%80%93Fasman_method) (helix propensities) and [Hydrophilicity plot](https://en.wikipedia.org/wiki/Hydrophilicity_plot) (Kyte-Doolittle scale)
 - d2l.ai, [Linear Regression](https://d2l.ai/chapter_linear-regression/linear-regression.html)
 
-# Part 2: How do we know a model learned anything? Evaluation and generalization
+# Part 2: Data and evaluation
+
+::: {.callout-tip icon="false"}
+## A fast learner
+
+> \*\* Datasets should be representative\*\* An old story was when the American army tried to train a neural network to recognize tanks in images. They took a lot of pictures with tanks and then another day they took a lot of pictures of the same area without the tanks. The model learned it perfectly. They then tested it on a different set of images - and it was completely random? Why? All the pictures with tanks were taken on a sunny day, and all without on a cloudy day, so they developed a perfect predictor if a photo was taken on a sunny or cloudy day.
+:::
 
 ## Why three data sets?
 
-A model is only useful if it works on data it has **not** seen. Its performance on the training data says little: a flexible enough model can memorize every training example. So the labelled data is split three ways:
+You might have heard about the term *overfit*, this is when a model has learned to predict something accurately in its **training set**, but is useless on *unseen* examples in a **test set**. A model is only useful if it works on data it has **not** seen. Its performance on the training data says little: a flexible enough model can memorize every training example. Theregore, the labelled data is split three ways (to be fair this is not always done, but it **should** always be done):
 
 - **Training set**: used to fit the weights.
 - **Validation set**: used to make *choices*, such as how long to train, how large a network to use, or which features to include. Every choice tuned on it makes it slightly optimistic.
 - **Test set**: looked at **once**, at the very end, to report the final number. If you go back and change the model after looking at the test set, it has become a second validation set and no longer gives an honest estimate.
 
-On the 3×3 problem (100 training, 100 validation and 200 test examples), the number of training epochs is chosen on the validation set. Two epochs already reach 0.90 validation accuracy. Longer training never beats that. The noisy, overlapping patterns can't all be separated by straight lines, so the perceptron rule never settles, and training accuracy keeps moving between 0.88 and 0.95. The model trained for two epochs is then measured **once** on the test set: **0.895**.
+**On the 3×3 problem.** We draw 100 training, 100 validation and 200 test examples, and measure the model by its **accuracy**: the fraction of examples, over all five classes, that it classifies correctly. (The next section breaks this single number down.) The one choice to make is how many **epochs** (passes through the training set) to train for, and it is made on the validation set. Training for 50 epochs and recording both accuracies after every epoch gives:
+
+![Training (grey) and validation (blue) accuracy of the 3×3 perceptrons after every epoch. The shaded band is the plateau of the validation curve (its mean, 0.89) plus or minus the standard error of an accuracy measured on 100 examples (about 0.03). The orange line marks the chosen model, 2 epochs, and the star its test accuracy, measured once: 0.895.](figs/session08-3x3-epochs.png){width="85%"}
+
+- **Training accuracy never settles.** It moves between 0.88 and 0.98. The noisy, overlapping patterns cannot all be separated by straight lines, so the perceptron rule keeps changing the weights for every example it gets wrong. High training accuracy is not the goal: the model is judged on data it has not seen.
+- **Validation accuracy is noisy.** After the first epoch it moves around a plateau of about 0.89, between 0.84 and 0.94. With only 100 validation examples, one accuracy value is uncertain by about ±0.03 (its standard error, $\sqrt{p(1-p)/n}$), so most of the epoch-to-epoch movement is noise.
+- **Choosing the single best epoch is optimistic.** Epoch 3 happens to reach 0.94, but picking the maximum of 50 noisy numbers partly picks luck. That is a small case of *leakage through model selection* (see below): the validation accuracy of the chosen model overstates how well it will do. We use a more conservative rule, the fewest epochs whose validation accuracy reaches the plateau. That is **2 epochs** (0.90), which is also the simplest model.
+
+The model trained for two epochs is then measured **once** on the test set: **0.895**, in line with the plateau. [The notebook](notebooks/session08-ml-foundations-and-pytorch.ipynb#training-validation-and-test-sets-on-the-33-problem) computes every number here and draws the figure.
 
 ## Evaluating a classifier
 
@@ -113,7 +137,7 @@ $$
 \text{MCC} = \frac{TP\cdot TN - FP\cdot FN}{\sqrt{(TP+FP)(TP+FN)(TN+FP)(TN+FN)}},
 $$
 
-and runs from $-1$ (always wrong) through $0$ (no better than chance) to $+1$ (perfect). It stays honest when classes are unbalanced (see below). The formula above is for two classes; for multi-class problems, software such as scikit-learn uses a generalization of it that works on the whole confusion matrix. Over all five 3×3 classes, that multi-class MCC is 0.871.
+and runs from $-1$ (always wrong) through $0$ (no better than chance) to $+1$ (perfect). It stays honest when classes are unbalanced (see below). Over all five 3×3 classes, MCC is 0.871.
 
 **ROC curves.** Most classifiers output a *score*, and a threshold turns it into a yes/no call. Lowering the threshold finds more true positives but also lets through more false positives. The ROC curve plots the true-positive rate against the false-positive rate as the threshold sweeps across all values. The area under it, **AUROC**, is the probability that a random positive gets a higher score than a random negative: 0.5 for guessing, 1.0 for a perfect ranking. For the "cross" perceptron it is 0.938. The same reasoning is behind Session 5's choice of an E-value cutoff: you pick a point on this trade-off.
 
@@ -125,15 +149,7 @@ A regression prediction isn't right or wrong, only more or less off. On 14 held-
 - **Pearson** $r$ between predicted and measured values is 0.760.
 - $R^2$ $= 1 - \sum (y_i-\hat y_i)^2 / \sum (y_i - \bar y)^2$ is 0.526: about half of the variance explained. $R^2 = 0$ means no better than the mean.
 
-The three numbers answer different questions:
-
-- **RMSE**: how numerically wrong are the predictions, in the target's units?
-- **Pearson $r$**: do the predictions track the ordering and linear trend of the truth?
-- **$R^2$**: how much better are the predictions than always predicting the mean?
-
-They can disagree sharply. A systematically biased predictor, for example one that outputs $2\hat y + 0.3$ instead of $\hat y$, keeps exactly the same correlation ($r = 0.760$) because the ordering is unchanged, but its RMSE rises from 0.159 to 0.639 and its $R^2$ falls to $-6.67$, far worse than predicting the mean. A high correlation is not accurate prediction; treating it as such is one of the most common mistakes in bioinformatics papers.
-
-With only 14 test proteins, all of these numbers are themselves uncertain. That leads to the next question.
+With only 14 test proteins, all three numbers are themselves uncertain. That leads to the next question.
 
 ## How much can you trust one split?
 
@@ -141,11 +157,11 @@ The real dataset for today: reviewed human UniProt entries with exactly one anno
 
 **Class imbalance first.** Before balancing, the classes hold 424, 497, 140, 488 and 338 proteins. A "classifier" that always answers *nucleus* reaches an accuracy of 0.263, above the 0.20 you might expect for five classes, while its MCC is exactly 0. Real proteomes are far more unbalanced than this. In a genome-wide screen for, say, a rare targeting signal, "always no" can reach 99% accuracy. Always report MCC (or precision and recall) alongside accuracy. Here we avoid the problem by balancing every class to 140 proteins (700 in total).
 
-**Split-to-split noise.** A quick logistic-regression baseline, refitted on ten different random 70/15/15 splits, gives validation accuracies from 0.505 to 0.610 (mean 0.561, std 0.031). The data and model are the same; only the random draw of the split differs. **k-fold cross-validation** makes better use of limited data and reduces the dependence on one particular train/validation split (it does not remove sampling variability): cut the data into $k$ class-stratified folds, train $k$ times with a different fold held out each time, and average. With $k = 5$ the notebook gets 0.540 ± 0.044. Every protein is used for validation exactly once, at $k$ times the computing cost.
+**Split-to-split noise.** A quick logistic-regression baseline, refitted on ten different random 70/15/15 splits, gives validation accuracies from 0.505 to 0.610 (mean 0.561, std 0.031). The data and model are the same; only the random draw of the split differs. **k-fold cross-validation** removes the dependence on one draw: cut the data into $k$ class-stratified folds, train $k$ times with a different fold held out each time, and average. With $k = 5$ the notebook gets 0.540 ± 0.044. Every protein is used for validation exactly once, at $k$ times the computing cost.
 
 ## The biological trap: homologs on both sides of the split
 
-A random split assumes the examples are independent. **Proteins are not.** They come in families of homologs (Session 4) that share sequence and, usually, localization and function. Suppose one family member is in the training set and another in the test set. The model can then exploit family-specific sequence similarity rather than relying only on general targeting signals, and the test set partly rewards recognizing known families instead of measuring generalization to new kinds of proteins.
+A random split assumes the examples are independent. **Proteins are not.** They come in families of homologs (Session 4) that share sequence and, usually, localization and function. Suppose one family member is in the training set and another in the test set. The model can then score well by *recognizing the family*, without learning anything about targeting signals, and the test set rewards memorization instead of measuring generalization to new kinds of proteins.
 
 We can measure this. Clustering the 700 proteins with **MMseqs2** (a fast, BLAST-like search that groups sequences above an identity cutoff) at 30% identity gives 551 clusters. 75 clusters have more than one member, holding 224 proteins in total, and the largest has 11. Over the same ten random splits:
 
@@ -153,11 +169,11 @@ We can measure this. Clustering the 700 proteins with **MMseqs2** (a fast, BLAST
 - the baseline classifies those correctly **67.5%** of the time;
 - it classifies the remaining proteins correctly only **50.9%** of the time.
 
-The fix is **homology partitioning**: cluster first, then put whole clusters into training, validation or test, so that no cluster of sequences with ≥30% identity crosses the split. This substantially reduces homology leakage, although it cannot guarantee that no remote homolog below the cutoff remains. Averaged over ten splits of each kind, baseline accuracy drops from 0.553 (random) to 0.536 (homology-aware). The overall drop is small *here* only because 476 of the 700 proteins have no homolog in the set at all. In more redundant data, such as a whole proteome or the PDB with its thousands of near-identical structures of popular proteins, the gap can be much larger. **From today on, this course uses the homology-aware split** (486 training / 105 validation / 109 test proteins), and Sessions 9 and 10 reuse it.
+The fix is **homology partitioning**: cluster first, then put whole clusters into training, validation or test, so that no family crosses the split. Averaged over ten splits of each kind, baseline accuracy drops from 0.553 (random) to 0.536 (homology-aware). The overall drop is small *here* only because 476 of the 700 proteins have no homolog in the set at all. In more redundant data, such as a whole proteome or the PDB with its thousands of near-identical structures of popular proteins, the gap can be much larger. **From today on, this course uses the homology-aware split** (486 training / 105 validation / 109 test proteins), and Sessions 9 and 10 reuse it.
 
 ### Other ways biological data leaks
 
-Homology is the classic trap, but not the only one. Information from the test data can leak into a model in three ways: through the **samples** (related examples on both sides of the split, as with homologs), through the **preprocessing** (statistics computed on all the data), and through **model selection** (choices tuned on the data used for the final number, as with a reused test set). The common pattern is that something shared between the training and test examples, other than the signal you want to learn, lets the model cheat.
+Homology is the classic trap, but not the only one. The common pattern is that something shared between the training and test examples, other than the signal you want to learn, lets the model cheat.
 
 - **Several samples from one individual.** Split by patient, not by sample. Otherwise the model learns to recognize the patient.
 - **Batch effects.** If all tumour samples were sequenced in one lab and all controls in another, a model can learn the lab. Keep batches balanced across classes, or split by batch.
@@ -173,37 +189,29 @@ Homology is the classic trap, but not the only one. Information from the test da
 - Steinegger & Söding (2017), [MMseqs2 enables sensitive protein sequence searching for the analysis of massive data sets](https://doi.org/10.1038/nbt.3988); software at [github.com/soedinglab/MMseqs2](https://github.com/soedinglab/MMseqs2)
 - Wikipedia, [CASP](https://en.wikipedia.org/wiki/CASP)
 
-# Part 3: Towards training networks
+# Part 3: From neurons to networks
 
-Part 3 prepares Session 9, where networks are trained: how units are connected, the activation functions that make gradient descent possible, softmax outputs, and how to write a model in PyTorch and count its parameters.
+## Biological and artificial networks
 
-## Connectivity decides the number of weights
-
-A network connects many units of the kind Session 6 introduced. How they are connected decides how many weights a layer has, and it builds an assumption about the data into the model:
-
-![How units are connected decides how many weights a layer has. Fully connected: every input to every output (Sessions 8-9). Sparse: only some connections, closer to real brains. Local with shared weights: each output sees only a small window of neighbouring inputs, and every window reuses the same three weights. This is convolution, Session 10's key idea, and it is why convolutional networks need so many fewer parameters.](figs/session08-connectivity.png){width="100%"}
-
-A fully connected layer (`nn.Linear`) connects every input to every output, so its size grows with the length of the input. The third discussion problem compares it with a convolution, whose number of weights does not depend on the input length at all.
-
-::: {.callout-note collapse="true"}
-## Optional: biological and artificial networks, and the architectures still to come
-
-Session 6 introduced the perceptron as Rosenblatt's simplified neuron. Beyond single units, the analogy with biology becomes loose:
+Session 6 introduced the perceptron as Rosenblatt's simplified neuron: inputs weighted by synaptic strengths, summed, then passed through a threshold. A *network* connects many such units, and here the analogy with biology becomes loose:
 
 ![Top: a biological neuron and a small biological network, with sparse connections, feedback loops, and both excitatory (grey) and inhibitory (red) synapses. Bottom: the artificial counterparts. A unit computes a weighted sum and applies an activation $f$. A feed-forward network arranges units in layers with connections running in one direction only.](figs/session08-neuron-to-network.png){width="100%"}
 
-- **Real neurons spike.** They send discrete pulses over time. Artificial units output a single number.
-- **Brains are recurrent.** Signals loop back. The networks of Sessions 8-10 are strictly feed-forward; Session 11's recurrent networks bring loops back in a controlled form.
-- **Brains are sparsely connected.** Each neuron connects to a small fraction of the others.
+Three differences matter for what follows.
 
-Each architecture in the rest of the course builds a different assumption about the data into its wiring:
+- **Real neurons spike.** They send discrete pulses over time. Artificial units output a single number.
+- **Brains are recurrent.** Signals loop back. The networks of Sessions 8-10 are strictly feed-forward. Session 11's recurrent networks bring loops back in a controlled form.
+- **Brains are sparsely connected.** Each neuron connects to a small fraction of the others. A fully connected layer (`nn.Linear`) connects every input to every output.
+
+![How units are connected decides how many weights a layer has. Fully connected: every input to every output (Sessions 8-9). Sparse: only some connections, closer to real brains. Local with shared weights: each output sees only a small window of neighbouring inputs, and every window reuses the same three weights. This is convolution, Session 10's key idea, and it is why convolutional networks need so many fewer parameters.](figs/session08-connectivity.png){width="100%"}
+
+Connectivity is the main thing that separates the network **architectures** in the rest of this course. Each one builds an assumption about the data into its wiring:
 
 ![The architectures still to come, each with a biological application from this course. Feed-forward networks take a fixed-size input (today's localization model; PHD on Session 9). CNNs look for local patterns with shared weights (contact maps, Session 10). RNNs read a sequence one position at a time (signal peptides, Session 11). Transformers let every position attend to every other (language models and SignalP 6.0, Session 11; AlphaFold, Session 12). Generative diffusion models learn to turn noise into new examples (protein design, Session 12).](figs/session08-architectures.png){width="100%"}
-:::
 
-## From step functions to trainable activations
+## Smooth activation functions
 
-A step function's derivative is zero everywhere except at the jump, where it is undefined. So it gives gradient descent nothing to follow. Networks replace the step with functions that have a useful gradient. Sigmoid and tanh are smooth; ReLU has a kink at zero, but its slope is 1 or 0 everywhere else, which is enough for gradient descent. You already met the sigmoid in Part 1:
+A step function's derivative is zero everywhere except at the jump, where it is undefined. So it gives gradient descent nothing to follow. Networks replace the step with a smooth function. You already met one in Part 1, the sigmoid of logistic regression:
 
 $$
 \sigma(z) = \frac{1}{1+e^{-z}} \qquad
@@ -211,9 +219,9 @@ $$
 \text{ReLU}(z) = \max(0, z)
 $$
 
-![The step function of Session 6's perceptron (dashed) and three replacements that gradient descent can work with.](figs/session08-activation-functions.png){width="70%"}
+![The step function of Session 6's perceptron (dashed) and three smooth replacements.](figs/session08-activation-functions.png){width="70%"}
 
-- **Sigmoid** outputs a value in $(0, 1)$. It remains the standard for a binary output unit.
+- **Sigmoid** outputs a value in $(0, 1)$. It remains the standard for a binary output unit, where a probability is wanted.
 - **tanh** has the same S shape but is centred on zero, with outputs in $(-1, 1)$.
 - **ReLU** passes positive values unchanged and sets negative ones to zero. It is cheap to compute and is the default for hidden layers in modern networks.
 
@@ -221,17 +229,17 @@ $$
 
 ## From binary to multi-class: softmax
 
-The 3×3 classifier has five outputs and picks the largest. **Softmax** turns $K$ raw scores (**logits**) into $K$ positive numbers that sum to 1:
+The 3×3 classifier has five outputs and picks the largest. **Softmax** turns $K$ raw scores (**logits**) into a probability distribution:
 
 $$
 \text{softmax}(z)_k = \frac{e^{z_k}}{\sum_{j=1}^K e^{z_j}}
 $$
 
-Take a noisy "horizontal" pattern that the perceptrons misclassify. Its five scores ($-2.19$, $-0.80$, $-2.35$, $-2.61$, $0.16$) become 0.06, 0.24, 0.05, 0.04 and 0.62, most of it on "cross". Softmax never changes *which* class wins; it expresses the relative scores as a normalized distribution. These perceptrons were not trained with cross-entropy, so the numbers sum to 1 but should **not** be read as reliable probabilities. Training with cross-entropy (Session 9) makes softmax outputs interpretable as probability estimates, but whether they are well calibrated depends on the training and has to be checked on held-out data; for biomedical predictions, where a "90% probability" may drive a decision, that check matters. With $K = 2$, softmax reduces to the sigmoid, so softmax regression is logistic regression for more than two classes.
+Take a noisy "horizontal" pattern that the perceptrons misclassify. Its five scores ($-2.19$, $-0.80$, $-2.35$, $-2.61$, $0.16$) become probabilities 0.06, 0.24, 0.05, 0.04 and 0.62, most of it on "cross". Softmax never changes *which* class wins, but it shows how confident the decision is. With $K = 2$, softmax reduces to the sigmoid. So softmax regression is logistic regression for more than two classes.
 
-Because softmax gives a distribution, its **entropy** (Session 1) measures how spread out it is: 1.56 bits for the example above, against a maximum of $\log_2 5 \approx 2.32$ bits for a model that cannot tell the five classes apart at all, and 0 bits for a completely confident one. Session 9 trains the network by minimizing the **cross-entropy** between these probabilities and the true labels.
+Because softmax gives a probability distribution, its **entropy** (Session 1) measures how uncertain the prediction is: 1.56 bits for the example above, against a maximum of $\log_2 5 \approx 2.32$ bits for a model that cannot tell the five classes apart at all, and 0 bits for a completely confident one. Session 9 trains the network by minimizing the **cross-entropy** between these probabilities and the true labels.
 
-In PyTorch, a classifier's last layer outputs raw logits. The loss function (`nn.CrossEntropyLoss`, Session 9) applies softmax internally, and you apply softmax yourself only when you need normalized scores, for example for a per-class ROC curve.
+In PyTorch, a classifier's last layer outputs raw logits. The loss function (`nn.CrossEntropyLoss`, Session 9) applies softmax internally, and you apply softmax yourself only when you need probabilities, for example to compute AUROC.
 
 ### Further reading
 
@@ -272,7 +280,7 @@ renderQuiz("session08-quiz", [
       "The model cannot be trained at all"
     ],
     correctIndex: 0,
-    explanation: "The model can exploit family-specific sequence similarity rather than relying only on general signals. In the notebook, validation proteins with a homolog in training were classified correctly 67.5% of the time, vs. 50.9% for the rest."
+    explanation: "The model can recognize the family instead of learning the signal. In the notebook, validation proteins with a homolog in training were classified correctly 67.5% of the time, vs. 50.9% for the rest."
   },
   {
     question: "On an unbalanced 5-class dataset, a model that always predicts the largest class reaches 26% accuracy. What is its MCC?",
@@ -311,7 +319,7 @@ renderQuiz("session08-quiz", [
       "It is only needed for regression"
     ],
     correctIndex: 0,
-    explanation: "Softmax preserves the ranking of the scores and rescales them into a normalized distribution. Whether those numbers are well-calibrated probabilities depends on how the model was trained, and has to be checked. With K = 2 it is the sigmoid."
+    explanation: "Softmax preserves the ranking of the scores. It only rescales them into a probability distribution. With K = 2 it is the sigmoid."
   },
   {
     question: "Why does the case-study encoding keep only the first 150 residues of each sequence?",
@@ -323,39 +331,6 @@ renderQuiz("session08-quiz", [
     ],
     correctIndex: 0,
     explanation: "It is a modelling choice based on biology, and it keeps the input to a fixed size of 150 &times; 20 = 3000 numbers."
-  },
-  {
-    question: "A model's predictions of melting temperature correlate with the measured values at r = 0.95, but every prediction is about twice the true value plus 5 degrees. Which is true?",
-    choices: [
-      "The correlation is high but the RMSE is large and R&sup2; can be negative: correlation measures whether predictions track the trend, not whether they are numerically right",
-      "r = 0.95 means the predictions are accurate to within 5%",
-      "The RMSE must be small because r is close to 1",
-      "R&sup2; is always equal to r&sup2; for any predictor"
-    ],
-    correctIndex: 0,
-    explanation: "A stretched and shifted predictor keeps the same ordering, so r is unchanged, but it is far off in absolute terms. On this page, biasing the helix predictions kept r = 0.760 but raised RMSE from 0.159 to 0.639 and gave R&sup2; = -6.67."
-  },
-  {
-    question: "A classifier's softmax output says 0.9 for 'secreted'. What can you conclude without further checks?",
-    choices: [
-      "That 'secreted' has the highest score; whether 0.9 means a 90% chance depends on training and calibration, which must be checked on held-out data",
-      "That the protein is secreted with 90% probability, always",
-      "That the model is 90% accurate",
-      "Nothing: softmax outputs are random"
-    ],
-    correctIndex: 0,
-    explanation: "Softmax always gives numbers that sum to 1. Only a well-calibrated model's 0.9 means right about 90% of the time; cross-entropy training alone does not guarantee that."
-  },
-  {
-    question: "You standardize all features using the mean and standard deviation of the whole dataset, then split it into training and test sets. Which kind of leakage is this?",
-    choices: [
-      "Leakage through preprocessing: statistics of the test data have entered the model",
-      "Leakage through the samples, like homologs on both sides of the split",
-      "Leakage through model selection",
-      "No leakage, because the labels were not used"
-    ],
-    correctIndex: 0,
-    explanation: "Preprocessing must be fitted on the training set only. The three routes on this page: samples (homologs), preprocessing (normalization), and model selection (a reused test set)."
   }
 ]);
 </script>
@@ -376,7 +351,7 @@ Open it in [Google Colab](https://colab.research.google.com/github/ElofssonLab/k
 
 ## The lab
 
-**Full lab, on MNIST:** 70,000 handwritten digits, the classic first dataset for neural networks, adapted from the previous course's "Neural Networks" lab and rebuilt in PyTorch. MNIST is used because the classes are easy to see and understand, which makes it a clean sandbox for confusion matrices and evaluation; the same machinery is then carried straight back to protein localization at the end of the lab. Work through [`notebooks/session08-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session08-lab.ipynb), replacing every `todo(...)` call with your own code:
+**Full lab, on MNIST:** 70,000 handwritten digits, the classic first dataset for neural networks, adapted from the previous course's "Neural Networks" lab and rebuilt in PyTorch. Work through [`notebooks/session08-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session08-lab.ipynb), replacing every `todo(...)` call with your own code:
 
 1.  inspect the class balance;
 2.  build training, validation and test sets, and standardize the pixels using statistics from the training set only;
@@ -385,7 +360,7 @@ Open it in [Google Colab](https://colab.research.google.com/github/ElofssonLab/k
 5.  compute a confusion matrix, precision, recall, F1, MCC and a ROC curve for one digit against the rest;
 6.  shrink the training set to watch overfitting appear, and use the test set once, at the end.
 
-The last section returns to proteins: it measures how many validation proteins in a *random* split of today's localization dataset have a homolog in the training set. Together with step 2 it covers two of the three routes for leakage from Part 2: through the samples (homologs) and through the preprocessing (normalization statistics).
+The last section returns to proteins: it measures how many validation proteins in a *random* split of today's localization dataset have a homolog in the training set.
 
 ### Submitting this lab
 
