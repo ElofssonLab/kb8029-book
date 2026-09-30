@@ -80,10 +80,12 @@ score turns out to already be a linear model) rather than introduced as an
 unrelated new topic. The remaining days will follow the same pattern.
 
 
-## ToCheck
-Please check:
- Canvas link: it goes to canvas.su.se generally. Send me this year's course link and I'll use it instead.
- -Oral presentation: last year's project had an oral explanation to a TA. The current Capstone page doesn't mention one, so I left it out. Add it back if it still applies.
- Project and exam weights: 30%/70% on Course Information is carried over from last year.
-- Live quizzes: I didn't say whether the live quizzes count towards the grade, because that hasn't been decided.
- AI tools: the course has no stated policy on AI tools. The old deck didn't cover it, but Session 0 would be the natural place for one
+## To check
+
+Open questions for the teachers:
+
+- **Canvas link:** the pages link to canvas.su.se in general; replace with this year's course link.
+- **Oral presentation:** last year's project had an oral explanation to a TA. The Capstone page doesn't mention one; add it back if it still applies.
+- **Project and exam weights:** the 30%/70% on Course Information is carried over from last year.
+- **Live quizzes:** whether the live quizzes count towards the grade has not been decided.
+- **AI tools:** the course has no stated policy on AI tools; Session 0 would be the natural place for one.
