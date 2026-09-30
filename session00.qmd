@@ -40,11 +40,11 @@ Read the page before the lecture: the lectures assume you have seen the material
 |------------------------------------|------------------------------------|
 | Course pages and notebooks (this book) | [course.bioinfo.se](https://course.bioinfo.se/) |
 | All course pages as one PDF | [KB8029-course-notes.pdf](/KB8029-course-notes.pdf) |
-| Schedule, rooms, deadlines, announcements, lab quizzes, discussion forum | [Canvas](https://canvas.su.se/) |
+| Schedule, rooms, deadlines, announcements, lab quizzes, discussion forum | [Canvas](https://canvas.su.se/) (the course appears there once you are admitted) |
 | Live quizzes during lectures | [quiz.bioinfo.se](https://quiz.bioinfo.se) |
 | Setting up your computer, the course server and Colab | [Setup](setup.qmd) |
 | The session-by-session plan | [Course Schedule](schedule.qmd) |
-| Grading, lab rules, plagiarism | [Course Information & Logistics](course-info.qmd) |
+| Exam, grading, labs, plagiarism, AI tools, weekly schedule, student office | [Course Information & Logistics](course-info.qmd) |
 | The capstone project | [Capstone](capstone.qmd) |
 | Past exams | [Exam preparation](schedule.qmd#exam-preparation) |
 | Further reading for the whole course | [References](references.qmd) |
@@ -57,16 +57,11 @@ Ask questions in the Canvas discussion forum, where everyone can see the answers
 
 ## The rules, in brief
 
-The details are on the [Course Information & Logistics](course-info.qmd) page. In short:
-
-- **Labs are mandatory.** Each lab ends in a short online quiz on Canvas; you need 50% to pass it. You can do a lab as soon as it is published.
-- **The capstone project** is a secondary-structure predictor of your own: a Colab notebook, a short written report, and an oral presentation of your code to a teaching assistant.
-- **The exam** is in person, on paper, with a limited number of pages of your own notes. The project and the exam are both graded, and each needs a minimum score.
-- **Your work must be your own.** Discussing methods and approaches with other students is encouraged; submitting someone else's answers, code or text as your own is plagiarism, and written reports are checked for it.
+To pass, you need to pass all the **labs**, the **capstone project** (a secondary-structure predictor of your own: a Colab notebook, a short report, and an oral presentation of your code to a teaching assistant) and the **exam**. Your work must be your own, and AI tools may help you understand but must not write your labs or report. The grading, the grade scale, and the rules on plagiarism and AI tools are on the [Course Information & Logistics](course-info.qmd) page.
 
 ## At SciLifeLab
 
-The lectures and labs are at SciLifeLab in Solna. You need a SciLifeLab access card to enter and leave the building; when and where to collect it is announced on Canvas.
+The lectures and labs are at SciLifeLab in Solna. You need a SciLifeLab access card to enter and leave the building; when and where to collect it is announced by email or on Canvas.
 
 - Use your card **every time** you pass the speed gates, on the way in and on the way out.
 - The gates let **one person through at a time**. To let a visitor in, use your card twice, with a few seconds in between, or the alarm goes off.

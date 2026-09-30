@@ -242,7 +242,7 @@ commercial use. Every page names which of them it used.
 - Foldseek web server. <https://search.foldseek.com/search> *Cited in:* [Session 7](session07.qmd).
 - FunCoup. funcoup.org. <https://funcoup.org/> *Cited in:* [Session 3](session03.qmd).
 - GenBank (NCBI nucleotide sequence database). <https://www.ncbi.nlm.nih.gov/genbank/> *Cited in:* [Session 5](session05.qmd).
-- Google Colaboratory (Colab). Google. <https://colab.research.google.com/> *Cited in:* [Course information](course-info.qmd), [Session 0](session00.qmd).
+- Google Colaboratory (Colab). Google. <https://colab.research.google.com/> *Cited in:* [Session 0](session00.qmd).
 - Harris CR, Millman KJ, van der Walt SJ, et al. (2020). Array programming with NumPy. Nature 585:357-362. [doi:10.1038/s41586-020-2649-2](https://doi.org/10.1038/s41586-020-2649-2). PMID:32939066. *Cited in:* [Session 2](session02.qmd).
 - Human reviewed UniProtKB/Swiss-Prot entries with a single annotated subcellular location (5 classes, 700 proteins), compiled for this course. UniProt Consortium, CC BY 4.0. <https://www.uniprot.org/> *Cited in:* [Session 8](session08.qmd), [Session 9](session09.qmd), [Session 10](session10.qmd), [Session 11](session11.qmd).
 - Hunter JD (2007). Matplotlib: a 2D graphics environment. Computing in Science & Engineering 9(3):90-95. [doi:10.1109/MCSE.2007.55](https://doi.org/10.1109/MCSE.2007.55). *Cited in:* [Session 2](session02.qmd).
@@ -281,7 +281,7 @@ commercial use. Every page names which of them it used.
 - Pedregosa F, Varoquaux G, Gramfort A, et al. (2011). Scikit-learn: machine learning in Python. Journal of Machine Learning Research 12:2825-2830. <https://jmlr.org/papers/v12/pedregosa11a.html> *Cited in:* [Session 2](session02.qmd), [Session 6](session06.qmd).
 - Pfam family PF00042 (Globin), accessed via InterPro. Pfam: Mistry J, Chuguransky S, Williams L, et al. (2021). Pfam: the protein families database in 2021. Nucleic Acids Res 49(D1):D412-D419. [doi:10.1093/nar/gkaa913](https://doi.org/10.1093/nar/gkaa913). PMID 33125078. *Cited in:* [Session 4](session04.qmd), [Session 5](session05.qmd).
 - Protein Data Bank entry 2HHB (human deoxyhaemoglobin). <https://www.rcsb.org/structure/2HHB> *Cited in:* [Session 3](session03.qmd).
-- PyMOL Molecular Graphics System. Schrödinger, LLC. <https://pymol.org/> *Cited in:* [Course information](course-info.qmd), [Setup](setup.qmd), [Session 0](session00.qmd), [Session 6](session06.qmd), [Session 7](session07.qmd).
+- PyMOL Molecular Graphics System. Schrödinger, LLC. <https://pymol.org/> *Cited in:* [Setup](setup.qmd), [Session 0](session00.qmd), [Session 6](session06.qmd), [Session 7](session07.qmd).
 - PyTorch deep-learning framework. <https://pytorch.org/> *Cited in:* [Session 8](session08.qmd), [Session 9](session09.qmd).
 - Rauluseviciute I, Riudavets-Puig R, Blanc-Mathieu R et al. (2024). JASPAR 2024: 20th anniversary of the open-access database of transcription factor binding profiles. Nucleic Acids Res 52:D174-D182. [doi:10.1093/nar/gkad1059](https://doi.org/10.1093/nar/gkad1059). PMID:37962376. *Cited in:* [Session 10](session10.qmd).
 - RCSB PDB. Data API (GraphQL). <https://data.rcsb.org/graphql/index.html> *Cited in:* [Session 3](session03.qmd).
@@ -304,7 +304,7 @@ commercial use. Every page names which of them it used.
 - UniProtKB entry P68871 (HBB_HUMAN). <https://www.uniprot.org/uniprotkb/P68871/entry> *Cited in:* [Session 3](session03.qmd), [Session 5](session05.qmd).
 - Varadi M, Bertoni D, Magana P et al. (2024). AlphaFold Protein Structure Database in 2024: providing structure coverage for over 214 million protein sequences. Nucleic Acids Res 52:D368-D375. [doi:10.1093/nar/gkad1011](https://doi.org/10.1093/nar/gkad1011). PMID:37933859. *Cited in:* [Session 12](session12.qmd).
 - Virtanen P, Gommers R, Oliphant TE, et al. (2020). SciPy 1.0: fundamental algorithms for scientific computing in Python. Nature Methods 17:261-272. [doi:10.1038/s41592-019-0686-2](https://doi.org/10.1038/s41592-019-0686-2). PMID:32015543. *Cited in:* [Session 2](session02.qmd).
-- Visual Studio Code, with the Remote - SSH extension. Microsoft. <https://code.visualstudio.com/> *Cited in:* [Course information](course-info.qmd), [Setup](setup.qmd).
+- Visual Studio Code, with the Remote - SSH extension. Microsoft. <https://code.visualstudio.com/> *Cited in:* [Setup](setup.qmd).
 - VolcaNoseR web app (Goedhart & Luijsterburg). <https://huygens.science.uva.nl/VolcaNoseR/> *Cited in:* [Session 2](session02.qmd).
 - Waskom ML (2021). seaborn: statistical data visualization. Journal of Open Source Software 6(60):3021. [doi:10.21105/joss.03021](https://doi.org/10.21105/joss.03021). *Cited in:* [Session 2](session02.qmd).
 - Wellcome Sanger Institute. COSMIC. <https://cancer.sanger.ac.uk/cosmic> *Cited in:* [Session 3](session03.qmd).

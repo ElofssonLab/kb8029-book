@@ -1,50 +1,61 @@
 ::: callout-note
-**Sources for this page:** adapted from an earlier year's own course-intro slide deck (`slides/Bioinformatics Intro 2026 KB8029.pptx`) — an internal source, not an external one, so no license/copyright question applies. Every instance-specific date, room, deadline, and staff name from that deck has been deliberately stripped out here; see the callout below.
+**Sources for this page:** the course's own introduction slides from earlier years, updated for this version of the course. Dates, rooms, deadlines and this year's teaching assistants are on [Canvas](https://canvas.su.se/), not here. For an overview of the course, how a session works, and where to find everything, start with [Session 0](session00.qmd).
 :::
 
 # Course Information & Logistics {.unnumbered}
 
-::: callout-important
-**This page describes how the course is structured, not when things happen this year.** Specific dates, deadlines, room numbers, and this year's teaching-staff names live in Canvas (and, eventually, a proper per-year scheduling system this book will link to) — not here. Nothing on this page should need editing just because a new year's calendar or staffing changed.
-:::
+This page holds the rules of the course: what you need to do to pass, how the grade is set, and who to contact.
 
-## Goals
+## Exam and requirements
 
-Four threads, running through the whole course: biological databases and the basic tools built on them; neural networks and deep learning, hands on; recent machine-learning methods for protein structure prediction; and a capstone project — see [Capstone](capstone.qmd) — that applies all of it to secondary structure prediction.
+The course has three mandatory parts:
 
-## People
+- **The labs** are pass/fail, and must all be passed before you take the exam (see [Labs](#labs) below).
+- **The project** is graded 0-100, and you need at least 40% to pass it. It has three graded parts: the code you have written, the final report, and an oral presentation of your code to one of the teaching assistants. See the [Capstone](capstone.qmd) page for the task and the grading criteria.
+- **The exam** is a pen-and-paper exam, graded 0-100; you need at least 40% to pass it. You may bring up to five pages (single-sided) of your own notes.
 
-The course has two teachers — one covering the machine-learning half, one covering classical bioinformatics — and several teaching assistants (TAs) who run the lab sessions. Who's teaching in any given year is a Canvas matter, not a book matter; a handful of pages later in this book do credit a specific person's own lecture material by name (Petras Kundrotas's decks are cited that way on several days) — that's a separate, deliberate citation, not the same thing as this page's staffing description.
+The final grade is 70% from the exam and 30% from the project, and you need 50% in total to pass. The grade scale (not exactly the default one at SU) is:
 
-## How grading works
+| Grade | A | B | C | D | E | Fx | F |
+|---|---|---|---|---|---|---|---|
+| Total score | ≥ 90% | ≥ 80% | ≥ 70% | ≥ 60% | ≥ 50% | ≥ 45% | < 45% |
 
-- **Project: 30% of the final grade** (see [Capstone](capstone.qmd)) — needs at least 40% on its own to count toward passing.
-- **Exam: 70% of the final grade** — also needs at least 40% on its own.
-- **Both together need to reach 50%** to pass the course overall.
-- The exam is **in person, on paper**, with a stated limit on how many pages of personal notes you're allowed to bring (check the current year's exam announcement for the exact number).
-- If you fail the exam but passed everything else, a re-exam is normally offered; if you already passed (grade E or higher), there's no retake just to try for a better grade.
+If you fail the exam, a re-exam is normally offered a few weeks after the course; if you have already passed (grade E or higher), there is no retake to improve the grade. Past exams are on the [Schedule](schedule.qmd#exam-preparation) page.
 
-## Lab quizzes
+## Labs {#labs}
 
-Each session with a lab (see the [Course Schedule](schedule.qmd)) has a short online lab-report quiz, graded pass/fail against a **50% correct** threshold. A few things about how these work, unchanged from year to year:
+Most sessions have a lab (see the [Course Schedule](schedule.qmd)): a notebook in this book, with a short online quiz on Canvas.
 
-- **Mandatory** — every lab quiz needs to be passed, not just attempted.
-- **Same deadline for every lab** in a given run of the course, rather than one deadline per lab — check Canvas for what that date actually is this year.
-- **Available as soon as published** — you don't have to wait for the matching lecture to start a lab quiz if it's already up.
-- **One redo chance** if you fail — normally only at the *next* time the course runs, and the lab itself may have changed by then, so passing it the first time is worth the effort.
-- You may discuss *methods and approaches* with your peers, but the actual answer you submit needs to be your own.
-
-## Lectures: come prepared
-
-Every lecture has an **at-home preparation part** before you show up — in this rebuilt book, that's literally what each session's own on-page "Check your understanding" quiz widget and pre-lecture discussion notebooks are for (see `CONTRIBUTING.md`'s authoring recipe if you're looking at how these get built, not just how to use them). **Lectures are not recorded** — past experience is that recording lectures measurably reduces how many students actually show up, which defeats a course this interactive.
-
-## Coding environment
-
-- **Visual Studio Code** is the recommended editor, but any editor you're comfortable with works.
-- The course server, `students.bioinfo.se`, has the course's conda environment, tools and data. You log in with an SSH key: generate one and send the public key in advance, as described on the [Setup](setup.qmd) page, which also covers connecting VS Code to the server.
-- For anything that needs a GPU, **Google Colab** is the recommended option, in the browser or from VS Code (see [Setup](setup.qmd)); every notebook in this book has an "Open in Colab" badge for this reason — it's free up to some usage limits, needs a Google account, and disconnects a session left idle too long, so don't leave one open and walk away.
-- **PyMOL** is the recommended protein-structure viewer for the structure-focused labs (Session 7's lab already assumes you have it installed) — it's free for students and runs on most platforms. If you don't have a computer that can run it, ask early rather than the day of the lab.
+- **Mandatory.** Every lab quiz must be passed, with at least 50% correct.
+- **One deadline** for all labs in a given run of the course; check Canvas for the date.
+- **Available as soon as published.** You do not have to wait for the lecture.
+- **One redo chance** if you fail, normally only the next time the course runs, and the lab may have changed by then.
 
 ## Plagiarism
 
-This has been a real problem in past years, not a hypothetical one. If you signed a plagiarism-policy form for this course, that's the actual policy in force — read it. Discussing approaches with classmates is fine and expected (see the lab-quiz note above); submitting someone else's actual answers as your own is not. If you're ever unsure where that line is on a specific assignment, ask before submitting, not after.
+Plagiarism has unfortunately been an issue in earlier years. You may already have signed a plagiarism policy form; if not, you will be given one. Please set an example of honesty for your peers, since not everyone has fully understood the rules. If you see a problem, or have a suggestion for how to handle it, talk to the teachers. In general we trust everyone: you are honest until proven otherwise.
+
+Plagiarism is copying the work of others, whether from online or printed sources, your peers, or anyone else, without attributing it directly and explicitly. Discussing methods and approaches with other students is encouraged; submitting someone else's answers, code or text as your own is not.
+
+- All written reports are checked for plagiarism.
+- Plagiarism can lead to suspension from the university.
+
+If you are unsure where the line is on a specific assignment, ask before you submit, not after.
+
+## AI tools
+
+You may use AI tools during the course, but not during the exam. The final report and the labs must not be written by AI tools, but you may use them as a "science buddy", for example to understand a method or to improve your report. Session 2's "How to use chatbots" section shows how to use them well.
+
+## Schedule
+
+The schedule is on Canvas. As far as possible, teaching is on Mondays, Wednesdays and Fridays, with lectures 09:00-12:00 and labs 13:00-17:00. What each session covers is on the [Course Schedule](schedule.qmd) page.
+
+## Administration
+
+The course is administered by the [Chemistry Section](https://www.su.se/enheter/kemiska-sektionen/utbildning/kontakt) at Stockholm University:
+
+> Kemiska sektionens kansli & studentexpedition\
+> Svante Arrhenius väg 16A, 114 18 Stockholm\
+> Email: kemi\@su.se\
+> Opening hours: Mon-Wed 9.00-11.30 and 12.30-15.00\
+> Phone hours: Wed 9.00-11.30 and 12.30-15.00
