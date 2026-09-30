@@ -31,7 +31,8 @@ By the end of this session you should be able to:
 - explore an unfamiliar table: its shape, columns, summaries, filters and plots, and notice what the summaries tell you about how the data were made;
 - plot first and test second, and pick a test that fits what the plot shows;
 - read biological records from a local file or from NCBI;
-- get unstuck: read an error message, inspect objects, use the documentation and an AI assistant, and verify the answer.
+- get unstuck: read an error message, inspect objects, use the documentation and an AI assistant, and verify the answer;
+- log in to the course server with `ssh`, and keep versions of your work with `git`.
 
 ## Notebooks: what they are and why we use them
 
@@ -326,6 +327,31 @@ assert len(record.seq) == 628, "HBB mRNA should be 628 nt"
 ```
 
 **The notebook trap: stale state.** A notebook's variables live in memory, independent of where cells sit on the page. Run cell 3, then cell 7, then edit cell 3 without re-running it, and cell 7 still uses the *old* value. The page says one thing, and the memory holds another. When a result surprises you, use **Restart Kernel → Run All**: it clears the memory and runs every cell top to bottom, the only way to be sure the output matches the code (see the box at the start of the page).
+
+## Two tools outside Python: ssh and git
+
+**ssh** logs you in to another computer, such as the course server, over an encrypted connection. It uses a key pair: the *private* key (`~/.ssh/id_ed25519`) never leaves your laptop, and the *public* key (`id_ed25519.pub`) is what you give to the server. The [Setup](setup.qmd) page creates both and the `kb8029-server` shortcut used below.
+
+``` bash
+ssh kb8029-server                      # log in; type exit to leave
+scp results.csv kb8029-server:~/       # copy a file to your home directory on the server
+scp kb8029-server:~/data/genes.csv .   # ... and a file back to the current folder
+```
+
+VS Code's Remote-SSH uses the same connection. Never share or copy your private key.
+
+**git** keeps the history of a folder (a *repository*) as a series of snapshots (*commits*), so you can see what changed, go back to a version that worked, and share work through GitHub.
+
+``` bash
+git clone https://github.com/ElofssonLab/kb8029-book.git   # a copy of the course notebooks
+git status                          # what has changed since the last commit?
+git add analysis.ipynb              # choose what goes into the next snapshot
+git commit -m "Add volcano plot"    # take the snapshot, with a message saying why
+git log --oneline                   # the history
+git pull                            # fetch others' changes (git push sends yours to your own repository)
+```
+
+Commit small, working steps with messages that say *why*. Do not commit large data files or passwords and keys; list them in a `.gitignore` file instead. Further reading: the Software Carpentry lessons [The Unix Shell](https://swcarpentry.github.io/shell-novice/) and [Version Control with Git](https://swcarpentry.github.io/git-novice/) (CC BY 4.0).
 
 ## 8. Mini challenge: a small analysis, start to finish
 

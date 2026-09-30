@@ -18,7 +18,7 @@ This page assumes you have used VS Code on your own computer. It covers the part
 
 ## Part 1: An SSH key
 
-The server does not use passwords. You log in with an **SSH key pair**:
+SSH is a way to connect securely (using an encrypted connection) between your computer and another computer. In our case the server does not use passwords ,instead you will log in using an **SSH key pair**:
 
 - a **private key** (for example `id_ed25519`), which stays on your computer and is never shared, not even with the teachers;
 - a **public key** (the same name ending in `.pub`), which you send to the teachers. It is added to the server, and only someone holding the matching private key can then log in as you.
@@ -141,7 +141,7 @@ The course data are on the server in **`/data/kb8029/`**. Read them from there; 
 
 For GPU work you need a (free) Google account. There are two ways to use Colab.
 
-### Using the PDC cluster. 
+### Using the PDC cluster.
 
 A limited number of GPU machines (gpuX.bioinfo.se) will be made available during the course. These can be used. However, the GPU can (in general) only be used by one student at a time, and we only have a limited set of such machines, Therefore, they might not always be available.
 
