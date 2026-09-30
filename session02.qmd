@@ -95,7 +95,7 @@ From Session 6 onwards you never write a derivative by hand again; you call `.ba
 
 ## 2. Exploring a biological dataset
 
-The first dataset is from a mouse-liver RNA-seq experiment comparing a high-fat/high-cholesterol diet with a control diet (Becares et al., 2019). The data have already been analysed with DESeq2; here we will explore the resulting table. git coThe set contains one row per gene, with its mean expression (`baseMean`), log2 fold change, p-value and adjusted p-value.
+The first dataset is from a mouse-liver RNA-seq experiment (Becares et al., 2019): all mice were fed a high-fat/high-cholesterol diet, and the livers of mice carrying a mutant form of the transcription factor LXRα (S196A, which cannot be phosphorylated at that site) are compared with those of wild-type mice, three per group. The data have already been analysed with DESeq2; here we will explore the resulting table. The set contains one row per gene, with its mean expression (`baseMean`), log2 fold change, p-value and adjusted p-value.
 
 ``` python
 url = "https://raw.githubusercontent.com/JoachimGoedhart/VolcaNoseR/master/Becares-diffgenes_HFHC.csv"

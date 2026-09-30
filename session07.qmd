@@ -17,15 +17,14 @@ ligand binding and its allosteric mechanism," *Journal of Molecular
 Biology* 129:175-220 ([PubMed](https://pubmed.ncbi.nlm.nih.gov/39173/)).
 Structural-classification and structural-alignment sources: Murzin,
 Brenner, Hubbard & Chothia (1995), "SCOP: a structural classification of
-proteins database," *J. Mol. Biol.* 247:536-540
+proteins database for the investigation of sequences and structures," *J. Mol. Biol.* 247:536-540
 ([PubMed](https://pubmed.ncbi.nlm.nih.gov/7723011/)); Orengo, Michie,
-Jones, Jones & Swindells (1997), "CATH — a hierarchic classification of
+Jones, Jones, Swindells & Thornton (1997), "CATH — a hierarchic classification of
 protein domain structures," *Structure* 5:1093-1108
 ([PubMed](https://pubmed.ncbi.nlm.nih.gov/9309224/)); Cheng, Schaeffer,
-Liao, Kinch & Pei (2014), "ECOD: an evolutionary classification of
+Liao et al. (2014), "ECOD: an evolutionary classification of
 protein domains," *PLoS Computational Biology* 10:e1003926
-([PubMed](https://pubmed.ncbi.nlm.nih.gov/25474468/)); Lau, Bordin,
-Kandathil, Sillitoe & Waman et al. (2024), "Exploring structural
+([PubMed](https://pubmed.ncbi.nlm.nih.gov/25474468/)); Lau, Bordin, Kandathil et al. (2024), "Exploring structural
 diversity across the protein universe with The Encyclopedia of
 Domains," *Science* 386:eadq4946
 ([PubMed](https://pubmed.ncbi.nlm.nih.gov/39480926/)); Holm & Sander
@@ -219,7 +218,7 @@ were developed, each with a real limitation:
 
 None of these three classical strategies solved the general problem
 reliably. The real breakthrough came from a fourth strategy — deep
-learning, most famously AlphaFold (2020) — which Session 12 covers properly,
+learning, most famously AlphaFold2 (2020) — which Session 12 covers properly,
 once this course has built up the neural-network machinery (Sessions 6-9)
 that made it possible.
 

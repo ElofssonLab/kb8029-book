@@ -166,10 +166,10 @@ predictor), to 0.99 (the contacts in the AlphaFold2 model):
 - **RaptorX-Contact** (Wang et al. 2017,
   [*PLoS Comput Biol* 13:e1005324](https://doi.org/10.1371/journal.pcbi.1005324),
   Session 10) treated the whole contact map as an image for a deep residual
-  network. **PconsC4** (Michel, Menéndez-Hurtado & Elofsson, 2019,
+  network. **PconsC4** (Michel, Menéndez Hurtado & Elofsson, 2019,
   [*Bioinformatics* 35:2677](https://doi.org/10.1093/bioinformatics/bty1036))
   made this fast and "hassle-free", with no GPU needed.
-- **AlphaFold 1** (Senior et al., CASP13, 2018;
+- **AlphaFold 1** (Senior et al. 2020, first shown at CASP13 in 2018;
   [*Nature* 577:706](https://doi.org/10.1038/s41586-019-1923-7)) and
   **trRosetta** (Yang et al., 2020,
   [*PNAS* 117:1496](https://doi.org/10.1073/pnas.1914677117)) predicted
@@ -614,12 +614,15 @@ of moving beyond AlphaFold3.
 - **ESMFold2** (Candido et al. 2026,
   [bioRxiv](https://doi.org/10.64898/2026.06.03.729735); Biohub; MIT
   licence, open weights). It joins a large protein language model, ESMC
-  (6 billion parameters, the successor to Session 11's ESM-2), to an
-  AlphaFold3-style diffusion structure module. The original ESMFold was
+  (the successor to Session 11's ESM-2), to an AlphaFold3-style
+  diffusion structure module; the whole model has about 6.6 billion
+  parameters. The original ESMFold was
   built for single chains. ESMFold2 predicts complexes of proteins,
   nucleic acids and ligands, from single sequences or with an optional
-  alignment. The authors report that it "meets or exceeds" AlphaFold3 on
-  protein-protein and antibody-antigen complexes. The notebook runs it on
+  alignment. The authors report that it "exceeds the performance of
+  established methods for biomolecular complex prediction across
+  benchmarks, including for the interactions of antibodies with their
+  targets" (Candido et al. 2026). The notebook runs it on
   one complex from each of the four regions below, five seeds each (figure).
   For every complex the seed with the highest ipTM is a good model
   (DockQ 0.61-0.85). For the 1996 D1.3 antibody, though, three of five

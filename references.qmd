@@ -1,88 +1,559 @@
-# Sources and licensing {.unnumbered}
+# References {.unnumbered}
 
-This book draws its narrative content from fully open sources, supplemented
-by original writing. None of the sources below restrict commercial use —
-an earlier draft of this book used Michael Nielsen's *Neural Networks and
-Deep Learning* for some early sessions, but it's licensed CC BY-**NC**, so
-it was dropped in favor of *Dive into Deep Learning* throughout, keeping
-one consistent license across the whole book. Every page names which of
-these sources it used.
+Every page of this book names its sources where it uses them. This
+chapter collects them in one place: first the open textbooks and
+resources the book is built on, then all papers and books cited on any
+page (checked against PubMed or CrossRef), then databases, datasets and
+software, and finally the further reading and watching suggested for
+each session. "Cited in" links back to the pages that use each source.
 
-## Dive into Deep Learning
+## The open sources this book is built on
 
-Zhang, A., Lipton, Z. C., Li, M., & Smola, A. J. *Dive into Deep Learning*.
-<https://d2l.ai>
+This book draws its narrative content from fully open sources,
+supplemented by original writing. None of the sources below restrict
+commercial use. Every page names which of them it used.
 
-[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Primary
-source for every machine-learning session. Adapted material from this
-source is, per that license, shared here under the same terms.
+- **Dive into Deep Learning.** Zhang, A., Lipton, Z. C., Li, M., & Smola,
+  A. J. <https://d2l.ai>. [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
+  Primary source for every machine-learning session. Adapted material from
+  this source is, per that license, shared here under the same terms.
+- **Wikipedia.** <https://en.wikipedia.org>. [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
+  Conceptual and algorithmic depth for the bioinformatics sessions, and
+  occasional historical notes elsewhere. Never assigned as reading
+  directly, but synthesized into this book's own bounded pages (see the
+  Welcome page for why).
+- **EMBL-EBI Training.** <https://www.ebi.ac.uk/training/>. [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
+  The practical, tool-use layer for databases and sequence alignment.
+- **bibook.** Käll, L. <https://github.com/statisticalbiotechnology/bibook>.
+  [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Notebook code
+  implementing classical bioinformatics algorithms (pairwise alignment,
+  MSA, and more), adapted with attribution.
+- **NCBI Bookshelf.** <https://www.ncbi.nlm.nih.gov/books/>. Public domain
+  (US government work). The BLAST algorithm and database practicalities,
+  including the BLAST® Help manual.
+- **RCSB PDB-101.** <https://pdb101.rcsb.org/>. [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
+  (the PDB-101 educational tier; general rcsb.org article text is
+  separately copyrighted and is not used here).
+- **A Byte of Python.** Swaroop, C. H. <https://python.swaroopch.com/>.
+  [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Python
+  fundamentals and object-oriented programming.
 
-## Wikipedia
+## Papers and books
 
-<https://en.wikipedia.org>
+- Abramson J, Adler J, Dunger J, et al. (2024). Accurate structure prediction of biomolecular interactions with AlphaFold 3. Nature 630:493-500. [doi:10.1038/s41586-024-07487-w](https://doi.org/10.1038/s41586-024-07487-w). PMID:38718835. *Cited in:* [Schedule](schedule.qmd), [Session 12](session12.qmd).
+- Alipanahi B, Delong A, Weirauch MT et al. (2015). Predicting the sequence specificities of DNA- and RNA-binding proteins by deep learning. Nat Biotechnol 33:831-8. [doi:10.1038/nbt.3300](https://doi.org/10.1038/nbt.3300). PMID:26213851. *Cited in:* [Session 10](session10.qmd).
+- Alley EC, Khimulya G, Biswas S et al. (2019). Unified rational protein engineering with sequence-based deep representation learning. Nat Methods 16:1315-1322. [doi:10.1038/s41592-019-0598-1](https://doi.org/10.1038/s41592-019-0598-1). PMID:31636460. *Cited in:* [Session 11](session11.qmd).
+- Almagro Armenteros JJ, Sønderby CK, Sønderby SK et al. (2017). DeepLoc: prediction of protein subcellular localization using deep learning. Bioinformatics 33:3387-3395. [doi:10.1093/bioinformatics/btx431](https://doi.org/10.1093/bioinformatics/btx431). PMID:29036616. *Cited in:* [Session 10](session10.qmd).
+- Almagro Armenteros JJ, Tsirigos KD, Sønderby CK et al. (2019). SignalP 5.0 improves signal peptide predictions using deep neural networks. Nat Biotechnol 37:420-423. [doi:10.1038/s41587-019-0036-z](https://doi.org/10.1038/s41587-019-0036-z). PMID:30778233. *Cited in:* [Session 11](session11.qmd).
+- Altschul SF, Gish W, Miller W, et al. (1990). Basic local alignment search tool. J Mol Biol 215(3):403-410. [doi:10.1016/S0022-2836(05)80360-2](https://doi.org/10.1016/S0022-2836(05)80360-2). PMID 2231712. *Cited in:* [Setup](setup.qmd), [Session 5](session05.qmd).
+- Altschul SF, Madden TL, Schäffer AA, et al. (1997). Gapped BLAST and PSI-BLAST: a new generation of protein database search programs. Nucleic Acids Res 25(17):3389-3402. [doi:10.1093/nar/25.17.3389](https://doi.org/10.1093/nar/25.17.3389). PMID 9254694. *Cited in:* [Session 5](session05.qmd).
+- Anfinsen CB (1973). Principles that Govern the Folding of Protein Chains. Science 181:223-230. [doi:10.1126/science.181.4096.223](https://doi.org/10.1126/science.181.4096.223). PMID:4124164. *Cited in:* [Session 12](session12.qmd).
+- Apweiler R, Bairoch A, Wu CH, et al. (2004). UniProt: the Universal Protein knowledgebase. Nucleic Acids Research 32(Database issue):D115-D119. [doi:10.1093/nar/gkh131](https://doi.org/10.1093/nar/gkh131). PMID:14681372. *Cited in:* [Session 3](session03.qmd).
+- Avsec Ž, Agarwal V, Visentin D et al. (2021). Effective gene expression prediction from sequence by integrating long-range interactions. Nat Methods 18:1196-1203. [doi:10.1038/s41592-021-01252-x](https://doi.org/10.1038/s41592-021-01252-x). PMID:34608324. *Cited in:* [Session 10](session10.qmd).
+- Baek M, DiMaio F, Anishchenko I et al. (2021). Accurate prediction of protein structures and interactions using a three-track neural network. Science 373:871-876. [doi:10.1126/science.abj8754](https://doi.org/10.1126/science.abj8754). PMID:34282049. *Cited in:* [Session 12](session12.qmd).
+- Bahdanau D, Cho K, Bengio Y (2014). Neural Machine Translation by Jointly Learning to Align and Translate. arXiv:1409.0473 (ICLR 2015). [doi:10.48550/arXiv.1409.0473](https://doi.org/10.48550/arXiv.1409.0473). *Cited in:* [Session 11](session11.qmd).
+- Baldwin J, Chothia C (1979). Haemoglobin: the structural changes related to ligand binding and its allosteric mechanism. J Mol Biol 129:175-220. [doi:10.1016/0022-2836(79)90277-8](https://doi.org/10.1016/0022-2836(79)90277-8). PMID:39173. *Cited in:* [Session 7](session07.qmd).
+- Basu S, Wallner B (2016). DockQ: A Quality Measure for Protein-Protein Docking Models. PLoS One 11:e0161879. [doi:10.1371/journal.pone.0161879](https://doi.org/10.1371/journal.pone.0161879). PMID:27560519. *Cited in:* [Session 12](session12.qmd).
+- Becares N, Gage MC, Voisin M, et al. (2019). Impaired LXRα phosphorylation attenuates progression of fatty liver disease. Cell Reports 26(4):984-995.e6. [doi:10.1016/j.celrep.2018.12.094](https://doi.org/10.1016/j.celrep.2018.12.094). PMID:30673619. *Cited in:* [Schedule](schedule.qmd), [Session 2](session02.qmd).
+- Bendtsen JD, Nielsen H, von Heijne G et al. (2004). Improved prediction of signal peptides: SignalP 3.0. J Mol Biol 340:783-95. [doi:10.1016/j.jmb.2004.05.028](https://doi.org/10.1016/j.jmb.2004.05.028). PMID:15223320. *Cited in:* [Session 11](session11.qmd).
+- Bengio Y, Ducharme R, Vincent P, Jauvin C (2003). A neural probabilistic language model. J Mach Learn Res 3:1137-1155. <https://www.jmlr.org/papers/volume3/bengio03a/bengio03a.pdf> *Cited in:* [Session 11](session11.qmd).
+- Benjamini Y, Hochberg Y (1995). Controlling the false discovery rate: a practical and powerful approach to multiple testing. Journal of the Royal Statistical Society Series B 57(1):289-300. [doi:10.1111/j.2517-6161.1995.tb02031.x](https://doi.org/10.1111/j.2517-6161.1995.tb02031.x). *Cited in:* [Session 1](session01.qmd).
+- Bowie JU, Lüthy R, Eisenberg D (1991). A Method to Identify Protein Sequences That Fold into a Known Three-Dimensional Structure. Science 253:164-170. [doi:10.1126/science.1853201](https://doi.org/10.1126/science.1853201). PMID:1853201. *Cited in:* [Session 12](session12.qmd).
+- Brown TB, Mann B, Ryder N et al. (2020). Language Models are Few-Shot Learners. arXiv:2005.14165 (NeurIPS 33, 2020). [doi:10.48550/arXiv.2005.14165](https://doi.org/10.48550/arXiv.2005.14165). *Cited in:* [Session 11](session11.qmd).
+- Bryant P, Pozzati G, Elofsson A (2022). Improved prediction of protein-protein interactions using AlphaFold2. Nat Commun 13:1265. [doi:10.1038/s41467-022-28865-w](https://doi.org/10.1038/s41467-022-28865-w). PMID:35273146. *Cited in:* [Session 12](session12.qmd).
+- Bryant P, Pozzati G, Zhu W et al. (2022). Predicting the structure of large protein complexes using AlphaFold and Monte Carlo tree search. Nat Commun 13:6028. [doi:10.1038/s41467-022-33729-4](https://doi.org/10.1038/s41467-022-33729-4). PMID:36224222. *Cited in:* [Session 12](session12.qmd).
+- Bulyk ML, Johnson PLF, Church GM (2002). Nucleotides of transcription factor binding sites exert interdependent effects on the binding affinities of transcription factors. Nucleic Acids Research 30(5):1255-1261. [doi:10.1093/nar/30.5.1255](https://doi.org/10.1093/nar/30.5.1255). PMID:11861919. *Cited in:* [Schedule](schedule.qmd), [Session 6](session06.qmd).
+- Burke DF, Bryant P, Barrio-Hernandez I et al. (2023). Towards a structurally resolved human protein interaction network. Nat Struct Mol Biol 30:216-225. [doi:10.1038/s41594-022-00910-8](https://doi.org/10.1038/s41594-022-00910-8). PMID:36690744. *Cited in:* [Session 12](session12.qmd).
+- Candido S, Hayes T, Derry A et al. (2026). Language Modeling Materializes a World Model of Protein Biology. bioRxiv, 2026.06.03.729735. [doi:10.64898/2026.06.03.729735](https://doi.org/10.64898/2026.06.03.729735). *Cited in:* [Session 12](session12.qmd).
+- Chen R, Li L, Weng Z (2003). ZDOCK: An initial‐stage protein‐docking algorithm. Proteins 52:80-87. [doi:10.1002/prot.10389](https://doi.org/10.1002/prot.10389). PMID:12784371. *Cited in:* [Session 12](session12.qmd).
+- Cheng H, Schaeffer RD, Liao Y, et al. (2014). ECOD: an evolutionary classification of protein domains. PLoS Comput Biol 10:e1003926. [doi:10.1371/journal.pcbi.1003926](https://doi.org/10.1371/journal.pcbi.1003926). PMID:25474468. *Cited in:* [Session 7](session07.qmd).
+- Chou PY, Fasman GD (1974). Prediction of protein conformation. Biochemistry 13(2):222-245. [doi:10.1021/bi00699a002](https://doi.org/10.1021/bi00699a002). PMID 4358940. *Cited in:* [Session 6](session06.qmd).
+- Ciresan DC, Giusti A, Gambardella LM, Schmidhuber J (2012). Deep neural networks segment neuronal membranes in electron microscopy images. Advances in Neural Information Processing Systems 25:2843-2851. <https://proceedings.neurips.cc/paper/2012/hash/459a4ddcb586f24efd9395aa7662bc7c-Abstract.html> *Cited in:* [Session 10](session10.qmd).
+- Cireşan DC, Giusti A, Gambardella LM et al. (2013). Mitosis detection in breast cancer histology images with deep neural networks. Med Image Comput Comput Assist Interv (MICCAI) 2013 16:411-8. [doi:10.1007/978-3-642-40763-5_51](https://doi.org/10.1007/978-3-642-40763-5_51). PMID:24579167. *Cited in:* [Session 10](session10.qmd).
+- Corso G, Stärk H, Jing B et al. (2022). DiffDock: Diffusion Steps, Twists, and Turns for Molecular Docking. arXiv:2210.01776 (ICLR 2023). [doi:10.48550/arXiv.2210.01776](https://doi.org/10.48550/arXiv.2210.01776). *Cited in:* [Session 12](session12.qmd).
+- Cruz-Roa A, Basavanhally A, González F et al. (2014). Automatic detection of invasive ductal carcinoma in whole slide images with convolutional neural networks. Proc SPIE Medical Imaging 2014: Digital Pathology 9041:904103. [doi:10.1117/12.2043872](https://doi.org/10.1117/12.2043872). *Cited in:* [Session 10](session10.qmd).
+- Dauparas J, Anishchenko I, Bennett N, et al. (2022). Robust deep learning-based protein sequence design using ProteinMPNN. Science 378(6615):49-56. [doi:10.1126/science.add2187](https://doi.org/10.1126/science.add2187). PMID:36108050. *Cited in:* [Schedule](schedule.qmd), [Session 12](session12.qmd).
+- Dayhoff MO, Schwartz RM, Orcutt BC (1978). A model of evolutionary change in proteins. In: Dayhoff MO (ed.), Atlas of Protein Sequence and Structure, Vol. 5, Suppl. 3, pp. 345-352. National Biomedical Research Foundation, Washington DC. *Cited in:* [Session 4](session04.qmd).
+- Devlin J, Chang M-W, Lee K et al. (2018). BERT: Pre-training of Deep Bidirectional Transformers for Language Understanding. arXiv:1810.04805 (NAACL 2019). [doi:10.48550/arXiv.1810.04805](https://doi.org/10.48550/arXiv.1810.04805). *Cited in:* [Session 11](session11.qmd).
+- Dill KA, MacCallum JL (2012). The Protein-Folding Problem, 50 Years On. Science 338:1042-1046. [doi:10.1126/science.1219021](https://doi.org/10.1126/science.1219021). PMID:23180855. *Cited in:* [Session 12](session12.qmd).
+- Dominguez C, Boelens R, Bonvin AMJJ (2003). HADDOCK: A Protein−Protein Docking Approach Based on Biochemical or Biophysical Information. J Am Chem Soc 125:1731-1737. [doi:10.1021/ja026939x](https://doi.org/10.1021/ja026939x). PMID:12580598. *Cited in:* [Session 12](session12.qmd).
+- Dunbrack RL (2025). Rēs ipSAE loquuntur: What's wrong with AlphaFold's ipTM score and how to fix it. bioRxiv, 2025.02.10.637595. [doi:10.1101/2025.02.10.637595](https://doi.org/10.1101/2025.02.10.637595). PMID:39990437. *Cited in:* [Session 12](session12.qmd).
+- Dunn SD, Wahl LM, Gloor GB (2008). Mutual information without the influence of phylogeny or entropy dramatically improves residue contact prediction. Bioinformatics 24:333-340. [doi:10.1093/bioinformatics/btm604](https://doi.org/10.1093/bioinformatics/btm604). PMID:18057019. *Cited in:* [Session 12](session12.qmd).
+- Ehteshami Bejnordi B, Veta M, van Diest PJ et al. (2017). Diagnostic Assessment of Deep Learning Algorithms for Detection of Lymph Node Metastases in Women With Breast Cancer. JAMA 318:2199-2210. [doi:10.1001/jama.2017.14585](https://doi.org/10.1001/jama.2017.14585). PMID:29234806. *Cited in:* [Session 10](session10.qmd).
+- Ekeberg M, Lövkvist C, Lan Y et al. (2013). Improved contact prediction in proteins: Using pseudolikelihoods to infer Potts models. Phys Rev E 87:012707. [doi:10.1103/physreve.87.012707](https://doi.org/10.1103/physreve.87.012707). PMID:23410359. *Cited in:* [Session 10](session10.qmd), [Session 12](session12.qmd).
+- Ekman M (2021). Learning Deep Learning: Theory and Practice of Neural Networks, Computer Vision, Natural Language Processing, and Transformers Using TensorFlow. Addison-Wesley. ISBN 978-0-13-747035-8. <https://www.informit.com/store/learning-deep-learning-theory-and-practice-of-neural-9780137470358> *Cited in:* [Welcome](index.qmd), [Session 6](session06.qmd), [Session 8](session08.qmd), [Session 9](session09.qmd).
+- Elnaggar A, Heinzinger M, Dallago C et al. (2022). ProtTrans: Toward Understanding the Language of Life Through Self-Supervised Learning. IEEE Trans Pattern Anal Mach Intell 44:7112-7127. [doi:10.1109/TPAMI.2021.3095381](https://doi.org/10.1109/TPAMI.2021.3095381). PMID:34232869. *Cited in:* [Session 11](session11.qmd).
+- Elofsson A (2026). AlphaFold3 at CASP16. Proteins 94:154-166. [doi:10.1002/prot.70044](https://doi.org/10.1002/prot.70044). PMID:40851426. *Cited in:* [Session 12](session12.qmd).
+- Elofsson A, Ben-Tal N (2026). What will be the future of computational biology for macromolecules in the era of AI?. PLoS Comput Biol 22:e1014467. [doi:10.1371/journal.pcbi.1014467](https://doi.org/10.1371/journal.pcbi.1014467). PMID:42418429. *Cited in:* [Session 12](session12.qmd).
+- Elofsson A, Han L, Bianchi E et al. (2024). Deep learning insights into the architecture of the mammalian egg-sperm fusion synapse. eLife 13:RP93131. [doi:10.7554/elife.93131](https://doi.org/10.7554/elife.93131). PMID:38666763. *Cited in:* [Session 12](session12.qmd).
+- Esteva A, Kuprel B, Novoa RA et al. (2017). Dermatologist-level classification of skin cancer with deep neural networks. Nature 542:115-118. [doi:10.1038/nature21056](https://doi.org/10.1038/nature21056). PMID:28117445. *Cited in:* [Session 10](session10.qmd).
+- Evans R, O'Neill M, Pritzel A et al. (2021). Protein complex prediction with AlphaFold-Multimer. bioRxiv, 2021.10.04.463034. [doi:10.1101/2021.10.04.463034](https://doi.org/10.1101/2021.10.04.463034). *Cited in:* [Session 12](session12.qmd).
+- Fermi G, Perutz MF, Shaanan B, et al. (1984). The crystal structure of human deoxyhaemoglobin at 1.74 Å resolution. Journal of Molecular Biology 175(2):159-174. [doi:10.1016/0022-2836(84)90472-8](https://doi.org/10.1016/0022-2836(84)90472-8). PMID:6726807. *Cited in:* [Session 3](session03.qmd), [Session 10](session10.qmd).
+- Fromm S, Ludaic M, Elofsson A (2026). Evaluating deep learning based structure prediction methods on antibody–antigen complexes. Bioinformatics 42:btag136. [doi:10.1093/bioinformatics/btag136](https://doi.org/10.1093/bioinformatics/btag136). PMID:41863324. *Cited in:* [Session 12](session12.qmd).
+- Garnier J, Osguthorpe DJ, Robson B (1978). Analysis of the accuracy and implications of simple methods for predicting the secondary structure of globular proteins. J Mol Biol 120(1):97-120. [doi:10.1016/0022-2836(78)90297-8](https://doi.org/10.1016/0022-2836(78)90297-8). PMID 642007. *Cited in:* [Session 6](session06.qmd).
+- Goedhart J, Luijsterburg MS (2020). VolcaNoseR is a web app for creating, exploring, labeling and sharing volcano plots. Scientific Reports 10:20560. [doi:10.1038/s41598-020-76603-3](https://doi.org/10.1038/s41598-020-76603-3). PMID:33239692. *Cited in:* [Session 2](session02.qmd).
+- Gulshan V, Peng L, Coram M et al. (2016). Development and Validation of a Deep Learning Algorithm for Detection of Diabetic Retinopathy in Retinal Fundus Photographs. JAMA 316:2402-2410. [doi:10.1001/jama.2016.17216](https://doi.org/10.1001/jama.2016.17216). PMID:27898976. *Cited in:* [Session 10](session10.qmd).
+- Göbel U, Sander C, Schneider R et al. (1994). Correlated mutations and residue contacts in proteins. Proteins 18:309-317. [doi:10.1002/prot.340180402](https://doi.org/10.1002/prot.340180402). PMID:8208723. *Cited in:* [Session 12](session12.qmd).
+- Hanson J, Paliwal K, Litfin T et al. (2019). Improving prediction of protein secondary structure, backbone angles, solvent accessibility and contact numbers by using predicted contact maps and an ensemble of recurrent and residual convolutional neural networks. Bioinformatics 35:2403-2410. [doi:10.1093/bioinformatics/bty1006](https://doi.org/10.1093/bioinformatics/bty1006). PMID:30535134. *Cited in:* [Session 10](session10.qmd).
+- He K, Zhang X, Ren S et al. (2016). Deep Residual Learning for Image Recognition. Proc IEEE Conf Computer Vision and Pattern Recognition (CVPR) 2016, 770-778. [doi:10.1109/cvpr.2016.90](https://doi.org/10.1109/cvpr.2016.90). *Cited in:* [Session 10](session10.qmd).
+- Heinzinger M, Elnaggar A, Wang Y et al. (2019). Modeling aspects of the language of life through transfer-learning protein sequences. BMC Bioinformatics 20:723. [doi:10.1186/s12859-019-3220-8](https://doi.org/10.1186/s12859-019-3220-8). PMID:31847804. *Cited in:* [Session 11](session11.qmd).
+- Henikoff S, Henikoff JG (1992). Amino acid substitution matrices from protein blocks. Proc Natl Acad Sci USA 89(22):10915-10919. [doi:10.1073/pnas.89.22.10915](https://doi.org/10.1073/pnas.89.22.10915). PMID 1438297. *Cited in:* [Session 4](session04.qmd), [Session 5](session05.qmd).
+- Ho J, Jain A, Abbeel P (2020). Denoising Diffusion Probabilistic Models. arXiv:2006.11239 (NeurIPS 33, 2020). [doi:10.48550/arXiv.2006.11239](https://doi.org/10.48550/arXiv.2006.11239). *Cited in:* [Session 12](session12.qmd).
+- Hochreiter S, Schmidhuber J (1997). Long Short-Term Memory. Neural Computation 9:1735-1780. [doi:10.1162/neco.1997.9.8.1735](https://doi.org/10.1162/neco.1997.9.8.1735). PMID:9377276. *Cited in:* [Session 11](session11.qmd).
+- Holm L, Sander C (1993). Protein structure comparison by alignment of distance matrices. J Mol Biol 233:123-138. [doi:10.1006/jmbi.1993.1489](https://doi.org/10.1006/jmbi.1993.1489). PMID:8377180. *Cited in:* [Session 7](session07.qmd).
+- Hopf TA, Schärfe CPI, Rodrigues JPGLM et al. (2014). Sequence co-evolution gives 3D contacts and structures of protein complexes. eLife 3:e03430. [doi:10.7554/elife.03430](https://doi.org/10.7554/elife.03430). PMID:25255213. *Cited in:* [Session 12](session12.qmd).
+- Illergård K, Ardell DH, Elofsson A (2009). Structure is three to ten times more conserved than sequence--a study of structural response in protein cores. Proteins 77(3):499-508. [doi:10.1002/prot.22458](https://doi.org/10.1002/prot.22458). PMID 19507241. *Cited in:* [Session 6](session06.qmd).
+- Ingraham JB, Baranov M, Costello Z et al. (2023). Illuminating protein space with a programmable generative model. Nature 623:1070-1078. [doi:10.1038/s41586-023-06728-8](https://doi.org/10.1038/s41586-023-06728-8). PMID:37968394. *Cited in:* [Session 12](session12.qmd).
+- Ioffe S, Szegedy C (2015). Batch Normalization: Accelerating Deep Network Training by Reducing Internal Covariate Shift. Proceedings of the 32nd International Conference on Machine Learning (ICML), PMLR 37:448-456. arXiv:1502.03167. <https://arxiv.org/abs/1502.03167> *Cited in:* [Session 9](session09.qmd).
+- Isomorphic Labs Team (2026). Accurate predictions of novel biomolecular interactions with IsoDDE. Technical report, Zenodo. [doi:10.5281/zenodo.19699685](https://doi.org/10.5281/zenodo.19699685). *Cited in:* [Session 12](session12.qmd).
+- Janin J, Henrick K, Moult J et al. (2003). CAPRI: A Critical Assessment of PRedicted Interactions. Proteins 52:2-9. [doi:10.1002/prot.10381](https://doi.org/10.1002/prot.10381). PMID:12784359. *Cited in:* [Session 12](session12.qmd).
+- Janowczyk A, Madabhushi A (2016). Deep learning for digital pathology image analysis: A comprehensive tutorial with selected use cases. J Pathol Inform 7:29. [doi:10.4103/2153-3539.186902](https://doi.org/10.4103/2153-3539.186902). PMID:27563488. *Cited in:* [Session 10](session10.qmd).
+- Jones DT (1999). Protein secondary structure prediction based on position-specific scoring matrices. J Mol Biol 292:195-202. [doi:10.1006/jmbi.1999.3091](https://doi.org/10.1006/jmbi.1999.3091). PMID:10493868. *Cited in:* [Session 10](session10.qmd).
+- Jones DT, Buchan DW, Cozzetto D et al. (2012). PSICOV: precise structural contact prediction using sparse inverse covariance estimation on large multiple sequence alignments. Bioinformatics 28:184-90. [doi:10.1093/bioinformatics/btr638](https://doi.org/10.1093/bioinformatics/btr638). PMID:22101153. *Cited in:* [Session 10](session10.qmd), [Session 12](session12.qmd).
+- Jones DT, Singh T, Kosciolek T et al. (2015). MetaPSICOV: combining coevolution methods for accurate prediction of contacts and long range hydrogen bonding in proteins. Bioinformatics 31:999-1006. [doi:10.1093/bioinformatics/btu791](https://doi.org/10.1093/bioinformatics/btu791). PMID:25431331. *Cited in:* [Session 10](session10.qmd).
+- Jones DT, Taylor WR, Thornton JM (1992). A new approach to protein fold recognition. Nature 358:86-89. [doi:10.1038/358086a0](https://doi.org/10.1038/358086a0). PMID:1614539. *Cited in:* [Session 12](session12.qmd).
+- Jumper J, Evans R, Pritzel A, et al. (2021). Highly accurate protein structure prediction with AlphaFold. Nature 596:583-589. [doi:10.1038/s41586-021-03819-2](https://doi.org/10.1038/s41586-021-03819-2). PMID:34265844. *Cited in:* [Schedule](schedule.qmd), [Session 12](session12.qmd).
+- Kabsch W, Sander C (1984). On the use of sequence homologies to predict protein structure: identical pentapeptides can have completely different conformations. Proc Natl Acad Sci USA 81(4):1075-1078. [doi:10.1073/pnas.81.4.1075](https://doi.org/10.1073/pnas.81.4.1075). PMID 6422466. *Cited in:* [Session 6](session06.qmd).
+- Kamisetty H, Ovchinnikov S, Baker D (2013). Assessing the utility of coevolution-based residue–residue contact predictions in a sequence- and structure-rich era. Proc Natl Acad Sci USA 110:15674-15679. [doi:10.1073/pnas.1314045110](https://doi.org/10.1073/pnas.1314045110). PMID:24009338. *Cited in:* [Session 10](session10.qmd).
+- Karlin S, Altschul SF (1990). Methods for assessing the statistical significance of molecular sequence features by using general scoring schemes. Proc Natl Acad Sci USA 87(6):2264-2268. [doi:10.1073/pnas.87.6.2264](https://doi.org/10.1073/pnas.87.6.2264). PMID 2315319. *Cited in:* [Session 5](session05.qmd).
+- Katchalski-Katzir E, Shariv I, Eisenstein M et al. (1992). Molecular surface recognition: determination of geometric fit between proteins and their ligands by correlation techniques. Proc Natl Acad Sci USA 89:2195-2199. [doi:10.1073/pnas.89.6.2195](https://doi.org/10.1073/pnas.89.6.2195). PMID:1549581. *Cited in:* [Session 12](session12.qmd).
+- Kelley DR, Reshef YA, Bileschi M et al. (2018). Sequential regulatory activity prediction across chromosomes with convolutional neural networks. Genome Res 28:739-750. [doi:10.1101/gr.227819.117](https://doi.org/10.1101/gr.227819.117). PMID:29588361. *Cited in:* [Session 10](session10.qmd).
+- Kelley DR, Snoek J, Rinn JL (2016). Basset: learning the regulatory code of the accessible genome with deep convolutional neural networks. Genome Res 26:990-9. [doi:10.1101/gr.200535.115](https://doi.org/10.1101/gr.200535.115). PMID:27197224. *Cited in:* [Session 10](session10.qmd).
+- Klausen MS, Jespersen MC, Nielsen H et al. (2019). NetSurfP-2.0: Improved prediction of protein structural features by integrated deep learning. Proteins 87:520-527. [doi:10.1002/prot.25674](https://doi.org/10.1002/prot.25674). PMID:30785653. *Cited in:* [Session 10](session10.qmd).
+- Korf I, Yandell M, Bedell J (2003). BLAST. O'Reilly Media, Sebastopol CA. ISBN 978-0-596-00299-2. <https://www.oreilly.com/library/view/blast/0596002998/> *Cited in:* [Session 5](session05.qmd).
+- Krishna R, Wang J, Ahern W et al. (2024). Generalized biomolecular modeling and design with RoseTTAFold All-Atom. Science 384:eadl2528. [doi:10.1126/science.adl2528](https://doi.org/10.1126/science.adl2528). PMID:38452047. *Cited in:* [Session 12](session12.qmd).
+- Krizhevsky A, Sutskever I, Hinton GE (2012). ImageNet classification with deep convolutional neural networks. Advances in Neural Information Processing Systems 25:1097-1105. (Journal version: Commun ACM 60:84-90, 2017, [doi:10.1145/3065386.)](https://doi.org/10.1145/3065386.)) *Cited in:* [Session 10](session10.qmd).
+- Kundrotas PJ, Zhu Z, Janin J et al. (2012). Templates are available to model nearly all complexes of structurally characterized proteins. Proc Natl Acad Sci USA 109:9438-9441. [doi:10.1073/pnas.1200678109](https://doi.org/10.1073/pnas.1200678109). PMID:22645367. *Cited in:* [Session 12](session12.qmd).
+- Kyte J, Doolittle RF (1982). A simple method for displaying the hydropathic character of a protein. J Mol Biol 157:105-132. [doi:10.1016/0022-2836(82)90515-0](https://doi.org/10.1016/0022-2836(82)90515-0). PMID:7108955. *Cited in:* [Session 10](session10.qmd).
+- Lau AM, Bordin N, Kandathil SM, et al. (2024). Exploring structural diversity across the protein universe with The Encyclopedia of Domains. Science 386:eadq4946. [doi:10.1126/science.adq4946](https://doi.org/10.1126/science.adq4946). PMID:39480926. *Cited in:* [Session 7](session07.qmd).
+- LeCun Y, Boser B, Denker JS et al. (1989). Backpropagation Applied to Handwritten Zip Code Recognition. Neural Computation 1:541-551. [doi:10.1162/neco.1989.1.4.541](https://doi.org/10.1162/neco.1989.1.4.541). *Cited in:* [Session 10](session10.qmd).
+- LeCun Y, Bottou L, Bengio Y et al. (1998). Gradient-based learning applied to document recognition. Proc IEEE 86:2278-2324. [doi:10.1109/5.726791](https://doi.org/10.1109/5.726791). *Cited in:* [Session 10](session10.qmd).
+- Lensink MF, Brysbaert G, Nadzirin N et al. (2019). Blind prediction of homo‐ and hetero‐protein complexes: The CASP13‐CAPRI experiment. Proteins 87:1200-1221. [doi:10.1002/prot.25838](https://doi.org/10.1002/prot.25838). PMID:31612567. *Cited in:* [Session 12](session12.qmd).
+- Levinthal C (1969). How to fold graciously. In: Debrunner P, Tsibris JCM, Münck E (eds), Mössbauer Spectroscopy in Biological Systems: Proceedings of a meeting held at Allerton House, Monticello, Illinois. University of Illinois Press, pp. 22-24. *Cited in:* [Session 12](session12.qmd).
+- Li W, Kinch LN, Karplus PA, Grishin NV (2015). ChSeq: a database of chameleon sequences. Protein Sci 24(7):1075-1086. [doi:10.1002/pro.2689](https://doi.org/10.1002/pro.2689). PMID 25970262. *Cited in:* [Session 6](session06.qmd).
+- Lin Z, Akin H, Rao R et al. (2023). Evolutionary-scale prediction of atomic-level protein structure with a language model. Science 379:1123-1130. [doi:10.1126/science.ade2574](https://doi.org/10.1126/science.ade2574). PMID:36927031. *Cited in:* [Session 11](session11.qmd), [Session 12](session12.qmd).
+- Lindorff-Larsen K, Piana S, Dror RO et al. (2011). How Fast-Folding Proteins Fold. Science 334:517-520. [doi:10.1126/science.1208351](https://doi.org/10.1126/science.1208351). PMID:22034434. *Cited in:* [Session 12](session12.qmd).
+- Lipman Y, Chen RTQ, Ben-Hamu H et al. (2022). Flow Matching for Generative Modeling. arXiv:2210.02747 (ICLR 2023). [doi:10.48550/arXiv.2210.02747](https://doi.org/10.48550/arXiv.2210.02747). *Cited in:* [Session 12](session12.qmd).
+- Ludaic M, Elofsson A (2026). Limits of deep-learning-based RNA prediction methods. Nucleic Acids Res 54:gkag813. [doi:10.1093/nar/gkag813](https://doi.org/10.1093/nar/gkag813). PMID:42635124. *Cited in:* [Session 12](session12.qmd).
+- Marks DS, Colwell LJ, Sheridan R et al. (2011). Protein 3D Structure Computed from Evolutionary Sequence Variation. PLoS One 6:e28766. [doi:10.1371/journal.pone.0028766](https://doi.org/10.1371/journal.pone.0028766). PMID:22163331. *Cited in:* [Session 10](session10.qmd), [Session 12](session12.qmd).
+- Michel M, Hayat S, Skwark MJ et al. (2014). PconsFold: improved contact predictions improve protein models. Bioinformatics 30:i482-i488. [doi:10.1093/bioinformatics/btu458](https://doi.org/10.1093/bioinformatics/btu458). PMID:25161237. *Cited in:* [Session 12](session12.qmd).
+- Michel M, Menéndez Hurtado D, Elofsson A (2019). PconsC4: fast, accurate and hassle-free contact predictions. Bioinformatics 35:2677-2679. [doi:10.1093/bioinformatics/bty1036](https://doi.org/10.1093/bioinformatics/bty1036). PMID:30590407. *Cited in:* [Session 12](session12.qmd).
+- Michel M, Skwark MJ, Menéndez Hurtado D et al. (2017). Predicting accurate contacts in thousands of Pfam domain families using PconsC3. Bioinformatics 33:2859-2866. [doi:10.1093/bioinformatics/btx332](https://doi.org/10.1093/bioinformatics/btx332). PMID:28535189. *Cited in:* [Session 12](session12.qmd).
+- Mikolov T, Chen K, Corrado G et al. (2013). Efficient Estimation of Word Representations in Vector Space. arXiv:1301.3781. [doi:10.48550/arXiv.1301.3781](https://doi.org/10.48550/arXiv.1301.3781). *Cited in:* [Session 11](session11.qmd).
+- Mikolov T, Yih W, Zweig G (2013). Linguistic regularities in continuous space word representations. Proc NAACL-HLT 2013, pp. 746-751. <https://aclanthology.org/N13-1090/> *Cited in:* [Session 11](session11.qmd).
+- Minsky M, Papert S (1969). Perceptrons: An Introduction to Computational Geometry. MIT Press, Cambridge MA. (Expanded reissue 2017, [doi:10.7551/mitpress/11301.001.0001.)](https://doi.org/10.7551/mitpress/11301.001.0001.)) *Cited in:* [Session 6](session06.qmd).
+- Mirabello C, Wallner B (2019). rawMSA: End-to-end Deep Learning using raw Multiple Sequence Alignments. PLoS One 14:e0220182. [doi:10.1371/journal.pone.0220182](https://doi.org/10.1371/journal.pone.0220182). PMID:31415569. *Cited in:* [Session 12](session12.qmd).
+- Mirdita M, Schütze K, Moriwaki Y, et al. (2022). ColabFold: making protein folding accessible to all. Nature Methods 19:679-682. [doi:10.1038/s41592-022-01488-1](https://doi.org/10.1038/s41592-022-01488-1). PMID:35637307. *Cited in:* [Schedule](schedule.qmd), [Session 12](session12.qmd).
+- Monastyrskyy B, D'Andrea D, Fidelis K et al. (2014). Evaluation of residue-residue contact prediction in CASP10. Proteins 82 Suppl 2:138-153. [doi:10.1002/prot.24340](https://doi.org/10.1002/prot.24340). PMID:23760879. *Cited in:* [Session 10](session10.qmd).
+- Monastyrskyy B, D'Andrea D, Fidelis K et al. (2016). New encouraging developments in contact prediction: Assessment of the CASP11 results. Proteins 84 Suppl 1:131-144. [doi:10.1002/prot.24943](https://doi.org/10.1002/prot.24943). PMID:26474083. *Cited in:* [Session 10](session10.qmd).
+- Morcos F, Pagnani A, Lunt B et al. (2011). Direct-coupling analysis of residue coevolution captures native contacts across many protein families. Proc Natl Acad Sci USA 108:E1293-E1301. [doi:10.1073/pnas.1111471108](https://doi.org/10.1073/pnas.1111471108). PMID:22106262. *Cited in:* [Session 10](session10.qmd), [Session 12](session12.qmd).
+- Moult J, Pedersen JT, Judson R et al. (1995). A large‐scale experiment to assess protein structure prediction methods. Proteins 23:ii-v. [doi:10.1002/prot.340230303](https://doi.org/10.1002/prot.340230303). PMID:8710822. *Cited in:* [Session 12](session12.qmd).
+- Murzin AG, Brenner SE, Hubbard T, et al. (1995). SCOP: a structural classification of proteins database for the investigation of sequences and structures. J Mol Biol 247:536-540. [doi:10.1006/jmbi.1995.0159](https://doi.org/10.1006/jmbi.1995.0159). PMID:7723011. *Cited in:* [Session 7](session07.qmd).
+- Needleman SB, Wunsch CD (1970). A general method applicable to the search for similarities in the amino acid sequence of two proteins. J Mol Biol 48(3):443-453. [doi:10.1016/0022-2836(70)90057-4](https://doi.org/10.1016/0022-2836(70)90057-4). PMID 5420325. *Cited in:* [Session 4](session04.qmd).
+- Nielsen H, Engelbrecht J, Brunak S et al. (1997). Identification of prokaryotic and eukaryotic signal peptides and prediction of their cleavage sites. Protein Eng 10:1-6. [doi:10.1093/protein/10.1.1](https://doi.org/10.1093/protein/10.1.1). PMID:9051728. *Cited in:* [Session 11](session11.qmd).
+- Nielsen H, Krogh A (1998). Prediction of signal peptides and signal anchors by a hidden Markov model. Proc Int Conf Intell Syst Mol Biol (ISMB) 6:122-30. PMID:9783217. <https://pubmed.ncbi.nlm.nih.gov/9783217/> *Cited in:* [Session 11](session11.qmd).
+- Nielsen H, Teufel F, Brunak S et al. (2024). SignalP: The Evolution of a Web Server. Methods Mol Biol 2836:331-367. [doi:10.1007/978-1-0716-4007-4_17](https://doi.org/10.1007/978-1-0716-4007-4_17). PMID:38995548. *Cited in:* [Session 11](session11.qmd).
+- Orengo CA, Michie AD, Jones S, et al. (1997). CATH--a hierarchic classification of protein domain structures. Structure 5:1093-1108. [doi:10.1016/S0969-2126(97)00260-8](https://doi.org/10.1016/S0969-2126(97)00260-8). PMID:9309224. *Cited in:* [Session 7](session07.qmd).
+- Ovchinnikov S, Kamisetty H, Baker D (2014). Robust and accurate prediction of residue–residue interactions across protein interfaces using evolutionary information. eLife 3:e02030. [doi:10.7554/elife.02030](https://doi.org/10.7554/elife.02030). PMID:24842992. *Cited in:* [Session 12](session12.qmd).
+- Peters ME, Neumann M, Iyyer M et al. (2018). Deep contextualized word representations. arXiv:1802.05365 (NAACL 2018). [doi:10.48550/arXiv.1802.05365](https://doi.org/10.48550/arXiv.1802.05365). *Cited in:* [Session 11](session11.qmd).
+- Petersen TN, Brunak S, von Heijne G et al. (2011). SignalP 4.0: discriminating signal peptides from transmembrane regions. Nat Methods 8:785-6. [doi:10.1038/nmeth.1701](https://doi.org/10.1038/nmeth.1701). PMID:21959131. *Cited in:* [Session 11](session11.qmd).
+- Pevsner J (2015). Bioinformatics and Functional Genomics, 3rd edition. Wiley-Blackwell. ISBN 978-1-118-58178-0. <https://www.wiley.com/en-us/Bioinformatics+and+Functional+Genomics%2C+3rd+Edition-p-9781118581780> *Cited in:* [Welcome](index.qmd).
+- Pozzati G, Zhu W, Bassot C et al. (2022). Limits and potential of combined folding and docking. Bioinformatics 38:954-961. [doi:10.1093/bioinformatics/btab760](https://doi.org/10.1093/bioinformatics/btab760). PMID:34788800. *Cited in:* [Session 12](session12.qmd).
+- Qian N, Sejnowski TJ (1988). Predicting the secondary structure of globular proteins using neural network models. J Mol Biol 202(4):865-884. [doi:10.1016/0022-2836(88)90564-5](https://doi.org/10.1016/0022-2836(88)90564-5). PMID 3172241. *Cited in:* [Session 6](session06.qmd).
+- Quang D, Xie X (2016). DanQ: a hybrid convolutional and recurrent deep neural network for quantifying the function of DNA sequences. Nucleic Acids Res 44:e107. [doi:10.1093/nar/gkw226](https://doi.org/10.1093/nar/gkw226). PMID:27084946. *Cited in:* [Session 10](session10.qmd).
+- Radford A, Narasimhan K, Salimans T, Sutskever I (2018). Improving language understanding by generative pre-training. OpenAI technical report. <https://cdn.openai.com/research-covers/language-unsupervised/language_understanding_paper.pdf> *Cited in:* [Session 11](session11.qmd).
+- Radford A, Wu J, Child R et al. (2019). Language models are unsupervised multitask learners. OpenAI technical report. <https://cdn.openai.com/better-language-models/language_models_are_unsupervised_multitask_learners.pdf> *Cited in:* [Session 11](session11.qmd).
+- Rao R, Meier J, Sercu T, Ovchinnikov S, Rives A (2021). Transformer protein language models are unsupervised structure learners. International Conference on Learning Representations (ICLR 2021). Preprint [doi:10.1101/2020.12.15.422761](https://doi.org/10.1101/2020.12.15.422761). *Cited in:* [Session 11](session11.qmd).
+- Rao RM, Liu J, Verkuil R et al. (2021). MSA Transformer. Proceedings of the 38th International Conference on Machine Learning (ICML), PMLR 139:8844-8856. Preprint [doi:10.1101/2021.02.12.430858](https://doi.org/10.1101/2021.02.12.430858). *Cited in:* [Session 12](session12.qmd).
+- Rives A, Meier J, Sercu T et al. (2021). Biological structure and function emerge from scaling unsupervised learning to 250 million protein sequences. Proc Natl Acad Sci USA 118:e2016239118. [doi:10.1073/pnas.2016239118](https://doi.org/10.1073/pnas.2016239118). PMID:33876751. *Cited in:* [Session 11](session11.qmd).
+- Ronneberger O, Fischer P, Brox T (2015). U-Net: Convolutional Networks for Biomedical Image Segmentation. MICCAI 2015, Lecture Notes in Computer Science 9351:234-241. [doi:10.1007/978-3-319-24574-4_28](https://doi.org/10.1007/978-3-319-24574-4_28). *Cited in:* [Session 10](session10.qmd).
+- Rost B, Sander C (1993). Improved prediction of protein secondary structure by use of sequence profiles and neural networks. Proc Natl Acad Sci USA 90:7558-7562. [doi:10.1073/pnas.90.16.7558](https://doi.org/10.1073/pnas.90.16.7558). PMID:8356056. PMCID:PMC47181. *Cited in:* [Session 9](session09.qmd).
+- Rost B, Sander C (1993). Prediction of protein secondary structure at better than 70% accuracy. Journal of Molecular Biology 232(2):584-599. [doi:10.1006/jmbi.1993.1413](https://doi.org/10.1006/jmbi.1993.1413). PMID:8345525. *Cited in:* [Schedule](schedule.qmd), [Session 6](session06.qmd), [Session 9](session09.qmd), [Session 10](session10.qmd), [Capstone](capstone.qmd).
+- Ruiz-Serra V, Pontes C, Milanetti E et al. (2021). Assessing the accuracy of contact and distance predictions in CASP14. Proteins 89:1888-1900. [doi:10.1002/prot.26248](https://doi.org/10.1002/prot.26248). PMID:34595772. *Cited in:* [Session 10](session10.qmd).
+- Rumelhart DE, Hinton GE, Williams RJ (1986). Learning representations by back-propagating errors. Nature 323(6088):533-536. [doi:10.1038/323533a0](https://doi.org/10.1038/323533a0). *Cited in:* [Session 6](session06.qmd).
+- Russakovsky O, Deng J, Su H et al. (2015). ImageNet Large Scale Visual Recognition Challenge. Int J Comput Vis 115:211-252. [doi:10.1007/s11263-015-0816-y](https://doi.org/10.1007/s11263-015-0816-y). *Cited in:* [Session 10](session10.qmd).
+- Schaarschmidt J, Monastyrskyy B, Kryshtafovych A et al. (2018). Assessment of contact predictions in CASP12: Co-evolution and deep learning coming of age. Proteins 86 Suppl 1:51-66. [doi:10.1002/prot.25407](https://doi.org/10.1002/prot.25407). PMID:29071738. *Cited in:* [Session 10](session10.qmd).
+- Schneider TD, Stephens RM (1990). Sequence logos: a new way to display consensus sequences. Nucleic Acids Res 18(20):6097-6100. [doi:10.1093/nar/18.20.6097](https://doi.org/10.1093/nar/18.20.6097). PMID 2172928. *Cited in:* [Session 4](session04.qmd).
+- Schuster M, Paliwal K (1997). Bidirectional recurrent neural networks. IEEE Trans Signal Process 45:2673-2681. [doi:10.1109/78.650093](https://doi.org/10.1109/78.650093). PMID:42670431. *Cited in:* [Session 11](session11.qmd).
+- Seemayer S, Gruber M, Söding J (2014). CCMpred—fast and precise prediction of protein residue–residue contacts from correlated mutations. Bioinformatics 30:3128-3130. [doi:10.1093/bioinformatics/btu500](https://doi.org/10.1093/bioinformatics/btu500). PMID:25064567. *Cited in:* [Session 10](session10.qmd).
+- Senior AW, Evans R, Jumper J, et al. (2020). Improved protein structure prediction using potentials from deep learning. Nature 577:706-710. [doi:10.1038/s41586-019-1923-7](https://doi.org/10.1038/s41586-019-1923-7). PMID:31942072. *Cited in:* [Schedule](schedule.qmd), [Session 10](session10.qmd), [Session 12](session12.qmd).
+- Shaw DE, Maragakis P, Lindorff-Larsen K et al. (2010). Atomic-Level Characterization of the Structural Dynamics of Proteins. Science 330:341-346. [doi:10.1126/science.1187409](https://doi.org/10.1126/science.1187409). PMID:20947758. *Cited in:* [Session 12](session12.qmd).
+- Shrestha R, Fajardo E, Gil N et al. (2019). Assessing the accuracy of contact predictions in CASP13. Proteins 87:1058-1068. [doi:10.1002/prot.25819](https://doi.org/10.1002/prot.25819). PMID:31587357. *Cited in:* [Session 10](session10.qmd).
+- Simons KT, Kooperberg C, Huang E et al. (1997). Assembly of protein tertiary structures from fragments with similar local sequences using simulated annealing and bayesian scoring functions. J Mol Biol 268:209-225. [doi:10.1006/jmbi.1997.0959](https://doi.org/10.1006/jmbi.1997.0959). PMID:9149153. *Cited in:* [Session 12](session12.qmd).
+- Simonyan K, Zisserman A (2014). Very Deep Convolutional Networks for Large-Scale Image Recognition. arXiv:1409.1556 (ICLR 2015). [doi:10.48550/arXiv.1409.1556](https://doi.org/10.48550/arXiv.1409.1556). *Cited in:* [Session 10](session10.qmd).
+- Skwark MJ, Raimondi D, Michel M et al. (2014). Improved Contact Predictions Using the Recognition of Protein Like Contact Patterns. PLoS Comput Biol 10:e1003889. [doi:10.1371/journal.pcbi.1003889](https://doi.org/10.1371/journal.pcbi.1003889). PMID:25375897. *Cited in:* [Session 12](session12.qmd).
+- Smith TF, Waterman MS (1981). Identification of common molecular subsequences. J Mol Biol 147(1):195-197. [doi:10.1016/0022-2836(81)90087-5](https://doi.org/10.1016/0022-2836(81)90087-5). PMID 7265238. *Cited in:* [Session 4](session04.qmd).
+- Sohl-Dickstein J, Weiss EA, Maheswaranathan N et al. (2015). Deep Unsupervised Learning using Nonequilibrium Thermodynamics. arXiv:1503.03585 (ICML 2015, PMLR 37:2256-2265). [doi:10.48550/arXiv.1503.03585](https://doi.org/10.48550/arXiv.1503.03585). *Cited in:* [Session 12](session12.qmd).
+- Steinegger M, Söding J (2017). MMseqs2 enables sensitive protein sequence searching for the analysis of massive data sets. Nat Biotechnol 35:1026-1028. [doi:10.1038/nbt.3988](https://doi.org/10.1038/nbt.3988). PMID:29035372. *Cited in:* [Schedule](schedule.qmd), [Setup](setup.qmd), [Session 8](session08.qmd), [Session 11](session11.qmd), [Session 12](session12.qmd).
+- Sutskever I, Vinyals O, Le QV (2014). Sequence to Sequence Learning with Neural Networks. arXiv:1409.3215 (NIPS 27, 2014). [doi:10.48550/arXiv.1409.3215](https://doi.org/10.48550/arXiv.1409.3215). *Cited in:* [Session 11](session11.qmd).
+- Swaroop CH. A Byte of Python. Online book, CC BY-SA 4.0. <https://python.swaroopch.com/> *Cited in:* [Session 2](session02.qmd).
+- Szegedy C, Liu W, Jia Y et al. (2015). Going deeper with convolutions. Proc IEEE Conf Computer Vision and Pattern Recognition (CVPR) 2015, 1-9. [doi:10.1109/cvpr.2015.7298594](https://doi.org/10.1109/cvpr.2015.7298594). *Cited in:* [Session 10](session10.qmd).
+- Tadiello M, Ludaic M, Viliuga V et al. (2026). ABAG-Rank: improving model selection of AlphaFold antibody–antigen complexes by learning to rank. Bioinformatics 42:btag663. [doi:10.1093/bioinformatics/btag663](https://doi.org/10.1093/bioinformatics/btag663). PMID:42693924. *Cited in:* [Session 12](session12.qmd).
+- Teufel F, Almagro Armenteros JJ, Johansen AR et al. (2022). SignalP 6.0 predicts all five types of signal peptides using protein language models. Nat Biotechnol 40:1023-1025. [doi:10.1038/s41587-021-01156-3](https://doi.org/10.1038/s41587-021-01156-3). PMID:34980915. *Cited in:* [Session 11](session11.qmd).
+- Teufel F, Gíslason MH, Almagro Armenteros JJ et al. (2023). GraphPart: homology partitioning for biological sequence analysis. NAR Genom Bioinform 5:lqad088. [doi:10.1093/nargab/lqad088](https://doi.org/10.1093/nargab/lqad088). PMID:37850036. *Cited in:* [Session 11](session11.qmd).
+- Tunyasuvunakool K, Adler J, Wu Z et al. (2021). Highly accurate protein structure prediction for the human proteome. Nature 596:590-596. [doi:10.1038/s41586-021-03828-1](https://doi.org/10.1038/s41586-021-03828-1). PMID:34293799. *Cited in:* [Session 12](session12.qmd).
+- Vakser IA (1995). Protein docking for low-resolution structures. Protein Eng 8:371-378. [doi:10.1093/protein/8.4.371](https://doi.org/10.1093/protein/8.4.371). PMID:7567922. *Cited in:* [Session 12](session12.qmd).
+- van Kempen M, Kim SS, Tumescheit C, et al. (2024). Fast and accurate protein structure search with Foldseek. Nat Biotechnol 42:243-246. [doi:10.1038/s41587-023-01773-0](https://doi.org/10.1038/s41587-023-01773-0). PMID:37156916. *Cited in:* [Session 7](session07.qmd).
+- Vaswani A, Shazeer N, Parmar N et al. (2017). Attention Is All You Need. arXiv:1706.03762 (NIPS 30, 2017). [doi:10.48550/arXiv.1706.03762](https://doi.org/10.48550/arXiv.1706.03762). *Cited in:* [Session 11](session11.qmd).
+- Wang S, Peng J, Ma J et al. (2016). Protein Secondary Structure Prediction Using Deep Convolutional Neural Fields. Sci Rep 6:18962. [doi:10.1038/srep18962](https://doi.org/10.1038/srep18962). PMID:26752681. *Cited in:* [Session 10](session10.qmd).
+- Wang S, Sun S, Li Z et al. (2017). Accurate De Novo Prediction of Protein Contact Map by Ultra-Deep Learning Model. PLoS Comput Biol 13:e1005324. [doi:10.1371/journal.pcbi.1005324](https://doi.org/10.1371/journal.pcbi.1005324). PMID:28056090. *Cited in:* [Session 10](session10.qmd), [Session 12](session12.qmd).
+- Watson JL, Juergens D, Bennett NR, et al. (2023). De novo design of protein structure and function with RFdiffusion. Nature 620:1089-1100. [doi:10.1038/s41586-023-06415-8](https://doi.org/10.1038/s41586-023-06415-8). PMID:37433327. *Cited in:* [Schedule](schedule.qmd), [Session 12](session12.qmd).
+- Weigt M, White RA, Szurmant H et al. (2009). Identification of direct residue contacts in protein–protein interaction by message passing. Proc Natl Acad Sci USA 106:67-72. [doi:10.1073/pnas.0805923106](https://doi.org/10.1073/pnas.0805923106). PMID:19116270. *Cited in:* [Session 12](session12.qmd).
+- Yang J, Anishchenko I, Park H et al. (2020). Improved protein structure prediction using predicted interresidue orientations. Proc Natl Acad Sci USA 117:1496-1503. [doi:10.1073/pnas.1914677117](https://doi.org/10.1073/pnas.1914677117). PMID:31896580. *Cited in:* [Session 12](session12.qmd).
+- Yang Y, Gao J, Wang J et al. (2018). Sixty-five years of the long march in protein secondary structure prediction: the final stretch?. Brief Bioinform 19:482-494. [doi:10.1093/bib/bbw129](https://doi.org/10.1093/bib/bbw129). PMID:28040746. *Cited in:* [Session 10](session10.qmd).
+- Zeiler MD, Fergus R (2014). Visualizing and Understanding Convolutional Networks. Computer Vision - ECCV 2014, Lecture Notes in Computer Science 8689:818-833. [doi:10.1007/978-3-319-10590-1_53](https://doi.org/10.1007/978-3-319-10590-1_53). *Cited in:* [Session 10](session10.qmd).
+- Zhang A, Lipton ZC, Li M, Smola AJ (2023). Dive into Deep Learning. Cambridge University Press (open version at <https://d2l.ai>; arXiv:2106.11342). *Cited in:* [Welcome](index.qmd), [Session 6](session06.qmd).
+- Zhang J, Yuan R, Kryshtafovych A et al. (2026). Assessment of protein complex predictions in CASP16: are we making progress?. Proteins 94:106-130. [doi:10.1002/prot.70068](https://doi.org/10.1002/prot.70068). PMID:41170922. *Cited in:* [Session 12](session12.qmd).
+- Zhang Y, Skolnick J (2005). TM-align: a protein structure alignment algorithm based on the TM-score. Nucleic Acids Res 33:2302-2309. [doi:10.1093/nar/gki524](https://doi.org/10.1093/nar/gki524). PMID:15849316. *Cited in:* [Session 7](session07.qmd).
+- Zhou J, Troyanskaya OG (2015). Predicting effects of noncoding variants with deep learning-based sequence model. Nat Methods 12:931-4. [doi:10.1038/nmeth.3547](https://doi.org/10.1038/nmeth.3547). PMID:26301843. *Cited in:* [Session 10](session10.qmd).
+- Zhu W, Shenoy A, Kundrotas P et al. (2023). Evaluation of AlphaFold-Multimer prediction on multi-chain protein complexes. Bioinformatics 39:btad424. [doi:10.1093/bioinformatics/btad424](https://doi.org/10.1093/bioinformatics/btad424). PMID:37405868. *Cited in:* [Session 12](session12.qmd).
+- Šali A, Blundell TL (1993). Comparative Protein Modelling by Satisfaction of Spatial Restraints. J Mol Biol 234:779-815. [doi:10.1006/jmbi.1993.1626](https://doi.org/10.1006/jmbi.1993.1626). PMID:8254673. *Cited in:* [Session 12](session12.qmd).
 
-[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
-Conceptual and algorithmic depth for the bioinformatics sessions, and
-occasional historical notes elsewhere. Never assigned as reading directly
-— synthesized into this book's own bounded pages instead (see the Welcome
-page for why).
+## Databases, datasets and software
 
-## EMBL-EBI Training
+- Abanades B, Wong WK, Boyles F et al. (2023). ImmuneBuilder: Deep-Learning models for predicting the structures of immune proteins. Commun Biol 6:575. [doi:10.1038/s42003-023-04927-7](https://doi.org/10.1038/s42003-023-04927-7). PMID:37248282. *Cited in:* [Session 12](session12.qmd).
+- AlphaFold Server (Google DeepMind / Isomorphic Labs). <https://alphafoldserver.com> *Cited in:* [Session 12](session12.qmd).
+- Becares et al. (2019) differential-expression table (S196A vs WT LXRα mouse liver, HFHC diet; Fig. 4C), as shared in the VolcaNoseR repository: Becares-diffgenes_HFHC.csv. <https://raw.githubusercontent.com/JoachimGoedhart/VolcaNoseR/master/Becares-diffgenes_HFHC.csv> *Cited in:* [Session 2](session02.qmd).
+- Biopython: freely available Python tools for computational molecular biology. <https://biopython.org/> *Cited in:* [Session 7](session07.qmd).
+- ByteDance AML AI4Science Team, Chen X, Zhang Y et al. (2025). Protenix - Advancing Structure Prediction Through a Comprehensive AlphaFold3 Reproduction. bioRxiv, 2025.01.08.631967. [doi:10.1101/2025.01.08.631967](https://doi.org/10.1101/2025.01.08.631967). *Cited in:* [Session 12](session12.qmd).
+- California housing data set. Source: Pace RK, Barry R (1997). Sparse spatial autoregressions. Stat Probab Lett 33:291-297. [doi:10.1016/S0167-7152(96)00140-X](https://doi.org/10.1016/S0167-7152(96)00140-X). *Cited in:* [Session 9](session09.qmd).
+- CATH protein structure classification database. <https://www.cathdb.info/> *Cited in:* [Session 7](session07.qmd).
+- Chai Discovery, Boitreaud J, Dent J et al. (2024). Chai-1: Decoding the molecular interactions of life. bioRxiv, 2024.10.10.615955. [doi:10.1101/2024.10.10.615955](https://doi.org/10.1101/2024.10.10.615955). *Cited in:* [Session 12](session12.qmd).
+- Cock PJA, Antao T, Chang JT, et al. (2009). Biopython: freely available Python tools for computational molecular biology and bioinformatics. Bioinformatics 25(11):1422-1423. [doi:10.1093/bioinformatics/btp163](https://doi.org/10.1093/bioinformatics/btp163). PMID:19304878. *Cited in:* [Session 2](session02.qmd), [Session 4](session04.qmd).
+- Complex Portal CPX-2158, Hemoglobin HbA complex. <https://www.ebi.ac.uk/complexportal/complex/CPX-2158> *Cited in:* [Session 3](session03.qmd).
+- contact-ajmal. OpenDDE (open drug-design engine), GitHub repository, MIT licence (2026). <https://github.com/contact-ajmal/opendde> *Cited in:* [Session 12](session12.qmd).
+- DTU Health Tech. SignalP 6.0 web server. <https://services.healthtech.dtu.dk/services/SignalP-6.0/> *Cited in:* [Session 11](session11.qmd).
+- ECOD: Evolutionary Classification of protein Domains database. <http://prodata.swmed.edu/ecod/> *Cited in:* [Session 7](session07.qmd).
+- Eddy SR (2011). Accelerated profile HMM searches. PLoS Computational Biology 7(10):e1002195. [doi:10.1371/journal.pcbi.1002195](https://doi.org/10.1371/journal.pcbi.1002195). PMID:22039361. *Cited in:* [Setup](setup.qmd).
+- Edgar RC (2004). MUSCLE: multiple sequence alignment with high accuracy and high throughput. Nucleic Acids Res 32(5):1792-1797. [doi:10.1093/nar/gkh340](https://doi.org/10.1093/nar/gkh340). PMID 15034147. *Cited in:* [Session 4](session04.qmd).
+- EMBL-EBI. AlphaFold DB. <https://alphafold.ebi.ac.uk/> *Cited in:* [Session 3](session03.qmd), [Session 7](session07.qmd).
+- EMBL-EBI. BioModels. <https://www.ebi.ac.uk/biomodels/> *Cited in:* [Session 3](session03.qmd).
+- EMBL-EBI. Complex Portal. <https://www.ebi.ac.uk/complexportal/> *Cited in:* [Session 3](session03.qmd).
+- EMBL-EBI. EVA. <https://www.ebi.ac.uk/eva/> *Cited in:* [Session 3](session03.qmd).
+- EMBL-EBI. GWAS Catalog. <https://www.ebi.ac.uk/gwas/> *Cited in:* [Session 3](session03.qmd).
+- EMBL-EBI. IntAct. <https://www.ebi.ac.uk/intact/> *Cited in:* [Session 3](session03.qmd).
+- EMBL-EBI. InterPro. <https://www.ebi.ac.uk/interpro/> *Cited in:* [Session 3](session03.qmd), [Session 5](session05.qmd).
+- EMBL-EBI. PDBe. <https://www.ebi.ac.uk/pdbe/> *Cited in:* [Session 3](session03.qmd).
+- EMBL-EBI. PRIDE. <https://www.ebi.ac.uk/pride/> *Cited in:* [Session 3](session03.qmd).
+- ENCODE Project Consortium (2012). An integrated encyclopedia of DNA elements in the human genome. Nature 489:57-74. [doi:10.1038/nature11247](https://doi.org/10.1038/nature11247). PMID:22955616. *Cited in:* [Session 10](session10.qmd).
+- ESM Metagenomic Atlas / ESM Atlas API (Meta AI; ESMFold predictions). <https://esmatlas.com/> *Cited in:* [Session 12](session12.qmd).
+- Fermi G, Perutz MF, Shaanan B, Fourme R (1984). PDB entry 2HHB: The crystal structure of human deoxyhaemoglobin at 1.74 A resolution. RCSB Protein Data Bank. <https://www.rcsb.org/structure/2HHB> *Cited in:* [Session 7](session07.qmd).
+- Foldseek software (Steinegger lab), GitHub repository and web server. <https://github.com/steineggerlab/foldseek> *Cited in:* [Session 7](session07.qmd).
+- Foldseek web server. <https://search.foldseek.com/search> *Cited in:* [Session 7](session07.qmd).
+- FunCoup. funcoup.org. <https://funcoup.org/> *Cited in:* [Session 3](session03.qmd).
+- GenBank (NCBI nucleotide sequence database). <https://www.ncbi.nlm.nih.gov/genbank/> *Cited in:* [Session 5](session05.qmd).
+- Google Colaboratory (Colab). Google. <https://colab.research.google.com/> *Cited in:* [Course information](course-info.qmd), [Session 0](session00.qmd).
+- Harris CR, Millman KJ, van der Walt SJ, et al. (2020). Array programming with NumPy. Nature 585:357-362. [doi:10.1038/s41586-020-2649-2](https://doi.org/10.1038/s41586-020-2649-2). PMID:32939066. *Cited in:* [Session 2](session02.qmd).
+- Human reviewed UniProtKB/Swiss-Prot entries with a single annotated subcellular location (5 classes, 700 proteins), compiled for this course. UniProt Consortium, CC BY 4.0. <https://www.uniprot.org/> *Cited in:* [Session 8](session08.qmd), [Session 9](session09.qmd), [Session 10](session10.qmd), [Session 11](session11.qmd).
+- Hunter JD (2007). Matplotlib: a 2D graphics environment. Computing in Science & Engineering 9(3):90-95. [doi:10.1109/MCSE.2007.55](https://doi.org/10.1109/MCSE.2007.55). *Cited in:* [Session 2](session02.qmd).
+- JASPAR matrix MA0162.4 (EGR1, Homo sapiens, ChIP-seq, source ReMap), CC BY 4.0. Rauluseviciute I, Riudavets-Puig R, Blanc-Mathieu R, et al. (2024). JASPAR 2024: 20th anniversary of the open-access database of transcription factor binding profiles. Nucleic Acids Res 52(D1):D174-D182. [doi:10.1093/nar/gkad1059](https://doi.org/10.1093/nar/gkad1059). PMID 37962376. *Cited in:* [Session 6](session06.qmd).
+- Kabsch W, Sander C (1983). Dictionary of protein secondary structure: Pattern recognition of hydrogen‐bonded and geometrical features. Biopolymers 22:2577-2637. [doi:10.1002/bip.360221211](https://doi.org/10.1002/bip.360221211). PMID:6667333. *Cited in:* [Capstone](capstone.qmd).
+- KB8029 secondary-structure dataset: 1,200 protein domains (FASTA, DSSP labels, PSSM CSV), dataset.zip (~3 MB), Google Drive. <https://drive.google.com/drive/folders/1gnxfXXYysCk4L4FYztzeejPVXJaMnxQw?usp=sharing> *Cited in:* [Capstone](capstone.qmd).
+- Krivák R, Hoksza D (2018). P2Rank: machine learning based tool for rapid and accurate prediction of ligand binding sites from protein structure. J Cheminform 10:39. [doi:10.1186/s13321-018-0285-8](https://doi.org/10.1186/s13321-018-0285-8). PMID:30109435. *Cited in:* [Session 12](session12.qmd).
+- Käll L. bibook: Bioinformatics book (GitHub repository, statisticalbiotechnology/bibook), CC BY 4.0. <https://github.com/statisticalbiotechnology/bibook> *Cited in:* [Session 4](session04.qmd).
+- Li W, Godzik A (2006). Cd-hit: a fast program for clustering and comparing large sets of protein or nucleotide sequences. Bioinformatics 22:1658-1659. [doi:10.1093/bioinformatics/btl158](https://doi.org/10.1093/bioinformatics/btl158). PMID:16731699. *Cited in:* [Session 11](session11.qmd).
+- Love MI, Huber W, Anders S (2014). Moderated estimation of fold change and dispersion for RNA-seq data with DESeq2. Genome Biology 15:550. [doi:10.1186/s13059-014-0550-8](https://doi.org/10.1186/s13059-014-0550-8). PMID:25516281. *Cited in:* [Session 2](session02.qmd).
+- Manim: Mathematical Animation Engine (Grant Sanderson / 3Blue1Brown; community edition by the Manim Community). <https://www.manim.community/> *Cited in:* [Session 2](session02.qmd).
+- McKinney W (2010). Data structures for statistical computing in Python. Proceedings of the 9th Python in Science Conference (SciPy 2010), 56-61. [doi:10.25080/Majora-92bf1922-00a](https://doi.org/10.25080/Majora-92bf1922-00a). *Cited in:* [Session 2](session02.qmd).
+- Meta AI / FAIR. fair-esm: Evolutionary Scale Modeling (ESM) pretrained protein language models (Python package). <https://github.com/facebookresearch/esm> *Cited in:* [Session 11](session11.qmd).
+- MMseqs2 software, GitHub repository (Söding/Steinegger labs). <https://github.com/soedinglab/MMseqs2> *Cited in:* [Session 8](session08.qmd).
+- MNIST database of handwritten digits (LeCun Y, Cortes C, Burges CJC). LeCun Y, Bottou L, Bengio Y, Haffner P (1998). Gradient-based learning applied to document recognition. Proc IEEE 86:2278-2324. [doi:10.1109/5.726791](https://doi.org/10.1109/5.726791). *Cited in:* [Session 8](session08.qmd), [Session 9](session09.qmd).
+- NCBI RefSeq NM_000518.5, Homo sapiens hemoglobin subunit beta (HBB), mRNA. <https://www.ncbi.nlm.nih.gov/nuccore/NM_000518.5> *Cited in:* [Session 3](session03.qmd).
+- NCBI. ClinVar. <https://www.ncbi.nlm.nih.gov/clinvar/> *Cited in:* [Session 3](session03.qmd).
+- NCI. GDC Data Portal. <https://portal.gdc.cancer.gov/> *Cited in:* [Session 3](session03.qmd).
+- Nilsback ME, Zisserman A (2008). Automated Flower Classification over a Large Number of Classes. Proc. 6th Indian Conference on Computer Vision, Graphics & Image Processing (ICVGIP), 722-729. [doi:10.1109/icvgip.2008.47](https://doi.org/10.1109/icvgip.2008.47). *Cited in:* [Session 10](session10.qmd).
+- Notredame C, Higgins DG, Heringa J (2000). T-Coffee: a novel method for fast and accurate multiple sequence alignment. J Mol Biol 302(1):205-217. [doi:10.1006/jmbi.2000.4042](https://doi.org/10.1006/jmbi.2000.4042). PMID 10964570. *Cited in:* [Session 4](session04.qmd).
+- OpenFold Consortium. OpenFold3 (preview release). <https://github.com/aqlaboratory/openfold-3> *Cited in:* [Session 12](session12.qmd).
+- Ormo M, Cubitt AB, Kallio K, et al. (1996). PDB entry 1EMA: Green fluorescent protein from Aequorea victoria. RCSB Protein Data Bank. <https://www.rcsb.org/structure/1EMA> *Cited in:* [Session 7](session07.qmd).
+- Passaro S, Corso G, Wohlwend J et al. (2025). Boltz-2: Towards Accurate and Efficient Binding Affinity Prediction. bioRxiv, 2025.06.14.659707. [doi:10.1101/2025.06.14.659707](https://doi.org/10.1101/2025.06.14.659707). PMID:40667369. *Cited in:* [Session 12](session12.qmd).
+- Paszke A, Gross S, Massa F, et al. (2019). PyTorch: an imperative style, high-performance deep learning library. Advances in Neural Information Processing Systems 32 (NeurIPS 2019); arXiv:1912.01703. <https://arxiv.org/abs/1912.01703> *Cited in:* [Session 2](session02.qmd), [Session 6](session06.qmd).
+- PDB entry 1OJ6: human neuroglobin. RCSB Protein Data Bank. <https://www.rcsb.org/structure/1OJ6> *Cited in:* [Session 7](session07.qmd).
+- PDB entry 1SHW (Ephrin-A5 / EphB2 complex). <https://www.rcsb.org/structure/1SHW> *Cited in:* [Session 12](session12.qmd).
+- PDB entry 1VL6: Crystal structure of NAD-dependent malic enzyme (TM0542) from Thermotoga maritima at 2.61 A resolution (JCSG, released 2004; unpublished). <https://www.rcsb.org/structure/1VL6> *Cited in:* [Session 6](session06.qmd).
+- PDB entry 2HHB: Fermi G, Perutz MF, Shaanan B, Fourme R (1984). The crystal structure of human deoxyhaemoglobin at 1.74 A resolution. J Mol Biol 175(2):159-174. [doi:10.1016/0022-2836(84)90472-8](https://doi.org/10.1016/0022-2836(84)90472-8). PMID 6726807. *Cited in:* [Session 6](session06.qmd).
+- PDB entry 3CHY: Volz K, Matsumura P (1991). Crystal structure of Escherichia coli CheY refined at 1.7-Å resolution. J Biol Chem 266:15511-15519. <https://www.rcsb.org/structure/3CHY> *Cited in:* [Session 12](session12.qmd).
+- PDB entry 4HHB (human deoxyhaemoglobin): Fermi G, Perutz MF, Shaanan B, Fourme R (1984). J Mol Biol 175:159-174. [doi:10.1016/0022-2836(84)90472-8](https://doi.org/10.1016/0022-2836(84)90472-8). *Cited in:* [Session 12](session12.qmd).
+- PDB entry 4JB9: Crystal structure of antibody VRC06 in complex with HIV-1 gp120 core (2013; primary citation: Delineating antibody recognition in polyclonal sera from patterns of HIV-1 isolate neutralization, Science 2013). <https://www.rcsb.org/structure/4JB9> *Cited in:* [Session 6](session06.qmd).
+- PDB entry 7LXM: HIV-1 envelope glycoprotein trimer in complex with antibody. RCSB Protein Data Bank. <https://www.rcsb.org/structure/7LXM> *Cited in:* [Session 7](session07.qmd).
+- PDB entry 8C6Z. RCSB Protein Data Bank. <https://www.rcsb.org/structure/8C6Z> *Cited in:* [Session 7](session07.qmd).
+- PDBe REST API (Protein Data Bank in Europe, EMBL-EBI). <https://www.ebi.ac.uk/pdbe/api/doc/> *Cited in:* [Session 6](session06.qmd), [Session 8](session08.qmd).
+- Pedregosa F, et al. scikit-learn: real-world datasets loaders (fetch_california_housing, load_breast_cancer). <https://scikit-learn.org/stable/datasets/real_world.html> *Cited in:* [Session 9](session09.qmd).
+- Pedregosa F, Varoquaux G, Gramfort A, et al. (2011). Scikit-learn: machine learning in Python. Journal of Machine Learning Research 12:2825-2830. <https://jmlr.org/papers/v12/pedregosa11a.html> *Cited in:* [Session 2](session02.qmd), [Session 6](session06.qmd).
+- Pfam family PF00042 (Globin), accessed via InterPro. Pfam: Mistry J, Chuguransky S, Williams L, et al. (2021). Pfam: the protein families database in 2021. Nucleic Acids Res 49(D1):D412-D419. [doi:10.1093/nar/gkaa913](https://doi.org/10.1093/nar/gkaa913). PMID 33125078. *Cited in:* [Session 4](session04.qmd), [Session 5](session05.qmd).
+- Protein Data Bank entry 2HHB (human deoxyhaemoglobin). <https://www.rcsb.org/structure/2HHB> *Cited in:* [Session 3](session03.qmd).
+- PyMOL Molecular Graphics System. Schrödinger, LLC. <https://pymol.org/> *Cited in:* [Course information](course-info.qmd), [Setup](setup.qmd), [Session 0](session00.qmd), [Session 6](session06.qmd), [Session 7](session07.qmd).
+- PyTorch deep-learning framework. <https://pytorch.org/> *Cited in:* [Session 8](session08.qmd), [Session 9](session09.qmd).
+- Rauluseviciute I, Riudavets-Puig R, Blanc-Mathieu R et al. (2024). JASPAR 2024: 20th anniversary of the open-access database of transcription factor binding profiles. Nucleic Acids Res 52:D174-D182. [doi:10.1093/nar/gkad1059](https://doi.org/10.1093/nar/gkad1059). PMID:37962376. *Cited in:* [Session 10](session10.qmd).
+- RCSB PDB. Data API (GraphQL). <https://data.rcsb.org/graphql/index.html> *Cited in:* [Session 3](session03.qmd).
+- RCSB PDB. Search API. <https://search.rcsb.org/> *Cited in:* [Session 3](session03.qmd).
+- RCSB Protein Data Bank. <https://www.rcsb.org/> *Cited in:* [Session 12](session12.qmd).
+- RCSB Protein Data Bank. Berman HM, Westbrook J, Feng Z, et al. (2000). The Protein Data Bank. Nucleic Acids Res 28(1):235-242. [doi:10.1093/nar/28.1.235](https://doi.org/10.1093/nar/28.1.235). PMID 10592235. *Cited in:* [Session 5](session05.qmd).
+- RDKit: Open-source cheminformatics. <https://www.rdkit.org/> *Cited in:* [Session 12](session12.qmd).
+- Reactome. Reactome. <https://reactome.org/> *Cited in:* [Session 3](session03.qmd).
+- Rfam. RF00005 (tRNA). <https://rfam.org/family/RF00005> *Cited in:* [Session 3](session03.qmd).
+- Roadmap Epigenomics Consortium, Kundaje A, Meuleman W et al. (2015). Integrative analysis of 111 reference human epigenomes. Nature 518:317-330. [doi:10.1038/nature14248](https://doi.org/10.1038/nature14248). PMID:25693563. *Cited in:* [Session 10](session10.qmd).
+- Rosetta Commons. Rosetta software suite. <https://rosettacommons.org/> *Cited in:* [Session 7](session07.qmd).
+- SCOP database, hosted at EMBL-EBI PDBe. <https://www.ebi.ac.uk/pdbe/scop/> *Cited in:* [Session 7](session07.qmd).
+- Shaanan B (1983). PDB entry 1HHO: Structure of human oxyhaemoglobin at 2.1 A resolution. RCSB Protein Data Bank. <https://www.rcsb.org/structure/1HHO> *Cited in:* [Session 7](session07.qmd).
+- STRING. string-db.org. <https://string-db.org/> *Cited in:* [Session 3](session03.qmd).
+- Tareen A, Kinney JB (2020). Logomaker: beautiful sequence logos in Python. Bioinformatics 36(7):2272-2274. [doi:10.1093/bioinformatics/btz921](https://doi.org/10.1093/bioinformatics/btz921). PMID 31821414. *Cited in:* [Session 4](session04.qmd).
+- TED: The Encyclopedia of Domains database. <https://ted.cathdb.info/> *Cited in:* [Session 7](session07.qmd).
+- Thompson JD, Higgins DG, Gibson TJ (1994). CLUSTAL W: improving the sensitivity of progressive multiple sequence alignment through sequence weighting, position-specific gap penalties and weight matrix choice. Nucleic Acids Res 22(22):4673-4680. [doi:10.1093/nar/22.22.4673](https://doi.org/10.1093/nar/22.22.4673). PMID 7984417. *Cited in:* [Session 4](session04.qmd), [Session 5](session05.qmd).
+- TorchVision maintainers and contributors. torchvision: PyTorch computer-vision library (ImageNet-pretrained ResNet-18 weights, Flowers102 loader). <https://pytorch.org/vision/> *Cited in:* [Session 10](session10.qmd).
+- UniProt entry P04637 (human p53) and its AlphaFold DB model. <https://alphafold.ebi.ac.uk/entry/P04637> *Cited in:* [Session 12](session12.qmd).
+- UniProtKB entry P68871 (HBB_HUMAN). <https://www.uniprot.org/uniprotkb/P68871/entry> *Cited in:* [Session 3](session03.qmd), [Session 5](session05.qmd).
+- Varadi M, Bertoni D, Magana P et al. (2024). AlphaFold Protein Structure Database in 2024: providing structure coverage for over 214 million protein sequences. Nucleic Acids Res 52:D368-D375. [doi:10.1093/nar/gkad1011](https://doi.org/10.1093/nar/gkad1011). PMID:37933859. *Cited in:* [Session 12](session12.qmd).
+- Virtanen P, Gommers R, Oliphant TE, et al. (2020). SciPy 1.0: fundamental algorithms for scientific computing in Python. Nature Methods 17:261-272. [doi:10.1038/s41592-019-0686-2](https://doi.org/10.1038/s41592-019-0686-2). PMID:32015543. *Cited in:* [Session 2](session02.qmd).
+- Visual Studio Code, with the Remote - SSH extension. Microsoft. <https://code.visualstudio.com/> *Cited in:* [Course information](course-info.qmd), [Setup](setup.qmd).
+- VolcaNoseR web app (Goedhart & Luijsterburg). <https://huygens.science.uva.nl/VolcaNoseR/> *Cited in:* [Session 2](session02.qmd).
+- Waskom ML (2021). seaborn: statistical data visualization. Journal of Open Source Software 6(60):3021. [doi:10.21105/joss.03021](https://doi.org/10.21105/joss.03021). *Cited in:* [Session 2](session02.qmd).
+- Wellcome Sanger Institute. COSMIC. <https://cancer.sanger.ac.uk/cosmic> *Cited in:* [Session 3](session03.qmd).
+- Wohlwend J, Corso G, Passaro S et al. (2024). Boltz-1 Democratizing Biomolecular Interaction Modeling. bioRxiv, 2024.11.19.624167. [doi:10.1101/2024.11.19.624167](https://doi.org/10.1101/2024.11.19.624167). PMID:39605745. *Cited in:* [Session 12](session12.qmd).
+- Wolberg WH, Mangasarian OL, Street N, Street W (1995). Breast Cancer Wisconsin (Diagnostic) [dataset]. UCI Machine Learning Repository (CC BY 4.0). [doi:10.24432/C5DW2B](https://doi.org/10.24432/C5DW2B). *Cited in:* [Session 9](session09.qmd).
+- Zdrazil B, Felix E, Hunter F et al. (2024). The ChEMBL Database in 2023: a drug discovery platform spanning multiple bioactivity data types and time periods. Nucleic Acids Res 52:D1180-D1192. [doi:10.1093/nar/gkad1004](https://doi.org/10.1093/nar/gkad1004). PMID:37933841. *Cited in:* [Session 12](session12.qmd).
+- Škrinjar P, Eberhardt J, Tauriello G et al. (2025). Have protein-ligand cofolding methods moved beyond memorisation?. bioRxiv, 2025.02.03.636309. [doi:10.1101/2025.02.03.636309](https://doi.org/10.1101/2025.02.03.636309). *Cited in:* [Session 12](session12.qmd).
 
-<https://www.ebi.ac.uk/training/>
+## Further reading and watching, by session
 
-[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). The practical,
-tool-use layer for databases and sequence alignment.
+Wikipedia articles, textbook chapters, tutorials and videos suggested on each page.
 
-## bibook
+### Welcome
 
-Käll, L. *bibook*. <https://github.com/statisticalbiotechnology/bibook>
+- EMBL-EBI Training. EMBL-EBI Training. <https://www.ebi.ac.uk/training/>
+- Käll L. bibook. <https://github.com/statisticalbiotechnology/bibook>
+- NCBI. NCBI Bookshelf. <https://www.ncbi.nlm.nih.gov/books/>
+- RCSB PDB. RCSB PDB-101. <https://pdb101.rcsb.org/>
+- Swaroop CH. A Byte of Python. <https://python.swaroopch.com/>
+- Wikipedia. Wikipedia. <https://en.wikipedia.org>
 
-[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Source for
-notebook code implementing classical bioinformatics algorithms (pairwise
-alignment, MSA, and more) — adapted with attribution, not copied wholesale.
+### Setup
 
-## NCBI Bookshelf
+- Google Developers Blog (2025). Google Colab is coming to VS Code. <https://developers.googleblog.com/google-colab-is-coming-to-vs-code/>
+- Microsoft, VS Code documentation. Remote development tips and tricks. <https://code.visualstudio.com/docs/remote/troubleshooting>
+- Microsoft, VS Code documentation. Remote development using SSH. <https://code.visualstudio.com/docs/remote/ssh>
+- Microsoft. Get started with OpenSSH for Windows. <https://learn.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse>
 
-<https://www.ncbi.nlm.nih.gov/books/>
+### Session 1
 
-Public domain (US government work). Used for the BLAST algorithm and
-database practicalities, including the BLAST® Help manual.
+- Wikipedia. Bayes' theorem. <https://en.wikipedia.org/wiki/Bayes%27_theorem>
+- Wikipedia. Chain rule. <https://en.wikipedia.org/wiki/Chain_rule>
+- Wikipedia. Conditional probability. <https://en.wikipedia.org/wiki/Conditional_probability>
+- Wikipedia. Cross product. <https://en.wikipedia.org/wiki/Cross_product>
+- Wikipedia. Dot product. <https://en.wikipedia.org/wiki/Dot_product>
+- Wikipedia. Eigenvalues and eigenvectors. <https://en.wikipedia.org/wiki/Eigenvalues_and_eigenvectors>
+- Wikipedia. Exponential function. <https://en.wikipedia.org/wiki/Exponential_function>
+- Wikipedia. False discovery rate. <https://en.wikipedia.org/wiki/False_discovery_rate>
+- Wikipedia. Gradient. <https://en.wikipedia.org/wiki/Gradient>
+- Wikipedia. Integral. <https://en.wikipedia.org/wiki/Integral>
+- Wikipedia. Likelihood function. <https://en.wikipedia.org/wiki/Likelihood_function>
+- Wikipedia. Log probability. <https://en.wikipedia.org/wiki/Log_probability>
+- Wikipedia. Logarithm. <https://en.wikipedia.org/wiki/Logarithm>
+- Wikipedia. Matrix multiplication. <https://en.wikipedia.org/wiki/Matrix_multiplication>
+- Wikipedia. Matrix norm. <https://en.wikipedia.org/wiki/Matrix_norm>
+- Wikipedia. Multiple comparisons problem. <https://en.wikipedia.org/wiki/Multiple_comparisons_problem>
+- Wikipedia. Norm (mathematics). <https://en.wikipedia.org/wiki/Norm_(mathematics>) <https://en.wikipedia.org/wiki/Norm_(mathematics)>
+- Wikipedia. Normal distribution. <https://en.wikipedia.org/wiki/Normal_distribution>
+- Wikipedia. P-value. <https://en.wikipedia.org/wiki/P-value>
+- Wikipedia. Pearson correlation coefficient. <https://en.wikipedia.org/wiki/Pearson_correlation_coefficient>
+- Wikipedia. Principal component analysis. <https://en.wikipedia.org/wiki/Principal_component_analysis>
+- Wikipedia. Sigmoid function. <https://en.wikipedia.org/wiki/Sigmoid_function>
+- Wikipedia. Spearman's rank correlation coefficient. <https://en.wikipedia.org/wiki/Spearman%27s_rank_correlation_coefficient>
+- Wikipedia. Standard deviation. <https://en.wikipedia.org/wiki/Standard_deviation>
+- Wikipedia. Student's t-test. <https://en.wikipedia.org/wiki/Student%27s_t-test>
+- Wikipedia. Tensor. <https://en.wikipedia.org/wiki/Tensor>
+- Wikipedia. Transpose. <https://en.wikipedia.org/wiki/Transpose>
+- Wikipedia. Unit vector. <https://en.wikipedia.org/wiki/Unit_vector>
+- Wikipedia. Variance. <https://en.wikipedia.org/wiki/Variance>
+- Wikipedia. Volcano plot (statistics). <https://en.wikipedia.org/wiki/Volcano_plot_(statistics>) <https://en.wikipedia.org/wiki/Volcano_plot_(statistics)>
+- Wikipedia. Welch's t-test. <https://en.wikipedia.org/wiki/Welch%27s_t-test>
+- Zhang, Lipton, Li & Smola, Dive into Deep Learning (d2l.ai). Calculus. <https://d2l.ai/chapter_preliminaries/calculus.html>
+- Zhang, Lipton, Li & Smola, Dive into Deep Learning (d2l.ai). Linear Algebra. <https://d2l.ai/chapter_preliminaries/linear-algebra.html>
+- Zhang, Lipton, Li & Smola, Dive into Deep Learning (d2l.ai). Preliminaries. <https://d2l.ai/chapter_preliminaries/index.html>
+- Zhang, Lipton, Li & Smola, Dive into Deep Learning (d2l.ai). Probability and Statistics. <https://d2l.ai/chapter_preliminaries/probability.html>
+- Video: 3Blue1Brown, Essence of Calculus, ch. 2. The paradox of the derivative [video]. YouTube. <https://www.youtube.com/watch?v=9vKqVkMQHKk>
+- Video: 3Blue1Brown, Essence of Calculus, ch. 3. Derivative formulas through geometry [video]. YouTube. <https://www.youtube.com/watch?v=S0_qX4VJhMQ>
+- Video: 3Blue1Brown, Essence of Calculus, ch. 4. Visualizing the chain rule and product rule [video]. YouTube. <https://www.youtube.com/watch?v=YG15m2VwSjA>
+- Video: 3Blue1Brown, Essence of Calculus, ch. 8. Integration and the fundamental theorem of calculus [video]. YouTube. <https://www.youtube.com/watch?v=rfG8ce4nNh0>
+- Video: 3Blue1Brown, Essence of Calculus, ch. 9. What does area have to do with slope? [video]. YouTube. <https://www.youtube.com/watch?v=FnJqaIESC2s>
+- Video: 3Blue1Brown, Essence of Linear Algebra, ch. 10. Cross products [video]. YouTube. <https://www.youtube.com/watch?v=eu6i7WJeinw>
+- Video: 3Blue1Brown, Essence of Linear Algebra, ch. 14. Eigenvectors and eigenvalues [video]. YouTube. <https://www.youtube.com/watch?v=PFDu9oVAE-g>
+- Video: 3Blue1Brown, Essence of Linear Algebra, ch. 9. Dot products and duality [video]. YouTube. <https://www.youtube.com/watch?v=LyGKycYT2v0>
+- Video: 3Blue1Brown. Bayes theorem, the geometry of changing beliefs [video]. YouTube. <https://www.youtube.com/watch?v=HZGCoVF3YvM>
+- Video: 3Blue1Brown. Binomial distributions [video]. YouTube. <https://www.youtube.com/watch?v=8idr1WZ1A7Q>
+- Video: 3Blue1Brown. But what is the Central Limit Theorem? [video]. YouTube. <https://www.youtube.com/watch?v=zeJD6dqJ5lo>
+- Video: 3Blue1Brown. Why "probability of 0" does not mean "impossible" [video]. YouTube. <https://www.youtube.com/watch?v=ZA4JkHKZM50>
+- Video: Despicable Me (2010). Film, dir. P. Coffin & C. Renaud. Illumination Entertainment / Universal Pictures. <https://en.wikipedia.org/wiki/Despicable_Me>
+- Video: StatQuest with Josh Starmer. False Discovery Rates, FDR, clearly explained [video]. YouTube. <https://www.youtube.com/watch?v=L3nlGfSyHV0>
+- Video: Steven Bradburn. What Is A P-Value? - Clearly Explained [video]. YouTube. <https://www.youtube.com/watch?v=ukcFrzt6cHk>
 
-## RCSB PDB-101
+### Session 2
 
-<https://pdb101.rcsb.org/>
+- Video: 3Blue1Brown. How I animate 3Blue1Brown | A Manim demo with Ben Sparks [video]. YouTube. <https://www.youtube.com/watch?v=rbu7Zu5X1zI>
+- Video: Sycamore. Animate Like 3Blue1Brown - No Coding Required (Manim Animation Using A.I.) [video]. YouTube. <https://www.youtube.com/watch?v=InHuoGkOb2s>
 
-[CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) — the PDB-101
-educational/training tier specifically; general rcsb.org article text is
-separately copyrighted and is not used here.
+### Session 3
 
-## A Byte of Python
+- EMBL-EBI Training. The UniProt databases. <https://www.ebi.ac.uk/training/online/courses/uniprot-quick-tour/the-uniprot-databases/>
+- EMBL-EBI Training. What is ENA?. <https://www.ebi.ac.uk/training/online/courses/ena-quick-tour/what-is-ena/>
+- NCBI. About RefSeq. <https://www.ncbi.nlm.nih.gov/refseq/about/>
+- NCBI. GenBank overview. <https://www.ncbi.nlm.nih.gov/genbank/>
+- NCBI. RefSeq FAQ. <https://www.ncbi.nlm.nih.gov/books/NBK50679/>
+- Wikipedia. Accession number (bioinformatics). <https://en.wikipedia.org/wiki/Accession_number_(bioinformatics>) <https://en.wikipedia.org/wiki/Accession_number_(bioinformatics)>
+- Wikipedia. Biological database. <https://en.wikipedia.org/wiki/Biological_database>
+- Wikipedia. BioRxiv. <https://en.wikipedia.org/wiki/BioRxiv>
+- Wikipedia. Boolean search. <https://en.wikipedia.org/wiki/Boolean_search>
+- Wikipedia. Ensembl genome database project. <https://en.wikipedia.org/wiki/Ensembl_genome_database_project>
+- Wikipedia. GenBank. <https://en.wikipedia.org/wiki/GenBank>
+- Wikipedia. Genome browser. <https://en.wikipedia.org/wiki/Genome_browser>
+- Wikipedia. International Nucleotide Sequence Database Collaboration. <https://en.wikipedia.org/wiki/International_Nucleotide_Sequence_Database_Collaboration>
+- Wikipedia. MEDLINE. <https://en.wikipedia.org/wiki/MEDLINE>
+- Wikipedia. PubMed Central. <https://en.wikipedia.org/wiki/PubMed_Central>
+- Wikipedia. PubMed. <https://en.wikipedia.org/wiki/PubMed>
+- Wikipedia. RefSeq. <https://en.wikipedia.org/wiki/RefSeq>
+- Wikipedia. Sequence database. <https://en.wikipedia.org/wiki/Sequence_database>
+- Wikipedia. UCSC Genome Browser. <https://en.wikipedia.org/wiki/UCSC_Genome_Browser>
+- Wikipedia. UniProt. <https://en.wikipedia.org/wiki/UniProt>
+- Video: Johns Hopkins Welch Medical Library. PubMed Overview [video]. YouTube. <https://www.youtube.com/watch?v=1otz5qrUbxo>
+- Video: UniProt. Welcome to UniProt [video]. YouTube. <https://www.youtube.com/watch?v=OwOJmKmc7VM>
 
-Swaroop, C. H. *A Byte of Python*. <https://python.swaroopch.com/>
+### Session 4
 
-[CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), with
-commercial use explicitly permitted. Python fundamentals and its
-Object-Oriented Programming chapter.
+- Wikipedia contributors. "BLOSUM". Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/BLOSUM>
+- Wikipedia contributors. "Dot plot (bioinformatics)". Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Dot_plot_(bioinformatics)>
+- Wikipedia contributors. "Gap penalty". Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Gap_penalty>
+- Wikipedia contributors. "Kullback–Leibler divergence". Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence>
+- Wikipedia contributors. "Multiple sequence alignment". Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Multiple_sequence_alignment>
+- Wikipedia contributors. "Needleman–Wunsch algorithm". Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Needleman%E2%80%93Wunsch_algorithm>
+- Wikipedia contributors. "Point accepted mutation". Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Point_accepted_mutation>
+- Wikipedia contributors. "Sequence homology". Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Sequence_homology>
+- Wikipedia contributors. "Sequence logo". Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Sequence_logo>
+- Wikipedia contributors. "Smith–Waterman algorithm". Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Smith%E2%80%93Waterman_algorithm>
+- Wikipedia contributors. "Standard score". Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Standard_score>
+
+### Session 5
+
+- NCBI. BLAST Help (BLAST documentation, NCBI Bookshelf NBK1762). National Center for Biotechnology Information, Bethesda MD. <https://www.ncbi.nlm.nih.gov/books/NBK1762/>
+- Wikipedia contributors. "BLAST (biotechnology)". Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/BLAST_(biotechnology)>
+- Wikipedia contributors. "E-value". Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/E-value>
+- Wikipedia contributors. "Hidden Markov model". Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Hidden_Markov_model>
+- Wikipedia contributors. "InterPro". Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/InterPro>
+- Wikipedia contributors. "Pfam". Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Pfam>
+- Wikipedia contributors. "Position weight matrix". Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Position_weight_matrix>
+- Wikipedia contributors. "Pseudocount". Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Pseudocount>
+- Wikipedia contributors. "PSI-BLAST". Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/PSI-BLAST>
+- Video: Edwards R. BLAST 2: seed and extend [video]. San Diego State University, YouTube. <https://www.youtube.com/watch?v=kAAme1fBanc>
+- Video: Serrano L. A friendly introduction to Bayes Theorem and Hidden Markov Models [video]. YouTube. <https://www.youtube.com/watch?v=kqSzLo9fenk>
+
+### Session 6
+
+- Rosenblatt F (1958). The design of an intelligent automaton. Research Reviews, Office of Naval Research, October 1958, pp. 5-13. Figure via Wikimedia Commons (public domain). <https://commons.wikimedia.org/wiki/File:Organization_of_a_biological_brain_and_a_perceptron.png>
+- Wikipedia contributors. "AI winter". Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/AI_winter>
+- Wikipedia contributors. "Alpha helix". Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Alpha_helix>
+- Wikipedia contributors. "Backpropagation". Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Backpropagation>
+- Wikipedia contributors. "Beta sheet". Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Beta_sheet>
+- Wikipedia contributors. "Gradient descent". Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Gradient_descent>
+- Wikipedia contributors. "Linear separability". Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Linear_separability>
+- Wikipedia contributors. "Perceptron". Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Perceptron>
+- Wikipedia contributors. "Perceptrons (book)". Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Perceptrons_(book)>
+- Wikipedia contributors. "Protein secondary structure". Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Protein_secondary_structure>
+- Wikipedia contributors. "Protein structure prediction". Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Protein_structure_prediction>
+- Video: 3Blue1Brown (Sanderson G) (2017). But what is a neural network? Deep Learning, chapter 1 [video]. YouTube. <https://www.youtube.com/watch?v=aircAruvnKk>
+- Video: 3Blue1Brown (Sanderson G) (2017). Gradient descent, how neural networks learn. Deep Learning, chapter 2 [video]. YouTube. <https://www.youtube.com/watch?v=IHZwWFHWa-w>
+
+### Session 7
+
+- RCSB Protein Data Bank. PDB-101: educational portal (CC BY 4.0). <https://pdb101.rcsb.org/>
+- Wikipedia contributors. Alpha helix. Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Alpha_helix>
+- Wikipedia contributors. Anfinsen's dogma. Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Anfinsen%27s_dogma>
+- Wikipedia contributors. Beta sheet. Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Beta_sheet>
+- Wikipedia contributors. Homology modeling. Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Homology_modeling>
+- Wikipedia contributors. Protein structure. Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Protein_structure>
+- Wikipedia contributors. Root-mean-square deviation of atomic positions. Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Root-mean-square_deviation_of_atomic_positions>
+- Wikipedia contributors. Template modeling score. Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Template_modeling_score>
+- Wikipedia contributors. Threading (protein sequence). Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Threading_(protein_sequence)>
+
+### Session 8
+
+- UniProt Consortium. UniProt help: Subcellular location (CC BY 4.0). <https://www.uniprot.org/help/subcellular_location>
+- Wikipedia contributors. Activation function. Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Activation_function>
+- Wikipedia contributors. Batch effect. Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Batch_effect>
+- Wikipedia contributors. CASP. Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/CASP>
+- Wikipedia contributors. Chou-Fasman method. Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Chou%E2%80%93Fasman_method>
+- Wikipedia contributors. Coefficient of determination. Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Coefficient_of_determination>
+- Wikipedia contributors. Confusion matrix. Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Confusion_matrix>
+- Wikipedia contributors. Cross-validation (statistics). Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Cross-validation_(statistics)>
+- Wikipedia contributors. Hydrophilicity plot. Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Hydrophilicity_plot>
+- Wikipedia contributors. Leakage (machine learning). Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Leakage_(machine_learning)>
+- Wikipedia contributors. Logistic regression. Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Logistic_regression>
+- Wikipedia contributors. Matthews correlation coefficient (Phi coefficient). Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Phi_coefficient>
+- Wikipedia contributors. Neural network (machine learning). Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Neural_network_(machine_learning)>
+- Wikipedia contributors. Neuron. Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Neuron>
+- Wikipedia contributors. Precision and recall. Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Precision_and_recall>
+- Wikipedia contributors. Receiver operating characteristic. Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Receiver_operating_characteristic>
+- Wikipedia contributors. Regression analysis. Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Regression_analysis>
+- Wikipedia contributors. Softmax function. Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Softmax_function>
+- Wikipedia contributors. Statistical classification. Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Statistical_classification>
+- Wikipedia contributors. Supervised learning. Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Supervised_learning>
+- Wikipedia contributors. Training, validation, and test data sets. Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Training,_validation,_and_test_data_sets>
+- Zhang A, Lipton ZC, Li M, Smola AJ. Dive into Deep Learning, "Builders' Guide". d2l.ai (CC BY-SA 4.0). <https://d2l.ai/chapter_builders-guide/index.html>
+- Zhang A, Lipton ZC, Li M, Smola AJ. Dive into Deep Learning, "Generalization in Classification". d2l.ai (CC BY-SA 4.0). <https://d2l.ai/chapter_linear-classification/generalization-classification.html>
+- Zhang A, Lipton ZC, Li M, Smola AJ. Dive into Deep Learning, "Linear Regression". d2l.ai (CC BY-SA 4.0). <https://d2l.ai/chapter_linear-regression/linear-regression.html>
+- Zhang A, Lipton ZC, Li M, Smola AJ. Dive into Deep Learning, "Softmax Regression". d2l.ai (CC BY-SA 4.0). <https://d2l.ai/chapter_linear-classification/softmax-regression.html>
+
+### Session 9
+
+- Wikipedia contributors. Backpropagation. Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Backpropagation>
+- Wikipedia contributors. Dropout (neural networks). Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Dropout_(neural_networks)>
+- Wikipedia contributors. Early stopping. Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Early_stopping>
+- Wikipedia contributors. Overfitting. Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Overfitting>
+- Wikipedia contributors. Regularization (mathematics). Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Regularization_(mathematics)>
+- Wikipedia contributors. Stochastic gradient descent. Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Stochastic_gradient_descent>
+- Wikipedia contributors. Vanishing gradient problem. Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Vanishing_gradient_problem>
+- Zhang A, Lipton ZC, Li M, Smola AJ. Dive into Deep Learning, "Linear Regression". d2l.ai (CC BY-SA 4.0). <https://d2l.ai/chapter_linear-regression/linear-regression.html>
+- Zhang A, Lipton ZC, Li M, Smola AJ. Dive into Deep Learning, "Multilayer Perceptrons". d2l.ai (CC BY-SA 4.0). <https://d2l.ai/chapter_multilayer-perceptrons/index.html>
+- Video: 3Blue1Brown (Sanderson G). Backpropagation calculus. Deep Learning, chapter 4. YouTube. <https://www.youtube.com/watch?v=tIeHLnjs5U8>
+- Video: 3Blue1Brown (Sanderson G). Backpropagation, intuitively. Deep Learning, chapter 3. YouTube. <https://www.youtube.com/watch?v=Ilg3gGewQ5U>
+- Video: 3Blue1Brown (Sanderson G). But what is a neural network? Deep Learning, chapter 1. YouTube. <https://www.youtube.com/watch?v=aircAruvnKk>
+- Video: 3Blue1Brown (Sanderson G). But what is cross-entropy? Compression is Intelligence, part 2. YouTube. <https://www.youtube.com/watch?v=GlYgs6v2YfU>
+
+### Session 10
+
+- Wikipedia contributors. "U-Net". Wikipedia, The Free Encyclopedia. <https://en.wikipedia.org/wiki/U-Net>
+- Zhang A, Lipton ZC, Li M, Smola AJ. Dive into Deep Learning, ch. "Convolutional Neural Networks" (CC BY-SA 4.0). <https://d2l.ai/chapter_convolutional-neural-networks/index.html>
+- Zhang A, Lipton ZC, Li M, Smola AJ. Dive into Deep Learning, ch. "Modern Convolutional Neural Networks" (CC BY-SA 4.0). <https://d2l.ai/chapter_convolutional-modern/index.html>
+- Video: 3Blue1Brown (Grant Sanderson). "But what is a convolution?" YouTube. <https://www.youtube.com/watch?v=KuXjwB4LzSA>
+
+### Session 11
+
+- The Nobel Prize in Physiology or Medicine 1999: Günter Blobel. NobelPrize.org. <https://www.nobelprize.org/prizes/medicine/1999/summary/>
+- Wikipedia contributors. "Long short-term memory". Wikipedia, The Free Encyclopedia. <https://en.wikipedia.org/wiki/Long_short-term_memory>
+- Zhang A, Lipton ZC, Li M, Smola AJ. Dive into Deep Learning, ch. "Attention Mechanisms and Transformers" (CC BY-SA 4.0). <https://d2l.ai/chapter_attention-mechanisms-and-transformers/index.html>
+- Zhang A, Lipton ZC, Li M, Smola AJ. Dive into Deep Learning, ch. "Modern Recurrent Neural Networks" (CC BY-SA 4.0). <https://d2l.ai/chapter_recurrent-modern/index.html>
+- Zhang A, Lipton ZC, Li M, Smola AJ. Dive into Deep Learning, ch. "Recurrent Neural Networks" (CC BY-SA 4.0). <https://d2l.ai/chapter_recurrent-neural-networks/index.html>
+- Video: 3Blue1Brown (Grant Sanderson). "Attention in transformers, step-by-step" (Deep Learning ch. 6). YouTube. <https://www.youtube.com/watch?v=eMlx5fFNoYc>
+- Video: 3Blue1Brown (Grant Sanderson). "How might LLMs store facts" (Deep Learning ch. 7). YouTube. <https://www.youtube.com/watch?v=9-Jl0dxWQs8>
+- Video: 3Blue1Brown (Grant Sanderson). "Large Language Models explained briefly". YouTube. <https://www.youtube.com/watch?v=LPZh9BOjkQs>
+- Video: 3Blue1Brown (Grant Sanderson). "Transformers, the tech behind LLMs" (Deep Learning ch. 5). YouTube. <https://www.youtube.com/watch?v=wjZofJX0v4M>
+
+### Session 12
+
+- The Nobel Prize in Chemistry 2024 (Baker; Hassabis & Jumper). NobelPrize.org. <https://www.nobelprize.org/prizes/chemistry/2024/summary/>
+- Video: AI Coffee Break with Letitia (Parcalabescu L). "Flow-Matching vs Diffusion Models explained side by side". YouTube. <https://www.youtube.com/watch?v=firXjwZ_6KI>
+- Video: Kohl S (DeepMind). "Highly accurate protein structure prediction with AlphaFold". YouTube. <https://www.youtube.com/watch?v=92j-7b-sRPw>
 
 ## What isn't reused, and why
 
 - **Magnus Ekman's *Learning Deep Learning*** and **Jonathan Pevsner's
   *Bioinformatics and Functional Genomics*** were this course's previously
   assigned textbooks. Both are under conventional copyright. Nothing from
-  either is reproduced here; any resemblance in topic ordering is because
-  all of these books teach the same standard material, not because text
-  was copied.
+  either is reproduced here; some pages credit Ekman's book (and the
+  teachers' own earlier lecture slides) as an internal source of ideas,
+  and any resemblance in topic ordering is because these books teach the
+  same standard material.
 - **Goodfellow, Bengio & Courville's *Deep Learning*** is free to read
-  online (in the publisher's own HTML viewer) but not licensed for reuse
-  or redistribution — same treatment as the two textbooks above.
-- **Michael Nielsen's *Neural Networks and Deep Learning*** is CC BY-
-  **NC** — freely reusable for non-commercial teaching, but dropped anyway
-  so this book can carry one single, simpler license (CC BY-SA 4.0)
-  throughout rather than mixed licensing across pages.
-- **OpenStax's *Introduction to Python Programming*** turned out, on
-  checking, to also be CC BY-**NC**-SA — ruled out for the same reason.
-- ***Python for Bioinformatics* (BPB Publications)**: its GitHub
-  repository is MIT-licensed, but that covers only the code samples — it's
-  the companion repo for a commercially sold, fully copyrighted book, not
-  an open text itself.
+  online but not licensed for reuse or redistribution, so it is treated
+  like the two textbooks above.
+- **Michael Nielsen's *Neural Networks and Deep Learning*** is CC BY-NC:
+  freely reusable for non-commercial teaching, but an earlier draft that
+  used it was switched to *Dive into Deep Learning* throughout, to keep one
+  license without a non-commercial restriction across the whole book.

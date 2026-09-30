@@ -20,7 +20,7 @@ Wikipedia,
 — CC BY-SA 4.0; NCBI,
 [BLAST Help](https://www.ncbi.nlm.nih.gov/books/NBK1762/) — public domain
 (US government work); EMBL-EBI's
-[InterPro](https://www.ebi.ac.uk/interpro/) — CC BY 4.0. The *HBB*
+[InterPro](https://www.ebi.ac.uk/interpro/) — CC0. The *HBB*
 Pfam domain hit and all worked-example numbers below were computed or
 fetched live while writing this page (2026-09-18) — see the notebook.
 :::

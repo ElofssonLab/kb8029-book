@@ -13,9 +13,9 @@ PDF: [KB8029-course-notes.pdf](/KB8029-course-notes.pdf). The notebooks
 are not included; open them from the website.
 :::
 
-**This is not a copy of any textbook.** Earlier we used a copyrighted book (Magnus Ekman's *Learning Deep Learning* for the
+**This is not a copy of any textbook.** Earlier we used two copyrighted books (Magnus Ekman's *Learning Deep Learning* for the
 machine-learning half and Jonathan Pevsner's *Bioinformatics and Functional
-Genomics* for the classical half). Although we base our lectures on earlier work. It should be noted that  nothing from either is reproduced here.
+Genomics* for the classical half). Our lectures build on that earlier work, but nothing from either book is reproduced here.
 Every page is written from scratch, drawing on fully open sources —
 none restricted to non-commercial use — that cover the same material:
 
@@ -78,3 +78,12 @@ Session 6 in particular showcases the course's central design idea: machine
 learning is motivated from inside the bioinformatics material (a profile
 score turns out to already be a linear model) rather than introduced as an
 unrelated new topic. The remaining days will follow the same pattern.
+
+
+## ToCheck
+Please check:
+ Canvas link: it goes to canvas.su.se generally. Send me this year's course link and I'll use it instead.
+ -Oral presentation: last year's project had an oral explanation to a TA. The current Capstone page doesn't mention one, so I left it out. Add it back if it still applies.
+ Project and exam weights: 30%/70% on Course Information is carried over from last year.
+- Live quizzes: I didn't say whether the live quizzes count towards the grade, because that hasn't been decided.
+ AI tools: the course has no stated policy on AI tools. The old deck didn't cover it, but Session 0 would be the natural place for one

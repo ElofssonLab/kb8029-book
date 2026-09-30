@@ -32,7 +32,7 @@ By the end of this session you should be able to:
 
 ## Two pictures to keep in mind
 
-This session uses many names: profile score (PSSM), perceptron, linear and logistic regression, sigmoid, tanh, hidden layer, multilayer perceptron, PHD, but behind them are only two pictures that can explain the whole idea of the lecture.
+This session uses many names: profile score (PSSM), perceptron, linear and logistic regression, sigmoid, tanh, hidden layer, multilayer perceptron, PHD. Behind them are only two pictures, and together they explain the whole idea of the lecture.
 
 ![Top: one weighted sum followed by an activation. A PSSM score, a perceptron and logistic regression are all this picture, and all of them draw one straight boundary. Bottom: a hidden layer of weighted sums with a nonlinear activation, followed by one more weighted sum. This is a multilayer perceptron (MLP), such as PHD, and it can combine several boundaries.](figs/session06-two-diagrams.png){width="95%"}
 
@@ -40,22 +40,22 @@ Keep them in mind as you read. The goal of the session is to understand what cha
 
 ## 1. A profile score and a perceptron: the same weighted sum
 
-**You actually already know the central computation of a neural network.** Session 5 introduced the profile score: to check how well a sequence matches a known family, you multiply each position's observed value by a position-specific weight and add the results up. This is actually something you learned the first day — a dot product, in Session 1's terms. A **perceptron** has the exact same mathematical core. It computes the weighted sum $z$*:*
+**You actually already know the central computation of a neural network.** Session 5 introduced the profile score: to check how well a sequence matches a known family, you multiply each position's observed value by a position-specific weight and add the results up. This is something you learned on the first day: a dot product, in Session 1's terms. A **perceptron** has the exact same mathematical core. It computes the weighted sum $z$:
 
 $$
 z = w_1 x_1 + w_2 x_2 + \dots + w_n x_n + b
 $$
 
-The extra term $b$, a **bias**, just shifts the whole thing by a constant amount, letting the model's decision threshold sit somewhere other than zero. Next the sum $z$ is passed through an **activation function** to produce an output. The PSSM and the perceptron share the weighted sum, but differ in what they do with it (i.e. the **activation function** is different: a PSSM reports the sum itself as a *score*, while a perceptron passes the sum through an activation function, originally a threshold (output 1 if $z > 0$, else 0), to make a *classification*. Keeping the two terms apart helps later: "profile score" means a linear score, "perceptron" a (thresholded) classifier built on the same weighted sum but does some extra computations.
+The extra term $b$, a **bias**, just shifts the whole thing by a constant amount, letting the model's decision threshold sit somewhere other than zero. Next the sum $z$ is passed through an **activation function** to produce an output. The PSSM and the perceptron share the weighted sum, but differ in what they do with it, i.e. in the **activation function**: a PSSM reports the sum itself as a *score*, while a perceptron passes the sum through an activation function, originally a threshold (output 1 if $z > 0$, else 0), to make a *classification*. Keeping the two terms apart helps later: "profile score" means a linear score, "perceptron" a (thresholded) classifier that adds an activation function to the same weighted sum.
 
-**Where the name comes from.** Frank Rosenblatt built the first perceptron in 1958, modelled on a simplified neuron: each synapse weights its input, the cell sums them, and it fires once the sum crosses a threshold. The weights $w_i$ stand for connection strengths and $b$ for how easily the cell fires. His own diagram set the brain's circuit next to the perceptron built to mirror it:
+**Where the name comes from.** Frank Rosenblatt introduced the perceptron in 1958 (first as a simulation on an IBM 704 computer; the Mark I Perceptron machine followed in 1960), modelled on a simplified neuron: each synapse weights its input, the cell sums them, and it fires once the sum crosses a threshold. The weights $w_i$ stand for connection strengths and $b$ for how easily the cell fires. His own diagram set the brain's circuit next to the perceptron built to mirror it:
 
 ![Rosenblatt's own 1958 diagram: a biological brain's circuit (top) next to the perceptron he built to mirror it (bottom) — retina/sensory input, an association layer, and motor/response output on both sides. Public domain (US federal government work) — Rosenblatt, F., "The Design of an Intelligent Automaton," *Research Reviews*, Office of Naval Research, October 1958, pp. 5-13.](figs/session06-rosenblatt-brain-perceptron.png){width="75%"}
 
-From a geometrical perspective, $z = 0$ is a line (in two dimensions — a plane, or hyperplane, in higher ones) and it is also the model's **decision boundary**, i.e. if you are on one side of the line/plane you get a 1 on the other side a 0.
+From a geometrical perspective, $z = 0$ is a line (in two dimensions — a plane, or hyperplane, in higher ones) and it is also the model's **decision boundary**, i.e. on one side of the line (or plane) the output is 1, and on the other side it is 0.
 
 Solving $w_1 x_1 + w_2 x_2 + b = 0$ for $x_2$ gives $x_2 = -\frac{w_1}{w_2} x_1 -
-\frac{b}{w_2}$ — the familiar $y = mx + c$ form of a line, with the bias $b$ playing the role of the intercept $c$ (scaled by $-1/w_2$): change $b$ and the whole line slides sideways, without changing its slope. That's the same role the intercept $b_0$ plays in ordinary linear regression, see next session.
+\frac{b}{w_2}$ — the familiar $y = mx + c$ form of a line, with the bias $b$ playing the role of the intercept $c$ (scaled by $-1/w_2$): change $b$ and the whole line slides sideways, without changing its slope. That's the same role the intercept $b_0$ plays in ordinary linear regression; see the next section.
 
 ### Further reading
 
@@ -73,9 +73,9 @@ Solving $w_1 x_1 + w_2 x_2 + b = 0$ for $x_2$ gives $x_2 = -\frac{w_1}{w_2} x_1 
 
 ## 2. Learning the weights from examples
 
-A profile's weights come from counting: look at a multiple alignment, count how often each residue appears at each position, and turn those counts into log-odds scores. That works well when you already have a trustworthy alignment to count from, but as we have already shown in Session 5 sometime you need to do some tricks (pseudocounts) to use profiles for smaller alignments, but that is just counting with some modifications.
+A profile's weights come from counting: look at a multiple alignment, count how often each residue appears at each position, and turn those counts into log-odds scores. That works well when you already have a trustworthy alignment to count from. As Session 5 showed, small alignments need some tricks (pseudocounts), but that is still counting, with some modifications.
 
-The alternative to **count** — and the one the rest of this course builds on — is to **learn** the weights directly from labelled examples, using some optimisations method (normally just gradient descent as described in Session 1). You often start with arbitrary (random) weights, measure how wrong the model's current predictions are with a *loss function*, compute the gradient of that loss with respect to each weight, and nudge every weight a small step in the direction that reduces the loss. Then you repeat many times. No alignment, no hand-counting — just examples and a lot of small corrections. This is actually the fundament of all machine learning, you do not tell the computer what to do, you tell it to **learn** what to do.
+The alternative to **counting** — and the one the rest of this course builds on — is to **learn** the weights directly from labelled examples, using an optimisation method (normally gradient descent, as described in Session 1). You often start with arbitrary (random) weights, measure how wrong the model's current predictions are with a *loss function*, compute the gradient of that loss with respect to each weight, and nudge every weight a small step in the direction that reduces the loss. Then you repeat many times. No alignment, no hand-counting — just examples and a lot of small corrections. This is the foundation of all machine learning: you do not tell the computer what to do, you let it **learn** what to do.
 
 In this session's lab, the code is implemented directly with raw tensors and automatic differentiation (Session 2), deliberately without the higher-level `nn.Module`/training-loop tools that Session 8 introduces — the point today is to see every step of the mechanics, not to use a convenient shortcut around them.
 
@@ -89,12 +89,12 @@ $$
 Two iterations of gradient descent, $w_{n+1} = w_n - \eta \, dL/dw$:
 
 | $n$ | $w_n$ | prediction $w_n x$ | $dL/dw$ | $w_{n+1} = w_n - 0.05 \, dL/dw$ |
-|---------------|--------|----------|---------------|--------------------|
+|--------------|--------------|--------------|--------------|-----------------|
 | 0 | 0.00 | 0.00 | $2(0-6)(2) = -24.0$ | 0.00 − 0.05 × (−24.0) = 1.20 |
 | 1 | 1.20 | 2.40 | $2(2.4-6)(2) = -14.4$ | 1.20 − 0.05 × (−14.4) = 1.92 |
 | 2 | 1.92 | 3.84 | $2(3.84-6)(2) = -8.64$ | 1.92 − 0.05 × (−8.64) = 2.35 |
 
-The weight is climbing toward $w = 3$, where the prediction $wx = 3 \times
+The weight is converging toward $w = 3$, where the prediction $wx = 3 \times
 2 = 6$ would exactly match the target — and, just as in Session 1's one-variable example, the size of each correction ($dL/dw$) shrinks on its own as the prediction gets closer, with no manual adjustment to $\eta$ required — provided the learning rate is not too large. With an excessive learning rate, gradient descent overshoots the minimum and can oscillate or diverge (Session 1's second discussion problem).
 
 **Deriving vs. learning, on the simplest possible model.** Ordinary linear regression — fitting a line $\hat y = b_0 + b_1 x$ to data — has a direct numerical solution, so it makes a useful check: gradient descent should reach the same optimum, iteratively. For five noisy points roughly following $y \approx 2x$, $x = (1,2,3,4,5)$ and $y = (2.1, 3.9, 6.2, 7.8, 10.1)$, a least-squares solver gives $b_0 = 0.05$, $b_1 = 1.99$ in one step, and gradient descent (learning rate $\eta = 0.01$, thousands of small steps) converges to the same $b_0 = 0.050$, $b_1 = 1.990$.
@@ -148,6 +148,7 @@ One way to understand this is to draw the four inputs as dots on a plane, and th
 
 ::: {.callout-tip icon="false"}
 ## In the notebook
+
 [Section 3 of the notebook](notebooks/session06-gradient-descent-xor.ipynb#what-one-weighted-sum-can-do) ([open in Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session06-gradient-descent-xor.ipynb)) computes $z$ and the output for all four corners of all three gates with exactly these weights, and draws this figure.
 :::
 
@@ -201,7 +202,7 @@ Drawn as a network, this is a **two-layer perceptron**: two inputs, a hidden lay
 **Step by step.** For each input, first compute the two hidden units, then the output unit from their outputs:
 
 | $x_1$ | $x_2$ | $z_{h_1} = x_1 + x_2 - 0.5$ | $h_1$ | $z_{h_2} = -x_1 - x_2 + 1.5$ | $h_2$ | $z_y = h_1 + h_2 - 1.5$ | $y$ |
-|---|---|---|---|---|---|---|---|
+|---------|---------|---------|---------|---------|---------|---------|---------|
 | 0 | 0 | −0.5 | 0 | +1.5 | 1 | −0.5 | **0** |
 | 0 | 1 | +0.5 | 1 | +0.5 | 1 | +0.5 | **1** |
 | 1 | 0 | +0.5 | 1 | +0.5 | 1 | +0.5 | **1** |
@@ -299,11 +300,11 @@ GOR in particular is a linear model in the sense of Sections 1–3. To label a r
 
 **Why a single sequence is not enough.** A window of neighbours is still only local information, and local sequence does not determine local structure. Kabsch & Sander (1984) searched the 62 protein structures then known and found identical five-residue stretches that were part of a helix in one protein and of a strand in another. With today's PDB the effect reaches ten residues: these **chameleon sequences** (Li et al. 2015, ChSeq database) adopt different secondary structures depending on the protein around them.
 
-![The same ten residues, QGTAVVVSAA, in two unrelated proteins: part of a long helix in a malate oxidoreductase from *Thermotoga maritima* (PDB 1VL6, residues 164-183 shown) and a strand followed by coil in a human antibody heavy chain (PDB 4JB9, residues 118-137 shown). The secondary structure of each residue is taken from the PDB entries (via PDBe). No method that sees only this window can label both correctly. Example from Li et al. (2015).](figs/session06-chameleon.png){width="100%"}
+![The same ten residues, QGTAVVVSAA, in two unrelated proteins: part of a long helix in a malate oxidoreductase from *Thermotoga maritima* (PDB 1VL6) and a strand followed by coil in a human antibody heavy chain (PDB 4JB9). Positions are counted along each chain's sequence (1VL6: 164-183, 4JB9: 118-137); in the PDB files' own numbering these are residues 152-171 of 1VL6 and, in antibody numbering, 100F-119 of 4JB9. The secondary structure of each residue is taken from the PDB entries (via PDBe). No method that sees only this window can label both correctly. Example from Li et al. (2015).](figs/session06-chameleon.png){width="100%"}
 
-Qian & Sejnowski (1988, *J Mol Biol* 202:865) trained a network with a hidden layer on windows of single sequences and reached **64.3%**, and concluded that "no method based solely on local information in the protein sequence is likely to produce significantly better results". The limit was the information in the input, not only the model.
+Qian & Sejnowski (1988, *J Mol Biol* 202:865) trained a network with a hidden layer on windows of single sequences and reached **64.3%**, and concluded that "no method based solely on local information in the protein sequence is likely to produce significantly better results for non-homologous proteins". The limit was the information in the input, not only the model.
 
-**What changed with PHD: the multiple alignment.** The key innovation of Rost & Sander's **PHD** (1993) was the input. In their words, "a new key aspect is the use of evolutionary information in the form of multiple sequence alignments that are used as input in place of single sequences." For each position of the window, the network sees a *profile* (Session 5): the frequencies of the 20 amino acids at that position among the protein's homologs. Homologous proteins share their structure, but not their exact sequence. Where a chameleon stretch sits in a helix, its homologs tend to vary it in the ways helices tolerate; where it sits in a strand, in the ways strands tolerate, so the profile can show a difference that the single sequence hides. This family information alone added "six to eight percentage points", and the full method reached **70.8%** three-state accuracy. Profile-based predictors also label chameleon sequences better than single-sequence ones (Li et al. 2015).
+**What changed with PHD: *the use of evolutionary information*.** The key innovation of Rost & Sander's **PHD** (1993) was the input. In their words, "a new key aspect is the use of evolutionary information in the form of multiple sequence alignments that are used as input in place of single sequences." For each position of the window, the network sees a *profile* (Session 5): the frequencies of the 20 amino acids at that position among the protein's homologs. Homologs can retain similar structures even when their sequences have diverged substantially. A common expression is that *structure is more conserved than sequence*, and Illergård, Ardell & Elofsson (2009) quantified it: the structural cores of proteins evolve three to ten times more slowly than their sequences. Where a chameleon stretch sits in a helix, its homologs tend to vary it in the ways helices tolerate; where it sits in a strand, in the ways strands tolerate, so the profile can show a difference that the single sequence hides. This family information alone added "six to eight percentage points", and the full method reached **70.8%** three-state accuracy. Profile-based predictors also label chameleon sequences better than single-sequence ones (Li et al. 2015).
 
 PHD combined that input with networks in **three levels**:
 
@@ -323,7 +324,8 @@ The top view keeps what matters for the label: which residues are neighbours, in
 
 ::: {.callout-important icon="false"}
 ## Can you do better?
-PHD reached about 71% in 1993, and modern methods that combine profiles or protein language models with deep networks reach about 85%. In the [capstone project](capstone.qmd) you build your own secondary-structure predictor, with the tools of this course: which input will you give it (a single sequence, a profile, an embedding), which model, and how will you know that it really predicts proteins it has never seen?
+
+PHD reached about 71% in 1993, a significant improvement over earlier methods. However, modern methods that combine profiles or protein language models with deep networks reach substantially higher accuracy on standard benchmarks. In the [capstone project](capstone.qmd) you build your own secondary-structure predictor, with the tools of this course: which input will you give it (a single sequence, a profile, an embedding), which model, and how will you know that it really predicts proteins it has never seen?
 :::
 
 ### Further reading
@@ -332,6 +334,9 @@ PHD reached about 71% in 1993, and modern methods that combine profiles or prote
 - Chou & Fasman (1974), "Prediction of protein conformation," *Biochemistry* 13(2):222-245 — [PubMed](https://pubmed.ncbi.nlm.nih.gov/4358940/)
 - Garnier, Osguthorpe & Robson (1978), "Analysis of the accuracy and implications of simple methods for predicting the secondary structure of globular proteins," *Journal of Molecular Biology* 120(1):97-120 — [PubMed](https://pubmed.ncbi.nlm.nih.gov/642007/)
 - Rost & Sander (1993), *Journal of Molecular Biology* 232:584-599 — the original PHD paper
+- Illergård, Ardell & Elofsson (2009), "Structure is three to ten times more conserved than sequence — a study of structural response in protein cores," *Proteins* 77(3):499-508 — [doi:10.1002/prot.22458](https://doi.org/10.1002/prot.22458)
+- Li, Kinch, Karplus & Grishin (2015), "ChSeq: A database of chameleon sequences," *Protein Science* 24(7):1075-1086 — [doi:10.1002/pro.2689](https://doi.org/10.1002/pro.2689)
+- Kabsch & Sander (1984), "On the use of sequence homologies to predict protein structure: identical pentapeptides can have completely different conformations," *PNAS* 81(4):1075-1078 — [doi:10.1073/pnas.81.4.1075](https://doi.org/10.1073/pnas.81.4.1075)
 
 ## 7. Representation matters as much as the model
 
@@ -476,6 +481,50 @@ renderQuiz("session06-quiz", [
     ],
     correctIndex: 0,
     explanation: "The linear-algebra is exact once you've chosen x&#8321;x&#8322; as a feature -- the catch is knowing to choose it, which for real data (Bulyk et al.'s binding sites, secondary structure) nobody knows in advance."
+  },
+  {
+    question: "The OR perceptron has w = (1, 1) and b = -0.5. In the plane of the inputs, what is its decision boundary, and which corners lie on the side where the output is 1?",
+    choices: [
+      "The line x&#8321; + x&#8322; = 0.5; the corners (0,1), (1,0) and (1,1)",
+      "The line x&#8321; + x&#8322; = 1.5; only the corner (1,1)",
+      "The line x&#8321; = x&#8322;; the corners (0,0) and (1,1)",
+      "There is no boundary: a perceptron outputs a score, not a class"
+    ],
+    correctIndex: 0,
+    explanation: "The boundary is z = 0, i.e. x&#8321; + x&#8322; - 0.5 = 0. Only (0,0) gives z &lt; 0; the other three corners give z &gt; 0 and output 1."
+  },
+  {
+    question: "Why is the GOR method, which sums a table value for each residue in a 17-residue window, called a linear model on this page?",
+    choices: [
+      "Each state's score is a weighted sum over the window, like a position-specific scoring matrix, so it cannot represent interactions between positions",
+      "It predicts only straight (linear) stretches of helix",
+      "It uses linear regression to fit the helix fraction",
+      "It reads the sequence in a straight line from N- to C-terminus"
+    ],
+    correctIndex: 0,
+    explanation: "GOR adds up independent contributions: three profile-like weighted sums, one per state. That is picture 1 of this session."
+  },
+  {
+    question: "The ten residues QGTAVVVSAA form a helix in a malate oxidoreductase and a strand in an antibody. What does this tell you about secondary-structure prediction?",
+    choices: [
+      "A window of local sequence alone cannot always determine the structure; information from outside the window, such as the protein family, is needed",
+      "The structures in the PDB must be wrong for one of the two proteins",
+      "Ten residues are too short to form any secondary structure",
+      "Helices and strands are interchangeable"
+    ],
+    correctIndex: 0,
+    explanation: "These are 'chameleon sequences' (Kabsch &amp; Sander 1984; Li et al. 2015). Profile-based predictors, which see the family, handle them better than single-sequence ones."
+  },
+  {
+    question: "What was the key innovation of Rost &amp; Sander's PHD method (1993)?",
+    choices: [
+      "Its input: a profile from a multiple alignment of homologs instead of a single sequence",
+      "It was the first neural network ever used for secondary structure",
+      "It used a much deeper network than anyone before",
+      "It predicted the full 3D structure instead of secondary structure"
+    ],
+    correctIndex: 0,
+    explanation: "In Rost &amp; Sander's words, 'a new key aspect is the use of evolutionary information in the form of multiple sequence alignments'. That alone added six to eight percentage points. (Qian &amp; Sejnowski had used a neural network on single sequences in 1988.)"
   }
 ]);
 </script>
