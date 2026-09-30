@@ -60,7 +60,7 @@ Ask questions in the Canvas discussion forum, where everyone can see the answers
 The details are on the [Course Information & Logistics](course-info.qmd) page. In short:
 
 - **Labs are mandatory.** Each lab ends in a short online quiz on Canvas; you need 50% to pass it. You can do a lab as soon as it is published.
-- **The capstone project** is a secondary-structure predictor of your own, handed in as a Colab notebook and a short written report.
+- **The capstone project** is a secondary-structure predictor of your own: a Colab notebook, a short written report, and an oral presentation of your code to a teaching assistant.
 - **The exam** is in person, on paper, with a limited number of pages of your own notes. The project and the exam are both graded, and each needs a minimum score.
 - **Your work must be your own.** Discussing methods and approaches with other students is encouraged; submitting someone else's answers, code or text as your own is plagiarism, and written reports are checked for it.
 

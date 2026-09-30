@@ -1,29 +1,13 @@
 # Course Schedule {.unnumbered}
 
-The full session-by-session plan for the redesigned course. This mirrors
-`course-redesign.md` in the repository root, which has the full rationale,
-licensing notes, and open questions behind this structure. Days already
-written link to their page; the rest are still to come — the pattern is
-established on Sessions 1, 2, 4, and 6 and the remaining days will follow it.
-See [Course Information & Logistics](course-info.qmd) for grading, lab
-policy, and how the course actually runs.
+The full session-by-session plan for the redesigned course. This mirrors `course-redesign.md` in the repository root, which has the full rationale, licensing notes, and open questions behind this structure. Days already written link to their page; the rest are still to come — the pattern is established on Sessions 1, 2, 4, and 6 and the remaining days will follow it. See [Course Information & Logistics](course-info.qmd) for grading, lab policy, and how the course actually runs.
 
-Three phases: bioinformatics foundations build up to profiles (Sessions 3-5);
-a convergence zone (Sessions 6-9) where the classical material directly
-motivates and is resolved by neural networks; then a deep-learning arc
-(Sessions 10-12) that keeps extending the same secondary-structure-prediction
-thread.
+Three phases: bioinformatics foundations build up to profiles (Sessions 3-5); a convergence zone (Sessions 6-9) where the classical material directly motivates and is resolved by neural networks; then a deep-learning arc (Sessions 10-12) that keeps extending the same secondary-structure-prediction thread.
 
-**Every lab, regardless of the length noted below, is administered
-through Canvas, not this book** — the "Lab" column here just indicates
-how substantial each session's lab is, not where to find or submit it. See
-[Course Information & Logistics](course-info.qmd) for the general
-lab-quiz policy (50% correct to pass, one redo chance, same deadline
-pattern for every lab) and the course's Canvas page for each lab's
-actual worksheet, deadline, and submission mechanism.
+**Every lab, regardless of the length noted below, is administered through Canvas, not this book** — the "Lab" column here just indicates how substantial each session's lab is, not where to find or submit it. See [Course Information & Logistics](course-info.qmd) for the general lab-quiz policy (50% correct to pass, one redo chance, same deadline pattern for every lab) and the course's Canvas page for each lab's actual worksheet, deadline, and submission mechanism.
 
-| # | Session | Primary reading (open, linked) | Biological case study | Lab |
-|---|---|---|---|---|
+| \# | Session | Primary reading (open, linked) | Biological case study | Lab |
+|---------------|---------------|---------------|---------------|---------------|
 | 0 | [**Introduction to the course**](session00.qmd) — how the course works, where to find everything, setting up | — | — | None (setup: SSH key, Colab) |
 | 1 | [**Math prerequisites**](session01.qmd) — linear algebra, calculus, probability refresher | d2l.ai, [Preliminaries](https://d2l.ai/chapter_preliminaries/index.html) (§2.3 Linear Algebra, §2.5 Calculus, §2.6 Probability & Statistics) | — | None (non-code problem set) |
 | 2 | [**Programming prerequisites**](session02.qmd) — NumPy/Matplotlib recap, notebooks, Biopython, SciPy, scikit-learn, PyTorch | [*A Byte of Python*](https://python.swaroopch.com/); d2l.ai [Preliminaries](https://d2l.ai/chapter_preliminaries/index.html) §2.1 Data Manipulation, §2.2 Preprocessing, §2.5 Automatic Differentiation; Biopython [Tutorial and Cookbook](https://biopython.org/docs/latest/Tutorial/index.html) | Real published mouse-liver RNA-seq data (Becares et al. 2019) for a real volcano plot; six real human globin genes, fetched live via `Bio.Entrez`, for the Biopython demo | **Full** |
@@ -39,13 +23,11 @@ actual worksheet, deadline, and submission mechanism.
 | 12 | [**AlphaFold & generative models of protein structure**](session12.qmd) | Primary papers (AlphaFold 1-3, ColabFold, RFdiffusion, ProteinMPNN) | From coevolution to AlphaFold; complexes (pDockQ, ipTM, ipSAE); AlphaFold3 and diffusion; the four regions of interaction prediction; protein design | **Full** (AlphaFold Server, AlphaFold DB) |
 | — | [**Capstone: Secondary Structure Prediction project**](capstone.qmd) | — | Closes the loop opened at Session 7 | The project itself |
 
-Diffusion and flow-matching models, once planned as a separate backup
-session, are now part of Session 12.
+Diffusion and flow-matching models, once planned as a separate backup session, are now part of Session 12.
 
 ## Exam preparation {#exam-preparation}
 
-Past exams, kept as a study resource (not because this course repeats
-questions from them):
+Past exams, kept as a study resource (not because this course repeats questions from them):
 
 - [Exam Bioinformatics 2025](exams/Exam%20Bioinformatics%202025.pdf)
 - [ReExam Bioinformatics 2025](exams/ReExam%20Bioinformatics%202025.pdf)

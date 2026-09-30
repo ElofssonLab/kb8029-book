@@ -69,10 +69,12 @@ the same protein.
    - At least one **ablation study** — how performance changes when you
      vary something about the model (regularization, dropout, which
      input features you use, number of layers, ...).
-3. **A code presentation** (~15 minutes: 10 minutes presenting your
-   model architecture and training procedure, 5 minutes of questions),
+3. **An oral presentation of your code to a teaching assistant** (~15
+   minutes: 10 minutes walking through your model architecture and
+   training procedure in your own notebook, 5 minutes of questions),
    focused on the deep-learning part of your work, not slides about the
-   biology.
+   biology. You must be able to explain every part of the code you hand
+   in.
 
 This is not an exam — look up papers, discuss with peers, revisit
 earlier labs and notes. Just don't plagiarize; reports are checked with

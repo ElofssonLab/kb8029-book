@@ -1,91 +1,99 @@
-# Welcome {.unnumbered}
+# Welcome
 
-This is an open, interactive companion to the redesigned KB8029
-Bioinformatics course. Rather than teaching classical bioinformatics and
-machine learning as two separate blocks, this book follows the course's
-integrated session-by-session structure — see the [Course Schedule](schedule.qmd)
-for the full plan, or `course-redesign.md` in the repository root for the
-rationale behind it.
+This is an open, interactive companion to the redesigned KB8029 Bioinformatics course. Rather than teaching classical bioinformatics and machine learning as two separate blocks, this book follows the course's integrated session-by-session structure — see the [Course Schedule](schedule.qmd) for the full plan, or `course-redesign.md` in the repository root for the rationale behind it.
 
 ::: {.content-visible when-format="html"}
-**Offline or printed?** All course pages are also available as a single
-PDF: [KB8029-course-notes.pdf](/KB8029-course-notes.pdf). The notebooks
-are not included; open them from the website.
+**Offline or printed?** All course pages are also available as a single PDF: [KB8029-course-notes.pdf](/KB8029-course-notes.pdf). The notebooks are not included; but they are available openly them from the website.
 :::
 
-**This is not a copy of any textbook.** Earlier we used two copyrighted books (Magnus Ekman's *Learning Deep Learning* for the
-machine-learning half and Jonathan Pevsner's *Bioinformatics and Functional
-Genomics* for the classical half). Our lectures build on that earlier work, but nothing from either book is reproduced here.
-Every page is written from scratch, drawing on fully open sources —
-none restricted to non-commercial use — that cover the same material:
+**This is not a copy of any textbook.** Earlier we used two copyrighted books (Magnus Ekman's *Learning Deep Learning* for the machine-learning half and Jonathan Pevsner's *Bioinformatics and Functional Genomics* for the classical half). Our lectures build on that earlier work, but nothing from either book is reproduced here. Every page is written from scratch, drawing on fully open sources — none restricted to non-commercial use — that cover the same material:
 
-- **[Dive into Deep Learning](https://d2l.ai)** (Zhang, Lipton, Li & Smola)
-  — [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
-  Primary source for every machine-learning session.
-- **[Wikipedia](https://en.wikipedia.org)** —
-  [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/).
-  Conceptual and algorithmic depth for the bioinformatics sessions.
-- **[EMBL-EBI Training](https://www.ebi.ac.uk/training/)** —
-  [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). The
-  practical, tool-use layer for databases and alignment.
-- **[*bibook*](https://github.com/statisticalbiotechnology/bibook)**
-  (Lukas Käll) — [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/).
-  Notebook code for the algorithmic bioinformatics sessions (alignment,
-  MSA, and more).
-- **[NCBI Bookshelf](https://www.ncbi.nlm.nih.gov/books/)** — public
-  domain (US government work). BLAST and database practicalities.
-- **[RCSB PDB-101](https://pdb101.rcsb.org/)** —
-  [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) (educational
-  tier only). Protein structure.
-- **[*A Byte of Python*](https://python.swaroopch.com/)** —
-  [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Python
-  fundamentals and object-oriented programming.
+- [**Dive into Deep Learning**](https://d2l.ai) (Zhang, Lipton, Li & Smola) — [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Primary source for every machine-learning session.
+- [**Wikipedia**](https://en.wikipedia.org) — [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Conceptual and algorithmic depth for the bioinformatics sessions.
+- [**EMBL-EBI Training**](https://www.ebi.ac.uk/training/) — [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). The practical, tool-use layer for databases and alignment.
+- [***bibook***](https://github.com/statisticalbiotechnology/bibook) (Lukas Käll) — [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Notebook code for the algorithmic bioinformatics sessions (alignment, MSA, and more).
+- [**NCBI Bookshelf**](https://www.ncbi.nlm.nih.gov/books/) — public domain (US government work). BLAST and database practicalities.
+- [**RCSB PDB-101**](https://pdb101.rcsb.org/) — [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) (educational tier only). Protein structure.
+- [***A Byte of Python***](https://python.swaroopch.com/) — [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/). Python fundamentals and object-oriented programming.
 
-Every page names which source(s) it draws on, and because of the CC BY-SA
-license, pages adapted from *Dive into Deep Learning* or Wikipedia are
-themselves shared here under CC BY-SA 4.0.
+Every page names which source(s) it draws on, and because of the CC BY-SA license, pages adapted from *Dive into Deep Learning* or Wikipedia are themselves shared here under CC BY-SA 4.0.
 
-**Students are never pointed at raw source material directly** — Wikipedia
-in particular is written to be browsed outward via its own links, which
-makes "how far should I read?" an unanswerable question. Every session
-gets one bounded, authored page instead, with sources listed for further
-reading, never as an inline dependency.
+**Students are never pointed at raw source material directly** — Wikipedia in particular is written to be browsed outward via its own links, which makes "how far should I read?" an unanswerable question. Every session gets one bounded, authored page instead, with sources listed for further reading, never as an inline dependency.
 
-**New to the course?** Start with [Session 0: Introduction to the Course](session00.qmd):
-what the course covers, how a session works, and what to do before Session 1.
+**New to the course?** Start with [Session 0: Introduction to the Course](session00.qmd): what the course covers, how a session works, and what to do before Session 1.
+
+## Keycards
+
+You will be given a keycard to SciLifeLab. Information will be distributed by email and/or Canvas. Please note that you need to keycard both to enter and leave the building and you need to use the card each time you pass through the speedgates.
 
 ## How to use this alongside the course
 
 Most session pages have three parts:
 
-1. **The idea** — a short, from-scratch explanation of the session's core
-   concept, written to match what's covered in the lecture.
-2. **The notebook** — for sessions with a full lab, the actual lab
-   notebook, embedded with its saved output so you can read it here or run
-   it yourself.
-3. **What's next** — an explicit pointer to where this session's ideas
-   resurface later in the course. The redesign is built around several
-   continuous threads (most centrally, secondary-structure prediction)
-   rather than disconnected topics, and each page names the connection
-   rather than leaving it implicit.
+1.  **The idea** — a short, from-scratch explanation of the session's core concept, written to match what's covered in the lecture.
+2.  **The notebook** — for sessions with a full lab, the actual lab notebook, embedded with its saved output so you can read it here or run it yourself.
+3.  **What's next** — an explicit pointer to where this session's ideas resurface later in the course. The redesign is built around several continuous threads (most centrally, secondary-structure prediction) rather than disconnected topics, and each page names the connection rather than leaving it implicit.
 
 ## Status
 
-Work in progress. Session 1 (math prerequisites) and Session 6 (linear models,
-gradient descent, the XOR problem, and secondary structure prediction)
-are drafted as complete examples —
-Session 6 in particular showcases the course's central design idea: machine
-learning is motivated from inside the bioinformatics material (a profile
-score turns out to already be a linear model) rather than introduced as an
-unrelated new topic. The remaining days will follow the same pattern.
+Work in progress. Session 1 (math prerequisites) and Session 6 (linear models, gradient descent, the XOR problem, and secondary structure prediction) are drafted as complete examples — Session 6 in particular showcases the course's central design idea: machine learning is motivated from inside the bioinformatics material (a profile score turns out to already be a linear model) rather than introduced as an unrelated new topic. The remaining days will follow the same pattern.
 
+## Canvas
 
-## To check
+At Stockholm University we use Canvas as our learning platform. You should be able to find this course if you are accepted to it as your canvas page https://canvas.su.se/
 
-Open questions for the teachers:
+## Administration
 
-- **Canvas link:** the pages link to canvas.su.se in general; replace with this year's course link.
-- **Oral presentation:** last year's project had an oral explanation to a TA. The Capstone page doesn't mention one; add it back if it still applies.
-- **Project and exam weights:** the 30%/70% on Course Information is carried over from last year.
-- **Live quizzes:** whether the live quizzes count towards the grade has not been decided.
-- **AI tools:** the course has no stated policy on AI tools; Session 0 would be the natural place for one.
+The course is administered by the chemistry section at Stockholm University <https://www.su.se/enheter/kemiska-sektionen/utbildning/kontakt>
+
+> Kemiska sektionens kansli & studentexpedition
+>
+> Adress: Svante Arrhenius väg 16A, 114 18 Stockholm
+>
+> Email: kemi\@su.se
+>
+> Opening Hours: Mon-Wed 9.00 - 11.30 and 12.30 - 15.00
+>
+> Phone hours : Wed: 9.00 - 11.30 och 12.30 - 15.00
+
+Exam
+
+## Exam and requirements
+
+The course has three mandatory parts:
+
+- The labs: These are Pass/Fail and needs to be done before you take the exam
+
+- The Project: This is graded (on a scale 0-100). To pass you need at least 40%. It contains three sub parts all graded:
+
+  - The code you have written
+
+  - The Final Report
+
+  - The oral presentation of your code for one of the TAS
+
+- The Exam: A paper and pen exam, but you are allowed to bring up to five pages (single sided) of notes to the exam.This is graded 0-100 and you need 40% to pass the course.
+
+The final grade is calculated by 70% from the exam and 30% from the project. You need 50% to pass, we are using this grade scale (not exactly the default one at SU)
+
+- A: \$ ge 90%\$
+
+- 
+
+## Plagiarism
+
+Plagiarism has unfortunately been an issue. You may have already signed a plagiarism policy form, if not you should get one soon. Please make an effort to set an example of honesty for your peers, since not everyone has fully understood the rules. You can talk to me if you see a problem or have a suggestion for treating it. In general I trust every single person I meet so you are honest until you prove otherwise.
+
+Plagiarism is copying the work of others, which could be online or print sources, your peers, or others. If the source can be identified with high statistical significance, and is not attributed directly and explicitly, it is plagiarism.
+
+- All written reports are checked for plagiarism 
+
+- Plagiarism can lead to dismissal of your access to the university.
+
+## AI tools
+
+You are allowed to use AI-tools during the course, but not during the exam. The final report and labs should not be written by AI-tools but you are allowed to use them as a science buddy to improve your report.
+
+## Schedule
+
+Should be on Canvas. As far as possible we have teaching Mon, Wed, Fri with lectures at 09-12:00 and labs 13:00-17:00.
