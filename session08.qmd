@@ -102,15 +102,17 @@ You might have heard about the term *overfit*, this is when a model has learned 
 - **Validation set**: used to make *choices*, such as how long to train, how large a network to use, or which features to include. Every choice tuned on it makes it slightly optimistic.
 - **Test set**: looked at **once**, at the very end, to report the final number. If you go back and change the model after looking at the test set, it has become a second validation set and no longer gives an honest estimate.
 
-**On the 3×3 problem.** We draw 100 training, 100 validation and 200 test examples, and measure the model by its **accuracy**: the fraction of examples, over all five classes, that it classifies correctly. (The next section breaks this single number down.) The one choice to make is how many **epochs** (passes through the training set) to train for, and it is made on the validation set. Training for 50 epochs and recording both accuracies after every epoch gives:
+**On the 3×3 problem.** We draw 100 training, 100 validation and 200 test examples, and first measure the model by its **accuracy**: the fraction of examples, over all five classes, that it classifies correctly. [The notebook](notebooks/session08-ml-foundations-and-pytorch.ipynb#training-validation-and-test-sets-on-the-33-problem) computes every number here and draws the figure. (The next section breaks this single number down.) The one choice to make is how many **epochs** (passes through the training set) to train for, and it is made on the validation set. Training for 50 epochs and recording both accuracies after every epoch gives:
 
 ![Training (grey) and validation (blue) accuracy of the 3×3 perceptrons after every epoch. The shaded band is the plateau of the validation curve (its mean, 0.89) plus or minus the standard error of an accuracy measured on 100 examples (about 0.03). The orange line marks the chosen model, 2 epochs, and the star its test accuracy, measured once: 0.895.](figs/session08-3x3-epochs.png){width="85%"}
 
-- **Training accuracy never settles.** It moves between 0.88 and 0.98. The noisy, overlapping patterns cannot all be separated by straight lines, so the perceptron rule keeps changing the weights for every example it gets wrong. High training accuracy is not the goal: the model is judged on data it has not seen.
-- **Validation accuracy is noisy.** After the first epoch it moves around a plateau of about 0.89, between 0.84 and 0.94. With only 100 validation examples, one accuracy value is uncertain by about ±0.03 (its standard error, $\sqrt{p(1-p)/n}$), so most of the epoch-to-epoch movement is noise.
+From this we can observe that:
+
+- **Training accuracy never settles.** It moves between 0.88 and 0.98. The noisy, overlapping patterns cannot all be separated by straight lines, so the perceptron rule keeps changing the weights for every example it gets wrong. It should be remember that high training accuracy is not the goal: the model should be judged on data it has not seen.
+- **Validation accuracy is noisy.** After the first epoch it moves around a plateau of about 0.89, between 0.84 and 0.94. With only 100 validation examples, one accuracy value is uncertain by about ±0.03 (its standard error, $\sqrt{p(1-p)/n}$), so most of the epoch-to-epoch movement is noise. But it can (perhaps) be observed that after 30 or so epochs the training accuracy is clearly higher than the validation accuracy.
 - **Choosing the single best epoch is optimistic.** Epoch 3 happens to reach 0.94, but picking the maximum of 50 noisy numbers partly picks luck. That is a small case of *leakage through model selection* (see below): the validation accuracy of the chosen model overstates how well it will do. We use a more conservative rule, the fewest epochs whose validation accuracy reaches the plateau. That is **2 epochs** (0.90), which is also the simplest model.
 
-The model trained for two epochs is then measured **once** on the test set: **0.895**, in line with the plateau. [The notebook](notebooks/session08-ml-foundations-and-pytorch.ipynb#training-validation-and-test-sets-on-the-33-problem) computes every number here and draws the figure.
+The model trained for two epochs is then measured **once** on the test set: **0.895**, in line with the plateau.
 
 ## Evaluating a classifier
 
@@ -153,7 +155,7 @@ With only 14 test proteins, all three numbers are themselves uncertain. That lea
 
 ## How much can you trust one split?
 
-The real dataset for today: reviewed human UniProt entries with exactly one annotated location, in five classes (cytoplasm, nucleus, mitochondrion, secreted, cell membrane). Each sequence is one-hot encoded over its first 150 residues (localization signals are mostly N-terminal), giving 3000 input numbers per protein.
+The real dataset for today: reviewed human UniProt entries with exactly one annotated location, in five classes (cytoplasm, nucleus, mitochondrion, secreted, cell membrane). Each sequence is one-hot encoded (Session 6) over its first 150 residues (localization signals are mostly N-terminal), giving 150 × 20 = 3000 input numbers per protein.
 
 **Class imbalance first.** Before balancing, the classes hold 424, 497, 140, 488 and 338 proteins. A "classifier" that always answers *nucleus* reaches an accuracy of 0.263, above the 0.20 you might expect for five classes, while its MCC is exactly 0. Real proteomes are far more unbalanced than this. In a genome-wide screen for, say, a rare targeting signal, "always no" can reach 99% accuracy. Always report MCC (or precision and recall) alongside accuracy. Here we avoid the problem by balancing every class to 140 proteins (700 in total).
 

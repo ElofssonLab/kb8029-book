@@ -59,7 +59,11 @@ h_t = \tanh(W_{xh} x_t + W_{hh} h_{t-1} + b_h)
 $$
 
 The same weights are reused at every position, so one network handles
-sequences of any length. In principle $h_t$ can carry information from
+sequences of any length. The input $x_t$ at each position could be a
+one-hot vector (Session 6); the notebook's networks instead use an
+**embedding layer** (`nn.Embedding`), which gives each amino acid a
+trainable vector (24 or 32 numbers in the notebook), learned with the rest of the
+network. In principle $h_t$ can carry information from
 arbitrarily far back.
 
 ### Why gradients vanish or explode through time
