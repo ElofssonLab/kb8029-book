@@ -29,72 +29,66 @@ an internal source and not linked. Every number below was computed in
 code and read back from the notebook's output.
 :::
 
-# Session 9: Backpropagation, Training, and Regularization
+# Session 9: How a Neural Network Learns, and Why Training Fails
 
 ## Learning goals
 
 By the end of this session you should be able to:
 
-- explain backpropagation as the chain rule applied layer by layer;
-- write and run the standard PyTorch training loop, with mini-batches,
-  standardized inputs and early stopping;
-- choose the output unit and loss for classification (cross-entropy) and
-  regression (mean squared error);
-- explain the vanishing-gradient problem and why ReLU, weight
-  initialization and batch normalization help;
-- apply dropout, L2 and early stopping against overfitting;
-- judge **when a hidden layer actually pays off**, from how additive the
-  problem is and how many examples there are per weight;
-- read the architecture of Rost & Sander's PHD method and name where each
-  of its parts comes from in this course.
+- describe the training cycle (predictions → loss → gradients → update) and write the standard PyTorch training loop;
+- explain backpropagation as the chain rule applied from the loss backwards through the network;
+- choose the loss for classification (cross-entropy) and regression (mean squared error), and explain why confident mistakes are expensive;
+- recognize three common ways training fails (equal starting weights, vanishing gradients, a poor optimizer or learning rate) and name the fix for each;
+- judge when a hidden layer pays off, and why a very large network can lose to a simple baseline;
+- use early stopping, weight decay and dropout against overfitting, and evaluate the result honestly.
 
-The session has three parts, each with its own dataset: **backpropagation
-and the training loop** (breast-cancer biopsies), **regression with a
-network** (California housing), and **when data is scarce** (Session 8's
-protein-localization network).
+Sessions 6, 8 and 9 form one progression. Session 6 asked **what a neural network can represent**. Session 8 asked **how we know whether a model generalizes**. This session asks **how we actually train a network, and why training sometimes succeeds and sometimes fails**.
 
-# Part 1: Backpropagation and the training loop
+The starting point is concrete. In Session 8 we built a network, but its weights were random, so its predictions were no better than chance. We have labelled examples. How do we turn the random weights into useful predictions? The whole session answers that question, with four datasets: breast-cancer biopsies (the training loop), California housing (when a hidden layer pays off), Session 8's protein localization (when a network is too large for its data), and MNIST digits in the lab.
 
-## Backpropagation: the chain rule, layer by layer
+# 1. From an untrained network to a trained network
 
-Session 1 introduced the chain rule; a network with a hidden layer is
-exactly a composition of functions, $\hat y = f_2(f_1(x))$, so training
-it needs the loss's derivative with respect to *every* weight in *both*
-layers. **Backpropagation is not a different algorithm from the chain
-rule — it is the chain rule**, applied systematically from the output
-layer backward to the input layer, reusing each layer's already-computed
-derivative rather than recomputing it from scratch for every weight
-individually. PyTorch's `loss.backward()` does this
-automatically for a computation graph of any depth — automation that
-becomes essential the moment a model has more than one layer, which is
-why Session 6's from-scratch gradient descent doesn't scale past a single
-linear layer by hand.
+The **Wisconsin breast-cancer** dataset has 569 fine-needle biopsies, each described by 30 features measured on microscope images of the cell nuclei (radius, texture, perimeter, smoothness, concavity and so on). Each biopsy is labelled malignant (212) or benign (357). We split it into 398 training, 85 validation and 86 test biopsies, and standardize the features with statistics from the training set only (Session 8). The network has one hidden layer of 16 ReLU units and one output, 513 weights in all.
 
-**A tiny worked example, verified against `autograd`.** Real networks
-have thousands to hundreds of thousands of weights (Part 3's classifier
-has 192,389), far too many to trace by hand, but the mechanics are identical at any size, so the notebook shrinks the
-same two-layer shape (hidden layer, then output layer) down to 2
-inputs, one tanh hidden unit, and one sigmoid output unit: small enough
-to compute completely by hand. Starting from the loss and working
-backward, each layer's **error signal** ($\partial E/\partial z$) is
-computed once and reused for every weight in that layer, rather than
-re-deriving each weight's gradient from scratch — that reuse is the
-entire reason backpropagation is efficient rather than intractable. The
-notebook then builds the identical tiny network as real PyTorch
-tensors, calls `loss.backward()`, and compares: every one of the five
-hand-derived gradients matches `autograd`'s to eight decimal places.
-This isn't just an illustration — it's a real check that the by-hand
-chain-rule derivation is actually correct, using the same verification
-standard (recompute independently, don't just assert) as every other
-worked example in this course.
+Training repeats one cycle, over and over:
 
-### Further reading
+![The training cycle. The network turns inputs into predictions; the loss measures how wrong they are compared with the labels; backpropagation computes the gradient of the loss with respect to every weight; the optimizer updates the weights. The same five lines of PyTorch (right) do this for every mini-batch, in every epoch.](figs/session09-training-cycle.png){width="100%"}
 
-- Wikipedia, [Backpropagation](https://en.wikipedia.org/wiki/Backpropagation)
+Before training, the network's predicted probabilities all sit close to 0.5: it is guessing (validation accuracy 0.659, roughly the share of benign biopsies). After 100 passes through the training data, the benign biopsies are pushed towards 0 and the malignant ones towards 1:
+
+![Left: training and validation loss per epoch. Both fall quickly; after about 50 epochs the validation loss stops improving while the training loss keeps falling, and we keep the weights from the epoch with the lowest validation loss (early stopping). Right: predicted probability of malignancy for the 85 validation biopsies, before and after training.](figs/session09-bc-training.png){width="100%"}
+
+On the test set the trained network reaches accuracy 0.953, MCC 0.900 and AUROC 0.984: 2 benign biopsies called malignant and 2 malignant ones missed.
+
+**Was the hidden layer needed?** Not here. Compared by 5-fold cross-validation (one test split of 86 biopsies is too noisy, Session 8), logistic regression with 31 weights and the network with 513 both reach an accuracy of **0.979**. Malignant and benign nuclei differ mainly in size and shape, and a weighted sum of those measurements already separates them. Training works; the extra capacity simply has nothing to add. Section 5 shows a dataset where it does.
+
+# 2. How backpropagation finds every gradient
+
+Gradient descent (Session 1, Session 6) needs $\partial L / \partial w$, the slope of the loss, for **every** weight. For a single layer that was easy. But what about a weight buried several layers inside a network, whose effect on the loss passes through every later layer?
+
+![A tiny network: two inputs, one tanh hidden unit $h$, one sigmoid output $\hat y$, and the loss $L$. The forward pass (grey) computes the prediction and the loss. The backward pass (red) applies the chain rule from the loss back towards the inputs: $\partial L/\partial \hat y$ is computed once and reused for $w_3$, then multiplied by $\partial \hat y/\partial h$ and reused for $w_1$ and $w_2$.](figs/session09-backprop.png){width="90%"}
+
+**Backpropagation is an efficient application of the chain rule, from the loss backwards through the network.** Each layer's "error signal" is computed once and reused for all the weights feeding into it, so the cost of all the gradients is about the same as one forward pass. Without that reuse, networks with thousands or millions of weights could not be trained.
+
+You do not have to differentiate networks by hand. The notebook does it once for the tiny network above (five gradients, worked out with the chain rule), then builds the same network in PyTorch and calls `loss.backward()`: all five gradients agree to eight decimal places. From then on, PyTorch's **autograd** does it for any network.
+
+That gives the **training loop** you will write yourself in the lab:
+
+```python
+for epoch in range(n_epochs):
+    for xb, yb in loader:                 # one mini-batch at a time
+        optimizer.zero_grad()             # 1. clear the old gradients
+        logits = model(xb)                # 2. forward pass
+        loss = criterion(logits, yb)      # 3. how wrong is it?
+        loss.backward()                   # 4. backpropagation: every gradient
+        optimizer.step()                  # 5. update every weight
+```
+
+Real training uses **mini-batches**: a `DataLoader` shuffles the training set every epoch and serves it in small batches (here 32 biopsies), and the weights are updated after every batch. That gives many cheap, slightly noisy steps per **epoch** (one pass through the training data) instead of one expensive exact step; this is **stochastic gradient descent**. After every epoch we measure the validation loss and keep the best weights (**early stopping**).
 
 ### Further watching
 
-[*Backpropagation, intuitively*](https://www.youtube.com/watch?v=Ilg3gGewQ5U) (3Blue1Brown, Deep Learning ch. 3): the same chain-rule idea as above, built up visually one layer at a time. (Chapter 1, [*But what is a neural network?*](https://www.youtube.com/watch?v=aircAruvnKk), is embedded on Session 6.)
+[*Backpropagation, intuitively*](https://www.youtube.com/watch?v=Ilg3gGewQ5U) (3Blue1Brown, Deep Learning ch. 3), and [*Backpropagation calculus*](https://www.youtube.com/watch?v=tIeHLnjs5U8) (ch. 4) for the full chain-rule mechanics:
 
 ```{=html}
 <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
@@ -102,259 +96,87 @@ worked example in this course.
 </div>
 ```
 
-[*Backpropagation calculus*](https://www.youtube.com/watch?v=tIeHLnjs5U8) (3Blue1Brown, Deep Learning ch. 4): the full chain-rule mechanics for a general multi-layer network, the general case of the worked example above:
+# 3. Which loss to minimize
 
-```{=html}
-<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
-<iframe src="https://www.youtube.com/embed/tIeHLnjs5U8" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="Backpropagation calculus, 3Blue1Brown"></iframe>
-</div>
-```
-
-## The standard PyTorch training loop, on a clinical dataset
-
-The **Wisconsin breast-cancer** dataset has 569 fine-needle biopsies,
-each described by 30 features measured on microscope images of the cell
-nuclei: radius, texture, perimeter, smoothness, concavity and so on, each
-as a mean, a spread and a worst value. Each biopsy is labelled malignant
-(212) or benign (357).
-
-Two habits from Session 8 come first. Split the data before anything else
-(398 training / 85 validation / 86 test biopsies). Then fit the
-**standardization** (each feature's mean and standard deviation) on the
-training set only, and apply it unchanged to validation and test.
-Standardizing puts features measured in µm² and dimensionless ratios on
-the same scale, so no single feature dominates the first weighted sum.
-
-Real training uses **mini-batches**. A `DataLoader` shuffles the training
-set every epoch and serves it in batches of 32, and the weights are
-updated after every batch. That gives many cheap, slightly noisy steps
-per epoch (**stochastic gradient descent**) instead of one expensive exact
-step. Inside the loop the same four steps always repeat:
-
-```python
-for xb, yb in loader:
-    optimizer.zero_grad()            # 1. clear old gradients
-    loss = loss_fn(model(xb), yb)    # 2. forward pass + loss
-    loss.backward()                  # 3. backpropagation
-    optimizer.step()                 # 4. update every weight
-```
-
-After every epoch the notebook scores the validation set and keeps the
-weights from the best epoch, which is **early stopping**, used from here
-on.
-
-The network has one hidden layer of 16 ReLU units and one output logit,
-513 weights in total. On the test set it reaches accuracy 0.953, MCC
-0.900 and AUROC 0.984, with 2 benign biopsies called malignant and 2
-malignant ones missed.
-
-**Is the hidden layer needed?** With only 86 test biopsies, one split is
-too noisy to compare two good models (Session 8), so the notebook uses 5-fold
-cross-validation on all 569 biopsies. Logistic regression (31 weights)
-and the network (513 weights) both reach **0.979** accuracy. Malignant
-and benign nuclei differ mainly in size and shape, and a weighted sum of
-those measurements already separates them almost perfectly. The training
-loop works, but the hidden layer has nothing left to add.
-
-### Further reading
-
-- Wikipedia, [Stochastic gradient descent](https://en.wikipedia.org/wiki/Stochastic_gradient_descent)
-- UCI Machine Learning Repository, [Breast Cancer Wisconsin (Diagnostic)](https://archive.ics.uci.edu/dataset/17/breast+cancer+wisconsin+diagnostic)
-
-## Cross-entropy: why this is the loss
-
-A classifier outputs probabilities, and cross-entropy measures how far
-the predicted distribution is from the true one. For a single example it
-is
+The loss decides what "wrong" means. For **regression** we use the **mean squared error** between prediction and target. For **classification** we use **cross-entropy**. For one example it is the negative log of the probability the model gave the true class,
 
 $$
-\text{CE} = -\log p(\text{true class})
+\text{CE} = -\log p(\text{true class}),
 $$
 
-— the negative log of the probability the model gave the correct answer:
-its *surprise*, in the language of Session 1's "Entropy: average surprise"
-section. Averaged over a dataset, this is the cross-entropy $H(P, Q)$
-between the true labels $P$ and the model's predictions $Q$, and also the
-negative log-likelihood per example, so minimizing it is maximum
-likelihood (Session 1).
-Confidently wrong is punished far more than hedged: probability 0.9 on
-the truth costs $-\log(0.9) \approx 0.105$, while probability 0.01 costs
-$-\log(0.01) \approx 4.6$, over 40 times more. With two classes this is
-**binary cross-entropy** (`nn.BCEWithLogitsLoss`, which applies the
-sigmoid internally). With $K$ classes it is `nn.CrossEntropyLoss`, which
-applies softmax internally. The notebook checks both by hand: 0.109216
-for the breast-cancer validation set and 1.305748 for the localization
-network in Part 3, identical to PyTorch's values.
+its *surprise* in the language of Session 1. Averaged over a dataset, it is the negative log-likelihood, so minimizing it is maximum likelihood (Session 1).
 
-This is the same quantity Session 4 introduced from the other direction. Session
-4's "Statistical significance of an alignment score" section used
-**relative entropy** (KL-divergence) to measure how surprising a real
-alignment's substitutions are compared to a random background — and
-cross-entropy is built from it: $H(P, Q) = H(P) +
-D_{\text{KL}}(P \| Q)$, the true distribution's own entropy (Session 1) plus the
-extra cost of using the model's imperfect distribution $Q$ instead of
-the true one $P$. Minimizing cross-entropy during training *is*,
-precisely, minimizing that same KL-divergence between the model's
-predictions and the true labels — the same log-odds machinery Session 4
-used to score alignments is what drives every softmax classifier's
-training here.
+![Cross-entropy as a function of the probability given to the true class. A confident correct answer costs almost nothing; a confident mistake costs a lot.](figs/session09-cross-entropy.png){width="60%"}
 
-### Further watching
+Confidently wrong is punished far more than hedging: probability 0.9 on the truth costs 0.105, probability 0.01 costs 4.6, over 40 times more. This is what pushes a classifier to separate the classes, as in the right panel of the breast-cancer figure. For two classes PyTorch's `nn.BCEWithLogitsLoss`, and for more classes `nn.CrossEntropyLoss`, combine the sigmoid or log-softmax with this loss in one numerically stable step, so the model outputs raw logits (Session 8). The notebook checks both by hand. The lab compares cross-entropy with mean squared and mean absolute error for the same digit classifier: cross-entropy trains best.
 
-[*But what is cross-entropy?*](https://www.youtube.com/watch?v=GlYgs6v2YfU) (3Blue1Brown, Compression is Intelligence part 2): cross-entropy from the information-theory side, built up from first principles:
+::: {.callout-note collapse="true"}
+## Optional: cross-entropy and relative entropy
 
-```{=html}
-<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
-<iframe src="https://www.youtube.com/embed/GlYgs6v2YfU" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="But what is cross-entropy?, 3Blue1Brown"></iframe>
-</div>
-```
+Cross-entropy is built from the relative entropy (Kullback-Leibler divergence) of Session 4: $H(P, Q) = H(P) + D_{\text{KL}}(P \| Q)$, the true distribution's own entropy plus the extra cost of describing it with the model's distribution $Q$. Since $H(P)$ does not depend on the model, minimizing cross-entropy is minimizing the KL divergence between the model's predictions and the true labels.
+:::
 
-# Part 2: Regression with a network
+# 4. Why training fails
 
-## California housing: when the hidden layer pays off
+The training loop always runs; it does not always learn. Here are three common failures, each shown by changing one thing in a network for the California housing data (described in Section 5; the task is to predict a district's median house value, and we measure the validation error as the mean absolute error, MAE, in units of \$100,000). Predicting the training mean for every district gives an MAE of 0.912; a working 64/64 network reaches about 0.37 within 20 epochs.
 
-The 1990 US census, summarized per block group (a district of about 1,500
-people): 20,640 districts, 8 features (median income, house age, average
-rooms and bedrooms, population, average occupancy, latitude, longitude).
-The target is the median house value, in units of $100,000. It is not
-biology, but it is the clearest example of the opposite of Part 1: plenty
-of data, and features that combine in strongly *non-additive* ways.
+![Four experiments. (1) Gradient size per layer in a freshly initialized network with six hidden layers: with sigmoid, the first layer receives about eight million times less gradient than the last. (2) Starting every weight at the same value. (3) Six hidden layers with sigmoid, tanh or ReLU, trained with plain gradient descent (SGD), and sigmoid trained with Adam. (4) Optimizer and learning rate. The dotted line is the error of predicting the mean.](figs/session09-training-failures.png){width="100%"}
 
-For regression the output unit is **linear** (no activation), the loss is
-**mean squared error**, and we report the **mean absolute error** (MAE),
-which is in the target's own units. Trained for 60 epochs with early
-stopping (14,448 / 3,096 / 3,096 districts):
+### Failure 1: every weight starts the same
+
+- **Observation.** Start all weights at 0.1 instead of small random numbers. After 20 epochs the validation MAE is 0.512, no better than a linear model, against 0.373 from a random start.
+- **Why?** Every hidden unit computes the same thing and receives the same gradient, so the units stay identical for ever. After training, all 64 units in the first layer are still exactly the same: 64 units behave like one.
+- **Fix.** Random initialization *breaks the symmetry*. PyTorch does this by default.
+
+### Failure 2: deep sigmoid networks, and vanishing gradients
+
+- **Observation.** A network with six hidden layers of sigmoid units, trained with plain SGD, does not learn at all: its validation MAE stays at 0.90, the error of predicting the mean. The same network with tanh (0.420) or ReLU (0.396) learns.
+- **Why?** Backpropagation multiplies one activation *derivative* per layer, and sigmoid's derivative is at most 0.25 (and almost 0 when the unit saturates). In a freshly initialized six-layer sigmoid network, the first layer's gradient is about **eight million times smaller** than the last layer's; for tanh and ReLU the ratio is only a few hundred. The first layers barely move.
+- **Fix.** ReLU-like activations; initialization scaled to each layer's size; standardized inputs; normalization layers such as batch normalization (Ioffe & Szegedy, 2015); and modern architectures. Adaptive optimizers also help: the same sigmoid network trained with Adam, which rescales small gradients, does learn (0.425).
+
+![Derivatives of sigmoid, tanh and ReLU. Sigmoid's is at most 0.25 (at $z = 0$) and below 0.01 by $|z| = 6$. Tanh's peaks at 1 but also vanishes in both tails. ReLU's is exactly 0 or exactly 1.](figs/session09-activation-derivatives.png){width="65%"}
+
+ReLU never shrinks the gradient for positive inputs and is cheap to compute, so it is the default for hidden layers. Its weakness is the flat side: a unit whose input is negative for every example gets no gradient and never recovers ("dying ReLU"; the first discussion problem). **Leaky ReLU** and **GELU** keep a small slope there. Sigmoid remains standard for a binary *output*.
+
+### Failure 3: the optimizer and the learning rate
+
+- **Observation.** The same 64/64 network reaches a validation MAE of 0.373 with Adam (learning rate 0.001), but only 0.415 with plain SGD in the same 20 epochs. With Adam and a learning rate of 0.1, the error jumps around and ends worse than it was earlier.
+- **Why?** The learning rate sets the step size of gradient descent (Session 1). Too small is slow; too large overshoots the minimum. Adam adapts the step size for each weight.
+- **Fix.** Start with Adam and a learning rate around $10^{-3}$, and always watch the validation curve.
+
+The lab repeats all of these on MNIST, and adds the comparison of loss functions: *change one thing, see what happens, explain why*.
+
+# 5. When a hidden layer pays off: California housing
+
+The California housing data come from the 1990 US census, summarized per block group (a district of about 1,500 people): 20,640 districts, 8 features (median income, house age, average rooms and bedrooms, population, average occupancy, latitude, longitude), and the median house value as the target. It is not biology, but it is the clearest example of the opposite of breast cancer: plenty of data, and features that combine in strongly *non-additive* ways. For regression the output unit is linear and the loss is mean squared error. Trained for 60 epochs with early stopping (14,448 / 3,096 / 3,096 districts):
 
 | Model | Weights | Train MAE | Val MAE | **Test MAE** |
 |---|---|---|---|---|
 | Linear (no hidden layer) | 9 | 0.530 | 0.538 | **0.534** |
 | 64/64 | 4,801 | 0.330 | 0.355 | **0.345** |
-| 64/64 + L2 (10⁻³) | 4,801 | 0.341 | 0.363 | 0.348 |
+| 64/64 + weight decay (10⁻³) | 4,801 | 0.341 | 0.363 | 0.348 |
 | 64/64 + dropout 0.2 | 4,801 | 0.342 | 0.357 | 0.349 |
 | 256/256 | 68,353 | 0.302 | 0.352 | 0.338 |
 
-![Training (dashed) and validation (solid) MAE per epoch. The linear model levels off at about 0.54 (an average error of $54,000); the 64/64 network goes on to about 0.35.](figs/session09-housing-curves.png){width=75%}
+![Training (dashed) and validation (solid) MAE per epoch. The linear model levels off at about 0.54 (an average error of \$54,000); the 64/64 network goes on to about 0.35.](figs/session09-housing-curves.png){width="70%"}
 
-The network cuts the error by about a third. Its validation curve stays
-close to its training curve: with 14,448 training districts and 4,801
-weights (3 examples per weight), there is little overfitting to fight,
-so L2 and dropout change almost nothing. A network 14 times larger helps
-only a little more.
+The network cuts the error by about a third, and its validation curve stays close to its training curve: with 14,448 districts there is little overfitting, so weight decay and dropout change almost nothing.
 
-Why can't the linear model do this? Its prediction is a weighted *sum*,
-so latitude and longitude can only add a tilted plane across California.
-House prices depend on *where* you are in a way no plane can capture: the
-Bay Area and Los Angeles are expensive, the Central Valley between them is
-not. A hidden layer of ReLU units can build such local bumps out of
-piecewise-linear pieces. The Part 2 discussion tests this by giving both
-models only latitude and longitude.
+**Why can't the linear model do this?** Look at where the expensive houses are. A linear model's prediction is a weighted *sum*, so latitude and longitude can only add a tilted plane across the state. Prices depend on location in a way no plane can capture: the Bay Area and Los Angeles are expensive, the Central Valley between them is not. Trained on latitude and longitude alone, the difference is plain:
 
-### Further reading
+![Median house value of the test districts by location. Left: measured. Middle: a linear model using only latitude and longitude, which can only draw a smooth gradient across the state (test MAE 0.763). Right: a 64/64 network using the same two inputs, which picks out the expensive coastal regions (test MAE 0.600).](figs/session09-housing-map.png){width="100%"}
 
-- d2l.ai, [Linear Regression](https://d2l.ai/chapter_linear-regression/linear-regression.html) (the regression loss and output unit)
-- d2l.ai, [Multilayer Perceptrons](https://d2l.ai/chapter_multilayer-perceptrons/index.html)
+A hidden layer of ReLU units builds those local regions out of piecewise-linear pieces. This is Session 6's lesson on real data: hidden layers can represent non-additive relationships, and here, with enough data, training actually finds one. The second discussion problem explores where the advantage comes from.
 
-## Vanishing gradients: why activation choice matters for depth
+# 6. Why not make the network enormous?
 
-The derivatives of Session 8's activation functions tell the story:
+If larger networks can represent more, why not always use an enormous one? Session 8's protein-localization network answers that. It has 3000 inputs (150 residues, one-hot), a hidden layer of 64 units and 5 outputs: **192,389 weights**, trained on only **486 proteins** of the homology-aware split.
 
-![Derivatives of sigmoid, tanh and ReLU. Sigmoid's is at most 0.25 (at $z = 0$) and below 0.01 by $|z| = 6$. Tanh's peaks at 1.0 but also vanishes in both tails. ReLU's is exactly 0 or exactly 1.](figs/session09-activation-derivatives.png){width=70%}
+![Training and validation accuracy of the localization network per epoch. Training accuracy reaches 1.0 within a few epochs; validation accuracy peaks at 0.486 (epoch 5) and then falls.](figs/session09-localization-overfitting.png){width="65%"}
 
-| Activation | Range | Zero-centered? | Saturates? | Known problem |
-|---|---|---|---|---|
-| Sigmoid | $(0,1)$ | No | Both ends | Derivative at most 0.25, so the gradient shrinks at every layer |
-| Tanh | $(-1,1)$ | Yes | Both ends | Still vanishes, though less severely |
-| ReLU | $[0,\infty)$ | No | Only for $z<0$ (derivative exactly 0) | "Dying ReLU": a unit stuck at $z<0$ for every input never recovers |
+Training accuracy reaches **1.000**: the network memorizes every training protein. Validation accuracy peaks at **0.486** after five epochs and then *falls*, to 0.438 by epoch 29. This is **overfitting** in its plainest form: with far more freedom than data, the network learns the idiosyncrasies of the training sequences instead of the general signal.
 
-Tanh is zero-centered, which is why it was long preferred over sigmoid
-for *hidden* layers. Sigmoid stays standard for a binary *output*, where
-a $(0, 1)$ probability is what is needed. ReLU never shrinks the
-gradient for positive inputs, and it is cheap to compute. Its weakness is
-the flat side. **Leaky ReLU** ($\max(0.01z, z)$) and **GELU** (a smooth
-ReLU-like curve used in transformers) keep a small slope for $z < 0$ so
-that units cannot die. This course's own networks use plain ReLU.
-
-Sigmoid and tanh saturate for large $|z|$, so their derivative there is
-near zero, and in a deep network the chain rule *multiplies* one such
-derivative per layer. A concrete check on the housing inputs: a network
-with 6 hidden layers of 64 units, freshly initialized, one backward pass,
-sigmoid vs. ReLU. The table shows the mean gradient magnitude reaching the
-layer nearest the input and the layer nearest the output:
-
-| Activation | Layer near input | Layer near output | Ratio |
-|---|---|---|---|
-| Sigmoid | $2.9\times10^{-7}$ | $2.3$ | ~8,000,000× |
-| ReLU | $1.9\times10^{-4}$ | $0.11$ | ~550× |
-
-With sigmoid, the first layer's gradient is about **eight million times
-smaller** than the last layer's, so those weights barely move under
-gradient descent. ReLU's gradients shrink far less over the same depth,
-which is why ReLU (or a variant) is the default for hidden layers.
-
-Three further tools help:
-
-- **Weight initialization** scaled to each layer's size (Xavier/Glorot
-  for tanh, He for ReLU), so activations don't saturate from the very
-  first forward pass.
-- **Input standardization**, done above for both tabular datasets.
-- **Batch normalization** (Ioffe & Szegedy, 2015), which re-standardizes
-  the *activations* between layers during training, so later layers don't
-  have to keep adapting to a shifting input.
-
-### Further reading
-
-- Wikipedia, [Vanishing gradient problem](https://en.wikipedia.org/wiki/Vanishing_gradient_problem)
-- Ioffe & Szegedy (2015), [Batch Normalization](https://arxiv.org/abs/1502.03167)
-
-# Part 3: When data is scarce
-
-## Subcellular localization, trained for real
-
-Session 8's network, trained on Session 8's homology-aware split (486 training /
-105 validation / 109 test proteins, with no 30%-identity homologs across
-the split). The notebook trains it full-batch: 486 examples fit in one
-step. Training accuracy reaches 1.000. Validation accuracy peaks at 0.486
-(epoch 5), then *falls* to 0.438 by epoch 29. This is a textbook case of
-**overfitting**. With 486 training examples, a 3000-dimensional input and
-192,389 weights, the network has far more freedom than data, and it
-memorizes idiosyncrasies of the training sequences instead of learning
-the general signal.
-
-## Regularization: dropout, L2, and early stopping
-
-Three practical tools against the overfitting demonstrated above:
-
-- **Dropout** randomly zeroes a fraction of a layer's activations during
-  each training step, preventing the network from relying too heavily
-  on any single unit.
-- **L2 regularization** (weight decay) penalizes the *square* of the
-  weights, discouraging any single weight from growing large; PyTorch
-  applies it via the optimizer's `weight_decay` argument rather than a
-  separate loss term. **L1 regularization** (Lasso) uses the *absolute
-  value* instead, and tends to push some weights to exactly zero rather
-  than just shrinking all of them.
-- **Early stopping** — simply not training past the epoch where
-  validation performance peaks — costs nothing extra to implement and
-  is often the single most effective fix.
-
-Applied here, training accuracy still reaches 1.000 in every run: with
-192,389 weights and 486 examples, the model can memorize the training set
-whatever we do. What helps is **early stopping**, which keeps the network
-near its peak (0.486) instead of the 0.438 it has sunk to by the end.
-Dropout + L2 did *not* improve on that peak (best validation accuracy
-0.476, at epoch 13 of 100). Regularization is not a substitute for having
-enough data relative to model size.
-
-### Further reading
-
-- Wikipedia, [Regularization (mathematics)](https://en.wikipedia.org/wiki/Regularization_(mathematics)), [Dropout (neural networks)](https://en.wikipedia.org/wiki/Dropout_(neural_networks)), [Early stopping](https://en.wikipedia.org/wiki/Early_stopping)
-
-## The result, and an honest baseline
-
-The epoch was chosen on the validation set, so the final metrics come
-from the **test set**, used once. Next to them are the untrained network
-from Session 8 and Session 8's linear baseline (logistic regression, no hidden
-layer) trained on the same proteins:
+And the simple baseline wins. Measured once on the test set:
 
 | Metric | Untrained network (Session 8, val) | Trained network (test) | Logistic regression (test) |
 |---|---|---|---|
@@ -363,61 +185,55 @@ layer) trained on the same proteins:
 | MCC | −0.027 | 0.394 | **0.461** |
 | Macro AUROC | 0.474 | 0.831 | **0.849** |
 
-Training works: every metric moves far above chance. But **the linear
-model wins**. Always compare against a simple baseline before believing
-that a bigger model is better.
+Training works, since every number is far above chance. But **the linear model is better**. Always compare against a simple baseline before believing that a bigger model is better.
 
-## When does a hidden layer pay off?
+# 7. What can we do about overfitting?
 
-Today's three datasets side by side:
+- **More data.** The most reliable fix, and often the only one that really helps.
+- **A smaller model, or a better architecture.** Fewer weights for the same input. Session 10's convolutional network needs 19,237 weights instead of 192,389.
+- **Early stopping.** Keep the weights from the epoch with the best validation score. It costs nothing and is used throughout this course.
+- **Weight decay (L2 regularization).** Penalize large weights; in PyTorch, the optimizer's `weight_decay` argument.
+- **Dropout.** Randomly switch off a fraction of the units in every training step, so the network cannot rely on any single unit.
+
+Applied to the localization network, dropout and weight decay do *not* beat early stopping alone (best validation accuracy 0.476 against 0.486). Training accuracy still reaches 1.000 whatever we do: with 192,389 weights and 486 examples the network can always memorize. Regularization is not a substitute for enough data.
+
+::: {.callout-note collapse="true"}
+## Optional: L1 regularization
+
+**L1 regularization** penalizes the *absolute values* of the weights instead of their squares. It tends to push many weights to exactly zero, giving a sparse model, while L2 shrinks all of them a little. The third discussion problem compares the two on synthetic data.
+:::
+
+# 8. Is the improvement real?
+
+Session 8's rules apply to every comparison in this session: choices (epochs, sizes, regularization) are made on the validation set, the test set is used once, and every model is compared with a simple baseline. The three datasets side by side:
 
 | Dataset | Training examples | Network weights | Examples per weight | Network vs. linear |
 |---|---|---|---|---|
-| Breast cancer (Part 1) | 398 | 513 | 0.78 | tie (CV accuracy 0.979 vs. 0.979) |
-| California housing (Part 2) | 14,448 | 4,801 | 3.0 | **network** (test MAE 0.345 vs. 0.534) |
-| Localization (Part 3) | 486 | 192,389 | 0.003 | **linear** (test accuracy 0.514 vs. 0.569) |
+| Breast cancer | 398 | 513 | 0.78 | tie (CV accuracy 0.979 vs. 0.979) |
+| California housing | 14,448 | 4,801 | 3.0 | **network** (test MAE 0.345 vs. 0.534) |
+| Protein localization | 486 | 192,389 | 0.003 | **linear** (test accuracy 0.514 vs. 0.569) |
 
-A hidden layer pays off when two things hold at once:
+- **Breast cancer:** the network trains well, but a linear model is just as good; the problem is nearly additive.
+- **California housing:** the network clearly wins; the relationship is non-additive, and there are enough data to learn it.
+- **Protein localization:** the network memorizes and loses to the baseline; the data are scarce relative to the model.
 
-1. The relationship between inputs and output is **not additive**
-   (location in housing, the XOR pattern of Session 6).
-2. There are **enough examples per weight** to learn that relationship.
+Examples per weight is a **warning sign, not a strict rule**: modern networks often have more weights than training examples and still generalize, thanks to their architecture, regularization and the way they are trained. But when a model is huge relative to its data, check it against a baseline before trusting it.
 
-Breast cancer is nearly additive, so the hidden layer has nothing to add.
-Localization may well be non-additive, but with 0.003 examples per weight
-the network mostly memorizes. The way out is more data, or an
-architecture that needs far fewer weights for the same input. That is
-what Session 10's convolutional network does: 19,237 weights instead
-of 192,389.
+::: {.callout-tip icon="false"}
+## Now you can read the whole PHD pipeline
 
-## The payoff: PHD
+Rost & Sander's PHD (1993, Session 6) is the recipe of Sessions 5-9 at the scale that mattered historically: **profile input** from a multiple alignment (Session 5), networks with a **hidden layer** (Session 6) and **three outputs** (Session 8), trained by **backpropagation** (this session), and evaluated by cross-validation on test sets purged of similar sequences (Session 8's homology partitioning). It reached 70.8% three-state accuracy.
+:::
 
-On Session 6, Rost & Sander's **PHD** method (1993) appeared as the network
-that broke the 65% plateau in secondary-structure prediction. Every part
-of it is now familiar:
-
-![PHD's three levels. A window of profile columns from a multiple sequence alignment feeds a sequence-to-structure network with a hidden layer and three outputs (helix, strand, loop). A structure-to-structure network then reads those outputs for neighbouring residues, and a jury averages several independently trained networks. Drawn for this course from the description in Rost & Sander (1993).](figs/session09-phd-architecture.png){width=100%}
-
-- **Profile input from a multiple sequence alignment** (Session 5). The
-  family information alone was worth six to eight percentage points.
-- **A hidden layer** (Session 6) and **three outputs** for helix/strand/loop
-  (Session 8's multi-class output), trained by **backpropagation** (today).
-- **A second network** that smooths the first one's predictions over
-  neighbouring residues, so helices and strands come out with realistic
-  lengths.
-- **A jury** that averages several networks, a form of the ensembling
-  that is still standard.
-- **Honest evaluation:** cross-validation on test sets purged of
-  sequences similar to the training set (the PNAS paper's words), which is
-  Session 8's homology partitioning.
-
-The result was 70.8% three-state accuracy, and better than 82% on the
-half of the residues that PHD itself flagged as most reliable.
+**Next: fewer weights, by using the structure of the data.** A fully connected layer has a separate weight for every connection, which is why the localization network needs 192,389 of them. A sequence, however, has structure: the same motif means the same thing wherever it occurs. Can we exploit that, and use far fewer weights? That is **convolution**, Session 10.
 
 ### Further reading
 
+- Wikipedia, [Backpropagation](https://en.wikipedia.org/wiki/Backpropagation), [Stochastic gradient descent](https://en.wikipedia.org/wiki/Stochastic_gradient_descent), [Vanishing gradient problem](https://en.wikipedia.org/wiki/Vanishing_gradient_problem), [Overfitting](https://en.wikipedia.org/wiki/Overfitting), [Regularization (mathematics)](https://en.wikipedia.org/wiki/Regularization_(mathematics)), [Dropout (neural networks)](https://en.wikipedia.org/wiki/Dropout_(neural_networks)), [Early stopping](https://en.wikipedia.org/wiki/Early_stopping)
+- d2l.ai, [Multilayer Perceptrons](https://d2l.ai/chapter_multilayer-perceptrons/index.html)
+- Ioffe & Szegedy (2015), [Batch Normalization](https://arxiv.org/abs/1502.03167)
 - Rost & Sander (1993), [Prediction of protein secondary structure at better than 70% accuracy](https://doi.org/10.1006/jmbi.1993.1413), *J. Mol. Biol.* 232:584-599
-- Rost & Sander (1993), [Improved prediction of protein secondary structure by use of sequence profiles and neural networks](https://pmc.ncbi.nlm.nih.gov/articles/PMC47181/), *PNAS* 90:7558-7562 (open access)
+- UCI Machine Learning Repository, [Breast Cancer Wisconsin (Diagnostic)](https://archive.ics.uci.edu/dataset/17/breast+cancer+wisconsin+diagnostic)
 
 ## Check your understanding
 
@@ -489,7 +305,40 @@ renderQuiz("session09-quiz", [
       "Standardization only works for regression"
     ],
     correctIndex: 0,
-    explanation: "A hidden layer pays off when the relationship is not additive AND there is enough data per weight to learn it."
+    explanation: "A hidden layer pays off when the relationship is not additive and there are enough data to learn it. Breast-cancer malignancy is nearly a weighted sum of size and shape measurements."
+  },
+  {
+    question: "In the training loop, what does loss.backward() do?",
+    choices: [
+      "Computes the gradient of the loss with respect to every weight, by backpropagation",
+      "Updates the weights",
+      "Clears the old gradients",
+      "Computes the predictions"
+    ],
+    correctIndex: 0,
+    explanation: "zero_grad clears the old gradients, the forward pass computes predictions and loss, backward computes all gradients, and optimizer.step updates the weights."
+  },
+  {
+    question: "All weights of a 64/64 network start at 0.1. After training, the 64 first-layer units are identical and the network does no better than a linear model. Why?",
+    choices: [
+      "Units that start identical receive identical gradients and stay identical; random initialization breaks the symmetry",
+      "0.1 is too large a learning rate",
+      "The network has too few weights",
+      "ReLU units cannot have positive weights"
+    ],
+    correctIndex: 0,
+    explanation: "With equal starting weights every hidden unit computes the same function and gets the same update, so 64 units behave like one."
+  },
+  {
+    question: "With Adam and a learning rate of 0.1, the validation error of the housing network jumps around and ends worse than earlier in training. What is the most likely cause?",
+    choices: [
+      "The learning rate is too large, so the updates overshoot the minimum",
+      "The learning rate is too small",
+      "The network has too few hidden units",
+      "The test set was used for training"
+    ],
+    correctIndex: 0,
+    explanation: "The learning rate is the step size of gradient descent: too large overshoots, too small is slow. Around 0.001 is a good starting point for Adam."
   }
 ]);
 </script>
@@ -497,20 +346,7 @@ renderQuiz("session09-quiz", [
 
 ## The notebook
 
-`notebooks/session09-backprop-training-regularization.ipynb` runs everything
-on this page, in the same three parts:
-
-1. The hand-computed backpropagation example checked against autograd,
-   the mini-batch training loop on the breast-cancer data, the
-   cross-validated comparison with logistic regression, and the
-   cross-entropy check.
-2. California housing (linear model vs. networks, L2, dropout, learning
-   curves), the activation-function derivatives and the six-layer
-   vanishing-gradient measurement.
-3. Session 8's localization dataset and homology-aware split, rebuilt so the
-   notebook runs on its own: overfitting, dropout + L2 + early stopping,
-   test-set metrics against logistic regression, and the three-dataset
-   comparison.
+`notebooks/session09-backprop-training-regularization.ipynb` computes every number and figure on this page, section by section: the breast-cancer training run and the predictions before and after training; the backpropagation example by hand, checked against autograd; cross-entropy by hand; the three training failures (equal initialization, deep sigmoid networks, optimizer and learning rate); the California housing models and the location-only map; and the localization network's overfitting, regularization and comparison with logistic regression.
 
 Open it in
 [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session09-backprop-training-regularization.ipynb)

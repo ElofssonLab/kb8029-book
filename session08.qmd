@@ -201,6 +201,8 @@ Next we tackle a real, though still small, problem: predicting subcellular local
 
 **Split-to-split noise.** A quick logistic-regression baseline, refitted on ten different random 70/15/15 splits, gives validation accuracies from 0.505 to 0.610 (mean 0.561, standard deviation 0.031). The data and the model are the same; only the random draw of the split differs. **k-fold cross-validation** makes better use of limited data and reduces the dependence on one particular split (it does not remove sampling variability): cut the data into $k$ class-stratified folds, train $k$ times with a different fold held out each time, and average. With $k = 5$ the notebook gets 0.540 ± 0.044. Every protein is used for validation exactly once, at $k$ times the computing cost.
 
+![Validation accuracy of the same logistic-regression baseline on ten random splits of the same 700 proteins (blue), and on the five folds of one 5-fold cross-validation (orange, with its mean and standard deviation). Only the random choice of proteins differs.](figs/session08-split-noise.png){width="70%"}
+
 ## The biological trap: homologs on both sides of the split
 
 A random split assumes that the examples are independent. **Proteins are not.** They come in families of homologs (Session 4) that share sequence and, often, structure, localization and function. Suppose one family member is in the training set and another in the test set. The model can then exploit family-specific sequence similarity rather than relying only on general targeting signals, and the test set partly rewards recognizing known families instead of measuring generalization to new kinds of proteins.
@@ -210,6 +212,8 @@ We can measure this. Clustering the 700 proteins with **MMseqs2** (a fast, BLAST
 - **31.3%** of validation proteins have a ≥30%-identity homolog in the training set;
 - the baseline classifies those correctly **67.5%** of the time;
 - it classifies the remaining proteins correctly only **50.9%** of the time.
+
+![Left: over ten random splits, validation proteins that have a homolog (≥30% identity) in the training set are classified correctly far more often than those that do not. Right: baseline accuracy on ten random and ten homology-aware splits; each dot is one split, the black line the mean.](figs/session08-homology-leakage.png){width="95%"}
 
 The fix is **homology partitioning**: cluster first, then put whole clusters into training, validation or test, so that no cluster of sequences with ≥30% identity crosses the split. This substantially reduces homology leakage, although it cannot guarantee that no remote homolog below the cutoff remains. Averaged over ten splits of each kind, baseline accuracy drops from 0.553 (random) to 0.536 (homology-aware). The overall drop is small *here* only because 476 of the 700 proteins have no homolog in the set at all. In more redundant data, such as a whole proteome or the PDB with its thousands of near-identical structures of popular proteins, the gap can be much larger. **From today on, this course uses the homology-aware split** (486 training / 105 validation / 109 test proteins), and Sessions 9 and 10 reuse it.
 
