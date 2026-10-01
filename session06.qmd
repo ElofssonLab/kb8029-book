@@ -89,7 +89,7 @@ $$
 Two iterations of gradient descent, $w_{n+1} = w_n - \eta \, dL/dw$:
 
 | $n$ | $w_n$ | prediction $w_n x$ | $dL/dw$ | $w_{n+1} = w_n - 0.05 \, dL/dw$ |
-|--------------|--------------|--------------|--------------|-----------------|
+|---------------|---------------|---------------|---------------|---------------|
 | 0 | 0.00 | 0.00 | $2(0-6)(2) = -24.0$ | 0.00 − 0.05 × (−24.0) = 1.20 |
 | 1 | 1.20 | 2.40 | $2(2.4-6)(2) = -14.4$ | 1.20 − 0.05 × (−14.4) = 1.92 |
 | 2 | 1.92 | 3.84 | $2(3.84-6)(2) = -8.64$ | 1.92 − 0.05 × (−8.64) = 2.35 |
@@ -107,7 +107,7 @@ This mirrors Session 5's PSSM (weights *derived* directly from alignment counts)
 The least-squares solution can be written with the **normal equations**. Stack the inputs into a matrix $X$ (a column of 1s for $b_0$, next to the $x$ values); then
 
 $$
-\hat{\boldsymbol\beta} = (X^\top X)^{-1} X^\top \mathbf{y}
+\hat{\beta} = (X^\top X)^{-1} X^\top \mathbf{y}
 $$
 
 This is a way to *write* the solution, not how to compute it: numerical libraries (`np.linalg.lstsq`, scikit-learn) use more stable methods than inverting $X^\top X$. And when the columns of $X$ are exactly linearly dependent, $X^\top X$ cannot be inverted at all. Today's lab comes close: the 20 amino-acid fractions of a protein sum to 1 (for 54 of its 55 proteins; one contains unknown residues), so together with the intercept column they are almost exactly linearly dependent. A least-squares solver still finds a best fit, but the individual weights are poorly determined.
