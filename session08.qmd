@@ -68,7 +68,7 @@ $$
 \sigma(z) = \frac{1}{1+e^{-z}},
 $$
 
-which maps any number to a value between 0 and 1. Despite its name, logistic regression is a *classifier*. Because it is fitted with the log-loss (cross-entropy), its output can be read as an estimate of $P(\text{secreted} \mid x)$: in the notebook, one nuclear protein gets 0.008 and one secreted protein 0.980. Whether such estimates are well *calibrated*, meaning that a predicted 0.8 is right 80% of the time, is a separate question that has to be checked on held-out data. A sigmoid applied to an arbitrary score does not make it a probability.
+which maps any number to a value between 0 and 1. Despite its name, logistic regression is a *classifier*. Because it is fitted with the log-loss (cross-entropy), its output can be read as an estimate of $P(\text{secreted} \mid x)$: in the notebook, one nuclear protein gets 0.008 and one secreted protein 0.980. Whether such estimates are well *calibrated*, meaning that a predicted 0.8 is right 80% of the time, is a separate question that has to be checked on held-out data. Keep two things apart: the **sigmoid** is just a mathematical mapping into the range 0-1, while **logistic regression** is a probabilistic model, fitted with the likelihood (cross-entropy) of the labels. Only the second makes the output an estimate of a probability; a sigmoid applied to an arbitrary score does not.
 
 The decision boundary ($\sigma(z) = 0.5$, i.e. $z = 0$) is the perceptron's straight line. What changes is that the output is now smooth and differentiable, which is what Session 9's training needs.
 
@@ -121,7 +121,7 @@ Three things can be seen in it:
 
 - **Training accuracy never settles.** It moves between 0.88 and 0.98. The noisy, overlapping patterns cannot all be separated by straight lines, so the perceptron rule keeps changing the weights for every example it gets wrong. High training accuracy is not the goal: the model is judged on data it has not seen.
 - **Validation accuracy is noisy.** After the first epoch it moves around a plateau of about 0.89, between 0.84 and 0.94. With only 100 validation examples, one accuracy value is uncertain by about ±0.03 (its standard error, $\sqrt{p(1-p)/n}$), so most of the epoch-to-epoch movement is noise. After about 30 epochs, training accuracy is clearly higher than validation accuracy: the first sign of overfitting.
-- **Choosing the single best epoch is optimistic.** Epoch 3 happens to reach 0.94, but picking the maximum of 50 noisy numbers partly picks luck. That is a small case of *leakage through model selection* (see below): the validation accuracy of the chosen model overstates how well it will do. We use a more conservative rule, the fewest epochs whose validation accuracy reaches the plateau. That is **2 epochs** (0.90), which is also the simplest model.
+- **Choosing the single best epoch is optimistic.** Epoch 3 happens to reach 0.94, but picking the maximum of 50 noisy numbers partly picks luck. This is **selection bias**: choosing the maximum of many noisy validation scores makes the reported validation performance optimistic, so the chosen model's validation accuracy overstates how well it will do. (Choosing on the validation set is what it is for; the bias is in reporting the best score as the expected one.) Tuning many choices on the same validation set can, in the end, overfit the validation set too. We therefore use the earliest epoch that has clearly reached the validation plateau, rather than chasing the highest noisy value: **2 epochs** (0.90).
 
 The model trained for two epochs is then measured **once** on the test set: **0.895**, in line with the plateau. But is that good? Accuracy alone can mislead, in particular when the classes are unbalanced. That is the topic of the next section.
 
@@ -165,7 +165,7 @@ $$
 \text{MCC} = \frac{TP\cdot TN - FP\cdot FN}{\sqrt{(TP+FP)(TP+FN)(TN+FP)(TN+FN)}}
 $$
 
-MCC runs from $-1$ (always wrong) through $0$ (no better than chance) to $+1$ (perfect), and it stays honest when the classes are unbalanced (see below). The formula above is for two classes; for problems with more classes, software such as scikit-learn uses a generalization that works on the whole confusion matrix. Over all five 3×3 classes, that multi-class MCC is 0.871.
+MCC runs from $-1$ (perfect disagreement: every prediction inverted) through $0$ (no better than chance) to $+1$ (perfect), and it stays honest when the classes are unbalanced (see below). The formula above is for two classes; for problems with more classes, software such as scikit-learn uses a generalization that works on the whole confusion matrix. Over all five 3×3 classes, that multi-class MCC is 0.871.
 
 ### ROC curves
 
@@ -182,8 +182,8 @@ A regression prediction is not simply right or wrong; it is more or less off. So
 The three numbers answer different questions:
 
 - **RMSE**: how numerically wrong are the predictions, in the target's units?
-- **Pearson $r$**: do the predictions follow the ordering and linear trend of the truth?
-- **$R^2$**: how much better are the predictions than always predicting the mean?
+- **Pearson** $r$: do the predictions follow the ordering and linear trend of the truth?
+- $R^2$: how much better are the predictions than always predicting the mean?
 
 They can disagree sharply. A systematically biased predictor, for example one that outputs $2\hat y + 0.3$ instead of $\hat y$, keeps exactly the same correlation ($r = 0.760$), because the ordering is unchanged. But its RMSE rises from 0.159 to 0.639, and its $R^2$ falls to $-6.67$, far worse than predicting the mean. A high correlation is not the same as accurate prediction. Treating it as such is one of the most common mistakes in bioinformatics papers.
 
@@ -215,7 +215,7 @@ The fix is **homology partitioning**: cluster first, then put whole clusters int
 
 ### Other ways biological data leaks
 
-Homology is the classic trap, but not the only one. Information from the test data can leak into a model in three ways: through the **samples** (related examples on both sides of the split, as with homologs), through the **preprocessing** (statistics computed on all the data), and through **model selection** (choices tuned on the data used for the final number, as with a reused test set). The common pattern is that something shared between the training and test examples, other than the signal you want to learn, lets the model cheat.
+Homology is the classic trap, but not the only one. Information from the test data can leak into a model in three ways: through the **samples** (homologs or samples from the same patient on both sides of the split), through the **preprocessing** (normalizing or selecting features using all the data), and through the **evaluation** (repeatedly inspecting the test set while choosing models). Using the *validation* set to choose a model is not leakage: that is what it is for. The common pattern is that something shared between the training and test examples, other than the signal you want to learn, lets the model cheat.
 
 - **Several samples from one individual.** Split by patient, not by sample. Otherwise the model learns to recognize the patient.
 - **Batch effects.** If all tumour samples were sequenced in one lab and all controls in another, a model can learn the lab. Keep batches balanced across classes, or split by batch.
@@ -285,11 +285,11 @@ $$
 \text{softmax}(z)_k = \frac{e^{z_k}}{\sum_{j=1}^K e^{z_j}}
 $$
 
-Take a noisy "horizontal" pattern that the perceptrons misclassify. Its five scores ($-2.19$, $-0.80$, $-2.35$, $-2.61$, $0.16$) become 0.06, 0.24, 0.05, 0.04 and 0.62, most of it on "cross". Softmax never changes *which* class wins; it expresses the relative scores as a normalized distribution. These perceptrons were not trained with cross-entropy, so the numbers sum to 1 but should **not** be read as reliable probabilities. Training with cross-entropy (Session 9) makes softmax outputs interpretable as probability estimates, but whether they are well calibrated depends on the training and has to be checked on held-out data. For biomedical predictions, where a "90% probability" may drive a decision, that check matters. With $K = 2$, softmax reduces to the sigmoid, so softmax regression is logistic regression for more than two classes.
+Take a noisy "horizontal" pattern that the perceptrons misclassify. Its five scores ($-2.19$, $-0.80$, $-2.35$, $-2.61$, $0.16$) become 0.06, 0.24, 0.05, 0.04 and 0.62, most of it on "cross". Softmax never changes *which* class wins; it expresses the relative scores as a normalized distribution. These perceptrons were not trained with cross-entropy, so the numbers sum to 1 but should **not** be read as reliable probabilities. Training with cross-entropy (Session 9) makes softmax outputs interpretable as probability estimates, but whether they are well calibrated depends on the training and has to be checked on held-out data. For biomedical predictions, where a "90% probability" may drive a decision, that check matters. For two classes, softmax is equivalent to logistic (sigmoid) classification.
 
 Because softmax gives a distribution, its **entropy** (Session 1) measures how spread out it is: 1.56 bits for the example above, against a maximum of $\log_2 5 \approx 2.32$ bits for a model that cannot tell the five classes apart at all, and 0 bits for a completely confident one. Session 9 trains the network by minimizing the **cross-entropy** between these values and the true labels.
 
-In PyTorch, a classifier's last layer outputs raw logits. The loss function (`nn.CrossEntropyLoss`, Session 9) applies softmax internally, and you apply softmax yourself only when you need normalized scores, for example for a per-class ROC curve.
+In PyTorch, a classifier's last layer outputs raw logits. The loss function (`nn.CrossEntropyLoss`, Session 9) combines log-softmax with the negative log-likelihood in one numerically stable operation, so the model should output raw logits, not softmax values. You apply softmax yourself only when you need normalized scores, for example for a per-class ROC curve.
 
 ### Further reading
 
@@ -369,7 +369,7 @@ renderQuiz("session08-quiz", [
       "It is only needed for regression"
     ],
     correctIndex: 0,
-    explanation: "Softmax preserves the ranking of the scores and rescales them into a normalized distribution. Whether those numbers are well-calibrated probabilities depends on how the model was trained, and has to be checked. With K = 2 it is the sigmoid."
+    explanation: "Softmax preserves the ranking of the scores and rescales them into a normalized distribution. Whether those numbers are well-calibrated probabilities depends on how the model was trained, and has to be checked. For two classes it is equivalent to logistic (sigmoid) classification."
   },
   {
     question: "Why does the case-study encoding keep only the first 150 residues of each sequence?",
@@ -409,11 +409,11 @@ renderQuiz("session08-quiz", [
     choices: [
       "Leakage through preprocessing: statistics of the test data have entered the model",
       "Leakage through the samples, like homologs on both sides of the split",
-      "Leakage through model selection",
+      "Evaluation leakage: inspecting the test set while choosing models",
       "No leakage, because the labels were not used"
     ],
     correctIndex: 0,
-    explanation: "Preprocessing must be fitted on the training set only. The three routes on this page: samples (homologs), preprocessing (normalization), and model selection (a reused test set)."
+    explanation: "Preprocessing must be fitted on the training set only. The three routes on this page: samples (homologs), preprocessing (normalization), and evaluation (a reused test set)."
   }
 ]);
 </script>
