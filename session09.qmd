@@ -11,17 +11,19 @@
 [Early stopping](https://en.wikipedia.org/wiki/Early_stopping)
 — CC BY-SA 4.0. Datasets: the
 [Breast Cancer Wisconsin (Diagnostic)](https://archive.ics.uci.edu/dataset/17/breast+cancer+wisconsin+diagnostic)
-data set (UCI Machine Learning Repository, CC BY 4.0) and the California
-housing data set (Pace & Barry, 1997,
-[*Statistics & Probability Letters* 33:291-297](https://doi.org/10.1016/S0167-7152(96)00140-X)),
-both loaded through [scikit-learn](https://scikit-learn.org/stable/datasets/real_world.html);
+data set (UCI Machine Learning Repository, CC BY 4.0), loaded through
+[scikit-learn](https://scikit-learn.org/stable/datasets/real_world.html); the GB1
+fitness landscape of Wu, Dai, Olson, Lloyd-Smith & Sun (2016),
+[*eLife* 5:e16965](https://doi.org/10.7554/eLife.16965) (CC BY 4.0), as
+distributed by the FLIP benchmark (Dallago et al. 2021,
+[bioRxiv](https://doi.org/10.1101/2021.11.09.467890));
 Session 8's UniProt subcellular-localization data. Ioffe & Szegedy (2015),
 "Batch Normalization," [arXiv:1502.03167](https://arxiv.org/abs/1502.03167);
 Rost & Sander (1993), [*J. Mol. Biol.* 232:584-599](https://doi.org/10.1006/jmbi.1993.1413)
 and [*PNAS* 90:7558-7562](https://pmc.ncbi.nlm.nih.gov/articles/PMC47181/)
 (the PHD method). 3Blue1Brown's neural-network and cross-entropy videos are embedded as
-further watching. The housing regression setup (linear baseline vs.
-64/64 network, L2 and dropout), the vanishing-gradient demonstration and
+further watching. The regression setup (linear baseline vs. 64/64
+network, L2 and dropout), the vanishing-gradient demonstration and
 the tiny hand-computed backpropagation example follow ideas from Magnus
 Ekman's *Learning Deep Learning* (ch. 3, 5 and 6 slide decks in
 `slides/`), a copyrighted, not openly licensed textbook, credited here as
@@ -44,7 +46,7 @@ By the end of this session you should be able to:
 
 Sessions 6, 8 and 9 form one progression. Session 6 asked **what a neural network can represent**. Session 8 asked **how we know whether a model generalizes**. This session asks **how we actually train a network, and why training sometimes succeeds and sometimes fails**.
 
-The starting point is concrete. In Session 8 we built a network, but its weights were random, so its predictions were no better than chance. We have labelled examples. How do we turn the random weights into useful predictions? The whole session answers that question, with four datasets: breast-cancer biopsies (the training loop), California housing (when a hidden layer pays off), Session 8's protein localization (when a network is too large for its data), and MNIST digits in the lab.
+The starting point is concrete. In Session 8 we built a network, but its weights were random, so its predictions were no better than chance. We have labelled examples. How do we turn the random weights into useful predictions? The whole session answers that question, with four datasets: breast-cancer biopsies (the training loop), a protein fitness landscape (why training fails, and when a hidden layer pays off), Session 8's protein localization (when a network is too large for its data), and MNIST digits in the lab.
 
 # 1. From an untrained network to a trained network
 
@@ -118,21 +120,21 @@ Cross-entropy is built from the relative entropy (Kullback-Leibler divergence) o
 
 # 4. Why training fails
 
-The training loop always runs; it does not always learn. Here are three common failures, each shown by changing one thing in a network for the California housing data (described in Section 5; the task is to predict a district's median house value, and we measure the validation error as the mean absolute error, MAE, in units of \$100,000). Predicting the training mean for every district gives an MAE of 0.912; a working 64/64 network reaches about 0.37 within 20 epochs.
+The training loop always runs; it does not always learn. Here are three common failures, each shown by changing one thing in a network that predicts the fitness of protein variants (the GB1 data of Section 5: 20,000 training variants, each described by the one-hot encoding of four residues). We measure the validation error as the mean absolute error (MAE) of the predicted $\log_{10}$ fitness. Predicting the training mean for every variant gives an MAE of 0.488; a working 64/64 network reaches 0.250 within 20 epochs.
 
-![Four experiments. (1) Gradient size per layer in a freshly initialized network with six hidden layers: with sigmoid, the first layer receives about eight million times less gradient than the last. (2) Starting every weight at the same value. (3) Six hidden layers with sigmoid, tanh or ReLU, trained with plain gradient descent (SGD), and sigmoid trained with Adam. (4) Optimizer and learning rate. The dotted line is the error of predicting the mean.](figs/session09-training-failures.png){width="100%"}
+![Four experiments. (1) Gradient size per layer in a freshly initialized network with six hidden layers: with sigmoid, the first layer receives about ten million times less gradient than the last. (2) Starting every weight at the same value. (3) Six hidden layers with sigmoid, tanh or ReLU, trained with plain gradient descent (SGD), and sigmoid trained with Adam. (4) Optimizer and learning rate. The dotted line is the error of predicting the mean.](figs/session09-training-failures.png){width="100%"}
 
 ### Failure 1: every weight starts the same
 
-- **Observation.** Start all weights at 0.1 instead of small random numbers. After 20 epochs the validation MAE is 0.512, no better than a linear model, against 0.373 from a random start.
+- **Observation.** Start all weights at 0.1 instead of small random numbers. After 20 epochs the validation MAE is 0.352, little better than the additive (linear) model's 0.371, against 0.250 from a random start.
 - **Why?** Every hidden unit computes the same thing and receives the same gradient, so the units stay identical for ever. After training, all 64 units in the first layer are still exactly the same: 64 units behave like one.
 - **Fix.** Random initialization *breaks the symmetry*. PyTorch does this by default.
 
 ### Failure 2: deep sigmoid networks, and vanishing gradients
 
-- **Observation.** A network with six hidden layers of sigmoid units, trained with plain SGD, does not learn at all: its validation MAE stays at 0.90, the error of predicting the mean. The same network with tanh (0.420) or ReLU (0.396) learns.
-- **Why?** Backpropagation multiplies one activation *derivative* per layer, and sigmoid's derivative is at most 0.25 (and almost 0 when the unit saturates). In a freshly initialized six-layer sigmoid network, the first layer's gradient is about **eight million times smaller** than the last layer's; for tanh and ReLU the ratio is only a few hundred. The first layers barely move.
-- **Fix.** ReLU-like activations; initialization scaled to each layer's size; standardized inputs; normalization layers such as batch normalization (Ioffe & Szegedy, 2015); and modern architectures. Adaptive optimizers also help: the same sigmoid network trained with Adam, which rescales small gradients, does learn (0.425).
+- **Observation.** A network with six hidden layers of sigmoid units, trained with plain SGD, does not learn at all: its validation MAE stays around 0.48, the error of predicting the mean. The same network with tanh (0.321) or ReLU (0.312) learns.
+- **Why?** Backpropagation multiplies one activation *derivative* per layer, and sigmoid's derivative is at most 0.25 (and almost 0 when the unit saturates). In a freshly initialized six-layer sigmoid network, the first layer's gradient is about **ten million times smaller** than the last layer's; for tanh and ReLU the ratio is a few hundred to two thousand. The first layers barely move.
+- **Fix.** ReLU-like activations; initialization scaled to each layer's size; standardized inputs; normalization layers such as batch normalization (Ioffe & Szegedy, 2015); and modern architectures. Adaptive optimizers also help: the same sigmoid network trained with Adam, which rescales small gradients, does learn (0.291).
 
 ![Derivatives of sigmoid, tanh and ReLU. Sigmoid's is at most 0.25 (at $z = 0$) and below 0.01 by $|z| = 6$. Tanh's peaks at 1 but also vanishes in both tails. ReLU's is exactly 0 or exactly 1.](figs/session09-activation-derivatives.png){width="65%"}
 
@@ -140,33 +142,37 @@ ReLU never shrinks the gradient for positive inputs and is cheap to compute, so 
 
 ### Failure 3: the optimizer and the learning rate
 
-- **Observation.** The same 64/64 network reaches a validation MAE of 0.373 with Adam (learning rate 0.001), but only 0.415 with plain SGD in the same 20 epochs. With Adam and a learning rate of 0.1, the error jumps around and ends worse than it was earlier.
+- **Observation.** The same 64/64 network reaches a validation MAE of 0.250 with Adam (learning rate 0.001), but only 0.305 with plain SGD in the same 20 epochs. With Adam and a learning rate of 0.1, the error jumps around and never gets below 0.298.
 - **Why?** The learning rate sets the step size of gradient descent (Session 1). Too small is slow; too large overshoots the minimum. Adam adapts the step size for each weight.
 - **Fix.** Start with Adam and a learning rate around $10^{-3}$, and always watch the validation curve.
 
 The lab repeats all of these on MNIST, and adds the comparison of loss functions: *change one thing, see what happens, explain why*.
 
-# 5. When a hidden layer pays off: California housing
+# 5. When a hidden layer pays off: epistasis in a protein
 
-The California housing data come from the 1990 US census, summarized per block group (a district of about 1,500 people): 20,640 districts, 8 features (median income, house age, average rooms and bedrooms, population, average occupancy, latitude, longitude), and the median house value as the target. It is not biology, but it is the clearest example of the opposite of breast cancer: plenty of data, and features that combine in strongly *non-additive* ways. For regression the output unit is linear and the loss is mean squared error. Trained for 60 epochs with early stopping (14,448 / 3,096 / 3,096 districts):
+**The data.** GB1 is a small domain of protein G, a bacterial protein that binds antibodies (IgG). Wu et al. (2016) made all 20⁴ = 160,000 combinations of amino acids at four of its positions (V39, D40, G41 and V54), and measured by deep sequencing how well each variant binds IgG; 149,361 variants have a value. Fitness is relative to the wild type (VDGV = 1) and spans several orders of magnitude, so we predict $\log_{10}(\text{fitness} + 0.001)$. Each variant is described by the **one-hot encoding** of its four residues (Session 6): 4 × 20 = 80 numbers.
 
-| Model | Weights | Train MAE | Val MAE | **Test MAE** |
-|---|---|---|---|---|
-| Linear (no hidden layer) | 9 | 0.530 | 0.538 | **0.534** |
-| 64/64 | 4,801 | 0.330 | 0.355 | **0.345** |
-| 64/64 + weight decay (10⁻³) | 4,801 | 0.341 | 0.363 | 0.348 |
-| 64/64 + dropout 0.2 | 4,801 | 0.342 | 0.357 | 0.349 |
-| 256/256 | 68,353 | 0.302 | 0.352 | 0.338 |
+**Additive or not?** A linear model on this encoding gives every amino acid at every position its own weight, and adds them up. It is an **additive** model, exactly like a profile or PSSM (Session 5): each position contributes on its own. It cannot represent **epistasis**, where the effect of a mutation depends on which residues sit at the other positions. That is the non-additive, XOR-like pattern of Session 6, now as a measured property of a real protein. A hidden layer can represent it.
 
-![Training (dashed) and validation (solid) MAE per epoch. The linear model levels off at about 0.54 (an average error of \$54,000); the 64/64 network goes on to about 0.35.](figs/session09-housing-curves.png){width="70%"}
+Trained with early stopping on 20,000 variants (5,000 for validation, 20,000 for testing):
 
-The network cuts the error by about a third, and its validation curve stays close to its training curve: with 14,448 districts there is little overfitting, so weight decay and dropout change almost nothing.
+| Model | Weights | Train MAE | Val MAE | Test MAE | **Test $R^2$** |
+|---|---|---|---|---|---|
+| Linear (additive) | 81 | 0.379 | 0.371 | 0.385 | **0.496** |
+| 64/64 | 9,409 | 0.212 | 0.250 | 0.254 | **0.787** |
+| 64/64 + weight decay (10⁻³) | 9,409 | 0.215 | 0.241 | 0.249 | 0.795 |
+| 64/64 + dropout 0.2 | 9,409 | 0.220 | 0.242 | 0.247 | 0.798 |
+| 256/256 | 86,785 | 0.193 | 0.252 | 0.259 | 0.779 |
 
-**Why can't the linear model do this?** Look at where the expensive houses are. A linear model's prediction is a weighted *sum*, so latitude and longitude can only add a tilted plane across the state. Prices depend on location in a way no plane can capture: the Bay Area and Los Angeles are expensive, the Central Valley between them is not. Trained on latitude and longitude alone, the difference is plain:
+![Training (dashed) and validation (solid) MAE per epoch, for the additive model and the 64/64 network.](figs/session09-gb1-curves.png){width="70%"}
 
-![Median house value of the test districts by location. Left: measured. Middle: a linear model using only latitude and longitude, which can only draw a smooth gradient across the state (test MAE 0.763). Right: a 64/64 network using the same two inputs, which picks out the expensive coastal regions (test MAE 0.600).](figs/session09-housing-map.png){width="100%"}
+The network explains about 79% of the variance in fitness, against 50% for the additive model. Weight decay and dropout help a little, and a network ten times larger does not help further.
 
-A hidden layer of ReLU units builds those local regions out of piecewise-linear pieces. This is Session 6's lesson on real data: hidden layers can represent non-additive relationships, and here, with enough data, training actually finds one. The second discussion problem explores where the advantage comes from.
+![Left and middle: predicted against measured $\log_{10}$ fitness for the 20,000 test variants (colour: how many variants fall in each hexagon). The additive model compresses the predictions into a narrow band and misses the fit variants; the network follows the diagonal. Right: test $R^2$ against the number of training variants.](figs/session09-gb1-epistasis.png){width="100%"}
+
+**The network needs data to learn the interactions.** With 500 training variants the two models are equally good ($R^2$ 0.43 against 0.41): the interactions exist, but there are too few examples to learn them. From a few thousand variants on, the network pulls away (0.72 at 5,000, 0.82 at 60,000), while the additive model is stuck at about 0.49, however much data it gets: no amount of data lets a sum represent an interaction.
+
+This is Session 6's lesson on real biological data: a hidden layer can represent non-additive relationships, and with enough data, training actually finds them. The second discussion problem asks where the advantage comes from, by giving the linear model hand-made interaction features for each pair of positions, as Session 6 did for XOR with $x_1 x_2$.
 
 # 6. Why not make the network enormous?
 
@@ -210,11 +216,11 @@ Session 8's rules apply to every comparison in this session: choices (epochs, si
 | Dataset | Training examples | Network weights | Examples per weight | Network vs. linear |
 |---|---|---|---|---|
 | Breast cancer | 398 | 513 | 0.78 | tie (CV accuracy 0.979 vs. 0.979) |
-| California housing | 14,448 | 4,801 | 3.0 | **network** (test MAE 0.345 vs. 0.534) |
+| GB1 fitness | 20,000 | 9,409 | 2.1 | **network** (test $R^2$ 0.787 vs. 0.496) |
 | Protein localization | 486 | 192,389 | 0.003 | **linear** (test accuracy 0.514 vs. 0.569) |
 
 - **Breast cancer:** the network trains well, but a linear model is just as good; the problem is nearly additive.
-- **California housing:** the network clearly wins; the relationship is non-additive, and there are enough data to learn it.
+- **GB1 fitness:** the network clearly wins; the relationship is non-additive (epistasis), and there are enough data to learn it.
 - **Protein localization:** the network memorizes and loses to the baseline; the data are scarce relative to the model.
 
 Examples per weight is a **warning sign, not a strict rule**: modern networks often have more weights than training examples and still generalize, thanks to their architecture, regularization and the way they are trained. But when a model is huge relative to its data, check it against a baseline before trusting it.
@@ -297,15 +303,15 @@ renderQuiz("session09-quiz", [
     explanation: "PHD is this combination, plus a second structure-to-structure network and a jury of networks. It reached 70.8% three-state accuracy in 1993."
   },
   {
-    question: "On California housing a 64/64 network cuts the test error by about a third compared with linear regression, but on the breast-cancer data the two tie. What best explains the difference?",
+    question: "On the GB1 fitness data a 64/64 network explains 79% of the variance and the additive (linear) model 50%, but on the breast-cancer data the two tie. What best explains the difference?",
     choices: [
-      "House prices depend non-additively on location (latitude x longitude), and there are ~3 examples per weight; the breast-cancer classes are separated almost linearly by nucleus size and shape",
-      "Regression problems always need hidden layers, classification problems never do",
-      "The breast-cancer network was not trained long enough",
-      "Standardization only works for regression"
+      "GB1 fitness depends on interactions between positions (epistasis), which a sum of per-position weights cannot represent, and there are enough variants to learn them; breast-cancer malignancy is nearly a weighted sum of the measurements",
+      "The network is simply bigger, and bigger always wins",
+      "Breast-cancer data cannot be used with neural networks",
+      "The GB1 data were not standardized"
     ],
     correctIndex: 0,
-    explanation: "A hidden layer pays off when the relationship is not additive and there are enough data to learn it. Breast-cancer malignancy is nearly a weighted sum of size and shape measurements."
+    explanation: "A hidden layer pays off when the relationship is not additive and there are enough data to learn it. With only 500 GB1 variants the two models tie."
   },
   {
     question: "In the training loop, what does loss.backward() do?",
@@ -330,7 +336,7 @@ renderQuiz("session09-quiz", [
     explanation: "With equal starting weights every hidden unit computes the same function and gets the same update, so 64 units behave like one."
   },
   {
-    question: "With Adam and a learning rate of 0.1, the validation error of the housing network jumps around and ends worse than earlier in training. What is the most likely cause?",
+    question: "With Adam and a learning rate of 0.1, the validation error of the GB1 network jumps around and never gets as low as with a learning rate of 0.001. What is the most likely cause?",
     choices: [
       "The learning rate is too large, so the updates overshoot the minimum",
       "The learning rate is too small",
@@ -346,7 +352,7 @@ renderQuiz("session09-quiz", [
 
 ## The notebook
 
-`notebooks/session09-backprop-training-regularization.ipynb` computes every number and figure on this page, section by section: the breast-cancer training run and the predictions before and after training; the backpropagation example by hand, checked against autograd; cross-entropy by hand; the three training failures (equal initialization, deep sigmoid networks, optimizer and learning rate); the California housing models and the location-only map; and the localization network's overfitting, regularization and comparison with logistic regression.
+`notebooks/session09-backprop-training-regularization.ipynb` computes every number and figure on this page, section by section: the breast-cancer training run and the predictions before and after training; the backpropagation example by hand, checked against autograd; cross-entropy by hand; the three training failures (equal initialization, deep sigmoid networks, optimizer and learning rate); the GB1 models and the effect of the training-set size; and the localization network's overfitting, regularization and comparison with logistic regression.
 
 Open it in
 [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session09-backprop-training-regularization.ipynb)
