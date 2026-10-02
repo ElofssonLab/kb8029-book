@@ -120,7 +120,13 @@ signal was too weak to fold proteins. Three things changed that.
    (a Potts model) to the whole alignment. Of all models that reproduce
    the alignment's single-column and column-pair frequencies, it uses the
    one with **maximum entropy** (Session 1), the one that assumes nothing
-   else. It separates direct couplings from indirect ones. DCA was first used between interacting
+   else. It separates direct couplings from indirect ones. Because its
+   pairwise couplings capture epistasis, the same kind of model also
+   predicts the effects of mutations better than an independent profile
+   does (EVmutation; Hopf et al. 2017,
+   [*Nat. Biotechnol.* 35:128](https://doi.org/10.1038/nbt.3769)): the
+   interactions Session 9 measured in GB1, learned from an alignment
+   instead of an experiment. DCA was first used between interacting
    bacterial signalling proteins (Weigt et al. 2009,
    [*PNAS* 106:67](https://doi.org/10.1073/pnas.0805923106)), then for
    contacts within hundreds of protein families (Morcos et al. 2011,

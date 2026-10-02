@@ -347,6 +347,19 @@ recognize a new sequence as a member even when it has a genuinely
 different number of residues at a variable region, something a
 fixed-width PSSM can only approximate.
 
+::: {.callout-note icon="false"}
+## What neither a PSSM nor a profile HMM can represent
+
+Both score a sequence position by position: the score is a sum over
+columns, so each position contributes independently of the others. Real
+proteins do not always work that way. When mutations interact, so that
+the effect of one depends on the residue at another position
+(**epistasis**), no profile can capture it. Session 9 shows a protein
+where this matters (all 160,000 variants at four positions of GB1), and
+Session 12 shows how pairwise models fitted to an alignment (direct
+coupling analysis) add those interactions.
+:::
+
 ### Further watching
 
 [*A friendly introduction to Bayes Theorem and Hidden Markov Models*](https://www.youtube.com/watch?v=kqSzLo9fenk) (Luis Serrano):
