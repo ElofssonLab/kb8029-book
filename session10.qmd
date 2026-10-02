@@ -316,7 +316,7 @@ A **contact map** is an $L \times L$ grid with one pixel per residue
 pair. A pixel is 1 if the two residues are close in the folded
 structure: in CASP's definition, Cβ atoms (Cα for glycine) within 8 Å.
 Computed from the real crystal structure of hemoglobin's β chain (PDB
-4HHB, Session 7):
+4HHB, Session 6):
 
 ![Contact map of β-globin (4HHB chain B, 146 residues). The band along the diagonal is each helix contacting itself; the off-diagonal blocks are pairs of helices packed against each other. Red bars: the eight α-helices annotated in the PDB file.](figs/session10-hbb-contact-map.png){width=60%}
 
@@ -366,7 +366,7 @@ the whole 3D structure directly, which is Session 12's topic.
 
 ## The secondary-structure thread, continued
 
-The accuracy history from Session 6 did not stop at PHD:
+The accuracy history from Session 7 did not stop at PHD:
 
 ![Three-state secondary-structure accuracy (Q3) as reported by each method's paper. The test sets differ between papers, so compare the trend rather than individual points.](figs/session10-ss-accuracy.png){width=85%}
 

@@ -13,7 +13,7 @@ assumed from a folder name).
 ## Framing
 
 This project is not a new topic. It's the same problem posed
-descriptively on Session 7, using the tools built up from Session 5 (profiles)
+descriptively on Session 6, using the tools built up from Session 5 (profiles)
 through Session 12 (AlphaFold): design, train, and evaluate your own
 secondary-structure predictor. There is no single correct architecture —
 part of the assignment is deciding how to build the model yourself,
@@ -25,7 +25,7 @@ recurrence → attention) and by your own reading of the literature.
 
 You are given real protein data and asked to predict, for every residue,
 one of three secondary-structure classes: **H** (helix), **E** (strand),
-or **C** (coil) — exactly the three-class problem Session 6 and Session 9
+or **C** (coil) — exactly the three-class problem Session 7 and Session 9
 introduced with Rost & Sander's PHD method as the historical example.
 Your model should be able to use **both** of the input representations
 provided (raw sequence and PSSM profile) — comparing what each one buys

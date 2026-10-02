@@ -77,7 +77,7 @@ print(genes[genes["length"] > 600])        # a table with named columns and mixe
 | NumPy `ndarray` | numbers of one type, in any number of dimensions (Session 1's vectors and matrices) | elementwise maths, means, matrix products, boolean masks |
 | pandas `DataFrame` | a table: named columns, possibly of different types, one row per observation | select and filter by name, group, summarize, read and write CSV files |
 | Biopython `Seq` / `SeqRecord` | a biological sequence / a sequence with its identifier, description and annotations | reverse complement, translate, GC content, parse and write FASTA or GenBank (Section 5) |
-| PyTorch `Tensor` | an array that can live on a GPU and remember how it was computed | everything an array does, plus automatic gradients (Session 6 onwards) |
+| PyTorch `Tensor` | an array that can live on a GPU and remember how it was computed | everything an array does, plus automatic gradients (Session 7 onwards) |
 
 Choosing the right object is important, for instance `lengths * 2` on a list silently does something you did not mean, while on an array it does the math as expected (multiplying all numbers by 2).
 
@@ -92,7 +92,7 @@ f.backward()
 print(x0.grad, x1.grad)                    # tensor(10.) tensor(2.): Session 1's answer, (10, 2)
 ```
 
-From Session 6 onwards you never write a derivative by hand again; you call `.backward()`.
+From Session 7 onwards you never write a derivative by hand again; you call `.backward()`.
 
 ## 2. Exploring a biological dataset
 
@@ -168,7 +168,7 @@ Spearman's correlation uses only the ranks, so it doesn't care about the scale. 
 
 - `stats.ttest_ind(control, treatment, equal_var=False)` is Session 1's Welch t-test: for Session 1's control $(5.1, 4.9, 5.3, 5.0)$ and treatment $(7.2, 6.8, 7.5, 7.0)$ it gives $t \approx -11.9$, $p \approx 0.0001$. SciPy's default, `equal_var=True`, is Student's test, which assumes equal variances.
 - `scipy.cluster.hierarchy.linkage` builds a tree by repeatedly merging the closest clusters: the algorithm behind Session 4's guide tree.
-- scikit-learn has ready-made models (`LinearRegression`, `LogisticRegression`, `train_test_split`, `MLPClassifier`, ...). Sessions 6-9 build these by hand, so that you see the mechanics; in practice you would call the library.
+- scikit-learn has ready-made models (`LinearRegression`, `LogisticRegression`, `train_test_split`, `MLPClassifier`, ...). Sessions 7-9 build these by hand, so that you see the mechanics; in practice you would call the library.
 
 **Check your understanding:**
 
@@ -441,4 +441,4 @@ The animations in the 3Blue1Brown videos used throughout this course are made wi
 
 ## What's next
 
-Session 3 uses Biopython's database access at full scale: retrieving and cross-referencing real sequences across biological databases. Tensors and autograd return in Session 6's gradient-descent lab, and on Session 8 you write your first class, a PyTorch model.
+Session 3 uses Biopython's database access at full scale: retrieving and cross-referencing real sequences across biological databases. Tensors and autograd return in Session 7's gradient-descent lab, and on Session 8 you write your first class, a PyTorch model.

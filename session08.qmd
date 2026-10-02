@@ -22,7 +22,7 @@ By the end of this session you should be able to:
 - tell regression from classification, and choose the output, loss and evaluation metric that go with each;
 - write (not yet train) a PyTorch `nn.Module` classifier and count its parameters.
 
-Session 6 asked what a model *can* represent. This session asks the question that matters in practice: **how do we know whether a model has learned anything useful?**
+Session 7 asked what a model *can* represent. This session asks the question that matters in practice: **how do we know whether a model has learned anything useful?**
 
 The session has three parts. Part 1 poses the problem: is it regression or classification? Part 2, the heart of the session, is about evaluation and generalization. Part 3 builds the bridge to Session 9: activation functions, softmax and a PyTorch model. A tiny 3×3-pixel pattern problem runs through all three parts as a toy example, and a real protein-localization dataset carries the biology.
 
@@ -32,7 +32,7 @@ The session has three parts. Part 1 poses the problem: is it regression or class
 
 Machine learning distinguishes two kinds of learning.
 
-- **Supervised learning** fits a model to *labelled* examples, where the correct answer for each input is already known, so that it can predict the label of new inputs. An example is a perceptron trained on known binding and non-binding sites (Session 6).
+- **Supervised learning** fits a model to *labelled* examples, where the correct answer for each input is already known, so that it can predict the label of new inputs. An example is a perceptron trained on known binding and non-binding sites (Session 7).
 - **Unsupervised learning** finds structure in data *without* labels, for example by clustering sequences into families, or by projecting expression profiles with PCA. The MMseqs2 clustering in Part 2 of this page is an unsupervised example.
 
 A PSSM (Session 5) sits in between: it is estimated by counting residues in an alignment of family members, not fitted to labelled positive and negative examples. Both kinds of learning are useful, but almost everything we train in this course is supervised, so that is what we focus on.
@@ -49,7 +49,7 @@ What kind of supervised problem we have is decided by the *label*:
 | Fraction of residues in helices (below) | Subcellular compartment: 5 classes (below) |
 | Protein melting temperature, or stability change $\Delta\Delta G$ of a mutation | Is this mutation pathogenic or benign? |
 | mRNA expression level in a tissue | Does this protein have a signal peptide? (Session 11) |
-| Binding affinity (pK~d~) of a drug to a target | Helix / strand / coil for each residue (Session 6, Session 9) |
+| Binding affinity (pK~d~) of a drug to a target | Helix / strand / coil for each residue (Session 7, Session 9) |
 | Relative solvent accessibility of a residue (0-1) | Is this residue buried or exposed? |
 
 The last row shows that the same biology can often be posed either way. Setting a threshold on a continuous quantity turns regression into classification. That makes the problem easier, but throws information away.
@@ -62,7 +62,7 @@ The classifier on the right tells a biological story. It gives N-terminal hydrop
 
 ### Logistic regression: the bridge between the two
 
-Logistic regression computes the same weighted sum as Session 6's perceptron, $z = w_1x_1 + w_2x_2 + b$. Instead of a hard step, it passes $z$ through the **sigmoid** function:
+Logistic regression computes the same weighted sum as Session 7's perceptron, $z = w_1x_1 + w_2x_2 + b$. Instead of a hard step, it passes $z$ through the **sigmoid** function:
 
 $$
 \sigma(z) = \frac{1}{1+e^{-z}},
@@ -86,7 +86,7 @@ Deep learning had its first great breakthrough in image classification (Session 
 
 ![The five clean 3×3 patterns (top row) and two noisy examples of each. The noise is strong enough that some examples are hard even for a human.](figs/session08-3x3-patterns.png){width="75%"}
 
-The classifier is five Session 6 perceptrons, one per pattern. Each is trained to output +1 for its own pattern and −1 for every other, and the predicted class is whichever perceptron gives the highest score. This is called **one-vs-rest**. There is no hidden layer, so nothing here needs backpropagation. Part 2 uses this model to show what the three data sets are for and what the evaluation metrics mean.
+The classifier is five Session 7 perceptrons, one per pattern. Each is trained to output +1 for its own pattern and −1 for every other, and the predicted class is whichever perceptron gives the highest score. This is called **one-vs-rest**. There is no hidden layer, so nothing here needs backpropagation. Part 2 uses this model to show what the three data sets are for and what the evaluation metrics mean.
 
 ### Further reading
 
@@ -195,7 +195,7 @@ The middle panel is what you get if you evaluate on the training data, and it sa
 
 ## How much can you trust one split?
 
-Next we tackle a real, though still small, problem: predicting subcellular localization. The dataset comes from reviewed human UniProt entries (Session 3) with exactly one annotated location. We use five classes (cytoplasm, nucleus, mitochondrion, secreted, cell membrane) and leave out all others (peroxisome, Golgi, ER, and so on). Each sequence is one-hot encoded (Session 6) over its first 150 residues, because localization signals are mostly N-terminal. That gives 150 × 20 = 3000 input numbers per protein.
+Next we tackle a real, though still small, problem: predicting subcellular localization. The dataset comes from reviewed human UniProt entries (Session 3) with exactly one annotated location. We use five classes (cytoplasm, nucleus, mitochondrion, secreted, cell membrane) and leave out all others (peroxisome, Golgi, ER, and so on). Each sequence is one-hot encoded (Session 7) over its first 150 residues, because localization signals are mostly N-terminal. That gives 150 × 20 = 3000 input numbers per protein.
 
 **Class imbalance first.** Before balancing, the classes hold 424, 497, 140, 488 and 338 proteins. A "classifier" that always answers *nucleus* reaches an accuracy of 0.263, above the 0.20 you might expect for five classes, while its MCC is exactly 0. Real proteomes are far more unbalanced than this. In a genome-wide screen for, say, a rare targeting signal, "always no" can be more than 90% accurate. Therefore always report MCC, or precision and recall, alongside accuracy, and be sceptical of papers that do not. Here we avoid the problem by balancing every class to 140 proteins (700 in total).
 
@@ -224,7 +224,7 @@ Homology is the classic trap, but not the only one. Information from the test da
 - **Several samples from one individual.** Split by patient, not by sample. Otherwise the model learns to recognize the patient.
 - **Batch effects.** If all tumour samples were sequenced in one lab and all controls in another, a model can learn the lab. Keep batches balanced across classes, or split by batch.
 - **Preprocessing on the full dataset.** Normalizing, selecting features or running PCA on *all* data before splitting lets test-set information in. Fit preprocessing on the training set only.
-- **Time.** A model tested on proteins annotated *before* its training data may benefit from later annotations that were themselves predicted by similar tools. **CASP** (Session 7) avoids all of this by testing on structures that are unpublished at prediction time. This truly blind test is the model for honest evaluation.
+- **Time.** A model tested on proteins annotated *before* its training data may benefit from later annotations that were themselves predicted by similar tools. **CASP** (Session 6) avoids all of this by testing on structures that are unpublished at prediction time. This truly blind test is the model for honest evaluation.
 - **Unrepresentative data.** Swiss-Prot over-represents well-studied proteins and model organisms. A model trained on human proteins may not transfer to bacteria. The training set should look like the data the model will be used on.
 
 ### Further reading
@@ -241,7 +241,7 @@ Part 3 prepares Session 9, where networks are trained. It covers how units are c
 
 ## Connectivity decides the number of weights
 
-A network connects many units of the kind Session 6 introduced. How they are connected decides how many weights a layer has, and it builds an assumption about the data into the model:
+A network connects many units of the kind Session 7 introduced. How they are connected decides how many weights a layer has, and it builds an assumption about the data into the model:
 
 ![How units are connected decides how many weights a layer has. Fully connected: every input to every output (Sessions 8-9). Sparse: only some connections, closer to real brains. Local with shared weights: each output sees only a small window of neighbouring inputs, and every window reuses the same three weights. This is convolution, Session 10's key idea, and it is why convolutional networks need so many fewer parameters.](figs/session08-connectivity.png){width="100%"}
 
@@ -250,7 +250,7 @@ A fully connected layer (`nn.Linear`) connects every input to every output, so i
 ::: {.callout-note collapse="true"}
 ## Optional: biological and artificial networks, and the architectures still to come
 
-Session 6 introduced the perceptron as Rosenblatt's simplified neuron. Beyond single units, the analogy with biology becomes loose:
+Session 7 introduced the perceptron as Rosenblatt's simplified neuron. Beyond single units, the analogy with biology becomes loose:
 
 ![Top: a biological neuron and a small biological network, with sparse connections, feedback loops, and both excitatory (grey) and inhibitory (red) synapses. Bottom: the artificial counterparts. A unit computes a weighted sum and applies an activation $f$. A feed-forward network arranges units in layers with connections running in one direction only.](figs/session08-neuron-to-network.png){width="100%"}
 
@@ -273,7 +273,7 @@ $$
 \text{ReLU}(z) = \max(0, z)
 $$
 
-![The step function of Session 6's perceptron (dashed) and three replacements that gradient descent can work with.](figs/session08-activation-functions.png){width="70%"}
+![The step function of Session 7's perceptron (dashed) and three replacements that gradient descent can work with.](figs/session08-activation-functions.png){width="70%"}
 
 - **Sigmoid** outputs a value in $(0, 1)$. It remains the standard for a binary output unit.
 - **tanh** has the same S shape but is centred on zero, with outputs in $(-1, 1)$.

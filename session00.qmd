@@ -8,7 +8,7 @@
 
 KB8029 brings two subjects together: **bioinformatics**, the computational analysis of biological sequences and structures, and **machine learning**, in particular the neural networks behind today's methods. They are not taught as two separate halves. The classical bioinformatics methods motivate the machine learning, and the machine learning is applied to the same biological problems.
 
-![The course at a glance. Sessions 1-2 refresh the mathematics and programming the rest of the course uses. Sessions 3-5 cover classical bioinformatics: databases, alignment, and database searches with profiles. In Sessions 6-9 the two subjects meet: a profile score turns out to be a simple neural network, and the networks are trained properly. Sessions 10-12 cover modern deep learning, up to AlphaFold. One problem, predicting protein structure from sequence, runs through the second half and ends in your capstone project.](figs/session00-roadmap.png){width="100%"}
+![The course at a glance. Sessions 1-2 refresh the mathematics and programming the rest of the course uses. Sessions 3-6 cover classical bioinformatics: databases, alignment, database searches with profiles, and protein structure. In Sessions 7-9 the two subjects meet: a profile score turns out to be a simple neural network, and the networks are trained properly. Sessions 10-12 cover modern deep learning, up to AlphaFold. One problem, predicting protein structure from sequence, runs through the second half and ends in your capstone project.](figs/session00-roadmap.png){width="100%"}
 
 By the end of the course you should be able to
 
@@ -69,7 +69,7 @@ The lectures and labs are at SciLifeLab in Solna. You need a SciLifeLab access c
 
 ## Computers
 
-You can do almost everything on your own laptop. Some labs use the course server, which you reach with an **SSH key**, and the heavier computations use **Google Colab**, which gives free access to a GPU. The [Setup](setup.qmd) page takes you through all of it: creating and sending your SSH key, connecting VS Code to the server, and running notebooks on Colab. Session 7's lab uses **PyMOL** to look at protein structures.
+You can do almost everything on your own laptop. Some labs use the course server, which you reach with an **SSH key**, and the heavier computations use **Google Colab**, which gives free access to a GPU. The [Setup](setup.qmd) page takes you through all of it: creating and sending your SSH key, connecting VS Code to the server, and running notebooks on Colab. Session 6's lab uses **PyMOL** to look at protein structures.
 
 If you do not have a laptop that can do this, tell us now, not on the day of a lab.
 

@@ -44,7 +44,7 @@ By the end of this session you should be able to:
 - judge when a hidden layer pays off, and why a very large network can lose to a simple baseline;
 - use early stopping, weight decay and dropout against overfitting, and evaluate the result honestly.
 
-Sessions 6, 8 and 9 form one progression. Session 6 asked **what a neural network can represent**. Session 8 asked **how we know whether a model generalizes**. This session asks **how we actually train a network, and why training sometimes succeeds and sometimes fails**.
+Sessions 7, 8 and 9 form one progression. Session 7 asked **what a neural network can represent**. Session 8 asked **how we know whether a model generalizes**. This session asks **how we actually train a network, and why training sometimes succeeds and sometimes fails**.
 
 The starting point is concrete. In Session 8 we built a network, but its weights were random, so its predictions were no better than chance. We have labelled examples. How do we turn the random weights into useful predictions? The whole session answers that question, with four datasets: breast-cancer biopsies (the training loop), a protein fitness landscape (why training fails, and when a hidden layer pays off), Session 8's protein localization (when a network is too large for its data), and MNIST digits in the lab.
 
@@ -66,7 +66,7 @@ On the test set the trained network reaches accuracy 0.953, MCC 0.900 and AUROC 
 
 # 2. How backpropagation finds every gradient
 
-Gradient descent (Session 1, Session 6) needs $\partial L / \partial w$, the slope of the loss, for **every** weight. For a single layer that was easy. But what about a weight buried several layers inside a network, whose effect on the loss passes through every later layer?
+Gradient descent (Session 1, Session 7) needs $\partial L / \partial w$, the slope of the loss, for **every** weight. For a single layer that was easy. But what about a weight buried several layers inside a network, whose effect on the loss passes through every later layer?
 
 ![A tiny network: two inputs, one tanh hidden unit $h$, one sigmoid output $\hat y$, and the loss $L$. The forward pass (grey) computes the prediction and the loss. The backward pass (red) applies the chain rule from the loss back towards the inputs: $\partial L/\partial \hat y$ is computed once and reused for $w_3$, then multiplied by $\partial \hat y/\partial h$ and reused for $w_1$ and $w_2$.](figs/session09-backprop.png){width="90%"}
 
@@ -150,9 +150,9 @@ The lab repeats all of these on MNIST, and adds the comparison of loss functions
 
 # 5. When a hidden layer pays off: epistasis in a protein
 
-**The data.** GB1 is a small domain of protein G, a bacterial protein that binds antibodies (IgG). Wu et al. (2016) made all 20⁴ = 160,000 combinations of amino acids at four of its positions (V39, D40, G41 and V54), and measured by deep sequencing how well each variant binds IgG; 149,361 variants have a value. Fitness is relative to the wild type (VDGV = 1) and spans several orders of magnitude, so we predict $\log_{10}(\text{fitness} + 0.001)$. Each variant is described by the **one-hot encoding** of its four residues (Session 6): 4 × 20 = 80 numbers.
+**The data.** GB1 is a small domain of protein G, a bacterial protein that binds antibodies (IgG). Wu et al. (2016) made all 20⁴ = 160,000 combinations of amino acids at four of its positions (V39, D40, G41 and V54), and measured by deep sequencing how well each variant binds IgG; 149,361 variants have a value. Fitness is relative to the wild type (VDGV = 1) and spans several orders of magnitude, so we predict $\log_{10}(\text{fitness} + 0.001)$. Each variant is described by the **one-hot encoding** of its four residues (Session 7): 4 × 20 = 80 numbers.
 
-**Additive or not?** A linear model on this encoding gives every amino acid at every position its own weight, and adds them up. It is an **additive** model, exactly like a profile or PSSM (Session 5): each position contributes on its own. It cannot represent **epistasis**, where the effect of a mutation depends on which residues sit at the other positions. That is the non-additive, XOR-like pattern of Session 6, now as a measured property of a real protein. A hidden layer can represent it.
+**Additive or not?** A linear model on this encoding gives every amino acid at every position its own weight, and adds them up. It is an **additive** model, exactly like a profile or PSSM (Session 5): each position contributes on its own. It cannot represent **epistasis**, where the effect of a mutation depends on which residues sit at the other positions. That is the non-additive, XOR-like pattern of Session 7, now as a measured property of a real protein. A hidden layer can represent it.
 
 Trained with early stopping on 20,000 variants (5,000 for validation, 20,000 for testing):
 
@@ -172,7 +172,7 @@ The network explains about 79% of the variance in fitness, against 50% for the a
 
 **The network needs data to learn the interactions.** With 500 training variants the two models are equally good ($R^2$ 0.43 against 0.41): the interactions exist, but there are too few examples to learn them. From a few thousand variants on, the network pulls away (0.72 at 5,000, 0.82 at 60,000), while the additive model is stuck at about 0.49, however much data it gets: no amount of data lets a sum represent an interaction.
 
-This is Session 6's lesson on real biological data: a hidden layer can represent non-additive relationships, and with enough data, training actually finds them. It is also the limitation of profiles noted in Session 5: a sum over positions cannot capture interactions. Session 12 returns to it with pairwise models learned from multiple alignments. The second discussion problem asks where the advantage comes from, by giving the linear model hand-made interaction features for each pair of positions, as Session 6 did for XOR with $x_1 x_2$.
+This is Session 7's lesson on real biological data: a hidden layer can represent non-additive relationships, and with enough data, training actually finds them. It is also the limitation of profiles noted in Session 5: a sum over positions cannot capture interactions. Session 12 returns to it with pairwise models learned from multiple alignments. The second discussion problem asks where the advantage comes from, by giving the linear model hand-made interaction features for each pair of positions, as Session 7 did for XOR with $x_1 x_2$.
 
 # 6. Why not make the network enormous?
 
@@ -228,7 +228,7 @@ Examples per weight is a **warning sign, not a strict rule**: modern networks of
 ::: {.callout-tip icon="false"}
 ## Now you can read the whole PHD pipeline
 
-Rost & Sander's PHD (1993, Session 6) is the recipe of Sessions 5-9 at the scale that mattered historically: **profile input** from a multiple alignment (Session 5), networks with a **hidden layer** (Session 6) and **three outputs** (Session 8), trained by **backpropagation** (this session), and evaluated by cross-validation on test sets purged of similar sequences (Session 8's homology partitioning). It reached 70.8% three-state accuracy.
+Rost & Sander's PHD (1993, Session 7) is the recipe of Sessions 5-9 at the scale that mattered historically: **profile input** from a multiple alignment (Session 5), networks with a **hidden layer** (Session 7) and **three outputs** (Session 8), trained by **backpropagation** (this session), and evaluated by cross-validation on test sets purged of similar sequences (Session 8's homology partitioning). It reached 70.8% three-state accuracy.
 :::
 
 **Next: fewer weights, by using the structure of the data.** A fully connected layer has a separate weight for every connection, which is why the localization network needs 192,389 of them. A sequence, however, has structure: the same motif means the same thing wherever it occurs. Can we exploit that, and use far fewer weights? That is **convolution**, Session 10.
@@ -294,7 +294,7 @@ renderQuiz("session09-quiz", [
   {
     question: "How does Rost & Sander's PHD method combine the pieces introduced across Sessions 5-9?",
     choices: [
-      "Profile input from an alignment (Session 5) feeds a network with a hidden layer (Session 6) and three outputs for helix/strand/loop (Session 8), trained by backpropagation (Session 9) and tested on homology-purged test sets (Session 8)",
+      "Profile input from an alignment (Session 5) feeds a network with a hidden layer (Session 7) and three outputs for helix/strand/loop (Session 8), trained by backpropagation (Session 9) and tested on homology-purged test sets (Session 8)",
       "It replaces profile input entirely with raw one-hot sequence encoding",
       "It uses only a single perceptron with no hidden layer",
       "It is unrelated to the profile/PSSM methods introduced on Session 5"

@@ -1,559 +1,451 @@
-::: callout-note
-**Sources for this page:** d2l.ai, *Dive into Deep Learning*, [Linear Neural Networks for Regression](https://d2l.ai/chapter_linear-regression/index.html) — CC BY-SA 4.0; Wikipedia, [Perceptron](https://en.wikipedia.org/wiki/Perceptron), [*Perceptrons* (book)](https://en.wikipedia.org/wiki/Perceptrons_(book)), [Gradient descent](https://en.wikipedia.org/wiki/Gradient_descent), [Linear separability](https://en.wikipedia.org/wiki/Linear_separability), [AI winter](https://en.wikipedia.org/wiki/AI_winter), [Backpropagation](https://en.wikipedia.org/wiki/Backpropagation), [Protein secondary structure](https://en.wikipedia.org/wiki/Protein_secondary_structure), [Alpha helix](https://en.wikipedia.org/wiki/Alpha_helix), [Beta sheet](https://en.wikipedia.org/wiki/Beta_sheet), and [Protein structure prediction](https://en.wikipedia.org/wiki/Protein_structure_prediction) — CC BY-SA 4.0; Bulyk, Johnson & Church (2002), *Nucleic Acids Research* 30(5):1255-1261, [PubMed](https://pubmed.ncbi.nlm.nih.gov/11861919/); Chou & Fasman (1974), *Biochemistry* 13(2):222-245, [PubMed](https://pubmed.ncbi.nlm.nih.gov/4358940/); Garnier, Osguthorpe & Robson (1978), *Journal of Molecular Biology* 120(1):97-120, [PubMed](https://pubmed.ncbi.nlm.nih.gov/642007/); Rost & Sander (1993), "Prediction of protein secondary structure at better than 70% accuracy," *Journal of Molecular Biology* 232:584-599. The brain/perceptron figure is Rosenblatt, F., "The Design of an Intelligent Automaton," *Research Reviews*, Office of Naval Research, October 1958, pp. 5-13 — public domain (US federal government work), via [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Organization_of_a_biological_brain_and_a_perceptron.png). The real secondary-structure counts for *HBB* below were fetched live from EBI's [PDBe API](https://www.ebi.ac.uk/pdbe/api/doc/) — CC BY 4.0 — see the notebook. The by-hand AND/OR/NAND perceptron weights, the closed-form vs. iterative linear-regression comparison, and the "solve XOR by engineering a feature" example below are mined for ideas from Magnus Ekman's *Learning Deep Learning* (slide decks `Chapter-1`, `Chapter-2`, `Appendix-A` in `slides/`) — a copyrighted, not openly-licensed textbook (the very one this course rebuild is replacing), credited here as an internal source the way Petras Kundrotas's own lecture decks are on other days, not linked as further reading. Every number below was independently recomputed and verified in code, not transcribed. Text below is written from scratch, not copied, following these ideas.
+::: {.callout-note}
+**Sources for this page:** Petras Kundrotas's KB8029 lecture "Protein
+Structure" (Feb 2026) — this page follows its structure for the levels-
+of-structure and structure-prediction material, adapted and substantially
+shortened, not copied verbatim; Wikipedia,
+[Protein structure](https://en.wikipedia.org/wiki/Protein_structure),
+[Alpha helix](https://en.wikipedia.org/wiki/Alpha_helix),
+[Beta sheet](https://en.wikipedia.org/wiki/Beta_sheet),
+[Anfinsen's dogma](https://en.wikipedia.org/wiki/Anfinsen%27s_dogma),
+[Homology modeling](https://en.wikipedia.org/wiki/Homology_modeling),
+[Threading (protein sequence)](https://en.wikipedia.org/wiki/Threading_(protein_sequence)),
+[Root-mean-square deviation of atomic positions](https://en.wikipedia.org/wiki/Root-mean-square_deviation_of_atomic_positions),
+[Template modeling score](https://en.wikipedia.org/wiki/Template_modeling_score)
+— CC BY-SA 4.0; RCSB [PDB-101](https://pdb101.rcsb.org/) — CC BY 4.0;
+Baldwin & Chothia (1979), "Haemoglobin: the structural changes related to
+ligand binding and its allosteric mechanism," *Journal of Molecular
+Biology* 129:175-220 ([PubMed](https://pubmed.ncbi.nlm.nih.gov/39173/)).
+Structural-classification and structural-alignment sources: Murzin,
+Brenner, Hubbard & Chothia (1995), "SCOP: a structural classification of
+proteins database for the investigation of sequences and structures," *J. Mol. Biol.* 247:536-540
+([PubMed](https://pubmed.ncbi.nlm.nih.gov/7723011/)); Orengo, Michie,
+Jones, Jones, Swindells & Thornton (1997), "CATH — a hierarchic classification of
+protein domain structures," *Structure* 5:1093-1108
+([PubMed](https://pubmed.ncbi.nlm.nih.gov/9309224/)); Cheng, Schaeffer,
+Liao et al. (2014), "ECOD: an evolutionary classification of
+protein domains," *PLoS Computational Biology* 10:e1003926
+([PubMed](https://pubmed.ncbi.nlm.nih.gov/25474468/)); Lau, Bordin, Kandathil et al. (2024), "Exploring structural
+diversity across the protein universe with The Encyclopedia of
+Domains," *Science* 386:eadq4946
+([PubMed](https://pubmed.ncbi.nlm.nih.gov/39480926/)); Holm & Sander
+(1993), "Protein structure comparison by alignment of distance
+matrices" (DALI), *J. Mol. Biol.* 233:123-138
+([PubMed](https://pubmed.ncbi.nlm.nih.gov/8377180/)); Zhang & Skolnick
+(2005), "TM-align: a protein structure alignment algorithm based on the
+TM-score," *Nucleic Acids Research* 33:2302-2309
+([PubMed](https://pubmed.ncbi.nlm.nih.gov/15849316/)); van Kempen, Kim,
+Tumescheit, Mirdita, Lee, Gilchrist, Söding & Steinegger (2024), "Fast
+and accurate protein structure search with Foldseek," *Nature
+Biotechnology* 42:243-246
+([PubMed](https://pubmed.ncbi.nlm.nih.gov/37156916/)) — CC BY 4.0
+(Foldseek paper). The two real crystal structures used below and in the
+notebook, PDB entries [2HHB](https://www.rcsb.org/structure/2HHB)
+(deoxy hemoglobin) and [1HHO](https://www.rcsb.org/structure/1HHO) (oxy
+hemoglobin), were fetched live from the PDB archive — structure
+coordinate data is
+[CC0 1.0](https://creativecommons.org/publicdomain/zero/1.0/) (public
+domain), as is a third real structure used below,
+[1EMA](https://www.rcsb.org/structure/1EMA) (green fluorescent
+protein). All secondary-structure counts, distances, the Foldseek
+comparison, and the rendered figure below were computed fresh for this
+page and its notebook using [Biopython](https://biopython.org/), a
+locally-run [PyMOL](https://pymol.org/) (open-source), and a
+locally-run [Foldseek](https://github.com/steineggerlab/foldseek)
+(open-source), not taken from the lecture's own numbers or images.
 :::
 
-# Session 6: Linear Models, Gradient Descent, the XOR Problem & Secondary Structure Prediction
-
-::: {.callout-tip icon="false"}
-## A fast learner
-
-> **Interviewer**: What's your biggest strength?
->
-> *Me*: I'm a fast learner
->
-> **Interviewer**: What's $11*11$
->
-> *Me*: 65
->
-> **Interviewer**: Not even close. It's 121
->
-> *Me*: It's 121
-:::
+# Session 6: Protein Structure
 
 ## Learning goals
 
-By the end of this session you should be able to:
+By the end of this session you should be able to describe the four
+levels of protein structure, use PyMOL to load and inspect a real
+structure, and explain why predicting the tertiary (3D) fold from
+sequence alone is a harder problem than predicting secondary structure
+(Session 7).
 
-- explain that a profile score and a perceptron share the same mathematical core, a weighted sum (dot product), and how they differ;
-- explain how a model's weights can be *learned* from labelled examples by gradient descent, rather than derived from alignment statistics;
-- explain, with a real biological example, why some patterns cannot be captured by any linear model, and why a hidden layer only helps if its activation function is nonlinear;
-- describe how Rost & Sander's PHD method (1993) combined profile input from multiple alignments with a neural network to predict secondary structure better than earlier methods;
-- explain why a more powerful model cannot compensate for an input representation that lacks the relevant information.
+## The four levels of protein structure
 
-## Two pictures to keep in mind
+A protein starts as a **polypeptide chain**: a linear polymer of amino
+acids, connected head-to-tail, that only becomes a functional protein
+once it folds up in water. Structural biology describes that folded
+result at four increasingly complex levels:
 
-This session uses many names: profile score (PSSM), perceptron, linear and logistic regression, sigmoid, tanh, hidden layer, multilayer perceptron, PHD. Behind them are only two pictures, and together they explain the whole idea of the lecture.
+- **Primary structure** — the sequence of amino acids itself, exactly
+  the object Sessions 1-5 have been aligning, scoring, and classifying. No
+  3D information yet.
+- **Secondary structure** — local, repeating backbone shapes: the **alpha helix**, a coil held
+  together by hydrogen bonds between backbone N-H and C=O groups four
+  residues apart, and the **beta sheet**, built from extended **beta
+  strands** hydrogen-bonded edge to edge with their neighbors. Anything
+  that's neither is usually just called **coil**. Programs such as
+  DSSP assign these labels from the atomic coordinates of a solved
+  structure; Session 7 asks how well they can be *predicted* from the
+  sequence alone.
+- **Tertiary structure** — how those secondary-structure elements, and
+  everything connecting them, pack together into one compact 3D shape
+  for a single chain. This is held together mostly by the
+  **hydrophobic effect** (water excludes non-polar side chains from its
+  surface, driving them to bury themselves inside the fold) plus
+  weaker non-covalent forces between atoms of the backbone and side
+  chains (hydrogen bonds, electrostatic attraction between charged side
+  chains, and van der Waals contacts).
+- **Quaternary structure** — how multiple, separately-folded chains
+  arrange themselves with respect to each other into one functional
+  assembly. Not every protein has this level at all (many function as
+  a single chain); those that do can range from two chains up to,
+  in some experimentally solved structures, hundreds.
 
-![Top: one weighted sum followed by an activation. A PSSM score, a perceptron and logistic regression are all this picture, and all of them draw one straight boundary. Bottom: a hidden layer of weighted sums with a nonlinear activation, followed by one more weighted sum. This is a multilayer perceptron (MLP), such as PHD, and it can combine several boundaries.](figs/session06-two-diagrams.png){width="95%"}
+**A real example, continuing this course's running case study.**
+Hemoglobin is a **heterotetramer**: two copies of an alpha-globin chain
+(141 residues) and two copies of *HBB*, beta-globin (146 residues, this
+course's running example since Session 3), each chain independently folded
+and each carrying its own oxygen-binding heme group. The notebook
+computes with PyMOL's own secondary-structure algorithm (`dss`) that one
+beta chain is **118 of 146 residues (80.8%) alpha helix, 0% beta strand**.
+The PDB entry's own annotation, which Session 7 uses, gives 117 helical
+residues: two methods that differ only in where exactly a helix ends. Rendering all four chains together, colored separately, with the
+four hemes shown as spheres, makes tertiary and quaternary structure
+directly visible at once:
 
-Keep them in mind as you read. The goal of the session is to understand what changed between the two, and why that change makes XOR possible.
-
-## 1. A profile score and a perceptron: the same weighted sum
-
-**You actually already know the central computation of a neural network.** Session 5 introduced the profile score: to check how well a sequence matches a known family, you multiply each position's observed value by a position-specific weight and add the results up. This is something you learned on the first day: a dot product, in Session 1's terms. A **perceptron** has the exact same mathematical core. It computes the weighted sum $z$:
-
-$$
-z = w_1 x_1 + w_2 x_2 + \dots + w_n x_n + b
-$$
-
-The extra term $b$, a **bias**, just shifts the whole thing by a constant amount, letting the model's decision threshold sit somewhere other than zero. Next the sum $z$ is passed through an **activation function** to produce an output. The PSSM and the perceptron share the weighted sum, but differ in what they do with it, i.e. in the **activation function**: a PSSM reports the sum itself as a *score*, while a perceptron passes the sum through an activation function, originally a threshold (output 1 if $z > 0$, else 0), to make a *classification*. Keeping the two terms apart helps later: "profile score" means a linear score, "perceptron" a (thresholded) classifier that adds an activation function to the same weighted sum.
-
-**Where the name comes from.** Frank Rosenblatt introduced the perceptron in 1958 (first as a simulation on an IBM 704 computer; the Mark I Perceptron machine followed in 1960), modelled on a simplified neuron: each synapse weights its input, the cell sums them, and it fires once the sum crosses a threshold. The weights $w_i$ stand for connection strengths and $b$ for how easily the cell fires. His own diagram set the brain's circuit next to the perceptron built to mirror it:
-
-![Rosenblatt's own 1958 diagram: a biological brain's circuit (top) next to the perceptron he built to mirror it (bottom) — retina/sensory input, an association layer, and motor/response output on both sides. Public domain (US federal government work) — Rosenblatt, F., "The Design of an Intelligent Automaton," *Research Reviews*, Office of Naval Research, October 1958, pp. 5-13.](figs/session06-rosenblatt-brain-perceptron.png){width="75%"}
-
-From a geometrical perspective, $z = 0$ is a line (in two dimensions — a plane, or hyperplane, in higher ones) and it is also the model's **decision boundary**, i.e. on one side of the line (or plane) the output is 1, and on the other side it is 0.
-
-Solving $w_1 x_1 + w_2 x_2 + b = 0$ for $x_2$ gives $x_2 = -\frac{w_1}{w_2} x_1 -
-\frac{b}{w_2}$ — the familiar $y = mx + c$ form of a line, with the bias $b$ playing the role of the intercept $c$ (scaled by $-1/w_2$): change $b$ and the whole line slides sideways, without changing its slope. That's the same role the intercept $b_0$ plays in ordinary linear regression; see the next section.
-
-### Further reading
-
-- Wikipedia, [Perceptron](https://en.wikipedia.org/wiki/Perceptron) — other activation functions and the original biological motivation, beyond the general-purpose version above
-
-### Further watching
-
-[*But what is a neural network?*](https://www.youtube.com/watch?v=aircAruvnKk) (3Blue1Brown, Deep Learning ch. 1), animating what a weighted sum + activation is doing:
-
-```{=html}
-<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
-<iframe src="https://www.youtube.com/embed/aircAruvnKk" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="But what is a neural network?, 3Blue1Brown"></iframe>
-</div>
-```
-
-## 2. Learning the weights from examples
-
-A profile's weights come from counting: look at a multiple alignment, count how often each residue appears at each position, and turn those counts into log-odds scores. That works well when you already have a trustworthy alignment to count from. As Session 5 showed, small alignments need some tricks (pseudocounts), but that is still counting, with some modifications.
-
-The alternative to **counting** — and the one the rest of this course builds on — is to **learn** the weights directly from labelled examples, using an optimisation method (normally gradient descent, as described in Session 1). You often start with arbitrary (random) weights, measure how wrong the model's current predictions are with a *loss function*, compute the gradient of that loss with respect to each weight, and nudge every weight a small step in the direction that reduces the loss. Then you repeat many times. No alignment, no hand-counting — just examples and a lot of small corrections. This is the foundation of all machine learning: you do not tell the computer what to do, you let it **learn** what to do.
-
-In this session's lab, the code is implemented directly with raw tensors and automatic differentiation (Session 2), deliberately without the higher-level `nn.Module`/training-loop tools that Session 8 introduces — the point today is to see every step of the mechanics, not to use a convenient shortcut around them.
-
-**Worked example.** Take a perceptron with one input, no bias yet ($z = wx$), an initial weight $w_0 = 0$, a training example $(x, y) =
-(2, 6)$, a squared-error loss $L(w) = (wx - y)^2$, and a learning rate $\eta = 0.05$. Session 1's chain rule gives
-
-$$
-\frac{dL}{dw} = 2(wx - y) \cdot x
-$$
-
-Two iterations of gradient descent, $w_{n+1} = w_n - \eta \, dL/dw$:
-
-| $n$ | $w_n$ | prediction $w_n x$ | $dL/dw$ | $w_{n+1} = w_n - 0.05 \, dL/dw$ |
-|---------------|---------------|---------------|---------------|---------------|
-| 0 | 0.00 | 0.00 | $2(0-6)(2) = -24.0$ | 0.00 − 0.05 × (−24.0) = 1.20 |
-| 1 | 1.20 | 2.40 | $2(2.4-6)(2) = -14.4$ | 1.20 − 0.05 × (−14.4) = 1.92 |
-| 2 | 1.92 | 3.84 | $2(3.84-6)(2) = -8.64$ | 1.92 − 0.05 × (−8.64) = 2.35 |
-
-The weight is converging toward $w = 3$, where the prediction $wx = 3 \times
-2 = 6$ would exactly match the target — and, just as in Session 1's one-variable example, the size of each correction ($dL/dw$) shrinks on its own as the prediction gets closer, with no manual adjustment to $\eta$ required — provided the learning rate is not too large. With an excessive learning rate, gradient descent overshoots the minimum and can oscillate or diverge (Session 1's second discussion problem).
-
-**Deriving vs. learning, on the simplest possible model.** Ordinary linear regression — fitting a line $\hat y = b_0 + b_1 x$ to data — has a direct numerical solution, so it makes a useful check: gradient descent should reach the same optimum, iteratively. For five noisy points roughly following $y \approx 2x$, $x = (1,2,3,4,5)$ and $y = (2.1, 3.9, 6.2, 7.8, 10.1)$, a least-squares solver gives $b_0 = 0.05$, $b_1 = 1.99$ in one step, and gradient descent (learning rate $\eta = 0.01$, thousands of small steps) converges to the same $b_0 = 0.050$, $b_1 = 1.990$.
-
-This mirrors Session 5's PSSM (weights *derived* directly from alignment counts) against today's gradient descent (weights *learned* iteratively). Gradient descent is what the rest of the course uses, because most models, a perceptron's classification loss included, have no direct solution.
-
-::: {.callout-note collapse="true"}
-## Optional: the formula
-
-The least-squares solution can be written with the **normal equations**. Stack the inputs into a matrix $X$ (a column of 1s for $b_0$, next to the $x$ values); then
-
-$$
-\hat{\beta} = (X^\top X)^{-1} X^\top \mathbf{y}
-$$
-
-This is a way to *write* the solution, not how to compute it: numerical libraries (`np.linalg.lstsq`, scikit-learn) use more stable methods than inverting $X^\top X$. And when the columns of $X$ are exactly linearly dependent, $X^\top X$ cannot be inverted at all. Today's lab comes close: the 20 amino-acid fractions of a protein sum to 1 (for 54 of its 55 proteins; one contains unknown residues), so together with the intercept column they are almost exactly linearly dependent. A least-squares solver still finds a best fit, but the individual weights are poorly determined.
-:::
+![PDB entry `2HHB`, human deoxyhemoglobin: two alpha chains (blue/cyan),
+two beta chains (salmon/pink), four heme iron atoms (orange spheres).
+Rendered from the real structure with PyMOL, not
+illustrated.](figs/session06-hemoglobin-tetramer.png){width=85%}
 
 ### Further reading
 
-- Wikipedia, [Gradient descent](https://en.wikipedia.org/wiki/Gradient_descent) — variants (momentum, stochastic gradient descent, and more) used throughout the rest of this course but not needed yet
+- Wikipedia, [Protein structure](https://en.wikipedia.org/wiki/Protein_structure) — a fuller treatment of all four levels
+- RCSB [PDB-101](https://pdb101.rcsb.org/) — short, illustrated explainers on structure and specific proteins, aimed at newcomers
 
-### Further watching
+## Protein domain classification
 
-[*Gradient descent, how neural networks learn*](https://www.youtube.com/watch?v=IHZwWFHWa-w) (3Blue1Brown, Deep Learning ch. 2):
+A **domain** is a compact, semi-independent unit within a tertiary
+structure — often able to fold and function on its own even when cut
+out of the rest of the chain, and frequently reused across otherwise
+unrelated proteins as a kind of structural building block. Sessions 3 and 5
+already covered domains from the *sequence* side (InterPro/Pfam, built
+from profile HMMs over sequence alignments). The databases below
+classify domains the other way round — from the actual solved 3D shape
+— which can group together real structural relatives that sequence
+alone misses entirely (sequence similarity fades away long before
+structural similarity does), and can equally miss a real relationship
+sequence-based methods do catch. Four real classification databases,
+each with a genuinely different philosophy:
 
-```{=html}
-<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
-<iframe src="https://www.youtube.com/embed/IHZwWFHWa-w" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="Gradient descent, how neural networks learn, 3Blue1Brown"></iframe>
-</div>
-```
+- **SCOP** (Structural Classification of Proteins; Murzin et al., 1995)
+  — the original: a hierarchy (class → fold → superfamily → family)
+  built mostly by expert manual curation, prioritizing classification
+  accuracy over automated coverage of every solved structure. Hosted at
+  EBI: [`ebi.ac.uk/pdbe/scop`](https://www.ebi.ac.uk/pdbe/scop/).
+- **CATH** (Class, Architecture, Topology, Homologous superfamily;
+  Orengo et al., 1997) — a parallel hierarchy with a similar spirit but
+  a different, more automated pipeline and different boundary/grouping
+  decisions in practice. [`cathdb.info`](https://www.cathdb.info/).
+- **ECOD** (Evolutionary Classification of Domains; Cheng et al., 2014)
+  — organizes domains primarily by inferred evolutionary relationship
+  rather than pure structural similarity, explicitly built to separate
+  "related by common ancestry" from "similar by coincidence or
+  convergence."
+  [`prodata.swmed.edu/ecod`](http://prodata.swmed.edu/ecod/).
+- **TED** (The Encyclopedia of Domains; Lau, Bordin et al., 2024, from
+  the same group that maintains CATH) — the newest of the four, built
+  by algorithmically parsing essentially the *entire* AlphaFold
+  Structure Database into domains at a scale no manual curation effort
+  could reach: hundreds of millions of predicted structures, not just
+  the roughly 200,000 experimentally solved ones the other three draw
+  from. [`ted.cathdb.info`](https://ted.cathdb.info/).
 
-## 3. What one weighted sum can represent
-
-A single perceptron with a step activation (output 1 if $z >
-0$, else 0) can implement basic logic gates directly — no training required, just weights chosen by hand:
-
-| Gate | $w_1$ | $w_2$ | $b$  |
-|------|-------|-------|------|
-| AND  | 1     | 1     | −1.5 |
-| OR   | 1     | 1     | −0.5 |
-| NAND | −1    | −1    | 1.5  |
-
-Checking AND, for instance: at $(1,1)$, $z = 1+1-1.5 = 0.5 > 0 \to 1$; at every other corner, $z \le -0.5 \to 0$ — exactly AND's truth table. (NAND is just AND with both weights and the bias negated, flipping every output.) All three check out exactly against their truth tables in the notebook.
-
-Each gate is one straight decision boundary through the square of four inputs, with the "1" corners on one side and the "0" corners on the other: for AND, only $(1,1)$ lies on the positive side of the line $x_1 + x_2 = 1.5$. The second discussion problem asks you to find weights for OR yourself.
-
-One way to understand this is to draw the four inputs as dots on a plane, and the decision boundary $z = 0$ as a line separating them. The step activation then simply asks on which side of the line a dot lies:
-
-![The three gates of the table, one panel each. Filled circles are inputs where the perceptron outputs 1, open circles where it outputs 0; the value of $z$ is written under each corner. The green line is the decision boundary $z = 0$; on the shaded side $z > 0$. For AND the line cuts off one corner, for OR it cuts off the opposite corner, and NAND is AND with the sides swapped.](figs/session06-gates.png){width="100%"}
-
-::: {.callout-tip icon="false"}
-## In the notebook
-
-[Section 3 of the notebook](notebooks/session06-gradient-descent-xor.ipynb#what-one-weighted-sum-can-do) ([open in Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session06-gradient-descent-xor.ipynb)) computes $z$ and the output for all four corners of all three gates with exactly these weights, and draws this figure.
-:::
-
-## 4. What one weighted sum can never represent: XOR
-
-A model built purely from weighted sums has a real limitation: there's a whole class of patterns it can never represent, no matter how its weights are chosen. The classic illustration is the **XOR problem**: a function of two binary inputs that outputs `1` when its inputs *differ* and `0` when they're the *same*.
-
-| $x_1$ | $x_2$ | XOR |
-|-------|-------|-----|
-| 0     | 0     | 0   |
-| 0     | 1     | 1   |
-| 1     | 0     | 1   |
-| 1     | 1     | 0   |
-
-**Before reading on, try it:** find weights $w_1, w_2, b$ that reproduce this table with one perceptron. You won't succeed: the two "1" outputs sit on opposite corners of the input square from each other, and no straight line can put both of them on one side while leaving both "0" outputs on the other. [Section 4 of the notebook](notebooks/session06-gradient-descent-xor.ipynb#what-it-can-never-do-xor) tries 226,981 combinations of $w_1$, $w_2$ and $b$ (every value from −3 to 3 in steps of 0.1): about 5,000 reproduce AND, 9,500 OR and 4,500 NAND, and not one reproduces XOR.
-
-![A linear model trained on XOR (left) settles on predicting 0.5 everywhere — every straight-line boundary it could draw leaves at least one point on the wrong side, so gradient descent gives up at the least-wrong compromise. A hidden-layer model on the same data (right) combines two linear boundaries into a non-linear one that separates all four points correctly. Both panels are the real notebook's own trained models, not illustrative sketches.](figs/session06-xor-boundary.png){width="95%"}
-
-::: {.callout-note collapse="true"}
-## Optional: the algebraic proof
-
-The geometric argument can be turned into a short proof. A perceptron with a sign-style activation outputs 1 when $z = w_1 x_1 + w_2 x_2 + b > 0$ and 0 otherwise. Reproducing the XOR table requires all four of:
-
-$$
-b \le 0, \qquad w_1 + b > 0, \qquad w_2 + b > 0, \qquad w_1 + w_2 + b \le 0
-$$
-
-(the first and last come from the two "0" rows, the middle two from the "1" rows). Adding the second and third inequalities gives $w_1 + w_2 + 2b
-> 0$, i.e. $w_1 + w_2 + b > -b \ge 0$ (using $b \le 0$ from the first inequality) — but the fourth inequality says $w_1 + w_2 + b \le 0$ directly. No values of $w_1$, $w_2$, $b$ can satisfy both at once, so no such weights exist. This is the same fact the geometric picture showed, just derived without needing to draw anything.
-:::
+These four don't always agree with each other on exactly where one
+domain ends and the next begins, or on how to group distant
+superfamilies together — a genuine, long-standing methodological
+tension in the field (different curation philosophies and similarity
+thresholds), not a matter of one being simply "right" and the others
+"wrong." Knowing more than one of these exists, and why, matters more
+than picking a single favorite.
 
 ### Further reading
 
-- Wikipedia, [Linear separability](https://en.wikipedia.org/wiki/Linear_separability) — generalizes the geometric argument above beyond the two-input case shown here
+- SCOP, [`ebi.ac.uk/pdbe/scop`](https://www.ebi.ac.uk/pdbe/scop/)
+- CATH, [`cathdb.info`](https://www.cathdb.info/)
+- ECOD, [`prodata.swmed.edu/ecod`](http://prodata.swmed.edu/ecod/)
+- TED, [`ted.cathdb.info`](https://ted.cathdb.info/)
 
-## 5. Why a hidden layer helps
+## Why predicting the fold from sequence is hard
 
-One perceptron draws one line; XOR needs two. Combining perceptrons goes further than any single one can. **OR** and **NAND**, computed separately from the same two inputs, then fed as the two inputs to an **AND** perceptron, reproduces **XOR** exactly:
+A given amino acid sequence reliably folds into the same 3D structure
+every time under normal cellular conditions — this observation is often
+called **Anfinsen's dogma**, after Christian Anfinsen's experiments
+showing a denatured (unfolded) protein could refold correctly entirely on
+its own, with no other machinery needed. That implies all the
+information needed to determine the fold is, in principle, already
+present in the sequence.
 
-| $x_1$ | $x_2$ | OR  | NAND | AND(OR, NAND) | XOR |
-|-------|-------|-----|------|---------------|-----|
-| 0     | 0     | 0   | 1    | 0             | 0   |
-| 0     | 1     | 1   | 1    | 1             | 1   |
-| 1     | 0     | 1   | 1    | 1             | 1   |
-| 1     | 1     | 1   | 0    | 0             | 0   |
+In principle is the operative phrase: reliably *predicting* that fold
+computationally, starting from sequence alone, has been one of
+biology's hardest open problems for decades. Three classical strategies
+were developed, each with a real limitation:
 
-Drawn as a network, this is a **two-layer perceptron**: two inputs, a hidden layer of two units, and one output unit. Every arrow carries a weight, and every unit adds its bias and applies the step activation:
+- **De novo (ab initio) modeling** — simulate the physics directly:
+  fold the chain by searching for the arrangement with the lowest free
+  energy. The most rigorous approach in principle, but computationally
+  so expensive it was, for a long time, only practical for small
+  proteins (under roughly 100 residues). **Rosetta** (Baker lab,
+  University of Washington) is the best-known real software built
+  around this approach — originally assembling structures from
+  short fragments of similar, already-solved sequences rather than
+  searching the full physical space from nothing, later extended well
+  beyond ab initio prediction into comparative modeling and protein
+  *design* (building a new sequence to fold into a chosen shape, not
+  just predicting the fold of an existing one). David Baker shared the
+  2024 Nobel Prize in Chemistry for this work — alongside Demis
+  Hassabis and John Jumper for AlphaFold, the deep-learning method
+  below — a real, direct link between this session's "classical" and
+  "modern" strategies, not two unrelated stories.
+- **Comparative modeling (homology modeling / threading)** — if a
+  protein of known structure is similar enough in sequence, assume the
+  new protein folds the same way and build a model from that template.
+  Cheap and reliable when a good template exists, but structurally
+  useless for a genuinely new fold with no close relative already
+  solved.
+- **Evolutionary (contact-based) methods** — infer which residue pairs
+  are likely to be physically close in the folded structure from
+  patterns of co-evolution across many homologous sequences in a
+  multiple alignment. This is the same evolutionary information Session 5's
+  profiles and PSSMs are built from, now used for a 3D geometric
+  question rather than a purely sequence-based score — a second,
+  independent instance of "evolutionary information helps," one level up
+  in structural complexity from the secondary-structure prediction of
+  Session 7.
 
-![The hand-built two-layer perceptron for XOR. The hidden unit $h_1$ computes OR (weights $+1, +1$, bias $-0.5$), $h_2$ computes NAND (weights $-1, -1$, bias $+1.5$), and the output unit $y$ computes AND of the two hidden outputs (weights $+1, +1$, bias $-1.5$).](figs/session06-network.png){width="80%"}
-
-**Step by step.** For each input, first compute the two hidden units, then the output unit from their outputs:
-
-| $x_1$ | $x_2$ | $z_{h_1} = x_1 + x_2 - 0.5$ | $h_1$ | $z_{h_2} = -x_1 - x_2 + 1.5$ | $h_2$ | $z_y = h_1 + h_2 - 1.5$ | $y$ |
-|---------|---------|---------|---------|---------|---------|---------|---------|
-| 0 | 0 | −0.5 | 0 | +1.5 | 1 | −0.5 | **0** |
-| 0 | 1 | +0.5 | 1 | +0.5 | 1 | +0.5 | **1** |
-| 1 | 0 | +0.5 | 1 | +0.5 | 1 | +0.5 | **1** |
-| 1 | 1 | +1.5 | 1 | −0.5 | 0 | −0.5 | **0** |
-
-The last column is XOR. Take $(1,1)$: both inputs are on, so the OR unit fires ($z = 1.5$) but the NAND unit does not ($z = -0.5$); the output unit then sees $h_1 + h_2 = 1$, and $1 - 1.5 < 0$, so $y = 0$. Only the two mixed inputs switch on *both* hidden units, and only then does the AND unit fire.
-
-The same calculation in matrix form, for all four inputs at once (with the inputs as the rows of $X$, one column of $W_1$ per hidden unit):
-
-$$
-H = \text{step}(X W_1 + \mathbf{b}_1), \qquad
-W_1 = \begin{pmatrix} 1 & -1 \\ 1 & -1 \end{pmatrix}, \quad
-\mathbf{b}_1 = (-0.5,\ 1.5)
-$$
-
-$$
-\mathbf{y} = \text{step}(H W_2 + b_2), \qquad
-W_2 = \begin{pmatrix} 1 \\ 1 \end{pmatrix}, \quad b_2 = -1.5
-$$
-
-[Section 5 of the notebook](notebooks/session06-gradient-descent-xor.ipynb#why-a-hidden-layer-helps) does exactly this in PyTorch and prints every intermediate value; the result is the table above.
-
-Two perceptrons computing OR and NAND form a **hidden layer**; a third perceptron combining their outputs is the model's final output — this is the shape (two hidden units feeding one output unit) that the notebook's hidden-layer network finds by gradient descent, rather than by hand. Seeing both — a hand-built exact solution here, a learned approximate one later — makes clear that gradient descent isn't discovering some exotic new trick; it's finding weights for a structure that could, in principle, be written down directly.
-
-### The activation must be nonlinear
-
-The construction above works only because each unit applies a **nonlinear** activation (here a step) before its output is passed on. Without one, stacking layers buys nothing. Write the hidden layer as $\mathbf{h} = W_1 \mathbf{x} + \mathbf{b}_1$ and the output as $z = W_2 \mathbf{h} + b_2$, with no activation. Then
-
-$$
-z = W_2 (W_1 \mathbf{x} + \mathbf{b}_1) + b_2 = (W_2 W_1)\,\mathbf{x} + (W_2 \mathbf{b}_1 + b_2)
-$$
-
-which is again a single weighted sum of the inputs, one matrix $W_2 W_1$ and one bias. Any number of linear layers collapses into one linear layer, and one linear layer cannot solve XOR. A nonlinear activation between the layers (a step, sigmoid, tanh or ReLU) is what lets the hidden units bend the decision boundary. The notebook shows it directly: the same two-hidden-unit network, trained on XOR with the activation removed, gets stuck at 0.5 for every input, like the plain linear model.
-
-**Keeping track of shapes.** In the notebook's network for XOR, with the four input rows stacked into one matrix (Session 1's shape rules):
-
-|   | Shape |   |
-|------------------------|------------------------|------------------------|
-| inputs $X$ | $(4, 2)$ | four examples, two inputs each |
-| weights $W_1$ | $(2, 2)$ | two inputs → two hidden units |
-| hidden layer $h = \tanh(X W_1 + \mathbf{b}_1)$ | $(4, 2)$ | two hidden values per example |
-| weights $W_2$ | $(2, 1)$ | two hidden units → one output |
-| output $y = \sigma(h W_2 + b_2)$ | $(4, 1)$ | one prediction per example |
-
-If you can follow these shapes, the training loop in the notebook is just this table in code.
-
-::: {.callout-tip icon="false"}
-## A short history
-
-Minsky and Papert's book *Perceptrons* (1969) proved rigorously that single-layer perceptrons cannot solve problems like XOR, and it is widely credited with contributing to a drop in neural-network research in the 1970s, the first "AI winter". Multi-layer networks were known to be more powerful, but training them became practical only with **backpropagation** (popularized by Rumelhart, Hinton & Williams in 1986), which applies Session 1's chain rule through the hidden layers. Session 9 covers it.
-:::
-
-## 6. Biological analogues
-
-### Interactions between positions: Bulyk et al.
-
-This isn't just a toy puzzle for logic gates — the same structure shows up in real sequence motifs. Bulyk, Johnson & Church (2002) used protein-binding microarrays to measure how a zinc-finger transcription factor's binding affinity depended on the nucleotides at different positions of its binding site, and found that positions do **not** contribute independently: the effect of one position's identity depends on what's at another position. That directly violates the assumption a profile score depends on — that each position's contribution can simply be added to the others. They measured the zinc-finger protein Zif268 (mouse Egr1) and mutants of it binding to all 64 possible central triplets of its site, and concluded that neither a consensus sequence nor a position weight matrix describes the protein's true specificity.
-
-![(a) What a binding-site description normally looks like: the sequence logo of Egr1 (Zif268) sites in the human genome, from ChIP-seq peaks (JASPAR MA0162.4, CC BY 4.0), with the familiar GCG TGG GCG core. A logo, like a profile, describes each position on its own. (b) The logo of the strong sites of the XOR-shaped toy motif below is completely flat: each position, taken alone, carries 0 bits. (c) Yet the *pair* of positions decides binding completely. A logo or a profile cannot show this; a hidden layer can learn it. Drawn by tools/builders/make_session06_figures.py.](figs/session06-bulyk.png){width="100%"}
-
-To see why that specific kind of dependency is an XOR-shaped problem, consider a deliberately simplified, illustrative version (not the actual data from the paper, which involves more positions and continuous binding affinities — but the same qualitative shape): suppose a two-position motif binds strongly only when the two positions are **different** purine/ pyrimidine classes (one R, one Y), and binds weakly when they're the **same**:
-
-| Position 1 | Position 2 | Binding |
-|------------|------------|---------|
-| Y          | Y          | weak    |
-| Y          | R          | strong  |
-| R          | Y          | strong  |
-| R          | R          | weak    |
-
-Relabel "weak" as 0 and "strong" as 1, and this is the XOR table above. Neither position predicts binding on its own — only their combination does — and that is what no profile score, and no single perceptron, can represent. A hidden layer with a nonlinear activation (Section 5) can represent such an interaction.
-
-**A different fix: change the input.** For 0/1-valued $x_1, x_2$, it happens that
-
-$$
-\text{XOR}(x_1, x_2) = x_1 + x_2 - 2\,x_1 x_2
-$$
-
-exactly (check all four rows: $(0,0) \to 0$, $(0,1) \to 1$, $(1,0) \to
-1$, $(1,1) \to 1+1-2 = 0$). That right-hand side is *linear* — in the three inputs $x_1$, $x_2$, and the hand-engineered feature $x_1 x_2$. Adding that one extra, human-chosen feature turns an unsolvable problem back into an exactly-solvable linear regression, with weights $(1, 1,
--2)$ and bias $0$. This is a real, older alternative to a hidden layer — and it works — but it required a person to notice, in advance, that $x_1 x_2$ was the interaction that mattered. For Bulyk et al.'s real binding-site data, or for the secondary-structure problem below, nobody knows the useful interaction terms in advance. A hidden layer's advantage is that it *learns* useful nonlinear features like this from data, instead of requiring someone to engineer them. And the engineered feature makes a point of its own: changing the *input representation*, not the model, turned an impossible problem into an easy one (Section 7).
-
-### Secondary structure prediction: PHD
-
-Bulyk et al.'s zinc-finger microarrays make the XOR-shaped limitation concrete on a small, hand-built example. Secondary structure prediction, a much larger real problem, illustrates the same general limitation of additive, position-by-position scores, and how better input and a more flexible model moved past it. (XOR itself is not a historical explanation of that plateau; it is a clean example of the kind of limitation involved.)
-
-**What secondary structure is.** A protein's *secondary structure* is the local, repeating shape its backbone folds into, well short of the full 3D fold (its *tertiary* structure, which Session 7 covers properly). Two patterns dominate: the **alpha helix**, a right-handed coil held together by hydrogen bonds between backbone atoms four residues apart, and the **beta sheet**, made of extended strands lying alongside each other, hydrogen-bonded edge to edge. Everything that's neither is usually just called **coil** (or loop/turn). Predicting secondary structure means labelling every residue in a sequence with one of these three classes — a per-residue classification problem, not a single yes/no like XOR, but built from the same kind of position-by-position scoring this whole course has been using.
-
-**Two classical methods, before neural networks entered the picture.** The first real attempts predate neural networks by decades. **Chou & Fasman (1974)** derived empirical propensities for helix, sheet and turn from the (then small) set of known structures — alanine, glutamate, leucine and methionine are strong helix-formers, proline and glycine helix-breakers — and combined them with rules: find short *nucleation* regions of high-propensity residues, then *extend* them along the chain until breakers stop them. It is a propensity- and rule-based method, not a simple one-residue-at-a-time classifier, and it reached roughly **50-60%** three-state accuracy. **Garnier, Osguthorpe & Robson (1978)** — the **GOR** method — scored each residue using an information-theoretic sum of contributions from a whole *window* of neighbours, reaching roughly **65%**, and was better at helices than at sheets. Neither is literally a perceptron, but both build their score mostly by adding up per-residue contributions, which is where the limitation lies.
-
-GOR in particular is a linear model in the sense of Sections 1–3. To label a residue, it looks at a window of 17 residues centred on it, looks up in a table how much the amino acid at each offset of the window favours helix, strand or coil, and adds up. Each state gets a score, and the largest wins. That is three position-specific scoring matrices, one per state, read off the same window: three weighted sums, and one straight boundary between each pair of states.
-
-![GOR as a linear model. For the middle residue of a 17-residue window (here from HBB), every residue in the window contributes a value to the helix, strand and coil scores, depending on its amino acid and its offset from the middle. The contributions are added, and the state with the largest total is predicted. The bar heights are illustrative; GOR estimated its tables from the protein structures known at the time (originally for four states, with turns separate).](figs/session06-gor.png){width="100%"}
-
-![The real historical accuracy progression: Chou-Fasman's propensities and nucleation/extension rules, GOR's neighbour-window information-theoretic score, and Rost & Sander's profile-fed neural network. Figures are the broadly-cited historical consensus (Wikipedia, "Protein structure prediction") — the three original papers used different, non-identical benchmark sets, not one shared modern test set.](figs/session06-ss-accuracy-history.png){width="75%"}
-
-**Why a single sequence is not enough.** A window of neighbours is still only local information, and local sequence does not determine local structure. Kabsch & Sander (1984) searched the 62 protein structures then known and found identical five-residue stretches that were part of a helix in one protein and of a strand in another. With today's PDB the effect reaches ten residues: these **chameleon sequences** (Li et al. 2015, ChSeq database) adopt different secondary structures depending on the protein around them.
-
-![The same ten residues, QGTAVVVSAA, in two unrelated proteins: part of a long helix in a malate oxidoreductase from *Thermotoga maritima* (PDB 1VL6) and a strand followed by coil in a human antibody heavy chain (PDB 4JB9). Positions are counted along each chain's sequence (1VL6: 164-183, 4JB9: 118-137); in the PDB files' own numbering these are residues 152-171 of 1VL6 and, in antibody numbering, 100F-119 of 4JB9. The secondary structure of each residue is taken from the PDB entries (via PDBe). No method that sees only this window can label both correctly. Example from Li et al. (2015).](figs/session06-chameleon.png){width="100%"}
-
-Qian & Sejnowski (1988, *J Mol Biol* 202:865) trained a network with a hidden layer on windows of single sequences and reached **64.3%**, and concluded that "no method based solely on local information in the protein sequence is likely to produce significantly better results for non-homologous proteins". The limit was the information in the input, not only the model.
-
-**Turning a sequence into numbers: one-hot encoding.** A network computes weighted sums, so every input has to be a number. The obvious idea, numbering the amino acids A = 1, C = 2, D = 3, ..., does not work: it tells the model that C lies between A and D, and that Y (20) is twenty times "more" than A, which means nothing biologically. Instead, each residue becomes **20 numbers**, all 0 except a single 1 in the column for that amino acid:
-
-$$
-\text{A} \to (1, 0, 0, \dots, 0), \qquad \text{C} \to (0, 1, 0, \dots, 0), \qquad \dots, \qquad \text{Y} \to (0, 0, \dots, 0, 1)
-$$
-
-Every amino acid is then equally different from every other, and the network learns its own weight for each amino acid at each position. A window of 13 residues becomes $13 \times 20 = 260$ input numbers; this is how Qian & Sejnowski's network read single sequences, and it is the encoding of the localization data in Session 8 (150 residues, 3000 numbers). For DNA the same idea gives 4 numbers per base.
-
-![The same 13-residue window around His63 in two encodings. Left: one-hot encoding of human HBB, one 1 per position. Right: the profile of the window, the residue frequencies at the aligned positions of the 73 globins in the Pfam seed alignment (Session 4). His63 (orange) is His in most globins; other positions vary much more. A profile column is the average of the one-hot vectors of the aligned sequences. Drawn by tools/builders/make_session06_figures.py.](figs/session06-onehot.png){width="100%"}
-
-One-hot encoding is not the only choice. A residue can also be described by a few **physicochemical properties** (hydrophobicity, charge, size), which is compact and lets similar residues look similar; by its row of a **substitution matrix** such as BLOSUM62 (Session 4); or, as PHD does below, by a **profile** of its homologs. Later in the course the network learns the representation itself: an **embedding layer** (`nn.Embedding` in PyTorch, used by the recurrent networks of Session 11) gives each amino acid a short vector of trainable numbers. That is exactly a linear layer applied to the one-hot vector, since multiplying a one-hot vector by a weight matrix just picks out one row. Protein language models (Session 11) go one step further and give each residue a vector that also depends on its context in the sequence.
-
-**What changed with PHD: *the use of evolutionary information*.** The key innovation of Rost & Sander's **PHD** (1993) was the input. In their words, "a new key aspect is the use of evolutionary information in the form of multiple sequence alignments that are used as input in place of single sequences." For each position of the window, the network sees a *profile* (Session 5) instead of a one-hot vector: the frequencies of the 20 amino acids at that position among the protein's homologs (the right panel of the figure above). Homologs can retain similar structures even when their sequences have diverged substantially. A common expression is that *structure is more conserved than sequence*, and Illergård, Ardell & Elofsson (2009) quantified it: the structural cores of proteins evolve three to ten times more slowly than their sequences. Where a chameleon stretch sits in a helix, its homologs tend to vary it in the ways helices tolerate; where it sits in a strand, in the ways strands tolerate, so the profile can show a difference that the single sequence hides. This family information alone added "six to eight percentage points", and the full method reached **70.8%** three-state accuracy. Profile-based predictors also label chameleon sequences better than single-sequence ones (Li et al. 2015).
-
-PHD combined that input with networks in **three levels**:
-
-![PHD's design. Level 1, a sequence-to-structure network with one hidden layer, reads a window of 13 residues, each described by its 20 profile frequencies from the multiple alignment, and outputs helix (H), strand (E) and loop (L) values for the middle residue. Level 2, a structure-to-structure network, reads the level-1 outputs for a window of 17 residues and learns that helices and strands come in segments of plausible lengths. Level 3, a jury, averages several such networks trained in different ways. PHD also reports how reliable each residue's prediction is. The alignment and profile shown are schematic.](figs/session06-phd.png){width="100%"}
-
-Each level is a network of the kind in Section 5, only larger: weighted sums, a nonlinear activation, and more weighted sums. The lesson combines both halves of this session: a better representation of the input (profiles) and a model flexible enough to use it (networks with hidden layers) together did what additive scores on single sequences could not. Session 9 returns to PHD once you can train such networks yourself.
-
-**What a per-residue predictor has to do: *HBB*.** Take beta-globin (*HBB*), this course's running example. In the crystal structure of human hemoglobin (PDB entry `2HHB`), every residue of its chain has a label: helix (H) or coil (C); there are no strands.
-
-![*HBB* (chain B of PDB 2HHB): helices in blue, coil in grey. The heme (red, iron in orange) sits in a pocket between helices; His63 (upper, blue sticks) and His92 (lower) are the distal and proximal histidines that Session 4's globin logo showed to be conserved. The orange helix is the 13-residue window around His63 in the next figure. Rendered with PyMOL by tools/builders/make_session06_hbb_structure.py.](figs/session06-hbb-structure.png){width="60%"}
-
-A secondary-structure predictor has to produce that whole string from the sequence. PHD-style methods label one residue at a time, from a *window* of its neighbours:
-
-![Two views of the same protein. Top: HBB's sequence with the secondary structure of each residue in 2HHB (blue = helix, grey = coil), and the 13-residue window a PHD-style predictor reads to label His63. Bottom: the same protein as 20 amino-acid fractions, the input of today's lab, and its single target, the helix fraction. Secondary structure from EBI's PDBe API, drawn by tools/builders/make_session06_hbb_views.py.](figs/session06-hbb-two-views.png){width="100%"}
-
-The top view keeps what matters for the label: which residues are neighbours, in what order, and where helices start and stop (five of HBB's helices begin at a proline). A single sequence in that window gave Qian and Sejnowski their 64%; PHD replaced each position of the window by a profile of its homologs (Session 5). The bottom view is what today's lab uses: *HBB* becomes 20 numbers, and the question becomes "what fraction is helix?" (0.80, 117 of its 146 residues). Everything in the top view that is not a count has been thrown away. Keep both views in mind for the lab.
-
-::: {.callout-important icon="false"}
-## Can you do better?
-
-PHD reached about 71% in 1993, a significant improvement over earlier methods. However, modern methods that combine profiles or protein language models with deep networks reach substantially higher accuracy on standard benchmarks. In the [capstone project](capstone.qmd) you build your own secondary-structure predictor, with the tools of this course: which input will you give it (a single sequence, a profile, an embedding), which model, and how will you know that it really predicts proteins it has never seen?
-:::
+None of these three classical strategies solved the general problem
+reliably. The real breakthrough came from a fourth strategy — deep
+learning, most famously AlphaFold2 (2020) — which Session 12 covers properly,
+once this course has built up the neural-network machinery (Sessions 7-9)
+that made it possible.
 
 ### Further reading
 
-- Wikipedia, [Protein secondary structure](https://en.wikipedia.org/wiki/Protein_secondary_structure), [Alpha helix](https://en.wikipedia.org/wiki/Alpha_helix), [Beta sheet](https://en.wikipedia.org/wiki/Beta_sheet), and [Protein structure prediction](https://en.wikipedia.org/wiki/Protein_structure_prediction) — the accuracy figures above
-- Chou & Fasman (1974), "Prediction of protein conformation," *Biochemistry* 13(2):222-245 — [PubMed](https://pubmed.ncbi.nlm.nih.gov/4358940/)
-- Garnier, Osguthorpe & Robson (1978), "Analysis of the accuracy and implications of simple methods for predicting the secondary structure of globular proteins," *Journal of Molecular Biology* 120(1):97-120 — [PubMed](https://pubmed.ncbi.nlm.nih.gov/642007/)
-- Rost & Sander (1993), *Journal of Molecular Biology* 232:584-599 — the original PHD paper
-- Illergård, Ardell & Elofsson (2009), "Structure is three to ten times more conserved than sequence — a study of structural response in protein cores," *Proteins* 77(3):499-508 — [doi:10.1002/prot.22458](https://doi.org/10.1002/prot.22458)
-- Li, Kinch, Karplus & Grishin (2015), "ChSeq: A database of chameleon sequences," *Protein Science* 24(7):1075-1086 — [doi:10.1002/pro.2689](https://doi.org/10.1002/pro.2689)
-- Kabsch & Sander (1984), "On the use of sequence homologies to predict protein structure: identical pentapeptides can have completely different conformations," *PNAS* 81(4):1075-1078 — [doi:10.1073/pnas.81.4.1075](https://doi.org/10.1073/pnas.81.4.1075)
+- Wikipedia, [Anfinsen's dogma](https://en.wikipedia.org/wiki/Anfinsen%27s_dogma)
+- Wikipedia, [Homology modeling](https://en.wikipedia.org/wiki/Homology_modeling) and [Threading (protein sequence)](https://en.wikipedia.org/wiki/Threading_(protein_sequence))
+- Rosetta Commons, [`rosettacommons.org`](https://rosettacommons.org/)
 
-## 7. Representation matters as much as the model
+## Comparing structures: RMSD, TM-score, and Foldseek
 
-Three examples on this page make the same point:
+Structures need to be **compared** to each other quantitatively, not
+just predicted — e.g. to check how close a predicted structure is to
+the real one, or whether two real structures share a fold at all.
 
-- **XOR** becomes a linear problem once the input includes the feature $x_1 x_2$.
-- **Secondary structure prediction** plateaued with single sequences, whatever the method, and improved when the input became a profile of homologous sequences.
-- **Today's lab** predicts a protein's helix fraction from its 20 amino-acid frequencies. A linear model and a neural network come out essentially tied. Before you read the lab's explanation, it asks you what information the 20 numbers have thrown away that a per-residue prediction would need. Try to answer it yourself.
+**RMSD** (root-mean-square deviation) is the most direct measure: after
+optimally superimposing two structures, it's the root-mean-square
+distance between their corresponding atoms. Simple, but sensitive to
+protein length and to a single badly-misplaced loop dragging the whole
+number up even when the rest of the fold matches well. The **TM-score**
+fixes both problems with a length-normalizing formula that also
+down-weights small local deviations, giving a score from 0 to 1 that's
+comparable across proteins of different sizes — roughly, above ~0.5
+indicates the same overall fold, and 1.0 is a perfect match.
 
-A more powerful model cannot recover information that is not in its input. What a model can learn is set by how the data are represented, at least as much as by the model's capacity. This is one of the central lessons of modern deep learning: Sessions 10 and 11 build models (convolutional networks, language models) that *learn* their representations of sequences, including order and local context.
+**Foldseek** (van Kempen, Steinegger et al., 2024) does for structure
+search what BLAST (Session 5) does for sequence search: turn database-scale
+structural comparison from something expensive into something that
+runs in seconds. Its key idea is a change of representation, the same
+kind of move that makes BLAST fast — it encodes each residue's local
+3D neighborhood into a small discrete "3Di" alphabet, so comparing two
+*structures* becomes comparing two *strings* with fast sequence-alignment
+methods instead of expensive geometric superposition. This is what
+makes it practical to search a single query against the hundreds of
+millions of structures in the AlphaFold Structure Database and the PDB
+combined, in seconds rather than days. Before Foldseek, **DALI** (Holm
+& Sander, 1993) and **TM-align** (Zhang & Skolnick, 2005) were the
+standard tools for this kind of comparison — both real,
+accurate, and still used for a single careful pairwise alignment, just
+far too slow to run at Foldseek's database scale.
 
-## Summary: the two pictures again
+**A real worked comparison**, run locally with Foldseek on three real
+structures: the two hemoglobin states already used on this page
+(`2HHB`, `1HHO`) plus a real, unrelated fold, green fluorescent protein
+(`1EMA`, an all-beta barrel — nothing like hemoglobin's all-alpha
+globin fold). Matching alpha-to-alpha or beta-to-beta chains between
+`2HHB` and `1HHO` (the *same* protein in two conformational states)
+gives a TM-score of **0.98** and an RMSD of **0.7 Å** — about as similar
+as two independently solved structures get. Comparing across chain
+types (alpha vs. beta globin — related by evolution, but only ~43%
+identical in sequence) still gives a TM-score around **0.90-0.91**
+(RMSD ~1.7-1.8 Å) — the fold stays clearly recognizable as the same
+globin family even once sequence identity has dropped a long way,
+the "structure is more conserved than sequence" point Session 5's
+evolutionary methods rely on, now shown geometrically rather than
+asserted. Searching `2HHB` against GFP (`1EMA`) returns **zero hits**,
+even with an artificially loosened significance threshold — Foldseek
+correctly finds no meaningful structural relationship between two
+genuinely unrelated folds.
 
-![The same two pictures as at the start of the page. Everything in this session is one of them.](figs/session06-two-diagrams.png){width="95%"}
+### Further reading
 
-- **Top:** one weighted sum, then an activation. A PSSM reports the sum as a score, a perceptron thresholds it, logistic regression passes it through a sigmoid. Its weights can be learned from examples by gradient descent (Section 2). Whatever the weights, it draws one straight boundary: it can represent AND, OR and NAND, but never XOR (Sections 3–4).
-- **Bottom:** a hidden layer of weighted sums with a nonlinear activation, then one more weighted sum. Each hidden unit draws its own boundary, and the output combines them, so XOR becomes possible (Section 5). Remove the nonlinear activation and the two layers collapse back into the top picture.
-- **Either picture** can only use the information in its input (Sections 6–7).
+- Wikipedia, [Root-mean-square deviation of atomic positions](https://en.wikipedia.org/wiki/Root-mean-square_deviation_of_atomic_positions) and [Template modeling score](https://en.wikipedia.org/wiki/Template_modeling_score)
+- Foldseek, [GitHub](https://github.com/steineggerlab/foldseek) and [web server](https://search.foldseek.com/search) — try it on any real PDB entry or AlphaFold model, no installation needed
 
-If you can explain what changed between the two pictures and why that allows XOR, you have understood this session. You do not need to be able to write the PyTorch training loop from memory.
+## Structure visualization: PyMOL
+
+[PyMOL](https://pymol.org/) is one of the two most widely used molecular
+visualization programs in structural biology (alongside ChimeraX),
+free and open-source. It loads a structure directly from a PDB entry,
+renders it in several standard representations — **cartoon** (secondary
+structure as ribbons/arrows/coils, used for the figure above), **sticks**
+(every bond drawn explicitly, useful for a single side chain or ligand),
+and **spheres** (every atom as a ball, useful for packing/space-filling
+views) — and can measure real geometric quantities (distances, angles)
+directly from the loaded coordinates by clicking on atoms or via its
+command line. Today's lab uses it hands-on; the notebook drives the same
+program headlessly from Python to make its figures and measurements
+reproducible outside the interactive GUI. (Biopython, introduced on Session
+2 for sequences, also has a structure-handling module, `Bio.PDB` — this
+course uses PyMOL instead, for its fuller visualization and analysis
+toolkit.)
+
+## The notebook
+
+`notebooks/session06-protein-structure-in-code.ipynb` fetches two real
+hemoglobin structures — deoxygenated `2HHB` and oxygenated `1HHO` — and
+uses them to make every level of structure concrete: primary and
+quaternary structure from simply parsing chains, secondary structure
+computed with PyMOL's own algorithm (and compared with the PDB entry's
+annotation that Session 7 uses), and a real measured quaternary-structure distance (the
+iron-to-iron distance between the two beta hemes) that changes by about
+5 Å between the two states — a genuine, measured instance of
+hemoglobin's textbook allosteric mechanism (Baldwin & Chothia, 1979), not
+just a diagram. Open it in
+[Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session06-protein-structure-in-code.ipynb)
+via the badge at the top of the notebook page to edit and run it
+yourself.
 
 ## Check your understanding
 
-Immediate-feedback questions covering the sections above — the same style used for this course's live in-class peer-instruction quizzes (see `quizzes/session06.md` in the repository for the full question bank).
+Immediate-feedback questions covering the sections above — the same style
+used for this course's live in-class peer-instruction quizzes (see
+`quizzes/session06.md` in the repository for the full question bank).
 
 ```{=html}
 <div id="session06-quiz"></div>
 <script>
 renderQuiz("session06-quiz", [
   {
-    question: "In a perceptron's weighted sum z = w&#8321;x&#8321; + ... + w&#8345;x&#8345; + b, what does the bias term b let the model do?",
+    question: "What information does primary structure describe?",
     choices: [
-      "Let the decision threshold sit somewhere other than zero, instead of being forced through the origin",
-      "Scale the learning rate up or down during training",
-      "Act as the activation function itself",
-      "Set a hard upper limit on how large z can get"
+      "The sequence of amino acids in the polypeptide chain, with no 3D information",
+      "The 3D arrangement of multiple separately-folded chains",
+      "Only the alpha-helix and beta-strand content of a protein",
+      "The chemical bonds holding side chains together"
     ],
     correctIndex: 0,
-    explanation: "Without a bias, the decision boundary is forced through the origin no matter how the other weights are chosen."
+    explanation: "Primary structure is just the sequence &mdash; the same object Sessions 1-5 have been aligning and scoring."
   },
   {
-    question: "A perceptron has one input, no bias (z = wx), an initial weight w&#8320; = 0, a training example (x, y) = (3, 9), a squared-error loss L(w) = (wx - y)&sup2;, and a learning rate &eta; = 0.02. Using dL/dw = 2(wx - y)x, what is w&#8321; after one gradient descent step?",
-    choices: ["1.08", "0.54", "-1.08", "9.0"],
-    correctIndex: 0,
-    explanation: "At w=0: dL/dw = 2(0-9)(3) = -54, so w&#8321; = 0 - 0.02&times;(-54) = 1.08."
-  },
-  {
-    question: "Geometrically, why can no single perceptron represent the XOR function?",
+    question: "What mainly holds a single protein chain's tertiary structure together?",
     choices: [
-      "XOR's two \"1\" outputs sit on opposite corners of the input square, and no single straight line can separate both of them from both \"0\" outputs",
-      "XOR requires three or more inputs to even be defined",
-      "A perceptron's sign activation function can only ever output positive numbers",
-      "XOR's inputs and outputs are not integers"
+      "Mostly the hydrophobic effect, plus weaker non-covalent forces between backbone and side-chain atoms",
+      "Only hydrogen bonds between backbone N-H and C=O groups",
+      "Covalent peptide bonds along the backbone",
+      "Electrostatic repulsion between identical residues"
     ],
     correctIndex: 0,
-    explanation: "This is why XOR is called not linearly separable."
+    explanation: "The hydrophobic effect (burying non-polar side chains away from water) is the dominant driving force, supplemented by hydrogen bonds, electrostatics, and van der Waals contacts."
   },
   {
-    question: "Bulyk, Johnson &amp; Church's protein-binding microarray study found something about a zinc-finger transcription factor's binding site that directly violates the assumption behind a simple profile/perceptron score. What was it?",
-    choices: [
-      "Binding-site positions do not contribute independently &mdash; the effect of one position's identity depends on what's at another position",
-      "Transcription factors never bind DNA in a sequence-specific way",
-      "All positions in a binding site contribute exactly equally to binding",
-      "Binding affinity is unrelated to the nucleotide sequence"
-    ],
+    question: "Hemoglobin's four chains (two alpha, two beta), each already independently folded, arranged with respect to each other is an example of which level of structure?",
+    choices: ["Quaternary structure", "Primary structure", "Secondary structure", "There is no name for this level"],
     correctIndex: 0,
-    explanation: "A profile/perceptron score assumes each position's contribution simply adds to the others &mdash; this finding is the XOR-shaped exception to that assumption."
+    explanation: "Quaternary structure describes how multiple separately-folded chains are arranged relative to each other."
   },
   {
-    question: "A network has a hidden layer, but no activation function: h = W1 x + b1, then z = W2 h + b2. Can it solve XOR?",
+    question: "Anfinsen's dogma states that a protein's sequence, in principle, determines its fold. Given that, why is predicting the fold from sequence still considered a hard, largely unsolved-until-recently problem?",
     choices: [
-      "No: W2(W1 x + b1) + b2 = (W2 W1) x + (W2 b1 + b2) is again a single linear function of x",
-      "Yes: any hidden layer is enough to solve XOR",
-      "Yes, if the hidden layer has at least 100 units",
-      "Only if trained for long enough"
+      "Because the information being present in the sequence doesn't make it computationally easy to extract; classical methods (ab initio, homology modeling, evolutionary contacts) each had real, distinct limitations",
+      "Because Anfinsen's dogma has since been experimentally disproven",
+      "Because only quaternary structures are hard to predict, not tertiary ones",
+      "Because sequence information is insufficient in principle, not just in practice"
     ],
     correctIndex: 0,
-    explanation: "Linear layers collapse into one linear layer. A nonlinear activation (step, sigmoid, tanh, ReLU) between the layers is what lets a hidden layer bend the decision boundary."
+    explanation: "The dogma is about what information exists in principle, not about how easy it is to compute the answer &mdash; that gap is why decades of classical methods, each with real limitations, were needed before deep learning changed things."
   },
   {
-    question: "What later development made it practical to train multi-layer networks, resolving the XOR limitation Minsky and Papert identified?",
+    question: "The notebook measures the distance between the two beta-chain heme iron atoms in both deoxyhemoglobin (2HHB) and oxyhemoglobin (1HHO), finding it about 5 &Aring; shorter in the oxy state. What does this real, measured change represent?",
     choices: [
-      "Backpropagation &mdash; an efficient way to apply the chain rule through a network with hidden layers",
-      "A new activation function that only single perceptrons could use",
-      "Increasing the bias term to a very large fixed value",
-      "Removing the sign function from the perceptron entirely"
+      "A concrete geometric signature of hemoglobin's quaternary allosteric transition (the T-to-R shift) between its two functional states",
+      "An experimental error, since a protein's quaternary structure cannot change",
+      "The distance between two alpha chains, not two beta chains",
+      "A change in hemoglobin's primary structure upon oxygen binding"
     ],
     correctIndex: 0,
-    explanation: "Backpropagation, popularized by Rumelhart, Hinton &amp; Williams in 1986, is Session 1's chain rule applied through a network with hidden layers."
+    explanation: "This is the T (tense, deoxy) to R (relaxed, oxy) quaternary shift Baldwin & Chothia (1979) described &mdash; a real, measurable change in quaternary structure, not primary structure."
   },
   {
-    question: "Methods that predicted secondary structure from single sequences, including an early neural network (Qian &amp; Sejnowski 1988, 64.3%), stayed around 60-65% three-state accuracy. What did Rost &amp; Sander's PHD method (1993) change to reach about 71%?",
+    question: "SCOP, CATH, ECOD, and TED all classify protein domains. How do they differ from Session 3/5's InterPro/Pfam domain classification?",
     choices: [
-      "Profile input (a multiple-alignment-derived representation, not a single sequence) together with a neural network that has a hidden layer",
-      "A much larger single-sequence database, with no change to the linear scoring model",
-      "Removing the bias term from the perceptron entirely",
-      "Switching from BLOSUM62 to PAM250 as the scoring matrix"
+      "SCOP/CATH/ECOD/TED classify domains by their actual solved or predicted 3D shape; InterPro/Pfam classify by sequence similarity",
+      "They classify completely different things; domains in one system have no relationship to domains in the other",
+      "SCOP/CATH/ECOD/TED are simply newer, more accurate replacements for InterPro/Pfam",
+      "InterPro/Pfam only work for RNA, while SCOP/CATH/ECOD/TED only work for protein"
     ],
     correctIndex: 0,
-    explanation: "The family information from multiple alignments added six to eight percentage points (Rost &amp; Sander's abstract). Qian &amp; Sejnowski had already concluded that local information from a single sequence limits any method: the input mattered as much as the model."
+    explanation: "Structure-based and sequence-based domain classification are complementary, not competing &mdash; structural similarity can survive long after sequence similarity has faded past detection."
   },
   {
-    question: "Which description of Chou-Fasman (1974) and GOR (1978) is most accurate?",
+    question: "Foldseek can search a query structure against hundreds of millions of real and predicted structures in seconds. What is the key idea that makes this possible?",
     choices: [
-      "Chou-Fasman combines residue propensities with nucleation and extension rules; GOR sums information from a window of neighbouring residues. Both build scores mostly from per-residue contributions, from single sequences",
-      "Both are neural networks with a hidden layer, smaller than PHD's",
-      "Both ignore the protein sequence and use only structural data",
-      "Chou-Fasman classifies each residue independently from its own propensity alone"
+      "Encoding each residue's local 3D neighborhood into a small discrete alphabet (3Di), turning structure comparison into fast sequence-like alignment instead of expensive geometric superposition",
+      "Foldseek only compares a small, hand-picked subset of atoms from each structure",
+      "Foldseek skips significance testing entirely to save time",
+      "Foldseek only works on proteins shorter than 100 residues"
     ],
     correctIndex: 0,
-    explanation: "Chou-Fasman is a propensity- and rule-based method, not a one-residue-at-a-time classifier. Neither method uses information from homologous sequences, which is what PHD added."
+    explanation: "The same kind of representation change that makes BLAST fast for sequence search &mdash; turn an expensive geometric problem into a fast string-alignment one."
   },
   {
-    question: "The Session 6 lab describes HBB by its amino-acid composition (20 numbers) and predicts its helix fraction, 0.80. What can such a model never tell you?",
+    question: "Foldseek reports a TM-score around 0.90-0.91 (RMSD ~1.7-1.8 &Aring;) comparing alpha-globin to beta-globin chains (2HHB vs. 1HHO, ~43% sequence identity), but zero hits at all comparing hemoglobin to GFP. What does the alpha-vs-beta-globin result demonstrate?",
     choices: [
-      "Which residues are in helices, and where each helix starts and stops",
-      "Whether HBB is mostly helical",
-      "How many alanines HBB contains",
-      "Anything at all about HBB"
+      "That structural similarity can remain clearly detectable well after sequence identity has dropped a long way &mdash; structure is more conserved than sequence",
+      "That Foldseek cannot distinguish between related and unrelated protein folds",
+      "That alpha- and beta-globin have identical sequences",
+      "That TM-score is only meaningful for proteins of exactly the same length"
     ],
     correctIndex: 0,
-    explanation: "Composition keeps only counts, so it can predict an overall fraction but not the per-residue labels. A per-residue predictor such as PHD reads a window of neighbours around each residue instead."
-  },
-  {
-    question: "A single perceptron can implement AND, OR, and NAND by hand-chosen weights. What does combining an OR perceptron and a NAND perceptron, then feeding both outputs into an AND perceptron, compute?",
-    choices: [
-      "XOR, exactly — this is a hand-built version of the same hidden-layer shape used later in the notebook",
-      "AND, since the final perceptron is an AND gate",
-      "Nothing meaningful; the outputs of OR and NAND cannot be combined",
-      "NOR"
-    ],
-    correctIndex: 0,
-    explanation: "AND(OR(x&#8321;,x&#8322;), NAND(x&#8321;,x&#8322;)) reproduces XOR's truth table exactly on all four input pairs."
-  },
-  {
-    question: "Adding the engineered feature x&#8321;x&#8322; alongside x&#8321; and x&#8322; lets an ordinary linear model solve XOR exactly, using weights (1, 1, -2) and bias 0. What's the real limitation of this fix compared to a hidden layer?",
-    choices: [
-      "A person has to notice in advance which interaction feature (like x&#8321;x&#8322;) to engineer, whereas a hidden layer learns useful features like this directly from data",
-      "It doesn't actually reproduce XOR's truth table",
-      "It only works for inputs other than 0 and 1",
-      "It requires more training data than a hidden layer does"
-    ],
-    correctIndex: 0,
-    explanation: "The linear-algebra is exact once you've chosen x&#8321;x&#8322; as a feature -- the catch is knowing to choose it, which for real data (Bulyk et al.'s binding sites, secondary structure) nobody knows in advance."
-  },
-  {
-    question: "The OR perceptron has w = (1, 1) and b = -0.5. In the plane of the inputs, what is its decision boundary, and which corners lie on the side where the output is 1?",
-    choices: [
-      "The line x&#8321; + x&#8322; = 0.5; the corners (0,1), (1,0) and (1,1)",
-      "The line x&#8321; + x&#8322; = 1.5; only the corner (1,1)",
-      "The line x&#8321; = x&#8322;; the corners (0,0) and (1,1)",
-      "There is no boundary: a perceptron outputs a score, not a class"
-    ],
-    correctIndex: 0,
-    explanation: "The boundary is z = 0, i.e. x&#8321; + x&#8322; - 0.5 = 0. Only (0,0) gives z &lt; 0; the other three corners give z &gt; 0 and output 1."
-  },
-  {
-    question: "Why is the GOR method, which sums a table value for each residue in a 17-residue window, called a linear model on this page?",
-    choices: [
-      "Each state's score is a weighted sum over the window, like a position-specific scoring matrix, so it cannot represent interactions between positions",
-      "It predicts only straight (linear) stretches of helix",
-      "It uses linear regression to fit the helix fraction",
-      "It reads the sequence in a straight line from N- to C-terminus"
-    ],
-    correctIndex: 0,
-    explanation: "GOR adds up independent contributions: three profile-like weighted sums, one per state. That is picture 1 of this session."
-  },
-  {
-    question: "The ten residues QGTAVVVSAA form a helix in a malate oxidoreductase and a strand in an antibody. What does this tell you about secondary-structure prediction?",
-    choices: [
-      "A window of local sequence alone cannot always determine the structure; information from outside the window, such as the protein family, is needed",
-      "The structures in the PDB must be wrong for one of the two proteins",
-      "Ten residues are too short to form any secondary structure",
-      "Helices and strands are interchangeable"
-    ],
-    correctIndex: 0,
-    explanation: "These are 'chameleon sequences' (Kabsch &amp; Sander 1984; Li et al. 2015). Profile-based predictors, which see the family, handle them better than single-sequence ones."
-  },
-  {
-    question: "What was the key innovation of Rost &amp; Sander's PHD method (1993)?",
-    choices: [
-      "Its input: a profile from a multiple alignment of homologs instead of a single sequence",
-      "It was the first neural network ever used for secondary structure",
-      "It used a much deeper network than anyone before",
-      "It predicted the full 3D structure instead of secondary structure"
-    ],
-    correctIndex: 0,
-    explanation: "In Rost &amp; Sander's words, 'a new key aspect is the use of evolutionary information in the form of multiple sequence alignments'. That alone added six to eight percentage points. (Qian &amp; Sejnowski had used a neural network on single sequences in 1988.)"
+    explanation: "This is the same 'evolutionary information persists' theme Session 5's profile methods rely on &mdash; here it's the 3D fold, not a sequence profile, that stays recognizable."
   }
 ]);
 </script>
 ```
 
-## The notebook
-
-The lab notebook for today (`notebooks/session06-gradient-descent-xor.ipynb`) follows the order of this page: it opens by comparing a least-squares solver against gradient descent on the same tiny dataset, confirming they agree; hand-chosen weights implement AND, OR and NAND (checked against their truth tables), and gradient descent learns AND by itself; the same model trained on XOR visibly fails; combining the OR and NAND perceptrons with AND solves XOR exactly, a small network with one hidden layer then learns it, with the shape of every tensor printed and a plot showing why, and the same network with its activation removed fails like the linear model; a single engineered input, $x_1 x_2$, makes XOR linear without changing the model. It closes by fetching *HBB*'s per-residue secondary structure live from EBI's PDBe API and printing the two views of the protein from the figure above: the labels with a 13-residue window, and the 20 composition numbers. The version below is a static, read-only copy; open it in [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session06-gradient-descent-xor.ipynb) via the badge at the top of the notebook page to edit and run it yourself.
-
 ## The lab
 
-**A teaser, not a full treatment** (Session 8 covers train/validation/test splitting and evaluation properly; Session 9 covers regularization and architecture choices — neither is front-run here): assemble a real dataset — 55 real proteins' amino-acid composition, fetched live from EBI's PDBe API, against their real alpha-helix fraction — then fit linear regression and a small from-scratch multilayer perceptron on the same data and compare their error on held-out proteins. The two come out essentially tied on this small split, and the lab asks why a more flexible model does not help here. You first answer that question yourself (what has a composition vector thrown away?), then a scrambled-sequence demonstration shows the answer, which links back to the windows and profiles PHD used. (A cached copy of the dataset is used if the live fetch fails.) [`notebooks/session06-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session06-lab.ipynb) has the real pipeline, end to end.
+**Full lab, PyMOL-first**, across three real structures beyond this
+page's own hemoglobin example: a real HIV envelope glycoprotein
+trimer/antibody complex (`7LXM`) for representations, chain coloring,
+extracting objects, structural alignment (`cealign`), and finding a
+real sequence inside a structure; a real chitinase with real bound
+metal ions and an inhibitor (`8C6Z`) for selecting and visualizing
+charged residues; and human neuroglobin (`1OJ6`) for a real Foldseek/
+TM-score comparison (in
+[`notebooks/session06-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session06-lab.ipynb))
+against its own real AlphaFold DB prediction, a related real globin,
+and an unrelated real fold — plus a real domain-classification lookup
+in CATH, tying back to this page's own new sections. Viewing a
+structure directly in VS Code (via the real Protein Viewer extension,
+handy while connected to the shared course server over SSH) is also
+covered.
 
 ### Submitting this lab
 
-This lab is administered through Canvas, not this book — see the course's Canvas page for the current quiz, deadline, and submission mechanism.
+This lab is administered through Canvas, not this book — see the
+course's Canvas page for the current quiz, deadline, and submission
+mechanism.
 
 ## What's next
 
-Session 7 picks up the *structure* side of today's PHD example properly — tertiary structure, PyMOL, and what a real 3D fold actually looks like. Session 9 comes back to deliver PHD's actual network in full, once Session 8 has introduced how to build a real network the idiomatic way.
+Session 7 returns to the computation a PSSM performs, a weighted sum over
+positions, and formalizes it as a **perceptron** whose weights can be
+*learned* from labelled examples. Its biological payoff is predicting the
+secondary structure you met today from the sequence alone: Rost &
+Sander's PHD method, and why the helix you saw in PyMOL can be hard to
+predict from a window of residues.

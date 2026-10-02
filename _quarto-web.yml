@@ -22,10 +22,10 @@ book:
     - href: notebooks/session05-blast-and-profiles-in-code.ipynb
       text: "Session 5 — Notebook"
     - session06.qmd
-    - href: notebooks/session06-gradient-descent-xor.ipynb
+    - href: notebooks/session06-protein-structure-in-code.ipynb
       text: "Session 6 — Notebook"
     - session07.qmd
-    - href: notebooks/session07-protein-structure-in-code.ipynb
+    - href: notebooks/session07-gradient-descent-xor.ipynb
       text: "Session 7 — Notebook"
     - session08.qmd
     - href: notebooks/session08-ml-foundations-and-pytorch.ipynb

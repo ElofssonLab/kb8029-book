@@ -554,7 +554,10 @@ mechanism.
 
 ## What's next
 
-Session 6 formalizes the computation a PSSM performs — a weighted sum
-over positions — as a **perceptron**, and shows that its weights can be
-*learned* from labelled examples by gradient descent instead of derived
-from alignment statistics the way this session's PSSM was.
+Session 6 turns from sequence to structure: the four levels of protein
+structure, explored hands-on in PyMOL, and why predicting a 3D fold is so
+much harder than aligning sequences. Session 7 then formalizes the
+computation a PSSM performs, a weighted sum over positions, as a
+**perceptron**, and shows that its weights can be *learned* from labelled
+examples by gradient descent instead of derived from alignment
+statistics the way this session's PSSM was.

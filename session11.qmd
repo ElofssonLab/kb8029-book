@@ -60,7 +60,7 @@ $$
 
 The same weights are reused at every position, so one network handles
 sequences of any length. The input $x_t$ at each position could be a
-one-hot vector (Session 6); the notebook's networks instead use an
+one-hot vector (Session 7); the notebook's networks instead use an
 **embedding layer** (`nn.Embedding`), which gives each amino acid a
 trainable vector (24 or 32 numbers in the notebook), learned with the rest of the
 network. In principle $h_t$ can carry information from
@@ -336,7 +336,7 @@ course:
 
 | Version | Year | Model | What changed |
 |---|---|---|---|
-| 1.0 | 1997 | Feed-forward networks on sliding windows (Session 6), one hidden layer | Separate networks for prokaryotes and eukaryotes |
+| 1.0 | 1997 | Feed-forward networks on sliding windows (Session 7), one hidden layer | Separate networks for prokaryotes and eukaryotes |
 | 2.0 | 1998 | + hidden Markov model (Session 5) | Cleavage site found in nearly 70% of signal peptides |
 | 3.0 | 2004 | Networks + HMM | Cleavage-site accuracy up 6-17%; new discrimination score |
 | 4.0 | 2011 | Networks | Transmembrane proteins added as negatives, so hydrophobic TM helices are no longer called signal peptides |

@@ -91,7 +91,7 @@ where $\theta$ is the angle between the two vectors and $\lVert \cdot
 
 ![](figs/session01-vector-angle.png){width="55%"}
 
-Why does this one specific computation deserve a whole session's worth of attention before we've even started the course proper? Because it reappears, unchanged, in two very different-looking places later in this course. A **profile score** (Session 5) — the standard way of asking "how well does this sequence match a known family?" — is computed by multiplying each position's observed value by a position-specific weight and summing. And a **perceptron** (Session 6), the simplest kind of artificial neuron, computes its output the same way: a dot product between a weight vector and an input vector. When we get there, you'll already know the arithmetic *and* the geometric intuition; the only new part will be what to *do* with the result.
+Why does this one specific computation deserve a whole session's worth of attention before we've even started the course proper? Because it reappears, unchanged, in two very different-looking places later in this course. A **profile score** (Session 5) — the standard way of asking "how well does this sequence match a known family?" — is computed by multiplying each position's observed value by a position-specific weight and summing. And a **perceptron** (Session 7), the simplest kind of artificial neuron, computes its output the same way: a dot product between a weight vector and an input vector. When we get there, you'll already know the arithmetic *and* the geometric intuition; the only new part will be what to *do* with the result.
 
 ### Matrix multiplication
 
@@ -114,7 +114,7 @@ $$
 \underbrace{X}_{(1000,\ 20)} \; \underbrace{\mathbf{w}}_{(20,)} \;=\; \underbrace{X\mathbf{w}}_{(1000,)}
 $$
 
-**One matrix–vector product gives 1,000 scores, one per protein.** No loop is needed. This is how Session 6's perceptron and Session 8's classifiers are written: stack every example as a row of $X$ and compute $X\mathbf{w}$.
+**One matrix–vector product gives 1,000 scores, one per protein.** No loop is needed. This is how Session 7's perceptron and Session 8's classifiers are written: stack every example as a row of $X$ and compute $X\mathbf{w}$.
 
 The rule behind it: **the inner dimensions must match, and the outer ones give the shape of the result.**
 
@@ -194,7 +194,7 @@ $$
 
 For example, $(2, -1, 3) \times (1, 4, 0) = \big((-1)(0) - (3)(4),\ (3)(1) - (2)(0),\ (2)(4) - (-1)(1)\big) = (-12,\ 3,\ 9)$.
 
-Its length equals $\lVert \mathbf{a} \rVert \, \lVert \mathbf{b} \rVert \sin\theta$ — the *sine*, where the dot product uses *cosine* — so it is largest when the two vectors are perpendicular and zero when they're parallel. It exists only in three dimensions. In structural biology it gives the direction perpendicular to a plane, such as the plane of three backbone atoms. This is often used when transforming and rotating protein structures (Session 7 and 12).
+Its length equals $\lVert \mathbf{a} \rVert \, \lVert \mathbf{b} \rVert \sin\theta$ — the *sine*, where the dot product uses *cosine* — so it is largest when the two vectors are perpendicular and zero when they're parallel. It exists only in three dimensions. In structural biology it gives the direction perpendicular to a plane, such as the plane of three backbone atoms. This is often used when transforming and rotating protein structures (Session 6 and 12).
 
 **Practice.** Compute $(1, 2, 0) \times (0, 1, 3)$. *Answer:* $\big((2)(3)-(0)(1),\ (0)(0)-(1)(3),\ (1)(1)-(2)(0)\big) = (6, -3, 1)$.
 :::
@@ -375,7 +375,7 @@ Geometrically, the gradient at a point tells you two things at once: the *direct
 
 ### Gradient descent
 
-Stepping against the gradient is the whole idea behind **gradient descent**, which Session 6 uses to train the perceptron introduced above. Given a function that measures how wrong a model's predictions are (a *loss function*), repeatedly take a sufficiently small step in the direction opposite its gradient, and locally the loss decreases-
+Stepping against the gradient is the whole idea behind **gradient descent**, which Session 7 uses to train the perceptron introduced above. Given a function that measures how wrong a model's predictions are (a *loss function*), repeatedly take a sufficiently small step in the direction opposite its gradient, and locally the loss decreases-
 
 . Concretely, the update rule is
 
@@ -393,7 +393,7 @@ where $\eta$ (eta) is a small positive **learning rate** controlling the step si
 | 2   | 2.520 | 0.23     | -0.96     | 2.808                         |
 | 3   | 2.808 | 0.037    | -0.384    | 2.923                         |
 
-Notice two things: $x_n$ is closing in on 3 (the true minimum, where $f'(x) = 0$), and the *steps themselves* shrink as it gets closer, purely because the derivative shrinks — nobody had to manually decrease $\eta$. The same table of iterations is what you'll watch happen inside a real model's training loop, starting Session 6, except with many weights being updated at once via the gradient vector instead of one number via a single derivative.
+Notice two things: $x_n$ is closing in on 3 (the true minimum, where $f'(x) = 0$), and the *steps themselves* shrink as it gets closer, purely because the derivative shrinks — nobody had to manually decrease $\eta$. The same table of iterations is what you'll watch happen inside a real model's training loop, starting Session 7, except with many weights being updated at once via the gradient vector instead of one number via a single derivative.
 
 ### The chain rule
 
@@ -666,7 +666,7 @@ It is never smaller than $H(P)$, and equals it only when $Q = P$. The extra cost
 
 **Maximum entropy.** Entropy can also be used to choose a model: among all distributions that agree with what you have measured, pick the one with the highest entropy, the one that assumes nothing more. Session 12 meets this idea in the contact-prediction method DCA.
 
-The same formula, with a different constant and natural logs, is the entropy of statistical physics, which is where Shannon borrowed the name. The hydrophobic effect that drives protein folding (Session 7) is largely an effect of this physical entropy, the entropy of the surrounding water.
+The same formula, with a different constant and natural logs, is the entropy of statistical physics, which is where Shannon borrowed the name. The hydrophobic effect that drives protein folding (Session 6) is largely an effect of this physical entropy, the entropy of the surrounding water.
 
 ### p-values and hypothesis testing
 

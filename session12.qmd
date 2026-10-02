@@ -32,7 +32,7 @@ By the end of this session you should be able to:
 
 The session has three parts: **from the folding problem to AlphaFold 1**,
 **AlphaFold2 and protein complexes**, and **AlphaFold3 and generative
-models**. It closes the arc the course opened on Session 6 with secondary
+models**. It closes the arc the course opened on Session 7 with secondary
 structure.
 
 # Part 1: From the folding problem to AlphaFold 1
@@ -88,7 +88,7 @@ The typical pipeline combined them:
 
 1. Search the sequence against a database and build a multiple sequence
    alignment (Sessions 4-5).
-2. Derive a profile, and from it predict secondary structure (Session 6).
+2. Derive a profile, and from it predict secondary structure (Session 7).
 3. Find templates, or assemble fragments with an energy function.
 
 **CASP**, the Critical Assessment of protein Structure Prediction, has
@@ -928,4 +928,4 @@ mechanism.
 ## What's next
 
 The capstone project: predicting secondary structure, the problem this
-course met on Session 6, now with every tool from Sessions 5-12 at hand.
+course met on Session 7, now with every tool from Sessions 5-12 at hand.
