@@ -1,4 +1,4 @@
-# Welcome
+# Welcome {.unnumbered}
 
 This is an open, interactive companion to the redesigned KB8029 Bioinformatics course. Rather than teaching classical bioinformatics and machine learning as two separate blocks, this book follows the course's integrated session-by-session structure — see the [Course Schedule](schedule.qmd) for the full plan, or `course-redesign.md` in the repository root for the rationale behind it.
 
