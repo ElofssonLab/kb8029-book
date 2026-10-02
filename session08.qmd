@@ -438,14 +438,15 @@ Open it in [Google Colab](https://colab.research.google.com/github/ElofssonLab/k
 
 ## The lab
 
-**Full lab, on MNIST:** 70,000 handwritten digits, the classic first dataset for neural networks, adapted from the previous course's "Neural Networks" lab and rebuilt in PyTorch. MNIST is used because the classes are easy to see and understand, which makes it a clean sandbox for confusion matrices and evaluation; the same machinery is then carried straight back to protein localization at the end of the lab. Work through [`notebooks/session08-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session08-lab.ipynb), replacing every `todo(...)` call with your own code:
+**Full lab, on blood-cell images:** BloodMNIST ([Yang et al. 2023](https://doi.org/10.1038/s41597-022-01721-8)), 17,092 microscope images of single blood cells in eight classes (neutrophils, eosinophils, basophils, lymphocytes, monocytes, immature granulocytes, erythroblasts and platelets). The images were taken with an automated analyser at the Hospital Clínic de Barcelona and labelled by clinical pathologists ([Acevedo et al. 2020](https://doi.org/10.1016/j.dib.2020.105474)), then shrunk to 28 × 28 colour pixels so that a network trains in seconds on a laptop. The lab uses a fixed subset of 7,000 of them. The lab was adapted from the previous course's "Neural Networks" lab, which used handwritten digits (MNIST), and rebuilt in PyTorch. Blood cells make the evaluation questions real ones: the classes are unequal in size, and the mistakes the network makes can be explained by cell biology. The same machinery is then carried straight back to protein localization at the end of the lab. Work through [`notebooks/session08-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session08-lab.ipynb), replacing every `todo(...)` call with your own code:
 
-1.  inspect the class balance;
-2.  build training, validation and test sets, and standardize the pixels using statistics from the training set only;
-3.  write the model as an `nn.Module` (784 inputs, 10 tanh hidden units, 10 output logits) and count its parameters;
+1.  inspect the class balance, and the accuracy you would get by always guessing the commonest cell type;
+2.  build training, validation and test sets, and standardize the three colour channels using statistics from the training set only;
+3.  write the model as an `nn.Module` (28 × 28 × 3 = 2,352 inputs, 10 tanh hidden units, 8 output logits) and count its parameters;
 4.  train it with a provided `train_model` function (Session 9 opens that box), then turn logits into probabilities and classes;
-5.  compute a confusion matrix, precision, recall, F1, MCC and a ROC curve for one digit against the rest;
-6.  shrink the training set to watch overfitting appear, and use the test set once, at the end.
+5.  compute a confusion matrix, and explain its mistakes biologically, then precision, recall, F1, MCC and a ROC curve for immature granulocytes against the rest;
+6.  see how a rare class (basophils, under 7% of the cells) can almost vanish from the predictions without lowering the accuracy much;
+7.  shrink the training set to watch overfitting appear, and use the test set once, at the end.
 
 The last section returns to proteins: it measures how many validation proteins in a *random* split of today's localization dataset have a homolog in the training set. Together with step 2 it covers two of the three routes for leakage from Part 2: through the samples (homologs) and through the preprocessing (normalization statistics).
 

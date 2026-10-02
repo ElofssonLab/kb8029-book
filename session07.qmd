@@ -556,8 +556,4 @@ This lab is administered through Canvas, not this book — see the course's Canv
 
 ## What's next
 
-Session 8 moves from a single yes/no output (today's XOR problem) to
-multi-class prediction, and asks the question that matters in practice:
-how do we know whether a model has learned anything useful? It uses a
-real multi-class biological problem, subcellular localization. Session 9
-then trains networks properly, and shows why training sometimes fails.
+Session 8 moves from a single yes/no output (today's XOR problem) to multi-class prediction, and asks the question that matters in practice: how do we know whether a model has learned anything useful? It uses a real multi-class biological problem, subcellular localization. Session 9 then trains networks properly, and shows why training sometimes fails.

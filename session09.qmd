@@ -1,34 +1,5 @@
-::: {.callout-note}
-**Sources for this page:** d2l.ai, *Dive into Deep Learning*,
-[Multilayer Perceptrons](https://d2l.ai/chapter_multilayer-perceptrons/index.html)
-— CC BY-SA 4.0; Wikipedia,
-[Backpropagation](https://en.wikipedia.org/wiki/Backpropagation),
-[Stochastic gradient descent](https://en.wikipedia.org/wiki/Stochastic_gradient_descent),
-[Overfitting](https://en.wikipedia.org/wiki/Overfitting),
-[Vanishing gradient problem](https://en.wikipedia.org/wiki/Vanishing_gradient_problem),
-[Regularization (mathematics)](https://en.wikipedia.org/wiki/Regularization_(mathematics)),
-[Dropout (neural networks)](https://en.wikipedia.org/wiki/Dropout_(neural_networks)),
-[Early stopping](https://en.wikipedia.org/wiki/Early_stopping)
-— CC BY-SA 4.0. Datasets: the
-[Breast Cancer Wisconsin (Diagnostic)](https://archive.ics.uci.edu/dataset/17/breast+cancer+wisconsin+diagnostic)
-data set (UCI Machine Learning Repository, CC BY 4.0), loaded through
-[scikit-learn](https://scikit-learn.org/stable/datasets/real_world.html); the GB1
-fitness landscape of Wu, Dai, Olson, Lloyd-Smith & Sun (2016),
-[*eLife* 5:e16965](https://doi.org/10.7554/eLife.16965) (CC BY 4.0), as
-distributed by the FLIP benchmark (Dallago et al. 2021,
-[bioRxiv](https://doi.org/10.1101/2021.11.09.467890));
-Session 8's UniProt subcellular-localization data. Ioffe & Szegedy (2015),
-"Batch Normalization," [arXiv:1502.03167](https://arxiv.org/abs/1502.03167);
-Rost & Sander (1993), [*J. Mol. Biol.* 232:584-599](https://doi.org/10.1006/jmbi.1993.1413)
-and [*PNAS* 90:7558-7562](https://pmc.ncbi.nlm.nih.gov/articles/PMC47181/)
-(the PHD method). 3Blue1Brown's neural-network and cross-entropy videos are embedded as
-further watching. The regression setup (linear baseline vs. 64/64
-network, L2 and dropout), the vanishing-gradient demonstration and
-the tiny hand-computed backpropagation example follow ideas from Magnus
-Ekman's *Learning Deep Learning* (ch. 3, 5 and 6 slide decks in
-`slides/`), a copyrighted, not openly licensed textbook, credited here as
-an internal source and not linked. Every number below was computed in
-code and read back from the notebook's output.
+::: callout-note
+**Sources for this page:** d2l.ai, *Dive into Deep Learning*, [Multilayer Perceptrons](https://d2l.ai/chapter_multilayer-perceptrons/index.html) — CC BY-SA 4.0; Wikipedia, [Backpropagation](https://en.wikipedia.org/wiki/Backpropagation), [Stochastic gradient descent](https://en.wikipedia.org/wiki/Stochastic_gradient_descent), [Overfitting](https://en.wikipedia.org/wiki/Overfitting), [Vanishing gradient problem](https://en.wikipedia.org/wiki/Vanishing_gradient_problem), [Regularization (mathematics)](https://en.wikipedia.org/wiki/Regularization_(mathematics)), [Dropout (neural networks)](https://en.wikipedia.org/wiki/Dropout_(neural_networks)), [Early stopping](https://en.wikipedia.org/wiki/Early_stopping) — CC BY-SA 4.0. Datasets: the [Breast Cancer Wisconsin (Diagnostic)](https://archive.ics.uci.edu/dataset/17/breast+cancer+wisconsin+diagnostic) data set (UCI Machine Learning Repository, CC BY 4.0), loaded through [scikit-learn](https://scikit-learn.org/stable/datasets/real_world.html); the GB1 fitness landscape of Wu, Dai, Olson, Lloyd-Smith & Sun (2016), [*eLife* 5:e16965](https://doi.org/10.7554/eLife.16965) (CC BY 4.0), as distributed by the FLIP benchmark (Dallago et al. 2021, [bioRxiv](https://doi.org/10.1101/2021.11.09.467890)); Session 8's UniProt subcellular-localization data. Ioffe & Szegedy (2015), "Batch Normalization," [arXiv:1502.03167](https://arxiv.org/abs/1502.03167); Rost & Sander (1993), [*J. Mol. Biol.* 232:584-599](https://doi.org/10.1006/jmbi.1993.1413) and [*PNAS* 90:7558-7562](https://pmc.ncbi.nlm.nih.gov/articles/PMC47181/) (the PHD method). 3Blue1Brown's neural-network and cross-entropy videos are embedded as further watching. The regression setup (linear baseline vs. 64/64 network, L2 and dropout), the vanishing-gradient demonstration and the tiny hand-computed backpropagation example follow ideas from Magnus Ekman's *Learning Deep Learning* (ch. 3, 5 and 6 slide decks in `slides/`), a copyrighted, not openly licensed textbook, credited here as an internal source and not linked. Every number below was computed in code and read back from the notebook's output.
 :::
 
 # Session 9: How a Neural Network Learns, and Why Training Fails
@@ -46,7 +17,7 @@ By the end of this session you should be able to:
 
 Sessions 7, 8 and 9 form one progression. Session 7 asked **what a neural network can represent**. Session 8 asked **how we know whether a model generalizes**. This session asks **how we actually train a network, and why training sometimes succeeds and sometimes fails**.
 
-The starting point is concrete. In Session 8 we built a network, but its weights were random, so its predictions were no better than chance. We have labelled examples. How do we turn the random weights into useful predictions? The whole session answers that question, with four datasets: breast-cancer biopsies (the training loop), a protein fitness landscape (why training fails, and when a hidden layer pays off), Session 8's protein localization (when a network is too large for its data), and MNIST digits in the lab.
+The starting point is concrete. In Session 8 we built a network, but its weights were random, so its predictions were no better than chance. We had labelled examples, so how do we turn the random weights into useful predictions? Here, we try to answers that question. We will be using four different datasets: breast-cancer biopsies (the training loop), a protein fitness landscape (why training fails, and when a hidden layer pays off), Session 8's protein localization (when a network is too large for its data), and MNIST digits in the lab.
 
 # 1. From an untrained network to a trained network
 
@@ -76,7 +47,7 @@ You do not have to differentiate networks by hand. The notebook does it once for
 
 That gives the **training loop** you will write yourself in the lab:
 
-```python
+``` python
 for epoch in range(n_epochs):
     for xb, yb in loader:                 # one mini-batch at a time
         optimizer.zero_grad()             # 1. clear the old gradients
@@ -90,11 +61,19 @@ Real training uses **mini-batches**: a `DataLoader` shuffles the training set ev
 
 ### Further watching
 
-[*Backpropagation, intuitively*](https://www.youtube.com/watch?v=Ilg3gGewQ5U) (3Blue1Brown, Deep Learning ch. 3), and [*Backpropagation calculus*](https://www.youtube.com/watch?v=tIeHLnjs5U8) (ch. 4) for the full chain-rule mechanics:
+[*Backpropagation, intuitively*](https://www.youtube.com/watch?v=Ilg3gGewQ5U) (3Blue1Brown, Deep Learning ch. 3): the same chain-rule idea as above, built up visually one layer at a time. (Chapter 1, [*But what is a neural network?*](https://www.youtube.com/watch?v=aircAruvnKk), is embedded on Session 7.)
 
 ```{=html}
 <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
 <iframe src="https://www.youtube.com/embed/Ilg3gGewQ5U" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="Backpropagation, intuitively, 3Blue1Brown"></iframe>
+</div>
+```
+
+[*Backpropagation calculus*](https://www.youtube.com/watch?v=tIeHLnjs5U8) (3Blue1Brown, Deep Learning ch. 4): the full chain-rule mechanics for a general multi-layer network:
+
+```{=html}
+<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
+<iframe src="https://www.youtube.com/embed/tIeHLnjs5U8" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="Backpropagation calculus, 3Blue1Brown"></iframe>
 </div>
 ```
 
@@ -117,6 +96,16 @@ Confidently wrong is punished far more than hedging: probability 0.9 on the trut
 
 Cross-entropy is built from the relative entropy (Kullback-Leibler divergence) of Session 4: $H(P, Q) = H(P) + D_{\text{KL}}(P \| Q)$, the true distribution's own entropy plus the extra cost of describing it with the model's distribution $Q$. Since $H(P)$ does not depend on the model, minimizing cross-entropy is minimizing the KL divergence between the model's predictions and the true labels.
 :::
+
+### Further watching
+
+[*But what is cross-entropy?*](https://www.youtube.com/watch?v=GlYgs6v2YfU) (3Blue1Brown, Compression is Intelligence part 2): cross-entropy from the information-theory side, built up from first principles:
+
+```{=html}
+<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
+<iframe src="https://www.youtube.com/embed/GlYgs6v2YfU" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="But what is cross-entropy?, 3Blue1Brown"></iframe>
+</div>
+```
 
 # 4. Why training fails
 
@@ -146,7 +135,7 @@ ReLU never shrinks the gradient for positive inputs and is cheap to compute, so 
 - **Why?** The learning rate sets the step size of gradient descent (Session 1). Too small is slow; too large overshoots the minimum. Adam adapts the step size for each weight.
 - **Fix.** Start with Adam and a learning rate around $10^{-3}$, and always watch the validation curve.
 
-The lab repeats all of these on MNIST, and adds the comparison of loss functions: *change one thing, see what happens, explain why*.
+The lab repeats all of these on the blood-cell images of the Session 8 lab, and adds the comparison of loss functions: *change one thing, see what happens, explain why*.
 
 # 5. When a hidden layer pays off: epistasis in a protein
 
@@ -156,13 +145,13 @@ The lab repeats all of these on MNIST, and adds the comparison of loss functions
 
 Trained with early stopping on 20,000 variants (5,000 for validation, 20,000 for testing):
 
-| Model | Weights | Train MAE | Val MAE | Test MAE | **Test $R^2$** |
-|---|---|---|---|---|---|
-| Linear (additive) | 81 | 0.379 | 0.371 | 0.385 | **0.496** |
-| 64/64 | 9,409 | 0.212 | 0.250 | 0.254 | **0.787** |
-| 64/64 + weight decay (10⁻³) | 9,409 | 0.215 | 0.241 | 0.249 | 0.795 |
-| 64/64 + dropout 0.2 | 9,409 | 0.220 | 0.242 | 0.247 | 0.798 |
-| 256/256 | 86,785 | 0.193 | 0.252 | 0.259 | 0.779 |
+| Model                       | Weights | Train MAE | Val MAE | Test MAE | **Test** $R^2$ |
+|-----------------------------|---------|-----------|---------|----------|----------------|
+| Linear (additive)           | 81      | 0.379     | 0.371   | 0.385    | **0.496**      |
+| 64/64                       | 9,409   | 0.212     | 0.250   | 0.254    | **0.787**      |
+| 64/64 + weight decay (10⁻³) | 9,409   | 0.215     | 0.241   | 0.249    | 0.795          |
+| 64/64 + dropout 0.2         | 9,409   | 0.220     | 0.242   | 0.247    | 0.798          |
+| 256/256                     | 86,785  | 0.193     | 0.252   | 0.259    | 0.779          |
 
 ![Training (dashed) and validation (solid) MAE per epoch, for the additive model and the 64/64 network.](figs/session09-gb1-curves.png){width="70%"}
 
@@ -185,7 +174,7 @@ Training accuracy reaches **1.000**: the network memorizes every training protei
 And the simple baseline wins. Measured once on the test set:
 
 | Metric | Untrained network (Session 8, val) | Trained network (test) | Logistic regression (test) |
-|---|---|---|---|
+|------------------|------------------|------------------|------------------|
 | Accuracy | 0.181 | 0.514 | **0.569** |
 | Macro F1 | 0.124 | 0.493 | — |
 | MCC | −0.027 | 0.394 | **0.461** |
@@ -214,7 +203,7 @@ Applied to the localization network, dropout and weight decay do *not* beat earl
 Session 8's rules apply to every comparison in this session: choices (epochs, sizes, regularization) are made on the validation set, the test set is used once, and every model is compared with a simple baseline. The three datasets side by side:
 
 | Dataset | Training examples | Network weights | Examples per weight | Network vs. linear |
-|---|---|---|---|---|
+|---------------|---------------|---------------|---------------|---------------|
 | Breast cancer | 398 | 513 | 0.78 | tie (CV accuracy 0.979 vs. 0.979) |
 | GB1 fitness | 20,000 | 9,409 | 2.1 | **network** (test $R^2$ 0.787 vs. 0.496) |
 | Protein localization | 486 | 192,389 | 0.003 | **linear** (test accuracy 0.514 vs. 0.569) |
@@ -354,40 +343,24 @@ renderQuiz("session09-quiz", [
 
 `notebooks/session09-backprop-training-regularization.ipynb` computes every number and figure on this page, section by section: the breast-cancer training run and the predictions before and after training; the backpropagation example by hand, checked against autograd; cross-entropy by hand; the three training failures (equal initialization, deep sigmoid networks, optimizer and learning rate); the GB1 models and the effect of the training-set size; and the localization network's overfitting, regularization and comparison with logistic regression.
 
-Open it in
-[Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session09-backprop-training-regularization.ipynb)
-via the badge at the top of the notebook page to edit and run it
-yourself.
+Open it in [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session09-backprop-training-regularization.ipynb) via the badge at the top of the notebook page to edit and run it yourself.
 
 ## The lab
 
-**Full lab, on MNIST:** adapted from the previous course's "Neural
-Networks" lab and rebuilt in PyTorch. This time you **write the training
-loop yourself**. Work through
-[`notebooks/session09-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session09-lab.ipynb),
-replacing every `todo(...)` call with your own code:
+**Full lab, on blood-cell images** (BloodMNIST, as in the Session 8 lab): adapted from the previous course's "Neural Networks" lab and rebuilt in PyTorch. This time you **write the training loop yourself**. Work through [`notebooks/session09-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session09-lab.ipynb), replacing every `todo(...)` call with your own code:
 
-1. write the four-step mini-batch training loop;
-2. compare cross-entropy with mean squared and mean absolute error as the
-   loss for a classifier;
-3. start every weight at 1 and see why random initialization matters;
-4. add hidden layers (tanh, sigmoid, ReLU) and measure the gradient that
-   reaches the first layer;
-5. compare SGD with Adam, a 128-unit hidden layer with no hidden layer at
-   all, and run a small hyperparameter search chosen on the validation
-   set, using the test set once, at the end.
+1.  write the four-step mini-batch training loop;
+2.  compare cross-entropy with mean squared and mean absolute error as the loss for a classifier;
+3.  start every weight at 1 and see why random initialization matters;
+4.  add hidden layers (tanh, sigmoid, ReLU) and measure the gradient that reaches the first layer;
+5.  compare SGD with Adam, a 128-unit hidden layer with no hidden layer at all, and run a small hyperparameter search chosen on the validation set, using the test set once, at the end.
+
+The best dense network ends up near 78% on the test images. Session 10's lab trains a convolutional network on the same cells.
 
 ### Submitting this lab
 
-This lab is administered through Canvas, not this book — see the
-course's Canvas page for the current quiz, deadline, and submission
-mechanism.
+This lab is administered through Canvas, not this book — see the course's Canvas page for the current quiz, deadline, and submission mechanism.
 
 ## What's next
 
-Session 10 moves from fully connected networks to **convolutional** ones,
-which share weights across positions. It covers image classification and
-the ImageNet history, data augmentation and transfer learning (including
-breast-cancer histopathology images), the localization dataset again, now
-with 10 times fewer weights, DNA sequence (DeepSEA), and protein contact
-prediction.
+Session 10 moves from fully connected networks to **convolutional** ones, which share weights across positions. It covers image classification and the ImageNet history, data augmentation and transfer learning (including breast-cancer histopathology images), the localization dataset again, now with 10 times fewer weights, DNA sequence (DeepSEA), and protein contact prediction.

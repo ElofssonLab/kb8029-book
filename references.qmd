@@ -214,6 +214,7 @@ commercial use. Every page names which of them it used.
 ## Databases, datasets and software
 
 - Abanades B, Wong WK, Boyles F et al. (2023). ImmuneBuilder: Deep-Learning models for predicting the structures of immune proteins. Commun Biol 6:575. [doi:10.1038/s42003-023-04927-7](https://doi.org/10.1038/s42003-023-04927-7). PMID:37248282. *Cited in:* [Session 12](session12.qmd).
+- Acevedo A, Merino A, Alférez S, Molina Á, Boldú L, Rodellar J (2020). A dataset of microscopic peripheral blood cell images for development of automatic recognition systems. Data Brief 30:105474. [doi:10.1016/j.dib.2020.105474](https://doi.org/10.1016/j.dib.2020.105474). *Cited in:* [Session 8](session08.qmd).
 - AlphaFold Server (Google DeepMind / Isomorphic Labs). <https://alphafoldserver.com> *Cited in:* [Session 12](session12.qmd).
 - Becares et al. (2019) differential-expression table (S196A vs WT LXRα mouse liver, HFHC diet; Fig. 4C), as shared in the VolcaNoseR repository: Becares-diffgenes_HFHC.csv. <https://raw.githubusercontent.com/JoachimGoedhart/VolcaNoseR/master/Becares-diffgenes_HFHC.csv> *Cited in:* [Session 2](session02.qmd).
 - Biopython: freely available Python tools for computational molecular biology. <https://biopython.org/> *Cited in:* [Session 6](session06.qmd).
@@ -259,7 +260,6 @@ commercial use. Every page names which of them it used.
 - McKinney W (2010). Data structures for statistical computing in Python. Proceedings of the 9th Python in Science Conference (SciPy 2010), 56-61. [doi:10.25080/Majora-92bf1922-00a](https://doi.org/10.25080/Majora-92bf1922-00a). *Cited in:* [Session 2](session02.qmd).
 - Meta AI / FAIR. fair-esm: Evolutionary Scale Modeling (ESM) pretrained protein language models (Python package). <https://github.com/facebookresearch/esm> *Cited in:* [Session 11](session11.qmd).
 - MMseqs2 software, GitHub repository (Söding/Steinegger labs). <https://github.com/soedinglab/MMseqs2> *Cited in:* [Session 8](session08.qmd).
-- MNIST database of handwritten digits (LeCun Y, Cortes C, Burges CJC). LeCun Y, Bottou L, Bengio Y, Haffner P (1998). Gradient-based learning applied to document recognition. Proc IEEE 86:2278-2324. [doi:10.1109/5.726791](https://doi.org/10.1109/5.726791). *Cited in:* [Session 8](session08.qmd), [Session 9](session09.qmd).
 - NCBI RefSeq NM_000518.5, Homo sapiens hemoglobin subunit beta (HBB), mRNA. <https://www.ncbi.nlm.nih.gov/nuccore/NM_000518.5> *Cited in:* [Session 3](session03.qmd).
 - NCBI. ClinVar. <https://www.ncbi.nlm.nih.gov/clinvar/> *Cited in:* [Session 3](session03.qmd).
 - NCI. GDC Data Portal. <https://portal.gdc.cancer.gov/> *Cited in:* [Session 3](session03.qmd).
@@ -311,6 +311,7 @@ commercial use. Every page names which of them it used.
 - Wellcome Sanger Institute. COSMIC. <https://cancer.sanger.ac.uk/cosmic> *Cited in:* [Session 3](session03.qmd).
 - Wohlwend J, Corso G, Passaro S et al. (2024). Boltz-1 Democratizing Biomolecular Interaction Modeling. bioRxiv, 2024.11.19.624167. [doi:10.1101/2024.11.19.624167](https://doi.org/10.1101/2024.11.19.624167). PMID:39605745. *Cited in:* [Session 12](session12.qmd).
 - Wolberg WH, Mangasarian OL, Street N, Street W (1995). Breast Cancer Wisconsin (Diagnostic) [dataset]. UCI Machine Learning Repository (CC BY 4.0). [doi:10.24432/C5DW2B](https://doi.org/10.24432/C5DW2B). *Cited in:* [Session 9](session09.qmd).
+- Yang J, Shi R, Wei D, Liu Z, Zhao L, Ke B, Pfister H, Ni B (2023). MedMNIST v2 - A large-scale lightweight benchmark for 2D and 3D biomedical image classification. Sci Data 10:41. [doi:10.1038/s41597-022-01721-8](https://doi.org/10.1038/s41597-022-01721-8). BloodMNIST subset, CC BY 4.0. *Cited in:* [Session 8](session08.qmd), [Session 9](session09.qmd), [Session 10](session10.qmd).
 - Zdrazil B, Felix E, Hunter F et al. (2024). The ChEMBL Database in 2023: a drug discovery platform spanning multiple bioactivity data types and time periods. Nucleic Acids Res 52:D1180-D1192. [doi:10.1093/nar/gkad1004](https://doi.org/10.1093/nar/gkad1004). PMID:37933841. *Cited in:* [Session 12](session12.qmd).
 - Škrinjar P, Eberhardt J, Tauriello G et al. (2025). Have protein-ligand cofolding methods moved beyond memorisation?. bioRxiv, 2025.02.03.636309. [doi:10.1101/2025.02.03.636309](https://doi.org/10.1101/2025.02.03.636309). *Cited in:* [Session 12](session12.qmd).
 
