@@ -1,5 +1,5 @@
 ::: callout-note
-**Sources for this page:** d2l.ai, *Dive into Deep Learning*, [Multilayer Perceptrons](https://d2l.ai/chapter_multilayer-perceptrons/index.html) — CC BY-SA 4.0; Wikipedia, [Backpropagation](https://en.wikipedia.org/wiki/Backpropagation), [Stochastic gradient descent](https://en.wikipedia.org/wiki/Stochastic_gradient_descent), [Overfitting](https://en.wikipedia.org/wiki/Overfitting), [Vanishing gradient problem](https://en.wikipedia.org/wiki/Vanishing_gradient_problem), [Regularization (mathematics)](https://en.wikipedia.org/wiki/Regularization_(mathematics)), [Dropout (neural networks)](https://en.wikipedia.org/wiki/Dropout_(neural_networks)), [Early stopping](https://en.wikipedia.org/wiki/Early_stopping) — CC BY-SA 4.0. Datasets: the [Breast Cancer Wisconsin (Diagnostic)](https://archive.ics.uci.edu/dataset/17/breast+cancer+wisconsin+diagnostic) data set (UCI Machine Learning Repository, CC BY 4.0), loaded through [scikit-learn](https://scikit-learn.org/stable/datasets/real_world.html); the GB1 fitness landscape of Wu, Dai, Olson, Lloyd-Smith & Sun (2016), [*eLife* 5:e16965](https://doi.org/10.7554/eLife.16965) (CC BY 4.0), as distributed by the FLIP benchmark (Dallago et al. 2021, [bioRxiv](https://doi.org/10.1101/2021.11.09.467890)); Session 8's UniProt subcellular-localization data. Ioffe & Szegedy (2015), "Batch Normalization," [arXiv:1502.03167](https://arxiv.org/abs/1502.03167); Kingma & Ba (2015), "Adam: A Method for Stochastic Optimization," [arXiv:1412.6980](https://arxiv.org/abs/1412.6980); Rost & Sander (1993), [*J. Mol. Biol.* 232:584-599](https://doi.org/10.1006/jmbi.1993.1413) and [*PNAS* 90:7558-7562](https://pmc.ncbi.nlm.nih.gov/articles/PMC47181/) (the PHD method). 3Blue1Brown's neural-network and cross-entropy videos are embedded as further watching. The regression setup (linear baseline vs. 64/64 network, L2 and dropout), the vanishing-gradient demonstration and the tiny hand-computed backpropagation example follow ideas from Magnus Ekman's *Learning Deep Learning* (ch. 3, 5 and 6 slide decks in `slides/`), a copyrighted, not openly licensed textbook, credited here as an internal source and not linked. Every number below was computed in code and read back from the notebook's output.
+**Sources for this page:** d2l.ai, *Dive into Deep Learning*, [Multilayer Perceptrons](https://d2l.ai/chapter_multilayer-perceptrons/index.html) — CC BY-SA 4.0; Wikipedia, [Backpropagation](https://en.wikipedia.org/wiki/Backpropagation), [Stochastic gradient descent](https://en.wikipedia.org/wiki/Stochastic_gradient_descent), [Overfitting](https://en.wikipedia.org/wiki/Overfitting), [Vanishing gradient problem](https://en.wikipedia.org/wiki/Vanishing_gradient_problem), [Regularization (mathematics)](https://en.wikipedia.org/wiki/Regularization_(mathematics)), [Dropout (neural networks)](https://en.wikipedia.org/wiki/Dropout_(neural_networks)), [Early stopping](https://en.wikipedia.org/wiki/Early_stopping) — CC BY-SA 4.0. Datasets: the [Breast Cancer Wisconsin (Diagnostic)](https://archive.ics.uci.edu/dataset/17/breast+cancer+wisconsin+diagnostic) data set (UCI Machine Learning Repository, CC BY 4.0), loaded through [scikit-learn](https://scikit-learn.org/stable/datasets/real_world.html); the GB1 fitness landscape of Wu, Dai, Olson, Lloyd-Smith & Sun (2016), [*eLife* 5:e16965](https://doi.org/10.7554/eLife.16965) (CC BY 4.0), as distributed by the FLIP benchmark (Dallago et al. 2021, [bioRxiv](https://doi.org/10.1101/2021.11.09.467890)); Session 8's UniProt subcellular-localization data. Ioffe & Szegedy (2015), "Batch Normalization," [arXiv:1502.03167](https://arxiv.org/abs/1502.03167); Srivastava et al. (2014), "Dropout," [*JMLR* 15:1929-1958](https://jmlr.org/papers/v15/srivastava14a.html); Kingma & Ba (2015), "Adam: A Method for Stochastic Optimization," [arXiv:1412.6980](https://arxiv.org/abs/1412.6980); Rost & Sander (1993), [*J. Mol. Biol.* 232:584-599](https://doi.org/10.1006/jmbi.1993.1413) and [*PNAS* 90:7558-7562](https://pmc.ncbi.nlm.nih.gov/articles/PMC47181/) (the PHD method). 3Blue1Brown's neural-network and cross-entropy videos are embedded as further watching. The regression setup (linear baseline vs. 64/64 network, L2 and dropout), the vanishing-gradient demonstration and the tiny hand-computed backpropagation example follow ideas from Magnus Ekman's *Learning Deep Learning* (ch. 3, 5 and 6 slide decks in `slides/`), a copyrighted, not openly licensed textbook, credited here as an internal source and not linked. Every number below was computed in code and read back from the notebook's output.
 :::
 
 # Session 9: How a Neural Network Learns, and Why Training Fails
@@ -215,7 +215,7 @@ Training works, since every number is far above chance. But **the linear model i
 - **A smaller model, or a better architecture.** Fewer weights for the same input. Session 10's convolutional network needs 19,237 weights instead of 192,389.
 - **Early stopping.** Keep the weights from the epoch with the best validation score. It costs nothing and is used throughout this course.
 - **Weight decay (L2) and L1 regularization.** Add a penalty for large weights to the loss ([below](#sec-s09-l1l2)).
-- **Dropout.** Randomly switch off a fraction of the units in every training step, so the network cannot rely on any single unit.
+- **Dropout.** Randomly switch off a fraction of the units in every training step, so the network cannot rely on any single unit ([below](#sec-s09-dropout)).
 
 Applied to the localization network, dropout and weight decay do *not* beat early stopping alone (best validation accuracy 0.476 against 0.486). Training accuracy still reaches 1.000 whatever we do: with 192,389 weights and 486 examples the network can always memorize. Regularization is not a substitute for enough data.
 
@@ -235,6 +235,22 @@ For linear regression the two have their own names, **ridge** (L2) and **lasso**
 ![Logistic regression on the 30 biopsy features. Left and middle: every line is one feature's weight as the penalty gets stronger (to the right). Right: the number of non-zero weights (solid) and the validation accuracy (dotted).](figs/session09-l1-l2.png){width="100%"}
 
 With $\lambda$ chosen on the validation set, L2 keeps all 30 weights (test accuracy 0.965), while L1 keeps only **6** (test accuracy 0.942), led by the largest tumour radius and the number of concave points on the cell nuclei: almost the same accuracy, with a model a pathologist can read. When features are many and examples few, as in gene-expression data with 20,000 genes and a few hundred patients, that is often the main reason to use L1. The third discussion problem checks the same effect by hand.
+
+### Dropout: training many thinned networks at once {#sec-s09-dropout}
+
+**Dropout** (Srivastava et al. 2014, [*JMLR* 15:1929-1958](https://jmlr.org/papers/v15/srivastava14a.html)) switches off each hidden unit with probability $p$ (often 0.2-0.5), a fresh random choice for every mini-batch. The switched-off units output zero, and nothing flows back through them in that step.
+
+![Dropout with $p = 0.5$. In every training step a different random set of hidden units is switched off, so each step trains a different thinned network. At test time every unit is on.](figs/session09-dropout.png){width="100%"}
+
+Why should damaging the network during training help?
+
+- **No unit can count on its partners.** Without dropout, units can develop fragile combinations that only work together and fit the quirks of the training set. With dropout, any partner may be missing in the next step, so each unit has to learn something useful on its own, and the information gets spread over many units.
+- **A cheap ensemble.** Every step trains a different thinned network, all sharing the same weights. A network with 64 hidden units has $2^{64}$ possible thinned versions. At test time the full network behaves roughly like the average of all of them, and an average of many models overfits less than any one of them.
+- **Noise, like augmentation.** Data augmentation (Session 10) perturbs the *inputs* so the network learns what should not matter; dropout perturbs the *hidden units*.
+
+**Training mode and evaluation mode.** Dropout is only for training. To keep the expected input to the next layer the same, PyTorch multiplies the surviving units by $1/(1-p)$ during training, so at test time the full network can be used unchanged. `model.train()` switches dropout (and batch normalization's training behaviour) on, and `model.eval()` switches it off. That is why every training loop in this course calls both. Forget `model.eval()`, and the same input gives a different prediction every time; the notebook shows it.
+
+Does it help? On GB1, dropout 0.2 raises the training error a little (MAE 0.212 → 0.220) and lowers the test error a little (0.254 → 0.247; test $R^2$ 0.787 → 0.798): exactly the narrowing of the gap between training and test that a regularizer should give. On the localization network, with 192,389 weights and 486 proteins, it does not beat early stopping. Dropout is most useful in large fully connected layers: AlexNet (Session 10) used it in its two big fully connected layers, the small CNN of Session 10 uses it before its last layer, and Transformers (Session 11) use small rates throughout.
 
 ## Is the improvement real? {#sec-s09-real}
 
@@ -395,6 +411,17 @@ renderQuiz("session09-quiz", [
     ],
     correctIndex: 0,
     explanation: "The gradient of lambda*|w| is +-lambda, constant in size; the gradient of lambda*w^2 is 2*lambda*w, which fades as w approaches zero. So L2 shrinks all weights, while L1 selects features."
+  },
+  {
+    question: "A network with dropout gives a different prediction every time you run the same biopsy through it. What is the most likely cause?",
+    choices: [
+      "The model is still in training mode: call model.eval() before predicting, which switches dropout off",
+      "The weights are being updated during prediction",
+      "Dropout permanently deletes units, so the network keeps changing",
+      "The test data are shuffled"
+    ],
+    correctIndex: 0,
+    explanation: "Dropout switches off random units in every forward pass, but only in training mode. model.eval() turns it off (and model.train() back on), so predictions become deterministic."
   }
 ]);
 </script>
