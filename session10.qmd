@@ -1,5 +1,5 @@
 ::: callout-note
-**Sources for this page:** d2l.ai, *Dive into Deep Learning*, [Convolutional Neural Networks](https://d2l.ai/chapter_convolutional-neural-networks/index.html) and [Modern Convolutional Neural Networks](https://d2l.ai/chapter_convolutional-modern/index.html) — CC BY-SA 4.0. Every historical number on this page is taken from the primary paper or the official challenge or CASP assessment report, cited where it is used (ImageNet: Russakovsky et al. 2015, [*IJCV* 115:211-252](https://doi.org/10.1007/s11263-015-0816-y)). Data: Oxford Flowers102 (Nilsback & Zisserman, 2008, via `torchvision`), Sessions 8-9's UniProt localization dataset, and PDB entry [4HHB](https://www.rcsb.org/structure/4HHB) (hemoglobin, CC0). The ImageNet-trained ResNet-18 weights come from `torchvision`. The classic-architecture and transfer-learning material draws on Magnus Ekman's *Learning Deep Learning* (ch. 7-8 slide decks and `notebooks/ch07.ipynb`/`ch08.ipynb`), a copyrighted, not openly licensed textbook, credited here as an internal source and not linked. All figures were drawn or computed for this course. Every number from our own code was read back from the notebook's output.
+**Sources for this page:** d2l.ai, *Dive into Deep Learning*, [Convolutional Neural Networks](https://d2l.ai/chapter_convolutional-neural-networks/index.html) and [Modern Convolutional Neural Networks](https://d2l.ai/chapter_convolutional-modern/index.html) — CC BY-SA 4.0. Every historical number on this page is taken from the primary paper or the official challenge or CASP assessment report, cited where it is used (ImageNet: Russakovsky et al. 2015, [*IJCV* 115:211-252](https://doi.org/10.1007/s11263-015-0816-y)). Data: colorectal-cancer histology tiles NCT-CRC-HE-100K and CRC-VAL-HE-7K (Kather, Halama & Marx 2018, [Zenodo](https://doi.org/10.5281/zenodo.1214456), CC BY 4.0; a small subset is kept in the course repository), Sessions 8-9's UniProt localization dataset, and PDB entry [4HHB](https://www.rcsb.org/structure/4HHB) (hemoglobin, CC0). The ImageNet-trained ResNet-18 weights come from `torchvision`, and the DINOv2 weights (Apache 2.0) from Hugging Face. The classic-architecture and transfer-learning material draws on Magnus Ekman's *Learning Deep Learning* (ch. 7-8 slide decks and `notebooks/ch07.ipynb`/`ch08.ipynb`), a copyrighted, not openly licensed textbook, credited here as an internal source and not linked. All figures were drawn or computed for this course. Every number from our own code was read back from the notebook's output.
 :::
 
 # Session 10: CNNs, and How They Took Over Biology
@@ -10,7 +10,7 @@ By the end of this session you should be able to:
 
 - explain why fully connected layers fail on images and long sequences, and how convolution (a small, shared, sliding weighted sum) fixes it;
 - explain translation equivariance, pooling and invariance, and why CNNs are *not* rotation invariant, which is where data augmentation comes in;
-- describe what actually happened in computer vision from AlexNet (2012) to ResNet (2015), and why transfer learning became the default;
+- describe what actually happened in computer vision from AlexNet (2012) to ResNet (2015), why transfer learning became the default, and what self-supervised foundation models such as DINOv2 add;
 - trace how CNNs moved into biomedical imaging, regulatory genomics and protein structure, and what each step changed;
 - interpret a first-layer filter of a sequence CNN as a learned position weight matrix;
 - read a protein contact map and explain why its prediction became an image problem.
@@ -65,32 +65,52 @@ The turning point was the **ImageNet** challenge (ILSVRC): 1.2 million training 
 - d2l.ai, [Modern Convolutional Neural Networks](https://d2l.ai/chapter_convolutional-modern/index.html) (AlexNet, VGG, GoogLeNet, ResNet in detail)
 - Russakovsky et al. (2015), [ImageNet Large Scale Visual Recognition Challenge](https://arxiv.org/abs/1409.0575)
 
-### Hands-on: Flowers102 and very little data
+### Hands-on: cancer histology, and very little labelled data
 
-Biology rarely has 1.2 million labelled images. The **Flowers102** dataset (102 species) has only **10 training images per class**, a realistic situation. The notebook trains the same small CNN (four convolution blocks, 254,694 weights) twice, then tries transfer learning:
+Biology rarely has 1.2 million labelled images. A pathologist diagnosing colorectal cancer looks at thin slices of tissue stained with haematoxylin and eosin (H&E), and every label costs an expert's time. Kather et al. (2019, [*PLoS Med* 16:e1002730](https://doi.org/10.1371/journal.pmed.1002730)) cut such slides into small square tiles (112 µm across) and labelled each with one of **nine tissue types**:
 
-![Validation accuracy per epoch (training accuracy dashed) for a small CNN trained from scratch, the same CNN with data augmentation, and transfer learning from ImageNet (horizontal line).](figs/session10-flowers-curves.png){width="75%"}
+![One training tile of each of the nine tissue types (NCT-CRC-HE-100K; Kather, Halama & Marx 2018, CC BY 4.0).](figs/session10-crc-classes.png){width="100%"}
 
-| Approach | Best validation accuracy | Test accuracy (2,000 images) |
+The notebook pretends we have only **40 labelled tiles per class** (360 in all) for training and 40 per class for validation, all from the 86 slides of the large data set. The test set is 100 tiles per class from **50 other patients** (Kather's separate CRC-VAL-HE-7K set). It trains a small CNN (four convolution blocks, 242,697 weights) with and without data augmentation, three times each with different random seeds, and then tries transfer learning:
+
+![Validation accuracy per epoch (training accuracy dashed) for the small CNN trained from scratch and with data augmentation (seed 0), and for the two transfer-learning classifiers (horizontal lines).](figs/session10-crc-curves.png){width="75%"}
+
+| Approach | Validation accuracy | Test accuracy (900 tiles, new patients) |
 |------------------------|------------------------|------------------------|
-| Small CNN from scratch | 0.519 | 0.464 |
-| Same CNN + data augmentation | 0.531 | 0.498 |
-| Transfer: frozen ImageNet ResNet-18 + new last layer | 0.864 | **0.827** |
+| Small CNN from scratch | 0.861 | 0.745 (three seeds: 0.721-0.786) |
+| Same CNN + data augmentation | 0.855 | 0.792 (three seeds: 0.769-0.821) |
+| Transfer: frozen ImageNet ResNet-18 + new last layer | 0.856 | 0.780 |
+| Transfer: frozen DINOv2 + new last layer | 0.917 | **0.832** |
 
-- **From scratch**, the network memorizes the 1,020 training images (training accuracy 1.000 at its best epoch) but generalizes poorly.
-- **Data augmentation** shows it a slightly different version of every image in every epoch: random crops and zooms, mirror images, small rotations, colour changes. The label stays the same, so the network learns which changes should *not* matter. It overfits less and generalizes better.
+- **From scratch**, the network memorizes the 360 training tiles (training accuracy close to 1.000) and generalizes worse. With so little data, the random seed alone moves the test accuracy by more than 6 percentage points.
+- **Data augmentation** shows it a slightly different version of every tile in every epoch, with the same label, so the network learns which changes should *not* matter. For tissue the choice is easy: a section has no "up" and no "left", so all rotations by 90° and all mirror images are equally valid tiles. Small zooms and colour changes imitate differences in staining between labs. On the new patients it helps on average (0.792 against 0.745), but not in every seed: with so little data, one run proves little either way.
 
-![One training image and five augmented versions of it.](figs/session10-augmentation.png){width="90%"}
+![One training tile (normal mucosa) and five augmented versions of it.](figs/session10-augmentation.png){width="90%"}
 
-- **Transfer learning** won by a wide margin, and it is what the field actually did. The early layers of an ImageNet network have learned generic visual features (edges, textures, parts of objects). Keep them frozen, and train only a new last layer on the new task. Within a few years of AlexNet this became the default whenever labelled data is scarce, which is almost always the case in biomedicine.
+- **Transfer learning** is what the field actually did. The early layers of a network trained on millions of images have learned generic visual features (edges, textures, blobs). Keep them frozen, and train only a new last layer on the new task. A ResNet-18 trained on ImageNet photos (cats, cars, mushrooms; no tissue) already matches the augmented CNN. **DINOv2**, trained *without labels* on 142 million images, does best of all; see the box below.
+- **Validation from the same slides, test from new patients.** Every model scores clearly higher on validation than on test. The validation tiles can come from the same slides as the training tiles, and so from the same patients, staining runs and scanner; the test tiles do not. This is Session 8's homology trap again, for images: when examples come in related groups (proteins in families, tiles in patients), the honest split is by group. On the new patients, even the best model confuses cancer-associated stroma with smooth muscle (50% of stroma tiles correct, 37% called muscle): both are pink, fibrous tissue.
+
+![Confusion matrix of the DINOv2 classifier on the 900 test tiles from new patients: each row shows how the tiles of one true class were classified.](figs/session10-crc-confusion.png){width="60%"}
+
+::: {.callout-note}
+#### Foundation models for images: DINOv2 and DINOv3
+
+**DINOv2** (Oquab et al. 2023, [arXiv:2304.07193](https://arxiv.org/abs/2304.07193)) is a vision Transformer (Session 11) trained by *self-supervision*: it never sees a label, and learns by making its description of an image agree with its descriptions of cropped and distorted versions of the same image. Trained once on 142 million curated images, its features work for tasks it was never trained on, including our tissue tiles. Such a model is called a **foundation model**; Session 11 shows the same recipe for proteins.
+
+The recipe has been scaled up and specialized. **DINOv3** (Siméoni et al. 2025, [arXiv:2508.10104](https://arxiv.org/abs/2508.10104)) trained a 7-billion-weight model on 1.7 billion images; its weights can be downloaded only after accepting Meta's own licence, which is why the notebook uses the openly licensed DINOv2. In pathology, **UNI** (Chen et al. 2024, [*Nat Med* 30:850-862](https://doi.org/10.1038/s41591-024-02857-3)) applied the DINOv2 recipe to more than 100 million tiles from over 100,000 H&E slides, and is used as a starting point for many tasks in computational pathology. The step from our 360 tiles to such models is the step from Session 9's small networks to the protein language models of Session 11.
+:::
 
 #### What a CNN is not invariant to
 
-Nothing in convolution or pooling makes a network insensitive to **rotation**. The notebook tests the transfer-learning classifier on 500 test images. It shifts the viewing window (by cropping at an offset, so no empty border appears), or rotates the image and then crops its centre (so no black corners appear):
+Nothing in convolution or pooling makes a network insensitive to **rotation** or mirroring. Accuracy alone can hide this, so the notebook asks a sharper question: for what fraction of the test tiles does the **predicted class change** when the same tile is shifted, rotated or mirrored? An invariant classifier would change none.
 
-![Accuracy of the transfer-learning classifier on shifted (blue) and rotated (red) versions of the same 500 test images.](figs/session10-rotation-shift.png){width="75%"}
+![Fraction of the 900 test tiles whose predicted class changes when the tile is shifted by 8 pixels, rotated or mirrored, for the CNN without and with augmentation and for the two transfer-learning classifiers.](figs/session10-rotation-shift.png){width="80%"}
 
-Shifting by 20 pixels barely matters (0.812 vs. 0.826), but every rotation costs several percentage points (0.722-0.768). Flowers seen from above are roughly symmetric, so for most objects the loss is larger. The pretrained features were learned from ImageNet photos, which are almost always upright, so the network never needed rotation invariance and never learned it. This is the "rotating the cat" problem. It is why rotations are part of standard augmentation, and why microscopy and histology pipelines, where a tissue section has no natural "up", augment with all rotations and flips.
+- **The CNN trained without augmentation** changes its answer for 5.1% of tiles when the window is shifted by 8 pixels, but for 18.2% when the tile is rotated by 90° and 16.7% when it is mirrored, although nothing about the tissue has changed. Convolution and pooling take care of *position*, not of *orientation*.
+- **Training with rotated and mirrored copies** roughly halves the changes (9.1% and 7.4%). The network learned the symmetry from the data, because the architecture could not give it.
+- **The pretrained networks are not invariant either.** ImageNet photos are almost always upright, and ResNet-18's predictions change for 17.6% of tiles under a 90° rotation. DINOv2 saw mirrored images during its self-supervised training but no rotated ones, and it shows: 6.3% change under mirroring, 11.8% under a 90° rotation.
+
+This is the "rotating the cat" problem. It is why histology and microscopy pipelines, where a section has no natural "up", augment with all rotations and flips, and why rotation-equivariant CNNs, which build the symmetry into the architecture, were developed for pathology (Veeling et al. 2018, [MICCAI](https://doi.org/10.1007/978-3-030-00934-2_24)).
 
 ## CNNs move into biology {#sec-s10-biology}
 
@@ -201,7 +221,7 @@ renderQuiz("session10-quiz", [
     explanation: "Weight sharing is what cuts the count: 19,237 weights for the localization CNN vs. 192,389 for the flat network on the same input."
   },
   {
-    question: "A CNN recognizes a flower whether it is in the left or the right half of the image, but can fail when the image is rotated by 45 degrees. Why?",
+    question: "A CNN classifies a tissue tile the same way when the tile is shifted by a few pixels, but changes its answer for many tiles when they are rotated by 90 degrees. Why?",
     choices: [
       "Shared kernels plus pooling give translation invariance by construction; nothing in the architecture gives rotation invariance, so it must be learned from (augmented) rotated examples",
       "Rotated images always contain black corners",
@@ -212,15 +232,26 @@ renderQuiz("session10-quiz", [
     explanation: "This is why rotation is a standard data augmentation, especially for microscopy and histology where there is no natural 'up'."
   },
   {
-    question: "On Flowers102 (10 training images per class), which approach gave by far the best test accuracy?",
+    question: "With 40 labelled histology tiles per class, which approach gave the best test accuracy on tiles from new patients?",
     choices: [
-      "A frozen ImageNet-trained ResNet-18 with a newly trained last layer (transfer learning)",
+      "A frozen DINOv2 (self-supervised on 142 million unlabelled images) with a newly trained last layer",
       "A small CNN trained from scratch",
       "The same small CNN with data augmentation",
-      "All three were equal"
+      "A frozen ImageNet ResNet-18 with a newly trained last layer, by a wide margin over everything else"
     ],
     correctIndex: 0,
-    explanation: "Generic visual features learned on 1.2 million ImageNet photos transfer to new tasks. This is how Esteva et al. (2017) built their dermatology classifier."
+    explanation: "DINOv2 reached 0.832, against 0.780 for ResNet-18, 0.792 for the augmented CNN and 0.745 for the CNN from scratch. Features learned on huge image collections transfer to new tasks, even without any labels during pretraining."
+  },
+  {
+    question: "Every model scored higher on the validation tiles (from the same slides as the training tiles) than on the test tiles (from 50 other patients). What does this show?",
+    choices: [
+      "Tiles from the same patient share staining, scanner and tissue features, so validation on them is optimistic; the honest split is by patient, like Session 8's homology-aware split",
+      "The test tiles are mislabelled",
+      "The models were trained on the test set",
+      "Validation accuracy is always higher than test accuracy, whatever the split"
+    ],
+    correctIndex: 0,
+    explanation: "When examples come in related groups (proteins in families, tiles in patients), random splits leak information between training and evaluation."
   },
   {
     question: "AlexNet's 2012 ImageNet win combined several ingredients. Which of these was NOT one of them?",
@@ -274,11 +305,11 @@ renderQuiz("session10-quiz", [
 
 `notebooks/session10-cnns-in-code.ipynb` runs everything on this page from our own code, in the same three parts:
 
-1.  The equivariance demonstration, Flowers102 (from scratch, with augmentation, and transfer learning from ResNet-18), and the rotation/shift test.
+1.  The equivariance demonstration, colorectal-cancer histology (from scratch, with augmentation, and transfer learning from ResNet-18 and DINOv2), and the rotation/shift test.
 2.  The localization 1D CNN on the homology-aware split, and the analysis of its first-layer filters.
 3.  The contact map of β-globin computed from PDB 4HHB.
 
-The notebook's first part trains two CNNs for 100 epochs; use a GPU runtime on Colab (*Runtime → Change runtime type*), or lower `EPOCHS` on a CPU. Open it in [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session10-cnns-in-code.ipynb) via the badge at the top of the notebook page.
+The notebook's first part trains a small CNN six times for 100 epochs; use a GPU runtime on Colab (*Runtime → Change runtime type*), or lower `EPOCHS` on a CPU. Open it in [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session10-cnns-in-code.ipynb) via the badge at the top of the notebook page.
 
 ## The lab
 

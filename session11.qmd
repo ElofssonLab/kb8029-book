@@ -32,10 +32,13 @@ By the end of this session you should be able to:
 - explain what a **language model** is, and trace the path from n-grams
   and recurrent language models to attention, the Transformer, BERT and
   GPT;
-- explain self-attention (queries, keys, values) and the difference
-  between masked (BERT-style) and causal (GPT-style) language models;
+- explain self-attention (queries, keys, values), what else goes into a
+  Transformer block (heads, feed-forward network, residual connections,
+  layer normalization, position encoding), and the difference between
+  masked (BERT-style) and causal (GPT-style) language models;
 - describe how protein language models are trained and what their
-  embeddings capture;
+  embeddings capture, and what makes them **foundation models**:
+  pretrained once without labels, then reused for many tasks;
 - describe how SignalP changed from a 1990s feed-forward network to a
   protein language model, and show in code why pretrained embeddings help
   most when labelled data are scarce or test proteins are unlike the
@@ -180,7 +183,103 @@ get much further, with far more data and a better architecture.
 </div>
 ```
 
+### Attention, from scratch
+
+For every position, **self-attention** asks: *which other positions
+should I take information from?* Each position's vector $x_i$ is turned
+into a **query** $q_i$, a **key** $k_i$ and a **value** $v_i$ (three
+learned linear maps). Position $i$ compares its query with every key,
+turns the scores into weights with softmax, and takes the weighted average
+of the values:
+
+$$
+\text{Attention}(Q, K, V) = \text{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right) V
+$$
+
+![Self-attention weights for a six-token toy sentence with random (untrained) projections. Each row, one query, is a probability distribution over all positions.](figs/session11-attention-heatmap.png){width=55%}
+
+Unlike an RNN, attention connects any two positions in one step, however
+far apart they are, and all positions are computed at the same time,
+which suits GPUs. Two things are missing: attention by itself has no idea
+of *order* (shuffle the tokens and every output is shuffled with them),
+and one weighted average is not much computation. The Transformer adds
+both.
+
+#### Further watching
+
+[*Attention in transformers, step-by-step*](https://www.youtube.com/watch?v=eMlx5fFNoYc) (3Blue1Brown, Deep Learning ch. 6): queries, keys, values, multiple heads and the causal mask, animated:
+
+```{=html}
+<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
+<iframe src="https://www.youtube.com/embed/eMlx5fFNoYc" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="Attention in transformers, step-by-step, 3Blue1Brown"></iframe>
+</div>
+```
+
+Going further: [*How might LLMs store facts*](https://www.youtube.com/watch?v=9-Jl0dxWQs8) (3Blue1Brown, Deep Learning ch. 7), about the feed-forward layers inside a Transformer.
+
+### The Transformer: attention plus four tricks
+
+A **Transformer** (Vaswani et al. 2017) is a stack of identical
+**blocks**. Each block takes one vector per token and returns one vector
+per token of the same size, so blocks can be stacked as deep as the
+budget allows.
+
+![A Transformer. Left: tokens become vectors, pass through N identical blocks, and come out as one vector per token, from which the model predicts tokens. Right: one block. This is the original (2017) arrangement; many newer models, ESM-2 among them, apply the layer normalization before each step instead of after it.](figs/session11-transformer-block.png){width=95%}
+
+Besides self-attention, a block uses four tricks, most of them already
+met in this course:
+
+- **Several heads.** Each block runs several attentions side by side
+  (ESM-2 35M: 20 heads), each with its own queries, keys and values, so
+  one head can follow, say, the neighbouring residues while another
+  links residues that touch in the folded protein. Their outputs are
+  concatenated.
+- **A feed-forward network** after the attention: the same small MLP
+  (Session 7), applied to every token on its own. Attention moves
+  information *between* tokens; the feed-forward network *processes* it
+  within each token. It holds most of the weights.
+- **Residual connections and layer normalization.** Each step adds its
+  output to its input instead of replacing it, Session 10's ResNet idea,
+  so the gradient has a direct path through dozens of blocks and does not
+  vanish (Session 9). Layer normalization re-standardizes each token's
+  vector, like Session 9's batch normalization but per token.
+- **Position encoding.** Before the first block, a vector that depends
+  only on the position is added to each token's embedding (or, in newer
+  models such as ESM-2, the queries and keys are rotated by an angle that
+  depends on the position). Without it, "ACDE" and "EDCA" would look the
+  same.
+
+The ESM-2 model used in this session's notebook has 12 such blocks and
+represents every residue by 480 numbers, 33.5 million weights in all; the
+largest ESM-2 has 48 blocks and 15 billion weights. The recipe is the
+same.
+
+**Encoder or decoder: BERT vs. GPT is one mask.** A BERT-style encoder lets every position
+attend to every other and learns by filling in masked tokens. A GPT-style
+decoder masks out the *future*, so each position sees only earlier ones
+and learns by predicting the next token, which is what lets it generate
+text:
+
+![Causal (GPT-style) attention: each token can only attend to itself and earlier tokens.](figs/session11-causal-mask.png){width=45%}
+
+Protein language models such as ESM-2 are encoders, trained BERT-style:
+every residue sees the whole sequence.
+
+#### Further watching
+
+[*Transformers, the tech behind LLMs*](https://www.youtube.com/watch?v=wjZofJX0v4M) (3Blue1Brown, Deep Learning ch. 5): how a GPT-style model turns tokens into vectors and predicts the next token:
+
+```{=html}
+<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
+<iframe src="https://www.youtube.com/embed/wjZofJX0v4M" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="Transformers, the tech behind LLMs, 3Blue1Brown"></iframe>
+</div>
+```
+
 ### What actually happened: from n-grams to GPT
+
+With attention and the Transformer in hand, here is how language models
+got there.
+
 
 - **n-grams.** For decades, language models counted how often each word
   followed the previous one or two words.
@@ -205,7 +304,7 @@ get much further, with far more data and a better architecture.
   "(soft-)search" the whole input sentence at every step instead.
 - **2017, the Transformer** (Vaswani et al.,
   [arXiv:1706.03762](https://arxiv.org/abs/1706.03762)): drop the
-  recurrence and keep only attention. 28.4 BLEU on English→German and
+  recurrence and keep only attention, in the blocks described above. 28.4 BLEU on English→German and
   41.8 on English→French, the latter after 3.5 days on eight GPUs, "a
   small fraction of the training costs of the best models". Without
   recurrence, all positions are processed in parallel.
@@ -223,57 +322,6 @@ get much further, with far more data and a better architecture.
   [arXiv:2005.14165](https://arxiv.org/abs/2005.14165)), and it solved
   new tasks from a few examples in the prompt, "without any gradient
   updates".
-
-#### Further watching
-
-[*Transformers, the tech behind LLMs*](https://www.youtube.com/watch?v=wjZofJX0v4M) (3Blue1Brown, Deep Learning ch. 5): how a GPT-style model turns tokens into vectors and predicts the next token:
-
-```{=html}
-<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
-<iframe src="https://www.youtube.com/embed/wjZofJX0v4M" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="Transformers, the tech behind LLMs, 3Blue1Brown"></iframe>
-</div>
-```
-
-### Attention, from scratch
-
-For every position, **self-attention** asks: *which other positions
-should I take information from?* Each position's vector $x_i$ is turned
-into a **query** $q_i$, a **key** $k_i$ and a **value** $v_i$ (three
-learned linear maps). Position $i$ compares its query with every key,
-turns the scores into weights with softmax, and takes the weighted average
-of the values:
-
-$$
-\text{Attention}(Q, K, V) = \text{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right) V
-$$
-
-![Self-attention weights for a six-token toy sentence with random (untrained) projections. Each row, one query, is a probability distribution over all positions.](figs/session11-attention-heatmap.png){width=55%}
-
-Unlike an RNN, attention connects any two positions in one step, however
-far apart they are. A Transformer stacks many such layers, each with
-several **heads** that can learn different relationships, plus a small
-feed-forward network, residual connections (Session 10's ResNet idea), and a
-**positional encoding**, because attention by itself ignores order.
-
-**BERT vs. GPT is one mask.** A BERT-style encoder lets every position
-attend to every other and learns by filling in masked tokens. A GPT-style
-decoder masks out the *future*, so each position sees only earlier ones
-and learns by predicting the next token, which is what lets it generate
-text:
-
-![Causal (GPT-style) attention: each token can only attend to itself and earlier tokens.](figs/session11-causal-mask.png){width=45%}
-
-#### Further watching
-
-[*Attention in transformers, step-by-step*](https://www.youtube.com/watch?v=eMlx5fFNoYc) (3Blue1Brown, Deep Learning ch. 6): queries, keys, values, multiple heads and the causal mask, animated:
-
-```{=html}
-<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
-<iframe src="https://www.youtube.com/embed/eMlx5fFNoYc" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="Attention in transformers, step-by-step, 3Blue1Brown"></iframe>
-</div>
-```
-
-Going further: [*How might LLMs store facts*](https://www.youtube.com/watch?v=9-Jl0dxWQs8) (3Blue1Brown, Deep Learning ch. 7), about the feed-forward layers inside a Transformer.
 
 ### Protein language models
 
@@ -318,6 +366,30 @@ inside the hydrophobic h-region, masked. It predicts leucine with
 probability 0.41, then A, V and G, and the true residue is indeed L. At
 the same position in a cytoplasmic protein its guesses are spread out,
 with no residue above 0.11. Nobody told it about signal peptides.
+
+### Foundation models: pretrain once, reuse everywhere
+
+ESM-2 is an example of what is now called a **foundation model**
+(Bommasani et al. 2021, [arXiv:2108.07258](https://arxiv.org/abs/2108.07258)):
+a large model trained once, at great cost, on huge amounts of *unlabelled*
+data with a self-supervised task (predict the masked or the next token),
+and then reused for many tasks it was never trained for. The recipe is
+always the same:
+
+1. **pretrain** on everything available, with no labels (UniRef for
+   proteins, the internet for text, billions of photos for images);
+2. **represent** each new example by the model's embedding;
+3. **adapt** with a small amount of labelled data: train a small model on
+   top of the frozen embeddings, or fine-tune the whole network a little.
+
+You have now met the recipe three times. Session 10's notebook used the
+image foundation model DINOv2 on histology tiles it had never seen; ESM-2
+does it for proteins; and SignalP 6.0, below, is ProtBERT plus a small
+model on top. Two lessons carry over from Sessions 8-9. A foundation
+model helps most when labelled data are scarce, which is exactly what the
+SignalP part of the notebook shows. And it does not remove the need for an
+honest split: its pretraining data may well contain proteins similar to
+your test set.
 
 #### Further reading
 
@@ -526,6 +598,28 @@ renderQuiz("session11-quiz", [
     ],
     correctIndex: 0,
     explanation: "GraphPart, built for SignalP 6.0, removes sequences until no cross-fold pair is too similar (they had to settle for 30%)."
+  },
+  {
+    question: "Attention lets every token take information from every other token. What does a Transformer block add, and why?",
+    choices: [
+      "Several heads, a feed-forward network for each token, residual connections with layer normalization so that gradients survive dozens of blocks, and a position encoding because attention alone ignores order",
+      "A recurrent hidden state that is passed from token to token",
+      "Convolution filters that slide along the sequence",
+      "Nothing: a Transformer is a single attention layer"
+    ],
+    correctIndex: 0,
+    explanation: "Attention moves information between tokens; the feed-forward network processes it within each token; residual connections (ResNet's idea) and layer normalization keep deep stacks trainable; the position encoding tells the model where each token is."
+  },
+  {
+    question: "Why are ESM-2, DINOv2 and the ProtBERT inside SignalP 6.0 called foundation models?",
+    choices: [
+      "They are pretrained once, without labels, on huge data, and then reused for many tasks through their embeddings plus a small model trained on a few labels",
+      "They were trained on labelled data for exactly the task they are used for",
+      "They are the first layer of every neural network",
+      "They can only be used for the data set they were trained on"
+    ],
+    correctIndex: 0,
+    explanation: "Pretrain, represent, adapt: SignalP 6.0 is ProtBERT embeddings plus a small model, and the session's notebook shows that such embeddings help most when labelled data are scarce."
   }
 ]);
 </script>

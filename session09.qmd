@@ -122,12 +122,22 @@ The training loop always runs; it does not always learn. Here are three common f
 ### Failure 2: deep sigmoid networks, and vanishing gradients
 
 - **Observation.** A network with six hidden layers of sigmoid units, trained with plain SGD, does not learn at all: its validation MAE stays around 0.48, the error of predicting the mean. The same network with tanh (0.321) or ReLU (0.312) learns.
-- **Why?** Backpropagation multiplies one activation *derivative* per layer, and sigmoid's derivative is at most 0.25 (and almost 0 when the unit saturates). In a freshly initialized six-layer sigmoid network, the first layer's gradient is about **ten million times smaller** than the last layer's; for tanh and ReLU the ratio is a few hundred to two thousand. The first layers barely move.
+- **Why?** Backpropagation multiplies one activation *derivative* per layer, and sigmoid's derivative is at most 0.25 (and almost 0 when the unit saturates). Even in the best case, six layers multiply the gradient by $0.25^6 \approx 0.00024$, so the first layer gets at least 4,000 times less gradient than the last. In practice it is worse: most units are not at the steepest point, and the weights shrink the gradient further. In a freshly initialized six-layer sigmoid network, the first layer's gradient is about **ten million times smaller** than the last layer's; for tanh and ReLU the ratio is a few hundred to two thousand. The first layers barely move.
 - **Fix.** ReLU-like activations; initialization scaled to each layer's size; standardized inputs; normalization layers such as batch normalization (Ioffe & Szegedy, 2015); and modern architectures. Adaptive optimizers also help: the same sigmoid network trained with Adam, which rescales small gradients ([see below](#sec-s09-adam)), does learn (0.291).
 
 ![Derivatives of sigmoid, tanh and ReLU. Sigmoid's is at most 0.25 (at $z = 0$) and below 0.01 by $|z| = 6$. Tanh's peaks at 1 but also vanishes in both tails. ReLU's is exactly 0 or exactly 1.](figs/session09-activation-derivatives.png){width="65%"}
 
 ReLU never shrinks the gradient for positive inputs and is cheap to compute, so it is the default for hidden layers. Its weakness is the flat side: a unit whose input is negative for every example gets no gradient and never recovers ("dying ReLU"; the first discussion problem). **Leaky ReLU** and **GELU** keep a small slope there. Sigmoid remains standard for a binary *output*.
+
+::: {.callout-tip}
+#### The same problem comes back, three more times
+
+Whenever a gradient has to pass through many multiplications, it can vanish (or explode). You will meet it again:
+
+- **Very deep CNNs (Session 10).** Even with ReLU and batch normalization, plain networks deeper than about 20 layers trained *worse* than shallower ones. ResNet (2015) added **residual connections**: each block adds its output to its input, $x + f(x)$, so the signal and the gradient always have a direct path through the network.
+- **Recurrent networks (Session 11).** An RNN applies the same weights at every position, so the gradient is multiplied by the same factor once per step through the sequence. **LSTM** gates were invented to give it a protected path.
+- **Transformers (Session 11).** Dozens of blocks deep, they use residual connections and layer normalization in every block, for the same reason.
+:::
 
 ### Failure 3: the optimizer and the learning rate
 
@@ -204,16 +214,27 @@ Training works, since every number is far above chance. But **the linear model i
 - **More data.** The most reliable fix, and often the only one that really helps.
 - **A smaller model, or a better architecture.** Fewer weights for the same input. Session 10's convolutional network needs 19,237 weights instead of 192,389.
 - **Early stopping.** Keep the weights from the epoch with the best validation score. It costs nothing and is used throughout this course.
-- **Weight decay (L2 regularization).** Penalize large weights; in PyTorch, the optimizer's `weight_decay` argument.
+- **Weight decay (L2) and L1 regularization.** Add a penalty for large weights to the loss ([below](#sec-s09-l1l2)).
 - **Dropout.** Randomly switch off a fraction of the units in every training step, so the network cannot rely on any single unit.
 
 Applied to the localization network, dropout and weight decay do *not* beat early stopping alone (best validation accuracy 0.476 against 0.486). Training accuracy still reaches 1.000 whatever we do: with 192,389 weights and 486 examples the network can always memorize. Regularization is not a substitute for enough data.
 
-::: {.callout-note collapse="true"}
-### Optional: L1 regularization
+### Penalizing large weights: L2 and L1 {#sec-s09-l1l2}
 
-**L1 regularization** penalizes the *absolute values* of the weights instead of their squares. It tends to push many weights to exactly zero, giving a sparse model, while L2 shrinks all of them a little. The third discussion problem compares the two on synthetic data.
-:::
+A network that fits noise usually does it with some very large weights: a big weight makes the output jump when one input changes a little. Regularization adds a penalty for large weights to the loss, with a strength $\lambda$ that we choose on the validation set:
+
+$$
+\text{loss} = \text{cross-entropy} + \lambda \sum_j w_j^2 \quad\text{(L2)} \qquad\text{or}\qquad \text{cross-entropy} + \lambda \sum_j |w_j| \quad\text{(L1)}
+$$
+
+- **L2** pulls every weight towards zero in proportion to its size (the gradient of $\lambda w^2$ is $2\lambda w$). Every step therefore shrinks every weight by the same *fraction*, which is why it is called **weight decay** and why PyTorch implements it as the optimizer's `weight_decay` argument. Weights become small, but almost never exactly zero.
+- **L1** pulls with the same force, $\lambda$, however small a weight already is. Weights that help little are pushed all the way to **exactly zero**, so the model *selects features*.
+
+For linear regression the two have their own names, **ridge** (L2) and **lasso** (L1). The notebook fits both to the 30 features of the breast-cancer biopsies of @sec-s09-trained, with logistic regression, so that every feature has exactly one weight:
+
+![Logistic regression on the 30 biopsy features. Left and middle: every line is one feature's weight as the penalty gets stronger (to the right). Right: the number of non-zero weights (solid) and the validation accuracy (dotted).](figs/session09-l1-l2.png){width="100%"}
+
+With $\lambda$ chosen on the validation set, L2 keeps all 30 weights (test accuracy 0.965), while L1 keeps only **6** (test accuracy 0.942), led by the largest tumour radius and the number of concave points on the cell nuclei: almost the same accuracy, with a model a pathologist can read. When features are many and examples few, as in gene-expression data with 20,000 genes and a few hundred patients, that is often the main reason to use L1. The third discussion problem checks the same effect by hand.
 
 ## Is the improvement real? {#sec-s09-real}
 
@@ -363,6 +384,17 @@ renderQuiz("session09-quiz", [
     ],
     correctIndex: 0,
     explanation: "Adam keeps, for each weight, an average of its gradient and of its squared gradient, and steps by m / sqrt(s). That ratio is about 1 whatever the gradient's scale, so the vanishing gradients of the early layers are scaled back up."
+  },
+  {
+    question: "With the penalty strength chosen on the validation set, L2 logistic regression on the 30 biopsy features keeps all 30 weights, while L1 keeps only a handful, at almost the same test accuracy. Why does L1 produce exact zeros?",
+    choices: [
+      "Its penalty pulls every weight towards zero with the same force however small the weight already is, so weights that help little are pushed all the way to zero",
+      "It uses a smaller learning rate",
+      "It removes the features with the largest values before training",
+      "L1 and L2 always give the same weights; the difference is rounding"
+    ],
+    correctIndex: 0,
+    explanation: "The gradient of lambda*|w| is +-lambda, constant in size; the gradient of lambda*w^2 is 2*lambda*w, which fades as w approaches zero. So L2 shrinks all weights, while L1 selects features."
   }
 ]);
 </script>
