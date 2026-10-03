@@ -17,9 +17,9 @@ By the end of this session you should be able to:
 
 The session has three parts: **convolution and images**, **CNNs move into biology**, and **from contacts to structure**.
 
-# Part 1: Convolution and images
+## Convolution and images {#sec-s10-convolution}
 
-## Why a fully connected layer fails for images (and long sequences)
+### Why a fully connected layer fails for images (and long sequences)
 
 Every model so far treats its input as one long vector, with an independent weight for every position. For Sessions 8-9's 150-residue one-hot sequences that is already 3,000 weights per hidden unit. For a modest $224 \times 224$ colour image it would be over 150,000. Two problems follow:
 
@@ -28,7 +28,7 @@ Every model so far treats its input as one long vector, with an independent weig
 
 A **convolutional layer** fixes both with one idea: use a small **kernel** (say 3 × 3 pixels, or 7 residues) and slide *the same kernel* across every position. The weights are shared; only their position changes.
 
-### Weight sharing gives equivariance, and pooling gives invariance
+#### Weight sharing gives equivariance, and pooling gives invariance
 
 If the input shifts, a shared kernel sees the same local pattern, just somewhere else, so the output shifts by the same amount. This **translation equivariance** is a property of weight sharing itself. It holds even for a random, untrained kernel:
 
@@ -36,7 +36,7 @@ If the input shifts, a shared kernel sees the same local pattern, just somewhere
 
 **Pooling** (taking the maximum or mean over a region, or over the whole feature map) then discards *where* the pattern was found and keeps *whether* it was found. Equivariant convolution followed by pooling gives **translation invariance**. A typical CNN stacks several convolution → ReLU → pooling blocks. Early layers detect edges and short motifs; later layers combine them into larger parts.
 
-### Further watching
+#### Further watching
 
 [*But what is a convolution?*](https://www.youtube.com/watch?v=KuXjwB4LzSA) (3Blue1Brown): convolution from probability to image blurring, the same sliding weighted sum a CNN learns:
 
@@ -46,7 +46,7 @@ If the input shifts, a shared kernel sees the same local pattern, just somewhere
 </div>
 ```
 
-## What actually happened: from LeNet to ResNet
+### What actually happened: from LeNet to ResNet
 
 CNNs are older than deep learning's fame. **LeNet** (LeCun et al., 1989, [*Neural Computation* 1:541-551](https://doi.org/10.1162/neco.1989.1.4.541)) read handwritten US zip codes, and by the late 1990s its successor LeNet-5 ([LeCun et al. 1998](https://doi.org/10.1109/5.726791)) read cheques. For natural images, though, hand-crafted features still won until 2012.
 
@@ -60,12 +60,12 @@ The turning point was the **ImageNet** challenge (ILSVRC): 1.2 million training 
 - **2015, ResNet** (He et al., [CVPR 2016](https://arxiv.org/abs/1512.03385)): 152 layers, 3.57%. Its **skip connections** let each block learn a correction to its input, $y = x + F(x)$, so gradients can flow straight through (Session 9). Before ResNet, simply adding layers made deep networks *harder* to train.
 - **For comparison:** one trained human annotator reached 5.1% on a sample of the test set (Russakovsky et al. 2015).
 
-### Further reading
+#### Further reading
 
 - d2l.ai, [Modern Convolutional Neural Networks](https://d2l.ai/chapter_convolutional-modern/index.html) (AlexNet, VGG, GoogLeNet, ResNet in detail)
 - Russakovsky et al. (2015), [ImageNet Large Scale Visual Recognition Challenge](https://arxiv.org/abs/1409.0575)
 
-## Hands-on: Flowers102 and very little data
+### Hands-on: Flowers102 and very little data
 
 Biology rarely has 1.2 million labelled images. The **Flowers102** dataset (102 species) has only **10 training images per class**, a realistic situation. The notebook trains the same small CNN (four convolution blocks, 254,694 weights) twice, then tries transfer learning:
 
@@ -84,7 +84,7 @@ Biology rarely has 1.2 million labelled images. The **Flowers102** dataset (102 
 
 - **Transfer learning** won by a wide margin, and it is what the field actually did. The early layers of an ImageNet network have learned generic visual features (edges, textures, parts of objects). Keep them frozen, and train only a new last layer on the new task. Within a few years of AlexNet this became the default whenever labelled data is scarce, which is almost always the case in biomedicine.
 
-### What a CNN is not invariant to
+#### What a CNN is not invariant to
 
 Nothing in convolution or pooling makes a network insensitive to **rotation**. The notebook tests the transfer-learning classifier on 500 test images. It shifts the viewing window (by cropping at an offset, so no empty border appears), or rotates the image and then crops its centre (so no black corners appear):
 
@@ -92,20 +92,20 @@ Nothing in convolution or pooling makes a network insensitive to **rotation**. T
 
 Shifting by 20 pixels barely matters (0.812 vs. 0.826), but every rotation costs several percentage points (0.722-0.768). Flowers seen from above are roughly symmetric, so for most objects the loss is larger. The pretrained features were learned from ImageNet photos, which are almost always upright, so the network never needed rotation invariance and never learned it. This is the "rotating the cat" problem. It is why rotations are part of standard augmentation, and why microscopy and histology pipelines, where a tissue section has no natural "up", augment with all rotations and flips.
 
-# Part 2: CNNs move into biology
+## CNNs move into biology {#sec-s10-biology}
 
-## What actually happened
+### What actually happened
 
 ![How CNNs spread from general computer vision into biomedical imaging, DNA and proteins. Dates are publication years of the papers cited below.](figs/session10-cnn-biology-timeline.png){width="100%"}
 
-### Biomedical images: almost immediately
+#### Biomedical images: almost immediately
 
 - **2012, the same year as AlexNet.** Cireşan, Giusti, Gambardella and Schmidhuber's CNNs won the ISBI 2012 challenge on segmenting neuronal membranes in electron-microscopy images. For pixel error they were the only entry to beat a second human observer ([NIPS 25](https://proceedings.neurips.cc/paper/2012/hash/459a4ddcb586f24efd9395aa7662bc7c-Abstract.html)). The same group won the ICPR 2012 contest on detecting mitoses in breast-cancer histology ([MICCAI 2013](https://pubmed.ncbi.nlm.nih.gov/24579167/)).
 - **2015, U-Net** (Ronneberger, Fischer & Brox, [arXiv:1505.04597](https://arxiv.org/abs/1505.04597)): an encoder-decoder CNN with skip connections that outputs a whole segmentation mask. It beat the 2012 sliding-window CNN on the same EM challenge, won the 2015 cell-tracking challenge, and is still the standard architecture for segmenting cells and tissues.
 - **2016-2017, clinical-scale results.** A CNN for diabetic retinopathy reached AUC 0.99 on two validation sets, trained on 128,175 retinal photographs (Gulshan et al., [*JAMA* 316:2402](https://pubmed.ncbi.nlm.nih.gov/27898976/)). An ImageNet-pretrained Inception-v3, fine-tuned on 129,450 skin images, performed on par with 21 dermatologists (Esteva et al., [*Nature* 542:115](https://pubmed.ncbi.nlm.nih.gov/28117445/)): transfer learning, as above. In the CAMELYON16 challenge (lymph-node metastases of breast cancer), the best of 32 algorithms reached AUC 0.994, against 0.810 for pathologists working under time constraints (Ehteshami Bejnordi et al., [*JAMA* 318:2199](https://pubmed.ncbi.nlm.nih.gov/29234806/)).
 - The breast-cancer **histopathology patches** used in the earlier version of this course are 277,524 patches of 50 × 50 pixels cut from 162 whole-slide images of invasive ductal carcinoma. They came from this period: Cruz-Roa et al. (2014) and Janowczyk & Madabhushi (2016, [*J Pathol Inform* 7:29](https://pubmed.ncbi.nlm.nih.gov/27563488/)), who reached an F-score of 0.765 with a CNN.
 
-### DNA: filters become motifs
+#### DNA: filters become motifs
 
 A CNN reading one-hot DNA has first-layer filters of shape 4 × *k*: a weight for each base at each of *k* positions. That is a **position weight matrix** (Session 5), except that it is learned from the data. It happened fast:
 
@@ -115,7 +115,7 @@ A CNN reading one-hot DNA has first-layer filters of shape 4 × *k*: a weight fo
 - **2016, DanQ** (Quang & Xie, [*NAR* 44:e107](https://pubmed.ncbi.nlm.nih.gov/27084946/)): a CNN followed by a bidirectional LSTM (Session 11) on the DeepSEA data. It beat DeepSEA on 94% of the targets, and 166 of its 320 filters matched JASPAR motifs.
 - **2018, Basenji** (131 kb input, dilated convolutions) → **2021, Enformer** (196 kb input, CNN + Transformer; Avsec et al., [*Nat Methods* 18:1196](https://pubmed.ncbi.nlm.nih.gov/34608324/)). Longer context needed new architectures, the topic of Sessions 11-12.
 
-### Proteins: our own CNN finds the signal peptide
+#### Proteins: our own CNN finds the signal peptide
 
 The same idea works on protein sequences. Sessions 8-9's localization network becomes a 1D CNN: two convolutional layers with 7-residue filters, then global average pooling and a linear layer to the five classes. It is trained and evaluated exactly as on Session 9, on the same homology-aware split:
 
@@ -137,15 +137,15 @@ Nobody told the network about signal peptides. It found a detector for their hyd
 
 **What the real tool did.** DeepLoc (Almagro Armenteros et al., 2017, [*Bioinformatics* 33:3387](https://pubmed.ncbi.nlm.nih.gov/29036616/)) put convolutions first, followed by a bidirectional LSTM and an attention layer (Sessions 11-12). Trained on a much larger UniProt dataset, it reached 78% accuracy over 10 compartments.
 
-### Further reading
+#### Further reading
 
 - Wikipedia, [U-Net](https://en.wikipedia.org/wiki/U-Net)
 - Zhou & Troyanskaya (2015), [Predicting effects of noncoding variants with deep learning-based sequence model](https://pubmed.ncbi.nlm.nih.gov/26301843/)
 - Kelley, Snoek & Rinn (2016), [Basset](https://pubmed.ncbi.nlm.nih.gov/27197224/)
 
-# Part 3: From contacts to structure
+## From contacts to structure {#sec-s10-structure}
 
-## A contact map is an image
+### A contact map is an image
 
 A **contact map** is an $L \times L$ grid with one pixel per residue pair. A pixel is 1 if the two residues are close in the folded structure: in CASP's definition, Cβ atoms (Cα for glycine) within 8 Å. Computed from the real crystal structure of hemoglobin's β chain (PDB 4HHB, Session 6):
 
@@ -153,7 +153,7 @@ A **contact map** is an $L \times L$ grid with one pixel per residue pair. A pix
 
 Of 197 contacts between residues at least 6 apart in sequence, 150 are **long-range** (at least 24 apart). Long-range contacts carry the information about the fold. If you can predict them from sequence, you can build a rough 3D model.
 
-## What actually happened: coevolution, then deep CNNs
+### What actually happened: coevolution, then deep CNNs
 
 - **Coevolution (2011-2014).** Residues in contact tend to mutate together across a protein family. Global statistical models of a multiple sequence alignment separate direct couplings from indirect correlations: DCA and EVfold (Morcos et al. 2011; Marks et al. 2011), PSICOV (Jones et al., 2012, [*Bioinformatics* 28:184](https://pubmed.ncbi.nlm.nih.gov/22101153/)), plmDCA, GREMLIN and CCMpred. They work well only when the family has many sequences.
 - **A shallow network on top (2015).** MetaPSICOV fed coevolution scores and other features into shallow feed-forward networks, the PHD recipe (Session 9) applied to residue pairs. It had about 60% higher precision than PSICOV (Jones et al., [*Bioinformatics* 31:999](https://pubmed.ncbi.nlm.nih.gov/25431331/)).
@@ -166,7 +166,7 @@ The CASP assessments show the jump:
 
 From CASP9 to CASP11 (2010-2014), precision stayed around 20-27%. Once contact maps were treated as images for deep CNNs, it reached 47% in CASP12 and more than 70% in CASP13. In CASP14 (2020) contact precision stopped improving (top-5 average 64%). AlphaFold 2 made contacts a by-product of predicting the whole 3D structure directly, which is Session 12's topic.
 
-## The secondary-structure thread, continued
+### The secondary-structure thread, continued
 
 The accuracy history from Session 7 did not stop at PHD:
 
@@ -177,7 +177,7 @@ The accuracy history from Session 7 did not stop at PHD:
 - **NetSurfP-2.0** (CNN + LSTM, 85%; [*Proteins* 87:520](https://pubmed.ncbi.nlm.nih.gov/30785653/)) and **SPOT-1D** (87%, using predicted contacts; [*Bioinformatics* 35:2403](https://pubmed.ncbi.nlm.nih.gov/30535134/)).
 - The estimated ceiling is 88-90% (Yang et al., 2018, [*Brief Bioinform* 19:482](https://pubmed.ncbi.nlm.nih.gov/28040746/)), set partly by disagreements between the programs that assign secondary structure from 3D coordinates.
 
-### Further reading
+#### Further reading
 
 - Schaarschmidt et al. (2018), [Assessment of contact predictions in CASP12](https://pubmed.ncbi.nlm.nih.gov/29071738/)
 - Shrestha et al. (2019), [Assessing the accuracy of contact predictions in CASP13](https://pubmed.ncbi.nlm.nih.gov/31587357/)
@@ -278,7 +278,7 @@ renderQuiz("session10-quiz", [
 2.  The localization 1D CNN on the homology-aware split, and the analysis of its first-layer filters.
 3.  The contact map of β-globin computed from PDB 4HHB.
 
-Part 1 trains two CNNs for 100 epochs; use a GPU runtime on Colab (*Runtime → Change runtime type*), or lower `EPOCHS` on a CPU. Open it in [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session10-cnns-in-code.ipynb) via the badge at the top of the notebook page.
+The notebook's first part trains two CNNs for 100 epochs; use a GPU runtime on Colab (*Runtime → Change runtime type*), or lower `EPOCHS` on a CPU. Open it in [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session10-cnns-in-code.ipynb) via the badge at the top of the notebook page.
 
 ## The lab
 

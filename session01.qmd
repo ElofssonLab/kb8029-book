@@ -25,7 +25,7 @@ By the end of this session you should:
 - understand entropy as average surprise, and cross-entropy as its link to likelihood;
 - understand p-values and why multiple testing requires FDR control.
 
-## Part 1: Vectors and matrices
+## Vectors and matrices {#sec-s01-linalg}
 
 ::: {.callout-tip icon="false"}
 ## A more villainous definition
@@ -318,7 +318,7 @@ renderQuiz("session01-quiz-1", [
 </div>
 ```
 
-## Part 2: Calculus for machine learning
+## Calculus for machine learning {#sec-s01-calculus}
 
 ::: {.callout-tip icon="false"}
 ## Derivatives
@@ -520,7 +520,7 @@ renderQuiz("session01-quiz-2", [
 </div>
 ```
 
-## Part 3: Probability and statistics
+## Probability and statistics {#sec-s01-probability}
 
 ::: {.callout-tip icon="false"}
 ## Probability
@@ -614,7 +614,7 @@ so it is $2^{0.47} \approx 1.4$ times more likely under the GC-rich model.
 
 **Logs of p-values.** Very small p-values are also shown on a log scale: $-\log_{10}(p)$ turns $p = 0.001$ into 3 and $p = 10^{-6}$ into 6, the y-axis of the volcano plot below.
 
-**Back from log-odds to probability.** The **sigmoid function**, $\sigma(z) = 1/(1+e^{-z})$, undoes a (natural) log-odds: if $z = \ln\big(p/(1-p)\big)$, then $\sigma(z) = p$. Logistic regression (Session 8) models the log-odds of a class as a weighted sum of the inputs and uses the sigmoid to turn it into a probability. Applied to an arbitrary score, the sigmoid still gives a number between 0 and 1, but that is only a calibrated probability if the model was trained for it. (Its derivative is on the cheat sheet in Part 2.)
+**Back from log-odds to probability.** The **sigmoid function**, $\sigma(z) = 1/(1+e^{-z})$, undoes a (natural) log-odds: if $z = \ln\big(p/(1-p)\big)$, then $\sigma(z) = p$. Logistic regression (Session 8) models the log-odds of a class as a weighted sum of the inputs and uses the sigmoid to turn it into a probability. Applied to an arbitrary score, the sigmoid still gives a number between 0 and 1, but that is only a calibrated probability if the model was trained for it. (Its derivative is on the cheat sheet in @sec-s01-calculus.)
 
 ### Likelihood
 

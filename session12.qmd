@@ -7,7 +7,7 @@ Data and models are fetched live from the RCSB PDB, the
 [AlphaFold Protein Structure Database](https://alphafold.ebi.ac.uk/)
 (CC BY 4.0) and the ESM Atlas API. All figures were drawn or computed for
 this course, and every number from our own code was read back from the
-notebook's output. The "four regions" framework in Part 3 is taken from
+notebook's output. The "four regions" framework in @sec-s12-af3 is taken from
 the lecture; it has not yet been published as a paper.
 :::
 
@@ -35,9 +35,9 @@ The session has three parts: **from the folding problem to AlphaFold 1**,
 models**. It closes the arc the course opened on Session 7 with secondary
 structure.
 
-# Part 1: From the folding problem to AlphaFold 1
+## From the folding problem to AlphaFold 1 {#sec-s12-af1}
 
-## The folding problem
+### The folding problem
 
 A protein's sequence determines its structure (Anfinsen, 1973,
 [*Science* 181:223](https://doi.org/10.1126/science.181.4096.223)). Under
@@ -54,7 +54,7 @@ code by which a sequence dictates its structure? How do proteins fold so
 fast? And "can we devise a computer algorithm to predict protein
 structures from their sequences?"
 
-## Fifty years of structure prediction
+### Fifty years of structure prediction
 
 Before AlphaFold, three routes were tried. The course has already met the
 tools each one used.
@@ -102,7 +102,7 @@ Local sequence is not enough: the same 10 residues can be a strand in one
 protein and a helix in another ("chameleon sequences"). The missing
 information was long-range.
 
-## Coevolution and contact prediction
+### Coevolution and contact prediction
 
 If two residues touch, a mutation in one is often compensated by a
 mutation in the other. Across a large family of homologs they therefore
@@ -183,7 +183,7 @@ predictor), to 0.99 (the contacts in the AlphaFold2 model):
   binary contacts. They folded by minimising against them. By CASP13 most
   single-domain proteins could be predicted "quite accurately".
 
-## Fifty years of docking
+### Fifty years of docking
 
 Docking asks how two proteins of known structure fit together. It
 followed its own path, with the same three routes.
@@ -238,9 +238,9 @@ to fold and dock:
   [*Bioinformatics* 38:954](https://doi.org/10.1093/bioinformatics/btab760))
   did this with trRosetta, and their PconsDock score separated correct
   from incorrect models 98% of the time. With AlphaFold2 the same idea
-  became FoldDock (Part 2): folding and docking had become one problem.
+  became FoldDock (@sec-s12-af2): folding and docking had become one problem.
 
-### Further reading
+#### Further reading
 
 - Dill & MacCallum (2012), [The protein-folding problem, 50 years on](https://doi.org/10.1126/science.1219021)
 - Skwark et al. (2014), [Improved contact predictions using the recognition of protein like contact patterns](https://doi.org/10.1371/journal.pcbi.1003889)
@@ -248,9 +248,9 @@ to fold and dock:
 - Morcos et al. (2011), [Direct-coupling analysis of residue coevolution captures native contacts across many protein families](https://doi.org/10.1073/pnas.1111471108)
 - Kundrotas et al. (2012), [Templates are available to model nearly all complexes of structurally characterized proteins](https://doi.org/10.1073/pnas.1200678109)
 
-# Part 2: AlphaFold2 and protein complexes
+## AlphaFold2 and protein complexes {#sec-s12-af2}
 
-## AlphaFold2 (CASP14, 2020)
+### AlphaFold2 (CASP14, 2020)
 
 AlphaFold2 (Jumper et al., 2021,
 [*Nature* 596:583](https://doi.org/10.1038/s41586-021-03819-2)) was "the
@@ -260,11 +260,11 @@ known". At CASP14 its median backbone accuracy was 0.96 Å (Cα RMSD at 95%
 coverage), against 2.8 Å for the next best method. Its all-atom accuracy
 was 1.5 Å, against 3.5 Å.
 
-## Inside the AlphaFold2 network
+### Inside the AlphaFold2 network
 
 AlphaFold2 is one network, trained end to end, from sequences to atom
 coordinates. It still starts from an alignment, but it replaced the rest
-of Part 1's pipeline (contacts, distances and folding) with learned
+of @sec-s12-af1's pipeline (contacts, distances and folding) with learned
 operations. The numbers below are from the paper
 and its Supplementary Information.
 
@@ -290,7 +290,7 @@ whole network:
   every sequence (sequences × residues × 256);
 - the **pair representation**: one 128-number vector for every pair of
   residues (residues × residues × 128). This is a learned, much richer
-  version of Part 1's contact and distance maps.
+  version of @sec-s12-af1's contact and distance maps.
 
 **2. The Evoformer: 48 blocks.** Each block updates both representations
 and lets them talk to each other. In order (figure, panel b):
@@ -385,12 +385,12 @@ that is, 3 recycles, with the same weights. Each pass refines the last.
 seeds, two with templates and three without. All five are run, and the
 predictions are ranked by pLDDT.
 
-In short, AlphaFold2 kept the ingredients of Part 1: alignments,
+In short, AlphaFold2 kept the ingredients of @sec-s12-af1: alignments,
 coevolution, contacts, distances and physical plausibility. It turned
 each into a learnable operation inside one network, trained end to end on
 the final coordinates.
 
-## Confidence and what AlphaFold2 has done
+### Confidence and what AlphaFold2 has done
 
 Its confidence measures are as important as the structure itself:
 
@@ -438,7 +438,7 @@ Hassabis and John Jumper shared half of the
   sequence using the ESM-2 language model (Session 11). In the notebook,
   ESMFold predicts Ephrin-A5 in seconds with TM-score 0.941 against the
   crystal structure (1SHW). It is much weaker for complexes. Its
-  successor, ESMFold2 (2026), is built for them (Part 3).
+  successor, ESMFold2 (2026), is built for them (@sec-s12-af3).
 
 **Known limits** (lecture):
 
@@ -451,7 +451,7 @@ Hassabis and John Jumper shared half of the
 - In a protein-DNA complex it can place another protein where the DNA
   should be.
 
-### Further watching
+#### Further watching
 
 [*Highly accurate protein structure prediction with AlphaFold*](https://www.youtube.com/watch?v=92j-7b-sRPw) (Simon Kohl, DeepMind), a detailed walk through AlphaFold2's architecture:
 
@@ -461,7 +461,7 @@ Hassabis and John Jumper shared half of the
 </div>
 ```
 
-## From single chains to complexes
+### From single chains to complexes
 
 AlphaFold2 was trained on single chains, yet it can predict complexes.
 
@@ -499,15 +499,15 @@ AlphaFold2 was trained on single chains, yet it can predict complexes.
   synapse (Elofsson et al. 2024,
   [*eLife* 13:RP93131](https://doi.org/10.7554/eLife.93131)).
 
-### Further reading
+#### Further reading
 
 - Jumper et al. (2021), [Highly accurate protein structure prediction with AlphaFold](https://doi.org/10.1038/s41586-021-03819-2)
 - Bryant, Pozzati & Elofsson (2022), [Improved prediction of protein-protein interactions using AlphaFold2](https://doi.org/10.1038/s41467-022-28865-w)
 - Mirdita et al. (2022), [ColabFold](https://doi.org/10.1038/s41592-022-01488-1)
 
-# Part 3: AlphaFold3 and generative models
+## AlphaFold3 and generative models {#sec-s12-af3}
 
-## Diffusion models in one page
+### Diffusion models in one page
 
 A **diffusion model** learns to generate data by learning to *remove
 noise*:
@@ -533,7 +533,7 @@ decoding samples from it.
 
 ![Left: points on a noisy ring. Right: 1,000 points generated from pure Gaussian noise by 100 learned denoising steps, in the notebook.](figs/session12-toy-diffusion.png){width=70%}
 
-## AlphaFold3 (2024)
+### AlphaFold3 (2024)
 
 AlphaFold3 (Abramson et al. 2024,
 [*Nature* 630:493](https://doi.org/10.1038/s41586-024-07487-w)) predicts
@@ -578,7 +578,7 @@ challenge", with "model ranking and selection" as major bottlenecks
 (Zhang et al. 2026,
 [*Proteins* 94:106](https://doi.org/10.1002/prot.70068)).
 
-## The ranking problem
+### The ranking problem
 
 Generating a good model has become easier than *knowing* which of your
 models is good.
@@ -612,7 +612,7 @@ The common thread is Session 8's lesson on a grand scale. Performance on
 examples similar to the training data says little about genuinely new
 ones, and confidence scores do not always know the difference.
 
-## After AlphaFold3: ESMFold2, IsoDDE and OpenDDE
+### After AlphaFold3: ESMFold2, IsoDDE and OpenDDE
 
 The field moves fast. Three systems from 2026 show three different ways
 of moving beyond AlphaFold3.
@@ -673,7 +673,7 @@ The contrast matters for science. Open tools such as ESMFold2, Boltz-2
 and OpenFold3 can be tested by anyone, on data they have never seen. A
 closed system can only be judged by what its owners choose to report.
 
-## Where AI structure prediction works: four regions
+### Where AI structure prediction works: four regions
 
 The lecture organises all of this into four regions of protein
 interactions. Current methods mainly answer *how* two proteins could
@@ -690,7 +690,7 @@ The lab tests this: one AlphaFold3 Server prediction per region,
 and a look at whether the model's confidence tracks how hard each problem
 really is.
 
-## Designing new proteins
+### Designing new proteins
 
 The same generative machinery runs in reverse:
 
@@ -716,14 +716,14 @@ The same generative machinery runs in reverse:
 Designs are usually checked by refolding the designed sequence with
 AlphaFold2 or ESMFold and comparing it with the intended structure.
 
-### Further reading
+#### Further reading
 
 - Abramson et al. (2024), [Accurate structure prediction of biomolecular interactions with AlphaFold 3](https://doi.org/10.1038/s41586-024-07487-w)
 - Fromm, Ludaic & Elofsson (2026), [Evaluating deep learning based structure prediction methods on antibody-antigen complexes](https://doi.org/10.1093/bioinformatics/btag136)
 - Elofsson & Ben-Tal (2026), [What will be the future of computational biology for macromolecules in the era of AI?](https://doi.org/10.1371/journal.pcbi.1014467)
 - Watson et al. (2023), [De novo design of protein structure and function with RFdiffusion](https://doi.org/10.1038/s41586-023-06415-8)
 
-### Further watching
+#### Further watching
 
 [*Flow-Matching vs Diffusion Models explained side by side*](https://www.youtube.com/watch?v=firXjwZ_6KI) (AI Coffee Break with Letitia), used in the diffusion lecture:
 

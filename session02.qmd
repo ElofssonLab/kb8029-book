@@ -21,7 +21,7 @@ You already know Python from the prerequisite course. Today is not about new syn
 3.  **Use existing tools**, meaning libraries, documentation and online databases, rather than reinventing them.
 4.  **Solve problems when code does not work**, using error messages, documentation, AI assistants and tests of your own assumptions.
 
-The page follows one real dataset (a published RNA-seq experiment on mouse liver) and one real gene family (the human globins) from representation to a small finished analysis. Section 8's mini challenge leads straight into the lab.
+The page follows one real dataset (a published RNA-seq experiment on mouse liver) and one real gene family (the human globins) from representation to a small finished analysis. @sec-s02-challenge's mini challenge leads straight into the lab.
 
 ## Learning goals
 
@@ -46,7 +46,7 @@ That makes notebooks well suited to exploring data:
 - **Results stay next to the code that made them**, so you, a teacher or a colleague can see what was done and what came out.
 - **Text explains the reasoning**, which a plain script does not.
 
-The price is **hidden state**. A notebook's variables live in the memory of a running Python process (the *kernel*), not on the page. Running cells out of order, re-running one cell several times, or editing a cell without re-running it all leave the memory different from what the page shows. The notebook has a small demonstration (Section 7): a cell that adds 1 to `counter` gives a new number every time you re-run it, although its code never changes. This is one of the most common sources of confusion for new notebook users.
+The price is **hidden state**. A notebook's variables live in the memory of a running Python process (the *kernel*), not on the page. Running cells out of order, re-running one cell several times, or editing a cell without re-running it all leave the memory different from what the page shows. The notebook has a small demonstration (@sec-s02-unknown): a cell that adds 1 to `counter` gives a new number every time you re-run it, although its code never changes. This is one of the most common sources of confusion for new notebook users.
 
 ::: callout-important
 **Before submitting or sharing a notebook: Restart Kernel → Run All.**
@@ -54,7 +54,7 @@ The price is **hidden state**. A notebook's variables live in the memory of a ru
 This clears the memory and runs every cell from top to bottom, in order. If the notebook still runs and gives the same results, what the page shows is what the code does.
 :::
 
-## 1. Scientific Python objects
+## Scientific Python objects {#sec-s02-objects}
 
 Different objects represent different kinds of data, and each gives you the operations that make sense for that kind of data. Here are the same three transcript lengths (in nucleotides) held in increasingly specialized objects. Here are some examples that can be run (in the notebook):
 
@@ -76,7 +76,7 @@ print(genes[genes["length"] > 600])        # a table with named columns and mixe
 | `list` | any collection of things | append, loop over, index |
 | NumPy `ndarray` | numbers of one type, in any number of dimensions (Session 1's vectors and matrices) | elementwise maths, means, matrix products, boolean masks |
 | pandas `DataFrame` | a table: named columns, possibly of different types, one row per observation | select and filter by name, group, summarize, read and write CSV files |
-| Biopython `Seq` / `SeqRecord` | a biological sequence / a sequence with its identifier, description and annotations | reverse complement, translate, GC content, parse and write FASTA or GenBank (Section 5) |
+| Biopython `Seq` / `SeqRecord` | a biological sequence / a sequence with its identifier, description and annotations | reverse complement, translate, GC content, parse and write FASTA or GenBank (@sec-s02-bioobjects) |
 | PyTorch `Tensor` | an array that can live on a GPU and remember how it was computed | everything an array does, plus automatic gradients (Session 7 onwards) |
 
 Choosing the right object is important, for instance `lengths * 2` on a list silently does something you did not mean, while on an array it does the math as expected (multiplying all numbers by 2).
@@ -94,7 +94,7 @@ print(x0.grad, x1.grad)                    # tensor(10.) tensor(2.): Session 1's
 
 From Session 7 onwards you never write a derivative by hand again; you call `.backward()`.
 
-## 2. Exploring a biological dataset
+## Exploring a biological dataset {#sec-s02-explore}
 
 The first dataset is from a mouse-liver RNA-seq experiment (Becares et al., 2019): all mice were fed a high-fat/high-cholesterol diet, and the livers of mice carrying a mutant form of the transcription factor LXRα (S196A, which cannot be phosphorylated at that site) are compared with those of wild-type mice, three per group. The data have already been analysed with DESeq2; here we will explore the resulting table. The set contains one row per gene, with its mean expression (`baseMean`), log2 fold change, p-value and adjusted p-value.
 
@@ -121,7 +121,7 @@ The most significant gene is *Osbpl3* (adjusted $p = 8 \times 10^{-18}$, down 3.
 
 **NumPy calculations** work directly on columns: mean expression spans five orders of magnitude, from 10 to 954,964 (albumin, *Alb*), with a median of 329, so it is usually worked with as `np.log10(df["baseMean"])`.
 
-## 3. Seeing the data
+## Seeing the data {#sec-s02-seeing}
 
 A summary is a handful of numbers; a plot shows all 3,001 genes at once. Three plots answer three different questions:
 
@@ -143,10 +143,10 @@ sns.scatterplot(data=df, x="log2_FoldChange", y="minus_log10_pvalue",
 - A **histogram** shows the distribution of one variable.
 - A **scatter plot** shows the relationship between two.
 - **seaborn** draws from a DataFrame by column name, and colours points by a third column (`hue=`) in one argument.
-- **Plots reveal how data were made, too.** The empty band around zero in the left and middle panels is the pre-filtering from Section 2 seen again: genes whose expression barely changed rarely reach $p < 0.12$, so they are not in the file. A complete experiment would have its tallest histogram bar at zero.
+- **Plots reveal how data were made, too.** The empty band around zero in the left and middle panels is the pre-filtering from @sec-s02-explore seen again: genes whose expression barely changed rarely reach $p < 0.12$, so they are not in the file. A complete experiment would have its tallest histogram bar at zero.
 - Label your axes with units, and use a **log scale** for data that span orders of magnitude, like expression levels. On a linear axis, the middle panel would be 3,001 points squeezed against the left edge and a few outliers.
 
-## 4. Asking quantitative questions
+## Asking quantitative questions {#sec-s02-questions}
 
 **Plot first, test second.** Is the size of a gene's fold change related to how highly it is expressed? A test on the raw numbers says no:
 
@@ -186,7 +186,7 @@ renderQuiz("session02-quiz-1", [
 </script>
 ```
 
-## 5. Biological objects
+## Biological objects {#sec-s02-bioobjects}
 
 Biopython's `Seq` is a sequence that knows biology, so you never write a complement table yourself. Here we will use (as an example) the human beta-globin (*HBB*, accession `NM_000518.5`). If you want to see the first ten codons and the corresponding amino acids you can do this:
 
@@ -203,7 +203,7 @@ hbb.translate()            # MVHLTPEEKS
 
 A **`SeqRecord`** wraps a `Seq` with what a database knows about it: `record.id`, `record.description`, and `record.features`, the annotated regions such as the coding sequence (CDS). `record.seq` and `record.features` are **attributes**, and `record.seq.translate()` is a **method**: a `SeqRecord` is an **object**, built from a **class** Biopython defines, that bundles data with the functions that act on it. Session 8 has you write your own class, a PyTorch model; for now, recognizing the pattern is enough.
 
-## 6. Data coming from somewhere
+## Data coming from somewhere {#sec-s02-remote}
 
 Real data arrive from files on disk or from databases over the network. Either way, Python gives you a **file handle**, an object you read from. Open it with `with`, which closes it again automatically when the block ends, even if an error happens inside:
 
@@ -225,7 +225,7 @@ with gzip.open("reads.fasta.gz", "rt") as handle:
 
 `.zip` and `.tar.gz` archives, which hold several files (the capstone project's data come as a `.zip`), are opened with the standard-library modules `zipfile` and `tarfile` (`.namelist()` or `.getnames()` to list, `.extractall()` to unpack).
 
-**Remote data** work the same way. `pd.read_csv(url)` read Section 2's table straight from the web. For NCBI, `Bio.Entrez` returns a handle:
+**Remote data** work the same way. `pd.read_csv(url)` read @sec-s02-explore's table straight from the web. For NCBI, `Bio.Entrez` returns a handle:
 
 ``` python
 from Bio import Entrez, SeqIO
@@ -244,7 +244,7 @@ NCBI allows about three requests per second without an API key, so fetch many re
 <div id="session02-quiz-2"></div>
 <script>
 renderQuiz("session02-quiz-2", [
-  {"question": "hbb = Seq('ATGGTGCATCTGACTCCTGAGGAGAAGTCT') translates to MVHLTPEEKS. Predict: what does hbb[1:].translate() give, the same sequence read from its second base?", "choices": ["A different, meaningless peptide with a stop codon: WCI*LLRRS (and a warning about a partial codon)", "The same protein, MVHLTPEEKS", "An error, because the sequence does not start with ATG", "An empty sequence"], "correctIndex": 0, "explanation": "Biopython translates whatever you give it, three bases at a time. Shifted by one base, every codon changes, and a stop codon (*) appears. Nothing stops you translating the wrong frame: a mistake of the third kind (Section 7)."},
+  {"question": "hbb = Seq('ATGGTGCATCTGACTCCTGAGGAGAAGTCT') translates to MVHLTPEEKS. Predict: what does hbb[1:].translate() give, the same sequence read from its second base?", "choices": ["A different, meaningless peptide with a stop codon: WCI*LLRRS (and a warning about a partial codon)", "The same protein, MVHLTPEEKS", "An error, because the sequence does not start with ATG", "An empty sequence"], "correctIndex": 0, "explanation": "Biopython translates whatever you give it, three bases at a time. Shifted by one base, every codon changes, and a stop codon (*) appears. Nothing stops you translating the wrong frame: a mistake of the third kind (see *When you don't know how to do something*)."},
   {"question": "You translate the whole HBB mRNA (628 nt) from its first base. The result does not start with M and contains 7 stop codons (*). Why?", "choices": ["The mRNA begins with a 50-nt untranslated region, so translation from base 1 is in the wrong frame; the protein starts at the CDS (base 51)", "The mRNA is corrupted", "Biopython cannot translate human sequences", "Hemoglobin has seven separate proteins"], "correctIndex": 0, "explanation": "Only the coding sequence is translated. Use the record's CDS feature, cds.extract(record.seq).translate(to_stop=True), to get the 147-residue protein."},
   {"question": "Why open files with 'with open(path) as handle:' rather than handle = open(path)?", "choices": ["The file is closed automatically when the block ends, even if an error happens inside it", "It reads the file faster", "It is the only way to read FASTA files", "It decompresses the file automatically"], "correctIndex": 0, "explanation": "The same pattern works for gzip.open and for Entrez.efetch handles."},
   {"question": "What does gzip.open('reads.fasta.gz', 'rt') give you?", "choices": ["A text file handle that SeqIO.parse can read directly, with no separate unpacking", "An unpacked copy of the file on disk", "A list of sequences", "An error, because FASTA files cannot be compressed"], "correctIndex": 0, "explanation": "'rt' means read as text. The decompression happens as you read."},
@@ -253,7 +253,7 @@ renderQuiz("session02-quiz-2", [
 </script>
 ```
 
-## 7. When you don't know how to do something
+## When you don't know how to do something {#sec-s02-unknown}
 
 Everyone's code fails, all the time. There are three kinds of mistakes, and they are not equally easy to catch:
 
@@ -353,7 +353,7 @@ git pull                            # fetch others' changes (git push sends your
 
 Commit small, working steps with messages that say *why*. Do not commit large data files or passwords and keys; list them in a `.gitignore` file instead. Further reading: the Software Carpentry lessons [The Unix Shell](https://swcarpentry.github.io/shell-novice/) and [Version Control with Git](https://swcarpentry.github.io/git-novice/) (CC BY 4.0).
 
-## 8. Mini challenge: a small analysis, start to finish
+## Mini challenge: a small analysis, start to finish {#sec-s02-challenge}
 
 Put the pieces together on the globin family, the paralogous genes Session 4 aligns:
 
@@ -423,7 +423,7 @@ This lab is administered through Canvas, not this book — see the course's Canv
 
 The animations in the 3Blue1Brown videos used throughout this course are made with **Manim**, an open-source Python library written by Grant Sanderson, 3Blue1Brown's creator. Two views of Python used for something very different from data analysis:
 
-[*Animate Like 3Blue1Brown - No Coding Required (Manim Animation Using A.I.)*](https://www.youtube.com/watch?v=InHuoGkOb2s) (Sycamore), generating Manim animations with an AI assistant. Watch it with Section 7 in mind: how do you check that what the assistant produced is what you wanted?
+[*Animate Like 3Blue1Brown - No Coding Required (Manim Animation Using A.I.)*](https://www.youtube.com/watch?v=InHuoGkOb2s) (Sycamore), generating Manim animations with an AI assistant. Watch it with @sec-s02-unknown in mind: how do you check that what the assistant produced is what you wanted?
 
 ```{=html}
 <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">

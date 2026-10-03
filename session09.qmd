@@ -19,7 +19,7 @@ Sessions 7, 8 and 9 form one progression. Session 7 asked **what a neural networ
 
 The starting point is concrete. In Session 8 we built a network, but its weights were random, so its predictions were no better than chance. We had labelled examples, so how do we turn the random weights into useful predictions? Here, we try to answers that question. We will be using four different datasets: breast-cancer biopsies (the training loop), a protein fitness landscape (why training fails, and when a hidden layer pays off), Session 8's protein localization (when a network is too large for its data), and MNIST digits in the lab.
 
-# 1. From an untrained network to a trained network
+## From an untrained network to a trained network {#sec-s09-trained}
 
 The **Wisconsin breast-cancer** dataset has 569 fine-needle biopsies, each described by 30 features measured on microscope images of the cell nuclei (radius, texture, perimeter, smoothness, concavity and so on). Each biopsy is labelled malignant (212) or benign (357). We split it into 398 training, 85 validation and 86 test biopsies, and standardize the features with statistics from the training set only (Session 8). The network has one hidden layer of 16 ReLU units and one output, 513 weights in all.
 
@@ -33,9 +33,9 @@ Before training, the network's predicted probabilities all sit close to 0.5: it 
 
 On the test set the trained network reaches accuracy 0.953, MCC 0.900 and AUROC 0.984: 2 benign biopsies called malignant and 2 malignant ones missed.
 
-**Was the hidden layer needed?** Not here. Compared by 5-fold cross-validation (one test split of 86 biopsies is too noisy, Session 8), logistic regression with 31 weights and the network with 513 both reach an accuracy of **0.979**. Malignant and benign nuclei differ mainly in size and shape, and a weighted sum of those measurements already separates them. Training works; the extra capacity simply has nothing to add. Section 5 shows a dataset where it does.
+**Was the hidden layer needed?** Not here. Compared by 5-fold cross-validation (one test split of 86 biopsies is too noisy, Session 8), logistic regression with 31 weights and the network with 513 both reach an accuracy of **0.979**. Malignant and benign nuclei differ mainly in size and shape, and a weighted sum of those measurements already separates them. Training works; the extra capacity simply has nothing to add. @sec-s09-epistasis shows a dataset where it does.
 
-# 2. How backpropagation finds every gradient
+## How backpropagation finds every gradient {#sec-s09-backprop}
 
 Gradient descent (Session 1, Session 7) needs $\partial L / \partial w$, the slope of the loss, for **every** weight. For a single layer that was easy. But what about a weight buried several layers inside a network, whose effect on the loss passes through every later layer?
 
@@ -77,7 +77,7 @@ Real training uses **mini-batches**: a `DataLoader` shuffles the training set ev
 </div>
 ```
 
-# 3. Which loss to minimize
+## Which loss to minimize {#sec-s09-loss}
 
 The loss decides what "wrong" means. For **regression** we use the **mean squared error** between prediction and target. For **classification** we use **cross-entropy**. For one example it is the negative log of the probability the model gave the true class,
 
@@ -92,7 +92,7 @@ its *surprise* in the language of Session 1. Averaged over a dataset, it is the 
 Confidently wrong is punished far more than hedging: probability 0.9 on the truth costs 0.105, probability 0.01 costs 4.6, over 40 times more. This is what pushes a classifier to separate the classes, as in the right panel of the breast-cancer figure. For two classes PyTorch's `nn.BCEWithLogitsLoss`, and for more classes `nn.CrossEntropyLoss`, combine the sigmoid or log-softmax with this loss in one numerically stable step, so the model outputs raw logits (Session 8). The notebook checks both by hand. The lab compares cross-entropy with mean squared and mean absolute error for the same digit classifier: cross-entropy trains best.
 
 ::: {.callout-note collapse="true"}
-## Optional: cross-entropy and relative entropy
+### Optional: cross-entropy and relative entropy
 
 Cross-entropy is built from the relative entropy (Kullback-Leibler divergence) of Session 4: $H(P, Q) = H(P) + D_{\text{KL}}(P \| Q)$, the true distribution's own entropy plus the extra cost of describing it with the model's distribution $Q$. Since $H(P)$ does not depend on the model, minimizing cross-entropy is minimizing the KL divergence between the model's predictions and the true labels.
 :::
@@ -107,9 +107,9 @@ Cross-entropy is built from the relative entropy (Kullback-Leibler divergence) o
 </div>
 ```
 
-# 4. Why training fails
+## Why training fails {#sec-s09-failures}
 
-The training loop always runs; it does not always learn. Here are three common failures, each shown by changing one thing in a network that predicts the fitness of protein variants (the GB1 data of Section 5: 20,000 training variants, each described by the one-hot encoding of four residues). We measure the validation error as the mean absolute error (MAE) of the predicted $\log_{10}$ fitness. Predicting the training mean for every variant gives an MAE of 0.488; a working 64/64 network reaches 0.250 within 20 epochs.
+The training loop always runs; it does not always learn. Here are three common failures, each shown by changing one thing in a network that predicts the fitness of protein variants (the GB1 data of @sec-s09-epistasis: 20,000 training variants, each described by the one-hot encoding of four residues). We measure the validation error as the mean absolute error (MAE) of the predicted $\log_{10}$ fitness. Predicting the training mean for every variant gives an MAE of 0.488; a working 64/64 network reaches 0.250 within 20 epochs.
 
 ![Four experiments. (1) Gradient size per layer in a freshly initialized network with six hidden layers: with sigmoid, the first layer receives about ten million times less gradient than the last. (2) Starting every weight at the same value. (3) Six hidden layers with sigmoid, tanh or ReLU, trained with plain gradient descent (SGD), and sigmoid trained with Adam. (4) Optimizer and learning rate. The dotted line is the error of predicting the mean.](figs/session09-training-failures.png){width="100%"}
 
@@ -123,7 +123,7 @@ The training loop always runs; it does not always learn. Here are three common f
 
 - **Observation.** A network with six hidden layers of sigmoid units, trained with plain SGD, does not learn at all: its validation MAE stays around 0.48, the error of predicting the mean. The same network with tanh (0.321) or ReLU (0.312) learns.
 - **Why?** Backpropagation multiplies one activation *derivative* per layer, and sigmoid's derivative is at most 0.25 (and almost 0 when the unit saturates). In a freshly initialized six-layer sigmoid network, the first layer's gradient is about **ten million times smaller** than the last layer's; for tanh and ReLU the ratio is a few hundred to two thousand. The first layers barely move.
-- **Fix.** ReLU-like activations; initialization scaled to each layer's size; standardized inputs; normalization layers such as batch normalization (Ioffe & Szegedy, 2015); and modern architectures. Adaptive optimizers also help: the same sigmoid network trained with Adam, which rescales small gradients ([see below](#momentum-adam)), does learn (0.291).
+- **Fix.** ReLU-like activations; initialization scaled to each layer's size; standardized inputs; normalization layers such as batch normalization (Ioffe & Szegedy, 2015); and modern architectures. Adaptive optimizers also help: the same sigmoid network trained with Adam, which rescales small gradients ([see below](#sec-s09-adam)), does learn (0.291).
 
 ![Derivatives of sigmoid, tanh and ReLU. Sigmoid's is at most 0.25 (at $z = 0$) and below 0.01 by $|z| = 6$. Tanh's peaks at 1 but also vanishes in both tails. ReLU's is exactly 0 or exactly 1.](figs/session09-activation-derivatives.png){width="65%"}
 
@@ -135,7 +135,7 @@ ReLU never shrinks the gradient for positive inputs and is cheap to compute, so 
 - **Why?** The learning rate sets the step size of gradient descent (Session 1). Too small is slow; too large overshoots the minimum. Adam averages the recent gradients and adapts the step size for each weight; the next subsection explains why that helps.
 - **Fix.** Start with Adam and a learning rate around $10^{-3}$, and always watch the validation curve.
 
-### Momentum and Adam: why an optimizer can beat plain SGD {#momentum-adam}
+### Momentum and Adam: why an optimizer can beat plain SGD {#sec-s09-adam}
 
 Plain SGD takes each step straight down the gradient of the current mini-batch, with the same learning rate for every weight. That works badly when the loss surface is a long, narrow valley, which is common in networks because some weights affect the loss far more than others. The gradient then points mostly *across* the valley: a learning rate large enough to make progress *along* the valley makes SGD zigzag from wall to wall or blow up, and a safe one crawls along the valley floor. Two ideas fix this.
 
@@ -154,7 +154,7 @@ Adam is a good default, not a law. In the figure, well-tuned momentum ends even 
 
 The lab repeats all of these on the blood-cell images of the Session 8 lab, and adds the comparison of loss functions: *change one thing, see what happens, explain why*.
 
-# 5. When a hidden layer pays off: epistasis in a protein
+## When a hidden layer pays off: epistasis in a protein {#sec-s09-epistasis}
 
 **The data.** GB1 is a small domain of protein G, a bacterial protein that binds antibodies (IgG). Wu et al. (2016) made all 20⁴ = 160,000 combinations of amino acids at four of its positions (V39, D40, G41 and V54), and measured by deep sequencing how well each variant binds IgG; 149,361 variants have a value. Fitness is relative to the wild type (VDGV = 1) and spans several orders of magnitude, so we predict $\log_{10}(\text{fitness} + 0.001)$. Each variant is described by the **one-hot encoding** of its four residues (Session 7): 4 × 20 = 80 numbers.
 
@@ -180,7 +180,7 @@ The network explains about 79% of the variance in fitness, against 50% for the a
 
 This is Session 7's lesson on real biological data: a hidden layer can represent non-additive relationships, and with enough data, training actually finds them. It is also the limitation of profiles noted in Session 5: a sum over positions cannot capture interactions. Session 12 returns to it with pairwise models learned from multiple alignments. The second discussion problem asks where the advantage comes from, by giving the linear model hand-made interaction features for each pair of positions, as Session 7 did for XOR with $x_1 x_2$.
 
-# 6. Why not make the network enormous?
+## Why not make the network enormous? {#sec-s09-enormous}
 
 If larger networks can represent more, why not always use an enormous one? Session 8's protein-localization network answers that. It has 3000 inputs (150 residues, one-hot), a hidden layer of 64 units and 5 outputs: **192,389 weights**, trained on only **486 proteins** of the homology-aware split.
 
@@ -199,7 +199,7 @@ And the simple baseline wins. Measured once on the test set:
 
 Training works, since every number is far above chance. But **the linear model is better**. Always compare against a simple baseline before believing that a bigger model is better.
 
-# 7. What can we do about overfitting?
+## What can we do about overfitting? {#sec-s09-overfitting}
 
 - **More data.** The most reliable fix, and often the only one that really helps.
 - **A smaller model, or a better architecture.** Fewer weights for the same input. Session 10's convolutional network needs 19,237 weights instead of 192,389.
@@ -210,12 +210,12 @@ Training works, since every number is far above chance. But **the linear model i
 Applied to the localization network, dropout and weight decay do *not* beat early stopping alone (best validation accuracy 0.476 against 0.486). Training accuracy still reaches 1.000 whatever we do: with 192,389 weights and 486 examples the network can always memorize. Regularization is not a substitute for enough data.
 
 ::: {.callout-note collapse="true"}
-## Optional: L1 regularization
+### Optional: L1 regularization
 
 **L1 regularization** penalizes the *absolute values* of the weights instead of their squares. It tends to push many weights to exactly zero, giving a sparse model, while L2 shrinks all of them a little. The third discussion problem compares the two on synthetic data.
 :::
 
-# 8. Is the improvement real?
+## Is the improvement real? {#sec-s09-real}
 
 Session 8's rules apply to every comparison in this session: choices (epochs, sizes, regularization) are made on the validation set, the test set is used once, and every model is compared with a simple baseline. The three datasets side by side:
 
@@ -232,7 +232,7 @@ Session 8's rules apply to every comparison in this session: choices (epochs, si
 Examples per weight is a **warning sign, not a strict rule**: modern networks often have more weights than training examples and still generalize, thanks to their architecture, regularization and the way they are trained. But when a model is huge relative to its data, check it against a baseline before trusting it.
 
 ::: {.callout-tip icon="false"}
-## Now you can read the whole PHD pipeline
+### Now you can read the whole PHD pipeline
 
 Rost & Sander's PHD (1993, Session 7) is the recipe of Sessions 5-9 at the scale that mattered historically: **profile input** from a multiple alignment (Session 5), networks with a **hidden layer** (Session 7) and **three outputs** (Session 8), trained by **backpropagation** (this session), and evaluated by cross-validation on test sets purged of similar sequences (Session 8's homology partitioning). It reached 70.8% three-state accuracy.
 :::

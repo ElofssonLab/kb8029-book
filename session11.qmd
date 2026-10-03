@@ -44,9 +44,9 @@ By the end of this session you should be able to:
 The session has three parts: **recurrent networks**, **language
 models**, and **SignalP 6.0 in practice**.
 
-# Part 1: Recurrent networks
+## Recurrent networks {#sec-s11-rnn}
 
-## A hidden state carried along the sequence
+### A hidden state carried along the sequence
 
 Every model so far has a fixed-size input: Sessions 8-9's one-hot vector,
 Session 10's convolutional window. A **recurrent neural network (RNN)**
@@ -66,7 +66,7 @@ trainable vector (24 or 32 numbers in the notebook), learned with the rest of th
 network. In principle $h_t$ can carry information from
 arbitrarily far back.
 
-### Why gradients vanish or explode through time
+#### Why gradients vanish or explode through time
 
 Training an RNN means backpropagating through every step it took
 (**backpropagation through time**). The same matrix $W_{hh}$ enters the
@@ -77,7 +77,7 @@ of through the layers:
 
 ![Repeated multiplication by a fixed factor over many recurrent steps. At 0.8 the signal shrinks to about $1.5\times10^{-6}$ after 60 steps; at 1.2 it grows to about $5.6\times10^4$.](figs/session11-vanishing-exploding.png){width=80%}
 
-## LSTM: a memory cell with gates
+### LSTM: a memory cell with gates
 
 The **Long Short-Term Memory** network (Hochreiter & Schmidhuber, 1997,
 [*Neural Computation* 9:1735](https://doi.org/10.1162/neco.1997.9.8.1735))
@@ -107,7 +107,7 @@ Two refinements:
 - A **GRU** merges the gates into two and drops the separate cell state:
   fewer weights, often similar results.
 
-## Case study: which residues belong to a signal peptide?
+### Case study: which residues belong to a signal peptide?
 
 **Signal peptides** are short N-terminal sequences that send a protein
 into the secretory pathway, a discovery for which Günter Blobel received
@@ -146,14 +146,14 @@ was built from these parts: a deep network with an LSTM and a
 sequences rather than single residues, so it can rule out biologically
 impossible ones (for example, a signal peptide that stops and restarts).
 
-### Further reading
+#### Further reading
 
 - d2l.ai, [Modern Recurrent Neural Networks](https://d2l.ai/chapter_recurrent-modern/index.html) (LSTM, GRU, bidirectional RNNs)
 - Wikipedia, [Long short-term memory](https://en.wikipedia.org/wiki/Long_short-term_memory)
 
-# Part 2: Language models
+## Language models {#sec-s11-lm}
 
-## What a language model is
+### What a language model is
 
 A **language model** assigns a probability to a sequence of tokens,
 usually one token at a time: *given what came before (or around), how
@@ -170,7 +170,7 @@ test proteins. That is better than knowing only the amino-acid composition
 Protein sequences are hard to predict residue by residue. Large models
 get much further, with far more data and a better architecture.
 
-### Further watching
+#### Further watching
 
 [*Large Language Models explained briefly*](https://www.youtube.com/watch?v=LPZh9BOjkQs) (3Blue1Brown): a short overview of what a language model is and how it is trained:
 
@@ -180,7 +180,7 @@ get much further, with far more data and a better architecture.
 </div>
 ```
 
-## What actually happened: from n-grams to GPT
+### What actually happened: from n-grams to GPT
 
 - **n-grams.** For decades, language models counted how often each word
   followed the previous one or two words.
@@ -224,7 +224,7 @@ get much further, with far more data and a better architecture.
   new tasks from a few examples in the prompt, "without any gradient
   updates".
 
-### Further watching
+#### Further watching
 
 [*Transformers, the tech behind LLMs*](https://www.youtube.com/watch?v=wjZofJX0v4M) (3Blue1Brown, Deep Learning ch. 5): how a GPT-style model turns tokens into vectors and predicts the next token:
 
@@ -234,7 +234,7 @@ get much further, with far more data and a better architecture.
 </div>
 ```
 
-## Attention, from scratch
+### Attention, from scratch
 
 For every position, **self-attention** asks: *which other positions
 should I take information from?* Each position's vector $x_i$ is turned
@@ -263,7 +263,7 @@ text:
 
 ![Causal (GPT-style) attention: each token can only attend to itself and earlier tokens.](figs/session11-causal-mask.png){width=45%}
 
-### Further watching
+#### Further watching
 
 [*Attention in transformers, step-by-step*](https://www.youtube.com/watch?v=eMlx5fFNoYc) (3Blue1Brown, Deep Learning ch. 6): queries, keys, values, multiple heads and the causal mask, animated:
 
@@ -275,7 +275,7 @@ text:
 
 Going further: [*How might LLMs store facts*](https://www.youtube.com/watch?v=9-Jl0dxWQs8) (3Blue1Brown, Deep Learning ch. 7), about the feed-forward layers inside a Transformer.
 
-## Protein language models
+### Protein language models
 
 The same recipe works for proteins. There are hundreds of millions of
 unlabelled sequences, and a model that learns to fill in missing residues
@@ -319,16 +319,16 @@ probability 0.41, then A, V and G, and the true residue is indeed L. At
 the same position in a cytoplasmic protein its guesses are spread out,
 with no residue above 0.11. Nobody told it about signal peptides.
 
-### Further reading
+#### Further reading
 
 - d2l.ai, [Attention Mechanisms and Transformers](https://d2l.ai/chapter_attention-mechanisms-and-transformers/index.html)
 - Vaswani et al. (2017), [Attention Is All You Need](https://arxiv.org/abs/1706.03762)
 - Devlin et al. (2019), [BERT](https://arxiv.org/abs/1810.04805)
 - Lin et al. (2023), [Evolutionary-scale prediction of atomic-level protein structure with a language model](https://pubmed.ncbi.nlm.nih.gov/36927031/)
 
-# Part 3: SignalP 6.0 in practice
+## SignalP 6.0 in practice {#sec-s11-signalp}
 
-## Thirty years of SignalP
+### Thirty years of SignalP
 
 The SignalP web server has existed since 1995 and is one of the most used
 prediction tools in bioinformatics. Its history runs through this whole
@@ -340,7 +340,7 @@ course:
 | 2.0 | 1998 | + hidden Markov model (Session 5) | Cleavage site found in nearly 70% of signal peptides |
 | 3.0 | 2004 | Networks + HMM | Cleavage-site accuracy up 6-17%; new discrimination score |
 | 4.0 | 2011 | Networks | Transmembrane proteins added as negatives, so hydrophobic TM helices are no longer called signal peptides |
-| 5.0 | 2019 | Deep network with LSTM + CRF (Part 1) | Three signal-peptide types; archaea; organism group as an extra input |
+| 5.0 | 2019 | Deep network with LSTM + CRF (@sec-s11-rnn) | Three signal-peptide types; archaea; organism group as an extra input |
 | 6.0 | 2022 | **ProtBERT protein language model** + CRF | Five types, subregions (n/h/c), metagenomic proteins |
 
 (Nielsen, Engelbrecht, Brunak & von Heijne,
@@ -351,7 +351,7 @@ Petersen et al., [*Nat Methods* 8:785](https://pubmed.ncbi.nlm.nih.gov/21959131/
 Almagro Armenteros et al., [*Nat Biotechnol* 37:420](https://pubmed.ncbi.nlm.nih.gov/30778233/);
 Teufel et al., [*Nat Biotechnol* 40:1023](https://pubmed.ncbi.nlm.nih.gov/34980915/).)
 
-### What the language model changed (Nielsen et al. 2024; Teufel et al. 2022)
+#### What the language model changed (Nielsen et al. 2024; Teufel et al. 2022)
 
 - **Few-shot learning.** Two signal-peptide types had almost no training
   data: Tat/SPII (lipoproteins exported by the Tat pathway; 36 sequences
@@ -384,7 +384,7 @@ Teufel et al., [*Nat Biotechnol* 40:1023](https://pubmed.ncbi.nlm.nih.gov/349809
   frozen and training only small layers on top, which is what we do below
   and what Session 10 did with the ImageNet ResNet.
 
-## Reproducing the idea at classroom scale
+### Reproducing the idea at classroom scale
 
 Can we see the same two effects ourselves? The task is simpler than
 SignalP's: *does this protein have a signal peptide?* We use the same
@@ -438,7 +438,7 @@ ProtBERT inside SignalP 6.0.
 
 ![PCA of the ESM-2 embeddings of the first 70 residues, coloured by group. The language model was never shown these labels.](figs/session11-esm-pca.png){width=60%}
 
-### Further reading
+#### Further reading
 
 - Teufel et al. (2022), [SignalP 6.0 predicts all five types of signal peptides using protein language models](https://pubmed.ncbi.nlm.nih.gov/34980915/) (open access)
 - Teufel et al. (2023), [GraphPart: homology partitioning for biological sequence analysis](https://pubmed.ncbi.nlm.nih.gov/37850036/)
