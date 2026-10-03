@@ -115,7 +115,7 @@ This is a way to *write* the solution, not how to compute it: numerical librarie
 
 ### Further reading
 
-- Wikipedia, [Gradient descent](https://en.wikipedia.org/wiki/Gradient_descent) — variants (momentum, stochastic gradient descent, and more) used throughout the rest of this course but not needed yet
+- Wikipedia, [Gradient descent](https://en.wikipedia.org/wiki/Gradient_descent) — variants (stochastic gradient descent, momentum, Adam) are introduced in Session 9, where we train real networks
 
 ### Further watching
 

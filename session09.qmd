@@ -1,5 +1,5 @@
 ::: callout-note
-**Sources for this page:** d2l.ai, *Dive into Deep Learning*, [Multilayer Perceptrons](https://d2l.ai/chapter_multilayer-perceptrons/index.html) — CC BY-SA 4.0; Wikipedia, [Backpropagation](https://en.wikipedia.org/wiki/Backpropagation), [Stochastic gradient descent](https://en.wikipedia.org/wiki/Stochastic_gradient_descent), [Overfitting](https://en.wikipedia.org/wiki/Overfitting), [Vanishing gradient problem](https://en.wikipedia.org/wiki/Vanishing_gradient_problem), [Regularization (mathematics)](https://en.wikipedia.org/wiki/Regularization_(mathematics)), [Dropout (neural networks)](https://en.wikipedia.org/wiki/Dropout_(neural_networks)), [Early stopping](https://en.wikipedia.org/wiki/Early_stopping) — CC BY-SA 4.0. Datasets: the [Breast Cancer Wisconsin (Diagnostic)](https://archive.ics.uci.edu/dataset/17/breast+cancer+wisconsin+diagnostic) data set (UCI Machine Learning Repository, CC BY 4.0), loaded through [scikit-learn](https://scikit-learn.org/stable/datasets/real_world.html); the GB1 fitness landscape of Wu, Dai, Olson, Lloyd-Smith & Sun (2016), [*eLife* 5:e16965](https://doi.org/10.7554/eLife.16965) (CC BY 4.0), as distributed by the FLIP benchmark (Dallago et al. 2021, [bioRxiv](https://doi.org/10.1101/2021.11.09.467890)); Session 8's UniProt subcellular-localization data. Ioffe & Szegedy (2015), "Batch Normalization," [arXiv:1502.03167](https://arxiv.org/abs/1502.03167); Rost & Sander (1993), [*J. Mol. Biol.* 232:584-599](https://doi.org/10.1006/jmbi.1993.1413) and [*PNAS* 90:7558-7562](https://pmc.ncbi.nlm.nih.gov/articles/PMC47181/) (the PHD method). 3Blue1Brown's neural-network and cross-entropy videos are embedded as further watching. The regression setup (linear baseline vs. 64/64 network, L2 and dropout), the vanishing-gradient demonstration and the tiny hand-computed backpropagation example follow ideas from Magnus Ekman's *Learning Deep Learning* (ch. 3, 5 and 6 slide decks in `slides/`), a copyrighted, not openly licensed textbook, credited here as an internal source and not linked. Every number below was computed in code and read back from the notebook's output.
+**Sources for this page:** d2l.ai, *Dive into Deep Learning*, [Multilayer Perceptrons](https://d2l.ai/chapter_multilayer-perceptrons/index.html) — CC BY-SA 4.0; Wikipedia, [Backpropagation](https://en.wikipedia.org/wiki/Backpropagation), [Stochastic gradient descent](https://en.wikipedia.org/wiki/Stochastic_gradient_descent), [Overfitting](https://en.wikipedia.org/wiki/Overfitting), [Vanishing gradient problem](https://en.wikipedia.org/wiki/Vanishing_gradient_problem), [Regularization (mathematics)](https://en.wikipedia.org/wiki/Regularization_(mathematics)), [Dropout (neural networks)](https://en.wikipedia.org/wiki/Dropout_(neural_networks)), [Early stopping](https://en.wikipedia.org/wiki/Early_stopping) — CC BY-SA 4.0. Datasets: the [Breast Cancer Wisconsin (Diagnostic)](https://archive.ics.uci.edu/dataset/17/breast+cancer+wisconsin+diagnostic) data set (UCI Machine Learning Repository, CC BY 4.0), loaded through [scikit-learn](https://scikit-learn.org/stable/datasets/real_world.html); the GB1 fitness landscape of Wu, Dai, Olson, Lloyd-Smith & Sun (2016), [*eLife* 5:e16965](https://doi.org/10.7554/eLife.16965) (CC BY 4.0), as distributed by the FLIP benchmark (Dallago et al. 2021, [bioRxiv](https://doi.org/10.1101/2021.11.09.467890)); Session 8's UniProt subcellular-localization data. Ioffe & Szegedy (2015), "Batch Normalization," [arXiv:1502.03167](https://arxiv.org/abs/1502.03167); Kingma & Ba (2015), "Adam: A Method for Stochastic Optimization," [arXiv:1412.6980](https://arxiv.org/abs/1412.6980); Rost & Sander (1993), [*J. Mol. Biol.* 232:584-599](https://doi.org/10.1006/jmbi.1993.1413) and [*PNAS* 90:7558-7562](https://pmc.ncbi.nlm.nih.gov/articles/PMC47181/) (the PHD method). 3Blue1Brown's neural-network and cross-entropy videos are embedded as further watching. The regression setup (linear baseline vs. 64/64 network, L2 and dropout), the vanishing-gradient demonstration and the tiny hand-computed backpropagation example follow ideas from Magnus Ekman's *Learning Deep Learning* (ch. 3, 5 and 6 slide decks in `slides/`), a copyrighted, not openly licensed textbook, credited here as an internal source and not linked. Every number below was computed in code and read back from the notebook's output.
 :::
 
 # Session 9: How a Neural Network Learns, and Why Training Fails
@@ -123,7 +123,7 @@ The training loop always runs; it does not always learn. Here are three common f
 
 - **Observation.** A network with six hidden layers of sigmoid units, trained with plain SGD, does not learn at all: its validation MAE stays around 0.48, the error of predicting the mean. The same network with tanh (0.321) or ReLU (0.312) learns.
 - **Why?** Backpropagation multiplies one activation *derivative* per layer, and sigmoid's derivative is at most 0.25 (and almost 0 when the unit saturates). In a freshly initialized six-layer sigmoid network, the first layer's gradient is about **ten million times smaller** than the last layer's; for tanh and ReLU the ratio is a few hundred to two thousand. The first layers barely move.
-- **Fix.** ReLU-like activations; initialization scaled to each layer's size; standardized inputs; normalization layers such as batch normalization (Ioffe & Szegedy, 2015); and modern architectures. Adaptive optimizers also help: the same sigmoid network trained with Adam, which rescales small gradients, does learn (0.291).
+- **Fix.** ReLU-like activations; initialization scaled to each layer's size; standardized inputs; normalization layers such as batch normalization (Ioffe & Szegedy, 2015); and modern architectures. Adaptive optimizers also help: the same sigmoid network trained with Adam, which rescales small gradients ([see below](#momentum-adam)), does learn (0.291).
 
 ![Derivatives of sigmoid, tanh and ReLU. Sigmoid's is at most 0.25 (at $z = 0$) and below 0.01 by $|z| = 6$. Tanh's peaks at 1 but also vanishes in both tails. ReLU's is exactly 0 or exactly 1.](figs/session09-activation-derivatives.png){width="65%"}
 
@@ -132,8 +132,25 @@ ReLU never shrinks the gradient for positive inputs and is cheap to compute, so 
 ### Failure 3: the optimizer and the learning rate
 
 - **Observation.** The same 64/64 network reaches a validation MAE of 0.250 with Adam (learning rate 0.001), but only 0.305 with plain SGD in the same 20 epochs. With Adam and a learning rate of 0.1, the error jumps around and never gets below 0.298.
-- **Why?** The learning rate sets the step size of gradient descent (Session 1). Too small is slow; too large overshoots the minimum. Adam adapts the step size for each weight.
+- **Why?** The learning rate sets the step size of gradient descent (Session 1). Too small is slow; too large overshoots the minimum. Adam averages the recent gradients and adapts the step size for each weight; the next subsection explains why that helps.
 - **Fix.** Start with Adam and a learning rate around $10^{-3}$, and always watch the validation curve.
+
+### Momentum and Adam: why an optimizer can beat plain SGD {#momentum-adam}
+
+Plain SGD takes each step straight down the gradient of the current mini-batch, with the same learning rate for every weight. That works badly when the loss surface is a long, narrow valley, which is common in networks because some weights affect the loss far more than others. The gradient then points mostly *across* the valley: a learning rate large enough to make progress *along* the valley makes SGD zigzag from wall to wall or blow up, and a safe one crawls along the valley floor. Two ideas fix this.
+
+- **Momentum.** Step along a running average of the recent gradients instead of the latest one, like a heavy ball rolling downhill. Across the valley, successive gradients point in opposite directions and cancel; along the valley they agree and add up. Averaging also smooths out the noise of individual mini-batches.
+- **A step size for each weight.** Divide each weight's step by the typical size of its own recent gradients. A weight whose gradients are tiny (the gentle direction of the valley, or an early layer of a deep sigmoid network) gets a larger step; a weight whose gradients are large gets a smaller one.
+
+**Adam** (Kingma & Ba, 2015) combines the two. For every weight it keeps an average of the gradient $g$ (the momentum, $m$) and an average of $g^2$ ($s$, which measures the gradient's typical size), and updates
+
+$$m \leftarrow \beta_1 m + (1-\beta_1)\,g, \qquad s \leftarrow \beta_2 s + (1-\beta_2)\,g^2, \qquad w \leftarrow w - \eta\,\frac{m}{\sqrt{s} + \epsilon}$$
+
+with $\beta_1 = 0.9$, $\beta_2 = 0.999$ and a tiny $\epsilon$ that avoids dividing by zero (Adam also corrects $m$ and $s$ for starting at zero). Because $m/\sqrt{s}$ is roughly $\pm 1$ when the gradients are consistent, every weight moves by about the learning rate $\eta$, whatever the scale of its gradient. That is why one default, $\eta = 10^{-3}$, works for many networks, and why Adam rescued the deep sigmoid network of Failure 2.
+
+![Three optimizers on a valley that is 100 times steeper across ($w_2$) than along ($w_1$), 60 steps each. SGD, with the largest learning rate it tolerates, first zigzags across the valley and then crawls along it (loss 0.09 after 60 steps). Momentum (loss 0.0004) and Adam (0.006) both reach the minimum. Adam heads for it from the first step, because it takes equal steps in both directions.](figs/session09-optimizers.png){width="100%"}
+
+Adam is a good default, not a law. In the figure, well-tuned momentum ends even lower than Adam, and for some image networks plain SGD with momentum still generalizes slightly better. On the GB1 network, Adam reached a validation MAE of 0.250 against 0.305 for plain SGD in the same 20 epochs. The lab asks you to run this comparison yourself and explain the result.
 
 The lab repeats all of these on the blood-cell images of the Session 8 lab, and adds the comparison of loss functions: *change one thing, see what happens, explain why*.
 
@@ -224,9 +241,10 @@ Rost & Sander's PHD (1993, Session 7) is the recipe of Sessions 5-9 at the scale
 
 ### Further reading
 
-- Wikipedia, [Backpropagation](https://en.wikipedia.org/wiki/Backpropagation), [Stochastic gradient descent](https://en.wikipedia.org/wiki/Stochastic_gradient_descent), [Vanishing gradient problem](https://en.wikipedia.org/wiki/Vanishing_gradient_problem), [Overfitting](https://en.wikipedia.org/wiki/Overfitting), [Regularization (mathematics)](https://en.wikipedia.org/wiki/Regularization_(mathematics)), [Dropout (neural networks)](https://en.wikipedia.org/wiki/Dropout_(neural_networks)), [Early stopping](https://en.wikipedia.org/wiki/Early_stopping)
+- Wikipedia, [Backpropagation](https://en.wikipedia.org/wiki/Backpropagation), [Stochastic gradient descent](https://en.wikipedia.org/wiki/Stochastic_gradient_descent) (including momentum and Adam), [Vanishing gradient problem](https://en.wikipedia.org/wiki/Vanishing_gradient_problem), [Overfitting](https://en.wikipedia.org/wiki/Overfitting), [Regularization (mathematics)](https://en.wikipedia.org/wiki/Regularization_(mathematics)), [Dropout (neural networks)](https://en.wikipedia.org/wiki/Dropout_(neural_networks)), [Early stopping](https://en.wikipedia.org/wiki/Early_stopping)
 - d2l.ai, [Multilayer Perceptrons](https://d2l.ai/chapter_multilayer-perceptrons/index.html)
 - Ioffe & Szegedy (2015), [Batch Normalization](https://arxiv.org/abs/1502.03167)
+- Kingma & Ba (2015), [Adam: A Method for Stochastic Optimization](https://arxiv.org/abs/1412.6980); d2l.ai, [Optimization Algorithms](https://d2l.ai/chapter_optimization/index.html) (momentum, Adam and others, with interactive examples)
 - Rost & Sander (1993), [Prediction of protein secondary structure at better than 70% accuracy](https://doi.org/10.1006/jmbi.1993.1413), *J. Mol. Biol.* 232:584-599
 - UCI Machine Learning Repository, [Breast Cancer Wisconsin (Diagnostic)](https://archive.ics.uci.edu/dataset/17/breast+cancer+wisconsin+diagnostic)
 
@@ -334,6 +352,17 @@ renderQuiz("session09-quiz", [
     ],
     correctIndex: 0,
     explanation: "The learning rate is the step size of gradient descent: too large overshoots, too small is slow. Around 0.001 is a good starting point for Adam."
+  },
+  {
+    question: "In a six-layer sigmoid network, the first layer's gradients are about ten million times smaller than the last layer's. Plain SGD barely changes the first layer, but Adam trains the network. Why?",
+    choices: [
+      "Adam divides each weight's step by the typical size of that weight's recent gradients, so weights with tiny gradients still take steps of about the learning rate",
+      "Adam computes the gradients more accurately than backpropagation",
+      "Adam replaces the sigmoid activations with ReLU during training",
+      "Adam uses a larger learning rate for every weight"
+    ],
+    correctIndex: 0,
+    explanation: "Adam keeps, for each weight, an average of its gradient and of its squared gradient, and steps by m / sqrt(s). That ratio is about 1 whatever the gradient's scale, so the vanishing gradients of the early layers are scaled back up."
   }
 ]);
 </script>
@@ -353,7 +382,7 @@ Open it in [Google Colab](https://colab.research.google.com/github/ElofssonLab/k
 2.  compare cross-entropy with mean squared and mean absolute error as the loss for a classifier;
 3.  start every weight at 1 and see why random initialization matters;
 4.  add hidden layers (tanh, sigmoid, ReLU) and measure the gradient that reaches the first layer;
-5.  compare SGD with Adam, a 128-unit hidden layer with no hidden layer at all, and run a small hyperparameter search chosen on the validation set, using the test set once, at the end.
+5.  compare plain SGD, SGD with momentum and Adam, a 128-unit hidden layer with no hidden layer at all, and run a small hyperparameter search chosen on the validation set, using the test set once, at the end.
 
 The best dense network ends up near 78% on the test images. Session 10's lab trains a convolutional network on the same cells.
 
