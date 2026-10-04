@@ -12,7 +12,7 @@
 //     {
 //       question: "What is 2 + 2?",
 //       choices: ["3", "4", "5"],
-//       correctIndex: 1,
+//       correctIndex: 1,          // index in the list above; choices are shown shuffled
 //       explanation: "2 + 2 = 4."
 //     }
 //   ]);
@@ -49,11 +49,20 @@ function renderQuiz(containerId, questions) {
     qDiv.className = "quiz-widget-q";
     const qName = `${containerId}-q${qi}`;
 
-    const choicesHtml = q.choices
+    // Show the choices in a fresh random order on every page load, so the
+    // correct answer is not always in the same place (in the source it is
+    // usually first). Each radio button keeps its original index as value,
+    // so correctIndex is checked unchanged.
+    const order = q.choices.map((_, ci) => ci);
+    for (let i = order.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [order[i], order[j]] = [order[j], order[i]];
+    }
+    const choicesHtml = order
       .map(
-        (c, ci) => `
+        (ci) => `
         <label class="quiz-widget-choice">
-          <input type="radio" name="${qName}" value="${ci}"> ${c}
+          <input type="radio" name="${qName}" value="${ci}"> ${q.choices[ci]}
         </label>`
       )
       .join("");
