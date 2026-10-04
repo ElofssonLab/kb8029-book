@@ -142,6 +142,7 @@ commercial use. Every page names which of them it used.
 - Ruiz-Serra V, Pontes C, Milanetti E et al. (2021). Assessing the accuracy of contact and distance predictions in CASP14. Proteins 89:1888-1900. [doi:10.1002/prot.26248](https://doi.org/10.1002/prot.26248). PMID:34595772. *Cited in:* [Session 12](session12.qmd).
 - Rumelhart DE, Hinton GE, Williams RJ (1986). Learning representations by back-propagating errors. Nature 323(6088):533-536. [doi:10.1038/323533a0](https://doi.org/10.1038/323533a0). *Cited in:* [Session 7](session07.qmd).
 - Russakovsky O, Deng J, Su H et al. (2015). ImageNet Large Scale Visual Recognition Challenge. Int J Comput Vis 115:211-252. [doi:10.1007/s11263-015-0816-y](https://doi.org/10.1007/s11263-015-0816-y). *Cited in:* [Session 10](session10.qmd).
+- Saitou N, Nei M (1987). The neighbor-joining method: a new method for reconstructing phylogenetic trees. Mol Biol Evol 4:406-425. [doi:10.1093/oxfordjournals.molbev.a040454](https://doi.org/10.1093/oxfordjournals.molbev.a040454). *Cited in:* [Session 4](session04.qmd).
 - Schaarschmidt J, Monastyrskyy B, Kryshtafovych A et al. (2018). Assessment of contact predictions in CASP12: Co-evolution and deep learning coming of age. Proteins 86 Suppl 1:51-66. [doi:10.1002/prot.25407](https://doi.org/10.1002/prot.25407). PMID:29071738. *Cited in:* [Session 12](session12.qmd).
 - Schneider TD, Stephens RM (1990). Sequence logos: a new way to display consensus sequences. Nucleic Acids Res 18(20):6097-6100. [doi:10.1093/nar/18.20.6097](https://doi.org/10.1093/nar/18.20.6097). PMID 2172928. *Cited in:* [Session 4](session04.qmd).
 - Schuster M, Paliwal K (1997). Bidirectional recurrent neural networks. IEEE Trans Signal Process 45:2673-2681. [doi:10.1109/78.650093](https://doi.org/10.1109/78.650093). PMID:42670431. *Cited in:* [Session 11](session11.qmd).
@@ -381,14 +382,14 @@ Wikipedia articles, textbook chapters, tutorials and videos suggested on each pa
 - Wikipedia contributors. "BLOSUM". Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/BLOSUM>
 - Wikipedia contributors. "Dot plot (bioinformatics)". Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Dot_plot_(bioinformatics)>
 - Wikipedia contributors. "Gap penalty". Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Gap_penalty>
-- Wikipedia contributors. "Kullback–Leibler divergence". Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence>
 - Wikipedia contributors. "Multiple sequence alignment". Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Multiple_sequence_alignment>
 - Wikipedia contributors. "Needleman–Wunsch algorithm". Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Needleman%E2%80%93Wunsch_algorithm>
 - Wikipedia contributors. "Point accepted mutation". Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Point_accepted_mutation>
 - Wikipedia contributors. "Sequence homology". Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Sequence_homology>
 - Wikipedia contributors. "Sequence logo". Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Sequence_logo>
 - Wikipedia contributors. "Smith–Waterman algorithm". Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Smith%E2%80%93Waterman_algorithm>
-- Wikipedia contributors. "Standard score". Wikipedia, The Free Encyclopedia (CC BY-SA 4.0). <https://en.wikipedia.org/wiki/Standard_score>
+- Wikipedia, Extreme value theory. CC BY-SA 4.0. <https://en.wikipedia.org/wiki/Extreme_value_theory>
+- Wikipedia, Phylogenetic tree; Neighbor joining; UPGMA. CC BY-SA 4.0. <https://en.wikipedia.org/wiki/Phylogenetic_tree>
 
 ### Session 5
 

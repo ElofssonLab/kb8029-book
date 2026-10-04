@@ -1,10 +1,10 @@
 ::: {.callout-note}
 **Sources for this page:** Petras Kundrotas's KB8029 lecture "Sequence
 Alignment" (Feb 2026) — this page follows its structure and worked
-examples, adapted and shortened for this book, not copied verbatim; the
-four figures below (orthologs/paralogs; filling one DP cell; the
-completed Needleman-Wunsch traceback; linear vs. affine gap penalties)
-are taken directly from that lecture's slides;
+examples, adapted and shortened for this book, not copied verbatim; three
+figures below (filling one DP cell; the completed Needleman-Wunsch
+traceback; linear vs. affine gap penalties) are taken directly from that
+lecture's slides, and the globin gene tree was computed for this course;
 Dayhoff, Schwartz & Orcutt (1978), *Atlas of Protein Sequence and
 Structure*, pp. 345-352 (origin of the PAM matrices); Henikoff & Henikoff
 (1992), *PNAS* 89:10915-10919 (origin of the BLOSUM matrices); Wikipedia,
@@ -40,26 +40,41 @@ work a small global alignment by hand using dynamic programming, explain
 the difference between global and local alignment, explain why an affine
 gap penalty is usually preferred over a linear one, explain what
 distinguishes the PAM and BLOSUM families of substitution matrices, and
-explain what it means for an alignment score to be statistically
-significant rather than just high, and read a sequence logo: how the
-entropy of each column of a multiple alignment shows which positions are
-conserved.
+explain why a high alignment score is not by itself significant, read
+a sequence logo (how the entropy of each column of a multiple alignment
+shows which positions are conserved), and read a simple phylogenetic
+tree, telling orthologs from paralogs by speciation and duplication.
+
+Session 3 ended with two related sequences retrieved from the databases.
+This session asks: **which residues correspond to each other, and how much
+evidence does the alignment give for shared ancestry?** An alignment is a
+hypothesis about correspondence: it proposes which residues descend from
+the same ancestral position. Substitutions appear as aligned pairs,
+insertions and deletions as gaps, and the score says how plausible that
+proposed history is *under the chosen scoring scheme*, which is not the
+same as recovering the true evolutionary history.
 
 ## Why alignment needs an algorithm
 
-Two sequences are called **homologous** if they share a common
-evolutionary origin — a qualitative, yes/no property. **Identity** and
-**similarity** are how homology gets measured in practice: identity is
-the fraction of positions with the same residue; similarity is
-looser, also counting positions with residues that share physicochemical
-properties (e.g. two hydrophobic residues). Homologous proteins found in
-different species are **orthologs**; homologous proteins found within the
-same genome (arising from gene duplication) are **paralogs**. Orthologous
-myoglobins across mammals, and the family of paralogous human globins
-(hemoglobin, myoglobin, neuroglobin, and others, all descended from gene
-duplications), are the standard example:
+Two sequences are **homologous** if they share a common evolutionary
+origin: a yes/no statement about ancestry, which we *infer* from evidence.
+**Identity** and **similarity** describe an alignment: identity is the
+fraction of aligned positions with the same residue; similarity is looser,
+also counting residues with shared physicochemical properties (two
+hydrophobic residues, say). High identity or similarity is *evidence* for
+homology, not homology itself. Homologs come in two kinds, defined by the
+event that separated them:
 
-![](figs/session04-orthologs-paralogs.png){width=90%}
+- **orthologs** are homologs separated by a **speciation** event, such as
+  myoglobin in human and in mouse;
+- **paralogs** are homologs separated by a **gene duplication**, such as
+  α- and β-globin, which descend from a duplicated ancestral globin gene.
+
+Paralogs need not be in the same genome: human α-globin and mouse
+β-globin are paralogs too, because the duplication that separated the
+α- and β-globin genes happened before human and mouse diverged. The
+section "From alignment to tree" below shows how a gene tree makes the
+distinction visible.
 
 When two sequences happen to be the same length, measuring identity is
 trivial — just place one under the other and count matches. Real
@@ -75,11 +90,13 @@ alignments grows so fast that for $n = 100$ it's already around
 $10^{59}$ — utterly infeasible to search exhaustively. This is
 why **dynamic programming** algorithms exist for this problem: they find
 the guaranteed-optimal alignment without ever checking most of the
-possibilities.
+possibilities. The trick is that many candidate alignments share the same
+beginnings: dynamic programming solves the best alignment of every pair
+of prefixes once, stores it, and reuses it.
 
 ### Further reading
 
-- Wikipedia, [Sequence homology](https://en.wikipedia.org/wiki/Sequence_homology) — orthology, paralogy, and the other relatedness terms, in more depth than needed here
+- Wikipedia, [Sequence homology](https://en.wikipedia.org/wiki/Sequence_homology): orthology, paralogy and the other relatedness terms, in more depth than needed here
 
 ## Visualizing alignments: dot plots
 
@@ -158,6 +175,13 @@ reset to zero, and the traceback starts from the highest-scoring cell
 anywhere in the matrix (not necessarily the bottom-right corner) and stops
 as soon as it hits a zero.
 
+The choice is biological, not just mechanical. Use **global** alignment
+when you expect the two sequences to correspond along most of their
+length (two myoglobins). Use **local** alignment when they may share only
+part: two large multidomain proteins that have one domain in common, or a
+short motif inside a long sequence. Forcing a global alignment on them
+buries the shared domain under a long tail of meaningless gaps.
+
 ### Further reading
 
 - Wikipedia, [Needleman–Wunsch algorithm](https://en.wikipedia.org/wiki/Needleman%E2%80%93Wunsch_algorithm) and [Smith–Waterman algorithm](https://en.wikipedia.org/wiki/Smith%E2%80%93Waterman_algorithm) — pseudocode and complexity analysis beyond what's needed here
@@ -168,10 +192,11 @@ So far $g$ has been a single flat number charged per gap position, but
 that choice matters more than it might seem. A **linear** gap penalty —
 $g(n) = n \times g_{\text{op}}$ for $n$ consecutive gaps — charges exactly
 the same total whether those gaps are spread out or bunched together.
-Since insertions/deletions in real evolution tend to happen as one event
-removing/adding a whole stretch at once, a linear penalty can produce
-biologically implausible alignments that scatter single gaps throughout,
-breaking up motifs that are actually conserved as a block.
+Evolutionary insertions and deletions often affect contiguous stretches,
+so it is usually more realistic to charge more for opening a gap than for
+extending one. A linear penalty can produce implausible alignments that
+scatter single gaps throughout, breaking up motifs that are conserved as
+a block.
 
 The fix is an **affine** gap penalty: a larger cost $g_{\text{op}}$ to
 *open* a new gap, plus a much smaller cost $g_{\text{ext}}$ to *extend*
@@ -196,17 +221,21 @@ gaps consolidated into contiguous stretches, keeping "QQW" together):
 
 ## Substitution matrices: PAM and BLOSUM
 
-The scores $s(x_i, y_j)$ above aren't arbitrary — they come from
-observing real evolutionary substitutions. Two families dominate:
+The scores $s(x_i, y_j)$ above are **log-odds scores** (Session 1's
+logarithms of probability ratios): roughly, the log of how often residues
+$a$ and $b$ are aligned in related proteins divided by how often they
+would pair by chance, given how common each residue is. A **positive**
+score means the pair is seen more often among related sequences than
+expected by chance, a **negative** score less often; conservative
+substitutions (K and R, I and V) therefore score positively. Session 5's
+profiles use the same idea, one column at a time. Two families dominate:
 
 - **PAM** (Point Accepted Mutations; Dayhoff, Schwartz & Orcutt, 1978)
   is based on **global** alignments of **closely related** proteins, built
   from an *explicit* evolutionary model: sequences are arranged into
   phylogenetic trees, ancestral sequences are inferred, and substitutions
-  are counted along the tree's branches. Only PAM1 (calibrated so 99% of
-  residues are unchanged over that evolutionary distance) is derived
-  directly from data — every other PAM matrix is extrapolated from it by
-  repeated matrix multiplication ($\mathbf{M}^{250}$ for PAM250, etc.).
+  are counted along the tree's branches; matrices for larger distances
+  (PAM250) are extrapolated from the one for very short distances.
 - **BLOSUM** (BLOcks SUbstitution Matrix; Henikoff & Henikoff, 1992) is
   based on **local**, ungapped alignments of **distantly related**
   proteins instead: substitution frequencies are counted directly from
@@ -224,56 +253,47 @@ more similar sequences than BLOSUM45) — the opposite trend.
 
 - Wikipedia, [Point accepted mutation](https://en.wikipedia.org/wiki/Point_accepted_mutation) and [BLOSUM](https://en.wikipedia.org/wiki/BLOSUM) — the full derivation of each matrix family, beyond the conceptual level above
 
-## Statistical significance of an alignment score
+## Is the score significant?
 
-A high alignment score alone doesn't prove two sequences are homologous
-— some genuinely homologous pairs are easy to call from their score,
-others aren't, and a score computed from a substitution matrix has no
-built-in sense of "good enough." One way to calibrate it: shuffle one of
-the two sequences many times, realign it against the other each time,
-and build up a distribution of scores you'd expect from unrelated
-sequences by chance alone. Comparing the real score to that background
-distribution gives a **Z-score** (standardized score),
+A high alignment score alone does not prove that two sequences are
+homologous. The raw score depends on the sequence lengths, the
+substitution matrix and the gap penalties, so there is no universal
+threshold for "good enough". One intuitive way to calibrate it: compare
+the observed score with the scores of the same sequences shuffled, or of
+unrelated sequences, aligned the same way. If the real score is far above
+almost all of them, chance is an unlikely explanation.
 
-$$
-Z = \frac{\text{real score} - \text{mean of random scores}}{\text{standard deviation of random scores}}
-$$
-
-which tells you how many standard deviations above pure chance the real
-alignment sits — assuming, reasonably well in practice, that the random
-scores are roughly normally distributed.
-
-The catch is cost: building a good random-score background this way
-means realigning many shuffled copies for *every* comparison, which
-doesn't scale to comparing one sequence against an entire database.
-**Relative entropy** offers a more principled and efficient alternative
-— it's the same log-odds idea already used to build the substitution
-matrix itself (Section "Substitution matrices" above), applied to score
-the significance of the whole alignment rather than one comparison. Session
-5's BLAST uses a related, highly efficient significance measure of its
-own — the **E-value** — built on this kind of reasoning about
-what you'd expect to see by chance.
+For local alignments the best scores of unrelated sequences follow a known
+statistical distribution (an extreme-value distribution, not a normal
+one), and database-search tools use that to estimate an **E-value**: the
+number of hits this good expected by chance in a database of this size.
+Session 5 explains BLAST and E-values properly.
 
 ### Further reading
 
-- Wikipedia, [Standard score](https://en.wikipedia.org/wiki/Standard_score) and [Kullback–Leibler divergence](https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence) — both concepts in their general statistical form, beyond their specific use here
+- Wikipedia, [Extreme value theory](https://en.wikipedia.org/wiki/Extreme_value_theory), in its general statistical form, beyond its use here
 
 ## Multiple sequence alignment
 
-Extending pairwise alignment to more than two sequences at once has four
-main strategies:
+Aligning more than two sequences at once is harder than it looks. Exact
+dynamic programming extends to $N$ sequences, but its cost grows
+exponentially with $N$, so it becomes impractical for more than a few
+short sequences. Practical methods combine three ideas:
 
-| Approach | Programs | Speed | Accuracy | Guide-tree dependence | Refinement |
-|---|---|---|---|---|---|
-| **Exact** — extend dynamic programming to $N$ dimensions; only feasible for $N \le 5$ sequences | — | — | Optimal (for small $N$) | None | — |
-| **Progressive** — align the most similar pair first, then progressively add sequences/profiles, guided by a tree built from all pairwise distances | ClustalW | Fast | Moderate | High | No |
-| **Iterative** — start from a progressive alignment, then repeatedly re-score and re-align subsets to improve it | MUSCLE | Medium | High | Moderate | Yes |
-| **Consistency-based** — favor alignments that agree with each other transitively (if A aligns with B and B aligns with C, prefer an alignment where A also aligns with C accordingly) | T-Coffee | Slow | Very high | Low | Yes |
+- **progressive alignment**: build a **guide tree** from all pairwise
+  distances, align the closest pair first, then add sequences (or
+  already-aligned groups) one at a time. Early decisions are never
+  revisited, so an early mistake can persist (ClustalW is the classic
+  example);
+- **iterative refinement**: start from a progressive alignment and
+  repeatedly re-align parts of it, keeping changes that improve the
+  score (as in MUSCLE);
+- **consistency**: use agreement among all the pairwise alignments as
+  extra information; if A aligns with B and B with C, prefer a multiple
+  alignment where A also matches C at that position (as in T-Coffee).
 
-The pattern is a genuine speed/accuracy tradeoff: progressive is fast but
-an early mistake in the guide tree propagates forward uncorrected;
-iterative and consistency-based methods spend more computation to correct
-that weakness.
+Real tools often combine several of these ideas, and which works best
+depends on the number, length and divergence of the sequences.
 
 Building the guide tree for progressive alignment uses the kind
 of hierarchical clustering you'd use on any distance matrix: treat every
@@ -286,6 +306,60 @@ notice how sequence 4 doesn't merge in until the very last step, exactly
 reflecting how clearly separate it is from the other four:
 
 ![](figs/session04-guidetree-worked-example.png){width=90%}
+
+A guide tree is an *ordering device* for the alignment, not necessarily a
+phylogenetic tree: it is usually built by a quick method (UPGMA) that
+assumes all lineages evolve at the same rate, and a fast-evolving
+sequence can end up in the wrong place. The third discussion problem
+shows such a case.
+
+## From alignment to tree
+
+A **phylogenetic tree** proposes how sequences are related by descent.
+The quickest route from an alignment to a tree uses the same ingredient
+as a guide tree, a matrix of pairwise distances, but with a method built
+for phylogeny: **neighbour joining** allows lineages to evolve at
+different rates, which UPGMA does not. Reading a tree:
+
+- the **leaves** are the sequences, and the internal **nodes** are
+  inferred ancestors;
+- **branch lengths** show the amount of change (here, the fraction of
+  differing residues);
+- a **clade** is an ancestor with all its descendants;
+- a tree is **rooted** (the root marks the oldest ancestor, so you can
+  read the order of events) or **unrooted**. Distance methods give
+  unrooted trees; a root is added with an **outgroup**, a sequence known to
+  have branched off first, or, as here, at the midpoint of the longest
+  path.
+
+The notebook builds a tree of α-globin, β-globin and myoglobin from
+human, mouse and chicken:
+
+![A gene tree of nine globins (neighbour joining on the fraction of differing residues in pairwise BLOSUM62 alignments, midpoint-rooted). Red squares: gene duplications, where both branches contain the same species; the copies below them are paralogs. Blue circles: speciations; the copies are orthologs.](figs/session04-globin-tree.png){width=85%}
+
+The tree is a **gene tree**, and comparing it with the **species tree**
+(chicken branched off before human and mouse) tells the two kinds of
+homolog apart. The first split separates myoglobin from the haemoglobins,
+and the second α- from β-globin. Both are **duplications**: each branch
+still contains all three species, so the genes were copied before birds
+and mammals diverged. Every node below them follows the species tree,
+human and mouse first: those are **speciations**. Human and mouse
+α-globin are therefore orthologs (human α-globin differs from mouse
+α-globin at 14% of positions, and from chicken α-globin at 30%), while
+human α- and β-globin are paralogs (54% different).
+
+Two cautions. How much to trust a branch is usually measured by
+**bootstrap** support: resample the alignment columns many times, rebuild
+the tree, and count how often each branch reappears. And real
+phylogenetics uses models of how residues substitute and maximum
+likelihood (for example IQ-TREE or FastTree); this course only needs the
+concepts. Session 8's homology-aware splits and Session 12's coevolution
+both come back to the fact that sequences are related by a tree.
+
+### Further reading
+
+- Wikipedia, [Phylogenetic tree](https://en.wikipedia.org/wiki/Phylogenetic_tree), [Neighbor joining](https://en.wikipedia.org/wiki/Neighbor_joining) and [UPGMA](https://en.wikipedia.org/wiki/UPGMA)
+- Saitou & Nei (1987), [The neighbor-joining method: a new method for reconstructing phylogenetic trees](https://doi.org/10.1093/oxfordjournals.molbev.a040454), *Mol Biol Evol* 4:406-425
 
 ## Reading an alignment: entropy and sequence logos
 
@@ -307,7 +381,9 @@ $\log_2 20 \approx 4.32$ bits for a protein column where all 20 amino
 acids are equally common ($\log_2 4 = 2$ bits for DNA). The column's
 **information content** is the distance from that maximum,
 $\log_2 20 - H$: high for conserved columns, near zero for variable
-ones.
+ones. (This is the simple version, which assumes all amino acids are
+equally common in the background; logo programs often correct for
+background frequencies and for small samples.)
 
 A **sequence logo** (Schneider & Stephens 1990) draws each column as a
 stack of letters. The height of the stack is the column's information
@@ -338,8 +414,11 @@ Two practical notes. With few sequences, the frequencies are noisy, and
 a column can look conserved by chance; logo programs often apply a
 small-sample correction. And closely related sequences are
 over-represented in most alignments, so real tools also weight the
-sequences. Session 5's profiles use the same column frequencies to score
-new sequences.
+sequences.
+
+A multiple alignment is not just a picture: each column gives a
+distribution of amino acids. Session 5 turns those distributions into
+position-specific scores.
 
 ### Further reading
 
@@ -367,7 +446,8 @@ than typed in by hand — for a global-vs-local comparison on two real
 globin fragments (from HBB and myoglobin) that share one conserved motif
 but differ elsewhere, making both the practical difference between the
 two algorithms, and the effect of a graded substitution matrix versus a
-flat identity scheme, directly visible. Open it in
+flat identity scheme, directly visible. It ends by building the globin gene tree of the
+section "From alignment to tree" by neighbour joining. Open it in
 [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session04-alignment-in-code.ipynb)
 via the badge at the top of the notebook page to edit and run it
 yourself.
@@ -397,7 +477,7 @@ renderQuiz("session04-quiz", [
     question: "Human hemoglobin and human myoglobin arose from an ancient gene duplication within the same genome. What relationship do they have?",
     choices: ["Orthologs", "Paralogs", "Analogs", "They are not homologous"],
     correctIndex: 1,
-    explanation: "Homologs arising from a duplication within the same genome are paralogs; orthologs would be the same gene found across different species."
+    explanation: "Paralogs are homologs separated by a gene duplication; orthologs are homologs separated by a speciation event. Paralogs can also sit in different species, if the duplication came before the speciation."
   },
   {
     question: "For two sequences of length around 100, why is it infeasible to try every possible alignment and keep the best one?",
@@ -437,6 +517,39 @@ renderQuiz("session04-quiz", [
     ],
     correctIndex: 0,
     explanation: "The two families' numbering runs in opposite directions &mdash; a common source of confusion."
+  },
+  {
+    question: "Human alpha-globin and mouse beta-globin come from different species. Are they orthologs?",
+    choices: [
+      "No: they are paralogs, because what separates them is the duplication of the ancestral globin gene into alpha and beta, which happened before human and mouse diverged",
+      "Yes: genes from different species are always orthologs",
+      "Yes, because both are haemoglobin subunits",
+      "They are not homologous at all"
+    ],
+    correctIndex: 0,
+    explanation: "Orthology and paralogy are defined by the event at the node that separates the two genes in a gene tree: speciation gives orthologs, duplication gives paralogs."
+  },
+  {
+    question: "Why is a guide tree for progressive alignment not automatically a phylogenetic tree?",
+    choices: [
+      "It is an ordering device built by a quick method (often UPGMA) that assumes equal rates of evolution; a fast-evolving sequence can be placed wrongly",
+      "Guide trees are always identical to phylogenetic trees",
+      "Guide trees are built from the final alignment, so they cannot be wrong",
+      "Phylogenetic trees cannot be built from distances"
+    ],
+    correctIndex: 0,
+    explanation: "Neighbour joining, which allows unequal rates, or likelihood methods are used for phylogeny; the third discussion problem shows UPGMA getting a tree wrong."
+  },
+  {
+    question: "Two proteins align with a high raw score. Why is that alone not enough to call them homologous?",
+    choices: [
+      "The raw score depends on sequence length, substitution matrix and gap penalties; it must be compared with the scores expected for unrelated sequences, which is what an E-value does",
+      "Because high scores are always produced by chance",
+      "Because alignment scores cannot be compared at all",
+      "Because only identical sequences are homologous"
+    ],
+    correctIndex: 0,
+    explanation: "Shuffled or unrelated sequences give a background distribution of scores; for local alignment it is an extreme-value distribution, the basis of BLAST's E-values (Session 5)."
   }
 ]);
 </script>
