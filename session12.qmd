@@ -7,7 +7,7 @@ Data and models are fetched live from the RCSB PDB, the
 [AlphaFold Protein Structure Database](https://alphafold.ebi.ac.uk/)
 (CC BY 4.0) and the ESM Atlas API. All figures were drawn or computed for
 this course, and every number from our own code was read back from the
-notebook's output. The "four regions" framework in @sec-s12-af3 is taken from
+notebook's output. The "four regions" heuristic in @sec-s12-complexes is taken from
 the lecture; it has not yet been published as a paper.
 :::
 
@@ -17,147 +17,62 @@ the lecture; it has not yet been published as a paper.
 
 By the end of this session you should be able to:
 
-- explain the protein folding problem and how structure prediction moved
-  from energy functions and fragments, through coevolution and contact
-  prediction, to AlphaFold;
-- describe AlphaFold2's architecture (MSA and pair representations, the
-  Evoformer, the structure module) and interpret its confidence measures,
-  pLDDT and PAE;
-- explain how AlphaFold2 was extended to protein complexes, and what
-  pDockQ, ipTM and ipSAE measure;
-- explain what a diffusion model does, and how AlphaFold3, RFdiffusion
-  and ProteinMPNN use generative modelling;
-- judge where AI structure prediction works and where it does not, using
-  the "four regions" of protein interactions.
+- explain why long-range information is essential for structure prediction, and how evolutionary covariation provided it;
+- describe what AlphaFold2 represents internally (an MSA representation and a residue-pair representation that update each other, and a geometry-aware structure module) and why attention and pair representations suit proteins;
+- interpret pLDDT and PAE correctly, and explain why confidence is not the same as correctness;
+- explain why complexes are harder than single chains, and why a confident complex model does not show that two proteins interact in the cell;
+- explain at a high level what a diffusion model does and what AlphaFold3 changed;
+- say what current structure predictors cannot tell us.
 
-The session has three parts: **from the folding problem to AlphaFold 1**,
-**AlphaFold2 and protein complexes**, and **AlphaFold3 and generative
-models**. It closes the arc the course opened on Session 7 with secondary
-structure.
+This session closes the course. Nearly every earlier session contributes a piece:
 
-## From the folding problem to AlphaFold 1 {#sec-s12-af1}
+| From | Idea used in modern structure prediction |
+|---|---|
+| Sessions 4-5 | alignments and profiles: the evolutionary record of a family |
+| Session 7 | nonlinear models, and secondary structure from local sequence |
+| Session 8 | honest evaluation on proteins unlike the training data |
+| Session 9 | training deep networks |
+| Session 10 | pairwise maps treated as images, residual networks, invariance |
+| Session 11 | attention and protein language models |
+
+The opening question: **what information is missing if we try to predict a residue's structure from its local sequence alone?** Contacts and interactions with residues far away in the sequence. The rest of the session is about where that long-range information comes from, how AlphaFold2 learned to use it, and what we can trust in the result.
+
+## Where does long-range structural information come from? {#sec-s12-af1}
 
 ### The folding problem
 
-A protein's sequence determines its structure (Anfinsen, 1973,
-[*Science* 181:223](https://doi.org/10.1126/science.181.4096.223)). Under
-Anfinsen's dogma the native structure is unique, stable (the bottom of a
-folding "funnel") and kinetically reachable. Yet a protein cannot find it
-by trying every conformation: with even a few states per residue, a
-random search would take longer than the age of the universe. Proteins
-fold in milliseconds to seconds. This is **Levinthal's paradox**, from a
-1969 talk ("How to fold graciously", *Mössbauer Spectroscopy in
-Biological Systems*, pp. 22-24). Dill & MacCallum
-([*Science* 338:1042](https://doi.org/10.1126/science.1219021), 2012)
-summarised fifty years of work as three questions. What is the physical
-code by which a sequence dictates its structure? How do proteins fold so
-fast? And "can we devise a computer algorithm to predict protein
-structures from their sequences?"
+A protein's sequence determines its structure (Anfinsen, 1973, [*Science* 181:223](https://doi.org/10.1126/science.181.4096.223)), yet a protein cannot find that structure by trying every conformation: with even a few states per residue, a random search would take longer than the age of the universe, while real proteins fold in milliseconds to seconds (**Levinthal's paradox**, 1969). Dill & MacCallum ([*Science* 338:1042](https://doi.org/10.1126/science.1219021), 2012) summarised fifty years of work as three questions, the last of which is "can we devise a computer algorithm to predict protein structures from their sequences?"
 
-### Fifty years of structure prediction
+### Three generations of structure prediction
 
-Before AlphaFold, three routes were tried. The course has already met the
-tools each one used.
+1. **Physics and templates (1970s onwards).** Simulate the atoms (molecular dynamics: possible only for small, fast-folding proteins, even on special-purpose computers); copy the structure of a relative (**homology modelling**), or find the known fold a sequence fits best (**threading**, Session 5's profile idea applied to structures); or assemble the chain from short fragments of known proteins with a knowledge-based energy function (**Rosetta**). Blind tests every two years since 1994, the **CASP** experiments (Moult et al. 1995, [*Proteins* 23:ii](https://doi.org/10.1002/prot.340230303)), showed steady progress for proteins with templates, and little for the rest.
+2. **Evolutionary restraints (2011-2019).** Coevolution in large protein families gave long-range contacts, then distances, cleaned up by deep networks (below).
+3. **End-to-end learned geometry (2020).** AlphaFold2 learned the whole path from alignments to atoms.
 
-- **Physics.** Simulate the atoms with a physical energy function and
-  let the chain fold, as in molecular dynamics. This works in principle,
-  but it is extremely expensive. D. E. Shaw's special-purpose computer
-  Anton reached millisecond simulations (Shaw et al. 2010,
-  [*Science* 330:341](https://doi.org/10.1126/science.1187409)). It folded
-  twelve small, fast-folding proteins (Lindorff-Larsen et al. 2011,
-  [*Science* 334:517](https://doi.org/10.1126/science.1208351)), but not
-  ordinary-sized ones.
-- **Templates.** Most new proteins have a relative of known structure.
-  - **Homology modelling** copies the relative's structure and adjusts it,
-    for example MODELLER's "satisfaction of spatial restraints" (Šali &
-    Blundell 1993,
-    [*J Mol Biol* 234:779](https://doi.org/10.1006/jmbi.1993.1626)).
-  - **Fold recognition, or threading**, asks which known fold a sequence
-    fits best, even without detectable sequence similarity (Bowie, Lüthy &
-    Eisenberg 1991,
-    [*Science* 253:164](https://doi.org/10.1126/science.1853201); Jones,
-    Taylor & Thornton 1992,
-    [*Nature* 358:86](https://doi.org/10.1038/358086a0)). This is Session 5's
-    profile idea, applied to structures.
-- **De novo fragment assembly.** With no template, build the structure
-  from short fragments of known proteins, guided by a knowledge-based
-  energy function (Rosetta: Simons et al. 1997,
-  [*J Mol Biol* 268:209](https://doi.org/10.1006/jmbi.1997.0959)).
+Local sequence is not enough: the same ten residues can be a strand in one protein and a helix in another (Session 7's chameleon sequences). What was missing was long-range information.
 
-The typical pipeline combined them:
+### Coevolution: long-range restraints from evolution
 
-1. Search the sequence against a database and build a multiple sequence
-   alignment (Sessions 4-5).
-2. Derive a profile, and from it predict secondary structure (Session 7).
-3. Find templates, or assemble fragments with an energy function.
+If two residues touch, a mutation in one is often compensated by a mutation in the other, so across a large family of homologs they **co-evolve**. The idea is old (Göbel et al. 1994, [*Proteins* 18:309](https://doi.org/10.1002/prot.340180402)); three things made it work two decades later:
 
-**CASP**, the Critical Assessment of protein Structure Prediction, has
-tested all of this blind every two years since 1994 (Moult et al. 1995,
-[*Proteins* 23:ii](https://doi.org/10.1002/prot.340230303)). Groups
-predict structures that have been solved but not yet released. For two
-decades CASP showed steady progress for template-based targets, and
-little for the hard ones without templates.
+1. **Better statistics.** Simple correlation between two alignment columns is swamped by phylogeny and by indirect effects (A-B and B-C contacts make A and C look coupled). **Direct coupling analysis** (DCA; Weigt et al. 2009, [*PNAS* 106:67](https://doi.org/10.1073/pnas.0805923106); Morcos et al. 2011, [*PNAS* 108:E1293](https://doi.org/10.1073/pnas.1111471108)) fits one global statistical model to the whole alignment, the maximum-entropy model that reproduces its single-column and column-pair frequencies (Session 1), and separates direct couplings from indirect ones. Because those pairwise couplings capture epistasis, the same kind of model also predicts mutation effects better than an independent profile (EVmutation; Hopf et al. 2017, [*Nat. Biotechnol.* 35:128](https://doi.org/10.1038/nbt.3769)): the interactions Session 9 measured in GB1, learned from an alignment.
+2. **Bigger families.** Sequence databases grew far faster than structure databases, so families became large enough (hundreds to thousands of effective sequences).
+3. **Machine learning on top.** Contacts are not independent pixels. Helices give bands, strand pairs give lines along or across the diagonal, so a network that looks at a whole neighbourhood of the map, Session 10's convolution, can clean up the noisy coevolution signal. In the notebook, 3 × 3 windows centred on real contacts show only 146 of the 256 possible patterns, and a neighbouring pair is in contact 23-42% of the time when the centre pair is, against a base rate of 3.0%. The first discussion problem asks you to read these patterns, which is exactly what a learned **pair representation** exploits.
 
-Local sequence is not enough: the same 10 residues can be a strand in one
-protein and a helix in another ("chameleon sequences"). The missing
-information was long-range.
-
-### Coevolution and contact prediction
-
-If two residues touch, a mutation in one is often compensated by a
-mutation in the other. Across a large family of homologs they therefore
-**co-evolve**. Göbel et al. (1994,
-[*Proteins* 18:309](https://doi.org/10.1002/prot.340180402)) already used
-correlated mutations to predict contacts. For almost twenty years the
-signal was too weak to fold proteins. Three things changed that.
-
-1. **Better statistics.** Mutual information between two alignment
-   columns is swamped by phylogeny, and by indirect correlations: A-B and
-   B-C contacts make A and C look coupled. The average product correction
-   (APC) removes much of the background (Dunn, Wahl & Gloor 2008,
-   [*Bioinformatics* 24:333](https://doi.org/10.1093/bioinformatics/btm604)).
-   **Direct coupling analysis** (DCA) fits one global statistical model
-   (a Potts model) to the whole alignment. Of all models that reproduce
-   the alignment's single-column and column-pair frequencies, it uses the
-   one with **maximum entropy** (Session 1), the one that assumes nothing
-   else. It separates direct couplings from indirect ones. Because its
-   pairwise couplings capture epistasis, the same kind of model also
-   predicts the effects of mutations better than an independent profile
-   does (EVmutation; Hopf et al. 2017,
-   [*Nat. Biotechnol.* 35:128](https://doi.org/10.1038/nbt.3769)): the
-   interactions Session 9 measured in GB1, learned from an alignment
-   instead of an experiment. DCA was first used between interacting
-   bacterial signalling proteins (Weigt et al. 2009,
-   [*PNAS* 106:67](https://doi.org/10.1073/pnas.0805923106)), then for
-   contacts within hundreds of protein families (Morcos et al. 2011,
-   [*PNAS* 108:E1293](https://doi.org/10.1073/pnas.1111471108)).
-   Refinements followed:
-   - EVfold folded proteins from these contacts (Marks et al. 2011,
-     [*PLoS One* 6:e28766](https://doi.org/10.1371/journal.pone.0028766));
-   - PSICOV used a sparse inverse covariance (Jones et al. 2012,
-     [*Bioinformatics* 28:184](https://doi.org/10.1093/bioinformatics/btr638));
-   - plmDCA used pseudo-likelihood (Ekeberg et al. 2013,
-     [*Phys Rev E* 87:012707](https://doi.org/10.1103/PhysRevE.87.012707)).
-2. **Bigger families.** Sequence databases grew far faster than
-   structure databases. Families became large enough for these models to
-   work (several hundred to thousands of effective sequences).
-3. **Machine learning on top.** Contact maps are not random collections
-   of pixels, so a predictor that looks at a whole neighbourhood of the
-   map can clean up the noisy coevolution signal. In the notebook, 3 × 3
-   windows centred on real contacts show only 146 of the 256 possible
-   patterns. A neighbouring pair is in contact 23-42% of the time when the
-   centre pair is, against a base rate of 3.0%.
-
-The figure shows this progress on one protein, the bacterial response
-regulator CheY, from an alignment of 11,084 homologous sequences. Each
-method's L highest-scoring residue pairs (L = 128, the length of the
-protein) are plotted over the true contacts. Precision rises from 0.49
-(mutual information), to 0.73 (DCA), to 0.89 (a deep-learning contact
-predictor), to 0.99 (the contacts in the AlphaFold2 model):
+The figure shows the progress on one protein, the bacterial response regulator CheY, from an alignment of 11,084 homologs. Each method's 128 highest-scoring residue pairs (L = 128, the protein's length) are plotted over the true contacts. Precision rises from 0.49 (mutual information) to 0.73 (DCA), 0.89 (a deep-learning contact predictor) and 0.99 (the contacts in the AlphaFold2 model):
 
 ![Contact prediction for CheY (PDB 3CHY), computed in the notebook. Upper triangle: each method's 128 highest-scoring residue pairs (sequence separation of at least 6), blue if the pair is a true contact, red if not. Lower triangle, grey: the true contacts (Cβ atoms within 8 Å). The deep-learning panel uses the contact head of the ESM-2 language model (650M parameters), a stand-in for the contact predictors of 2017-2019, whose software no longer installs. Mutual information's false positives cluster in blocks, from phylogeny and conservation; DCA's are scattered.](figs/session12-contact-progress.png){width=100%}
 
-**What happened next: our own lineage, and then everyone's.**
+Contacts then became **distances**: AlphaFold 1 (Senior et al. 2020, [*Nature* 577:706](https://doi.org/10.1038/s41586-019-1923-7)) and trRosetta (Yang et al. 2020, [*PNAS* 117:1496](https://doi.org/10.1073/pnas.1914677117)) predicted distance distributions between residue pairs with deep residual networks and folded proteins by minimising against them. The blind CASP assessments show how sudden the change was:
+
+![Precision of the best group's top-L/5 long-range contact predictions on free-modelling targets in each CASP, from the official assessment papers (CASP10: Monastyrskyy et al. 2014; CASP11: 2016; CASP12: Schaarschmidt et al. 2018; CASP13: Shrestha et al. 2019; CASP14: Ruiz-Serra et al. 2021).](figs/session10-casp-contacts.png){width="80%"}
+
+From CASP9 to CASP11 (2010-2014), contact precision stayed around 20-27%; it reached 47% in CASP12 (2016) and more than 70% in CASP13 (2018). In CASP14, AlphaFold2 made contacts a by-product of predicting the whole structure directly.
+
+::: {.callout-note collapse="true"}
+#### Our own lineage: from PconsC to fold-and-dock
+
+The Stockholm group (this course's teachers) contributed to this generation:
 
 - **PconsC2** (Skwark, Raimondi, Michel & Elofsson, 2014,
   [*PLoS Comput Biol* 10:e1003889](https://doi.org/10.1371/journal.pcbi.1003889))
@@ -182,18 +97,12 @@ predictor), to 0.99 (the contacts in the AlphaFold2 model):
   **distance distributions** (and, in trRosetta, orientations) instead of
   binary contacts. They folded by minimising against them. By CASP13 most
   single-domain proteins could be predicted "quite accurately".
+:::
 
-The blind CASP assessments show how sudden the change was once contact
-maps were treated as images for deep CNNs:
+::: {.callout-note collapse="true"}
+#### Docking before AlphaFold
 
-![Precision of the best group's top-L/5 long-range contact predictions on free-modelling targets in each CASP, from the official assessment papers (CASP10: Monastyrskyy et al. 2014; CASP11: 2016; CASP12: Schaarschmidt et al. 2018; CASP13: Shrestha et al. 2019; CASP14: Ruiz-Serra et al. 2021).](figs/session10-casp-contacts.png){width="80%"}
-
-From CASP9 to CASP11 (2010-2014), precision stayed around 20-27%. It
-reached 47% in CASP12 (2016) and more than 70% in CASP13 (2018). In
-CASP14 contact precision stopped improving: AlphaFold2 made contacts a
-by-product of predicting the whole 3D structure directly.
-
-### Fifty years of docking
+Historically, complexes were predicted by docking separately determined or modelled components; modern models predict the chains and their interface jointly. For reference:
 
 Docking asks how two proteins of known structure fit together. It
 followed its own path, with the same three routes.
@@ -248,37 +157,44 @@ to fold and dock:
   [*Bioinformatics* 38:954](https://doi.org/10.1093/bioinformatics/btab760))
   did this with trRosetta, and their PconsDock score separated correct
   from incorrect models 98% of the time. With AlphaFold2 the same idea
-  became FoldDock (@sec-s12-af2): folding and docking had become one problem.
+  became FoldDock (@sec-s12-complexes): folding and docking had become one problem.
+:::
 
 #### Further reading
 
 - Dill & MacCallum (2012), [The protein-folding problem, 50 years on](https://doi.org/10.1126/science.1219021)
-- Skwark et al. (2014), [Improved contact predictions using the recognition of protein like contact patterns](https://doi.org/10.1371/journal.pcbi.1003889)
-- Yang et al. (2020), [trRosetta](https://doi.org/10.1073/pnas.1914677117)
 - Morcos et al. (2011), [Direct-coupling analysis of residue coevolution captures native contacts across many protein families](https://doi.org/10.1073/pnas.1111471108)
-- Kundrotas et al. (2012), [Templates are available to model nearly all complexes of structurally characterized proteins](https://doi.org/10.1073/pnas.1200678109)
+- Skwark et al. (2014), [Improved contact predictions using the recognition of protein like contact patterns](https://doi.org/10.1371/journal.pcbi.1003889)
 
-## AlphaFold2 and protein complexes {#sec-s12-af2}
+## How AlphaFold2 combines the course's ideas {#sec-s12-af2}
 
-### AlphaFold2 (CASP14, 2020)
+AlphaFold2 (Jumper et al. 2021, [*Nature* 596:583](https://doi.org/10.1038/s41586-021-03819-2)) was "the first computational method that can regularly predict protein structures with atomic accuracy even in cases in which no similar structure is known". At CASP14 its median backbone accuracy was 0.96 Å, against 2.8 Å for the next best method. It is trained end to end to map **sequence-derived, evolutionary and template information** (the target sequence, an alignment of its homologs, and optionally structures of relatives) to atomic coordinates. That distinguishes it from single-sequence methods such as ESMFold, below.
 
-AlphaFold2 (Jumper et al., 2021,
-[*Nature* 596:583](https://doi.org/10.1038/s41586-021-03819-2)) was "the
-first computational method that can regularly predict protein structures
-with atomic accuracy even in cases in which no similar structure is
-known". At CASP14 its median backbone accuracy was 0.96 Å (Cα RMSD at 95%
-coverage), against 2.8 Å for the next best method. Its all-atom accuracy
-was 1.5 Å, against 3.5 Å.
+### The data flow
 
-### Inside the AlphaFold2 network
+![The data flow of AlphaFold2, simplified. Inputs are embedded into an MSA representation and a pair representation, which the Evoformer updates many times, each informing the other. A geometry-aware structure module turns them into 3D coordinates with confidence scores, and the whole network is run again on its own outputs (recycling).](figs/session12-af2-simple.png){width=100%}
 
-AlphaFold2 is one network, trained end to end, from sequences to atom
-coordinates. It still starts from an alignment, but it replaced the rest
-of @sec-s12-af1's pipeline (contacts, distances and folding) with learned
-operations. The numbers below are from the paper
-and its Supplementary Information.
+Two representations are carried through the whole network:
+
+- the **MSA representation**: a vector for every residue of every aligned sequence;
+- the **pair representation**: a vector for every pair of residues, a learned, much richer version of the contact and distance maps above.
+
+The **Evoformer** updates both, many times over. Three of its operations carry the main ideas:
+
+- **MSA attention.** Within each aligned sequence, residues attend to each other (Session 11's attention, biased by the current pair representation); within each column, sequences attend to each other, so the network learns which homologs are informative for each position.
+- **MSA → pair.** For every pair of columns, how the two columns vary together across the family updates the pair representation: a learned version of coevolution.
+- **Triangle updates.** Pair (*i*, *j*) is updated with information passing through every third residue *k*. Residue-pair relationships are not independent: if *i* is close to *k* and *j* is close to *k*, that constrains how *i* and *j* can be related. The authors were inspired by geometric constraints such as the triangle inequality on distances, but the updates are learned operations, not rules that enforce it.
+
+The **structure module** then builds coordinates. Each residue is a rigid **frame** (the position and orientation of its backbone), and **invariant point attention** reasons about the frames in 3D in a way that does not depend on how the whole protein happens to be rotated or translated, the invariance idea of Session 10, now in three dimensions. Finally, **recycling** runs the whole network again with its own outputs as extra inputs, refining the prediction a few times.
+
+In short, AlphaFold2 kept the ingredients of the second generation (alignments, coevolution, contacts, distances, physical plausibility) and turned each into a learnable operation inside one network, trained on the final coordinates.
+
+::: {.callout-note collapse="true"}
+#### For reference: AlphaFold2 in detail
 
 ![AlphaFold2's architecture, drawn for this course after Jumper et al. (2021). (a) The whole network. (b) The operations of one Evoformer block, in the order they are applied.](figs/session12-af2-architecture.png){width=100%}
+
+The numbers below are from the paper and its Supplementary Information.
 
 **1. Inputs.** Three kinds of information go in.
 
@@ -394,72 +310,7 @@ that is, 3 recycles, with the same weights. Each pass refines the last.
 **6. Five models.** Five networks were trained with different random
 seeds, two with templates and three without. All five are run, and the
 predictions are ranked by pLDDT.
-
-In short, AlphaFold2 kept the ingredients of @sec-s12-af1: alignments,
-coevolution, contacts, distances and physical plausibility. It turned
-each into a learnable operation inside one network, trained end to end on
-the final coordinates.
-
-### Confidence and what AlphaFold2 has done
-
-Its confidence measures are as important as the structure itself:
-
-- **pLDDT** (0-100, per residue): predicted local accuracy. Above 90 is
-  very high; below 50 usually means disorder.
-- **PAE** (predicted aligned error): for each pair of residues, the
-  expected error in the position of one when the model is aligned on the
-  other. It tells you whether the *relative* placement of two domains, or
-  two chains, can be trusted.
-
-**In the notebook.** The AlphaFold DB model of human β-globin (mean pLDDT
-97.2) matches the crystal structure 4HHB with TM-score 0.988 and RMSD 0.51
-Å. For p53, 30% of the residues have pLDDT below 50. The DNA-binding
-domain averages 95.3, while the N-terminal transactivation region (47.6)
-and the C-terminus (45.8) are disordered, which is real biology, not a
-failure:
-
-![p53 (P04637) in the AlphaFold DB. Left: pLDDT per residue, with the DNA-binding domain shaded. Right: predicted aligned error. Only the DNA-binding domain forms a confident block.](figs/session12-p53-plddt-pae.png){width=100%}
-
-**Scale.** AlphaFold predicted "almost the entire human proteome (98.5% of
-human proteins)", with 58% of residues at confident pLDDT, compared with
-the 17% of residues covered by experimental structures
-(Tunyasuvunakool et al. 2021,
-[*Nature* 596:590](https://doi.org/10.1038/s41586-021-03828-1)). The
-AlphaFold Database now holds over 214 million predicted structures
-(Varadi et al. 2024,
-[*NAR* 52:D368](https://doi.org/10.1093/nar/gkad1011)). In 2024, Demis
-Hassabis and John Jumper shared half of the
-[Nobel Prize in Chemistry](https://www.nobelprize.org/prizes/chemistry/2024/summary/)
-"for protein structure prediction"; the other half went to David Baker
-"for computational protein design".
-
-**Others, and tools.**
-
-- **RoseTTAFold** (Baek et al. 2021,
-  [*Science* 373:871](https://doi.org/10.1126/science.abj8754)) reached
-  similar accuracy with a three-track network (sequence, distance map and
-  3D coordinates).
-- **ColabFold** (Mirdita et al. 2022,
-  [*Nat Methods* 19:679](https://doi.org/10.1038/s41592-022-01488-1))
-  replaced the slow alignment search with MMseqs2 (Session 8's clustering
-  tool). Its "40-60-fold faster search" put AlphaFold in a Google Colab
-  notebook.
-- **ESMFold** skips the alignment altogether and predicts from a single
-  sequence using the ESM-2 language model (Session 11). In the notebook,
-  ESMFold predicts Ephrin-A5 in seconds with TM-score 0.941 against the
-  crystal structure (1SHW). It is much weaker for complexes. Its
-  successor, ESMFold2 (2026), is built for them (@sec-s12-af3).
-
-**Known limits** (lecture):
-
-- AlphaFold cannot tell whether a sequence folds at all, or how a mutation
-  changes the structure.
-- It may or may not find alternative conformational states.
-- The arrangement of domains in large flexible or repeated proteins is
-  often arbitrary.
-- It "does not know what a membrane is".
-- In a protein-DNA complex it can place another protein where the DNA
-  should be.
+:::
 
 #### Further watching
 
@@ -471,100 +322,91 @@ Hassabis and John Jumper shared half of the
 </div>
 ```
 
-### From single chains to complexes
+### Confidence: pLDDT and PAE
 
-AlphaFold2 was trained on single chains, yet it can predict complexes.
+AlphaFold2's confidence measures are as important as the structure itself, and they answer two different questions:
 
-- **FoldDock** (Bryant, Pozzati & Elofsson, 2022,
-  [*Nat Commun* 13:1265](https://doi.org/10.1038/s41467-022-28865-w)):
-  paste the two sequences together, with paired and unpaired alignments,
-  and AlphaFold2 produced "models with acceptable quality (DockQ ≥ 0.23)
-  for 63% of the dimers".
-  - A score built from the interface pLDDT and the number of interface
-    contacts, **pDockQ**, predicts model quality, and identified "51% of
-    all interacting pairs at 1% FPR".
-  - DockQ (Basu & Wallner 2016,
-    [*PLoS One* 11:e0161879](https://doi.org/10.1371/journal.pone.0161879))
-    is the standard score for comparing a docked model with the true
-    complex (0 to 1; ≥ 0.23 counts as acceptable).
-- **AlphaFold-Multimer** (Evans et al., 2021,
-  [bioRxiv](https://doi.org/10.1101/2021.10.04.463034)), retrained on
-  complexes, predicted 70% of heteromeric interfaces correctly
-  (DockQ ≥ 0.23). Its interface confidence score is **ipTM**.
-- **Homomers are all or none.** For 97.5% of homomeric complexes either
-  all interfaces or none are predicted correctly (Zhu et al. 2023,
-  [*Bioinformatics* 39:btad424](https://doi.org/10.1093/bioinformatics/btad424)).
-- **Large complexes.** Assemble them from predicted sub-complexes with
-  Monte Carlo tree search: 91 of 175 complexes with 10-30 chains assembled,
-  30 of them highly accurate (Bryant et al. 2022,
-  [*Nat Commun* 13:6028](https://doi.org/10.1038/s41467-022-33729-4)).
-- **The human interactome.** Structures were predicted for 65,484 human
-  protein interactions, yielding 3,137 high-confidence models, "of which
-  1,371 have no homology to a known structure". Fewer than 5% of human
-  interactions had been structurally characterised (Burke et al. 2023,
-  [*Nat Struct Mol Biol* 30:216](https://doi.org/10.1038/s41594-022-00910-8)).
-- **Biology from predictions.** All-against-all modelling of 14
-  fertilisation proteins identified "a pentameric complex involving sperm
-  IZUMO1, SPACA6, TMEM81 and egg JUNO, CD9" at the egg-sperm fusion
-  synapse (Elofsson et al. 2024,
-  [*eLife* 13:RP93131](https://doi.org/10.7554/eLife.93131)).
+- **pLDDT** (0-100, per residue): *how trustworthy is the local structure around this residue?* Above 90 is very high, 70-90 confident, below 50 very low.
+- **PAE** (predicted aligned error, per pair of residues): *if I align the model on residue (or region) A, how certain is the position of B relative to A?* Low PAE within a domain and high PAE between two domains means that each domain may be right while their relative orientation is unknown. This matters for multi-domain proteins, flexible regions and, below, complexes.
+
+**Low pLDDT means low confidence, not necessarily disorder.** Intrinsic disorder is one common reason, but others are too little evolutionary information, several conformational states, an uncertain domain orientation, or simply the model's limits. And **confidence is not correctness**: a confidence score is the model's own estimate, learned from its training data. The second discussion problem tests how well pLDDT tracks the real error. Checking it on famous proteins is harder than it looks, because well-studied proteins are likely to have close relatives in the training data (Session 8).
+
+**In the notebook.** The AlphaFold DB model of human β-globin (mean pLDDT 97.2) matches the crystal structure 4HHB with TM-score 0.988 and RMSD 0.51 Å. For p53, 30% of the residues have pLDDT below 50. The DNA-binding domain averages 95.3, while the N-terminal transactivation region (47.6) and the C-terminus (45.8) are not confident. For p53 that low confidence matches biology, since these regions are known from experiments to be intrinsically disordered:
+
+![p53 (P04637) in the AlphaFold DB. Left: pLDDT per residue, with the DNA-binding domain shaded. Right: predicted aligned error. Only the DNA-binding domain forms a confident block.](figs/session12-p53-plddt-pae.png){width=100%}
+
+**Scale and tools.** AlphaFold predicted almost the entire human proteome (Tunyasuvunakool et al. 2021, [*Nature* 596:590](https://doi.org/10.1038/s41586-021-03828-1)), and the AlphaFold Database made predicted structures available for essentially every protein in UniProt (Varadi et al. 2024, [*NAR* 52:D368](https://doi.org/10.1093/nar/gkad1011)). **ColabFold** (Mirdita et al. 2022, [*Nat Methods* 19:679](https://doi.org/10.1038/s41592-022-01488-1)) replaced the slow alignment search with MMseqs2 and put AlphaFold in a Colab notebook. **ESMFold** predicts from a single sequence, using the ESM-2 language model (Session 11) instead of an alignment; in the notebook it predicts Ephrin-A5 in seconds with TM-score 0.941 against the crystal structure (1SHW). In 2024, Demis Hassabis and John Jumper shared half of the [Nobel Prize in Chemistry](https://www.nobelprize.org/prizes/chemistry/2024/summary/) "for protein structure prediction"; the other half went to David Baker "for computational protein design".
+
+**Known limits** (lecture). AlphaFold cannot tell whether a sequence folds at all, or how a mutation changes the structure. It may or may not find alternative conformational states. The arrangement of domains in large flexible or repeated proteins is often arbitrary. It "does not know what a membrane is". In a protein-DNA complex it can place another protein where the DNA should be.
+
+## From single chains to interactions {#sec-s12-complexes}
+
+### Complexes are harder
+
+AlphaFold2 was trained on single chains, yet it can predict complexes when the chains are given together (FoldDock; Bryant, Pozzati & Elofsson 2022, [*Nat Commun* 13:1265](https://doi.org/10.1038/s41467-022-28865-w)), and AlphaFold-Multimer (Evans et al. 2021, [bioRxiv](https://doi.org/10.1101/2021.10.04.463034)) was retrained on complexes. Four points matter:
+
+1. **Paired evolutionary information helps interfaces.** Residues in contact across an interface co-evolve too, if the alignments of the two families can be paired (which sequence interacts with which).
+2. **Interfaces need their own confidence.** AlphaFold-Multimer introduced **ipTM**, a confidence score for the interfaces; FoldDock's **pDockQ** combines the interface pLDDT with the number of interface contacts. A model is compared with the true complex using **DockQ** (0 to 1; at least 0.23 counts as acceptable).
+3. **Interface confidence is harder than chain confidence.** Each chain can be right while their relative placement is wrong, which is exactly what the PAE between chains shows.
+4. **A plausible complex is not evidence of interaction.** A structure predictor can suggest **how** two supplied molecules could interact. It does not establish **whether** they interact in the cell, or when. That is one of the most important messages of this session.
+
+Predicted complexes still lead to biology when combined with other evidence: all-against-all modelling of 14 fertilisation proteins pointed to "a pentameric complex involving sperm IZUMO1, SPACA6, TMEM81 and egg JUNO, CD9" at the egg-sperm fusion synapse (Elofsson et al. 2024, [*eLife* 13:RP93131](https://doi.org/10.7554/eLife.93131)).
+
+### The ranking problem
+
+Generating a good model has become easier than *knowing* which of your models is good: **sampling quality is not ranking quality.**
+
+- **Antibody-antigen complexes** have no coevolution between the partners. On 110 complexes unseen in training, sampling 200 models per complex raised the average DockQ of the *best* model "from below 0.3 to above 0.5", but the models' own confidence often "cannot identify the best predicted structures", so the top-ranked model is much worse than the best one (Fromm, Ludaic & Elofsson 2026, [*Bioinformatics* 42:btag136](https://doi.org/10.1093/bioinformatics/btag136)).
+- **Confidence depends on what you include.** Trimming a full-length construct to its interacting domains raises ipTM "even though the structure prediction of the interaction is unchanged"; **ipSAE** counts only residue pairs with good PAE and separates true from false complexes better (Dunbrack 2025, [bioRxiv](https://doi.org/10.1101/2025.02.10.637595)).
+
+The common thread is Session 8's lesson on a grand scale: performance on examples similar to the training data says little about genuinely new ones, and confidence scores do not always know the difference.
+
+### When can a complex prediction be trusted? A practical heuristic
+
+The lecture sorts protein interactions into four regions. This is a heuristic for thinking about when to trust a complex prediction, not an established classification:
+
+| Region | Character | Example | Current methods |
+|---|---|---|---|
+| I, tractable | Stable interfaces, strong coevolution | Obligate heterodimers (Ephrin-A5:EphB2) | Work well |
+| II, ambiguity and competition | A plausible interface is easy; the right partner or stoichiometry is hard | Proteasome paralogs; Izumo1 and its competing partners | Struggle to rank the correct partner |
+| III, missing coevolution | No joint selective pressure | Antibody-antigen, host-pathogen | AlphaFold3-class models help, partly through memorisation |
+| IV, missing context or dynamics | Transient, conditional, disordered | p53 transactivation domain binding MDM2 | Static structure prediction is the wrong tool |
+
+The lab tests this: one AlphaFold3 Server prediction per region, and a look at whether the model's confidence tracks how hard each problem really is.
 
 #### Further reading
 
 - Jumper et al. (2021), [Highly accurate protein structure prediction with AlphaFold](https://doi.org/10.1038/s41586-021-03819-2)
 - Bryant, Pozzati & Elofsson (2022), [Improved prediction of protein-protein interactions using AlphaFold2](https://doi.org/10.1038/s41467-022-28865-w)
-- Mirdita et al. (2022), [ColabFold](https://doi.org/10.1038/s41592-022-01488-1)
+- Fromm, Ludaic & Elofsson (2026), [Evaluating deep learning based structure prediction methods on antibody-antigen complexes](https://doi.org/10.1093/bioinformatics/btag136)
 
-## AlphaFold3 and generative models {#sec-s12-af3}
+## Generative structure modelling {#sec-s12-af3}
 
-### Diffusion models in one page
+### Diffusion in one page
 
-A **diffusion model** learns to generate data by learning to *remove
-noise*:
+A **diffusion model** learns to generate data by learning to remove noise:
 
-1. **Forward process:** take real data and add a little Gaussian noise
-   step by step, until nothing but noise is left. No learning is needed
-   for this.
-2. **Training:** show a network a noisy example and its step number, and
-   train it to predict the noise that was added (mean squared error).
-3. **Generation:** start from pure noise and apply the network many
-   times, removing a little noise at each step.
-
-The idea goes back to Sohl-Dickstein et al. (2015). Ho, Jain & Abbeel's
-denoising diffusion probabilistic models
-([arXiv:2006.11239](https://arxiv.org/abs/2006.11239), 2020) made it
-practical, and it is the technique behind image generators such as DALL-E.
-**Flow matching** (Lipman et al.,
-[arXiv:2210.02747](https://arxiv.org/abs/2210.02747)) learns a smooth
-velocity field that carries noise straight to data. The idea is the same,
-and it needs fewer steps. An older relative, the **variational
-autoencoder**, compresses data into a small latent space and generates by
-decoding samples from it.
+1. **Forward process:** take real data and add a little Gaussian noise step by step, until only noise is left. No learning is needed.
+2. **Training:** show a network a noisy example and its step number, and train it to predict the noise that was added.
+3. **Generation:** start from pure noise and apply the network many times, removing a little noise each step.
 
 ![Left: points on a noisy ring. Right: 1,000 points generated from pure Gaussian noise by 100 learned denoising steps, in the notebook.](figs/session12-toy-diffusion.png){width=70%}
 
-### AlphaFold3 (2024)
+The idea goes back to Sohl-Dickstein et al. (2015); Ho, Jain & Abbeel ([arXiv:2006.11239](https://arxiv.org/abs/2006.11239), 2020) made it practical, and it is behind image generators such as DALL-E. Two relatives in one sentence each: **flow matching** learns a smooth path from noise to data and needs fewer steps; a **variational autoencoder** generates by decoding samples from a learned low-dimensional space. The third discussion problem asks whether a diffusion model learns a distribution or memorises its training examples.
 
-AlphaFold3 (Abramson et al. 2024,
-[*Nature* 630:493](https://doi.org/10.1038/s41586-024-07487-w)) predicts
-"the joint structure of complexes including proteins, nucleic acids, small
-molecules, ions and modified residues". Three changes from AlphaFold2
-matter most:
+### AlphaFold3: what changed
 
-- **Pairformer:** a simpler replacement for the Evoformer, which works
-  mostly on the pair representation and much less on the MSA.
-- **Diffusion module:** instead of a structure module that moves residue
-  frames, it "directly predicts the raw atom coordinates". It starts from
-  random atom positions and denoises them, conditioned on the Pairformer's
-  output. This handles any molecule made of atoms.
-- **Everything as tokens:** residues, nucleotides and single ligand atoms.
+AlphaFold3 (Abramson et al. 2024, [*Nature* 630:493](https://doi.org/10.1038/s41586-024-07487-w)) predicts "the joint structure of complexes including proteins, nucleic acids, small molecules, ions and modified residues". Conceptually, four things changed:
 
-AlphaFold3 reported far better accuracy than docking tools for
-protein-ligand complexes, and much better antibody-antigen accuracy than
-AlphaFold-Multimer. The antibody numbers used 1,000 random seeds per
-target, so sampling matters. A diffusion model can also **hallucinate**,
-producing plausible-looking structure in regions that should be
-disordered, which the authors had to counter in training.
+- **Broader chemistry.** Its published model was designed to represent proteins, nucleic acids, ligands, ions and modified residues jointly, with residues, nucleotides and single ligand atoms all as tokens.
+- **A pair-focused trunk.** The **Pairformer** replaces the Evoformer and works mostly on the pair representation, much less on the alignment.
+- **Generative coordinates.** A **diffusion module** replaces the structure module: it starts from random atom positions and denoises them, conditioned on the trunk.
+- **All atoms at once**, which is what lets it handle any molecule made of atoms.
+
+Diffusion brings sampling into structure prediction, with two consequences: many seeds can be tried (the ranking problem above), and the model can **hallucinate** plausible-looking structure in regions that should be disordered, which the authors had to counter in training. At CASP16, "AlphaFold3 performs slightly better for protein complexes. However, when massive sampling is applied to AlphaFold2, the difference disappears" (Elofsson 2026, [*Proteins* 94:154](https://doi.org/10.1002/prot.70044)).
+
+::: {.callout-note collapse="true"}
+#### Where the field is in 2026 (optional, and will age quickly)
 
 **Open reproductions** followed quickly, because AlphaFold3 was released
 without training code:
@@ -579,50 +421,11 @@ without training code:
   [*Science* 384:eadl2528](https://doi.org/10.1126/science.adl2528)) is an
   independent architecture.
 
-**How much better is it?** At CASP16, "AlphaFold3 performs slightly better
-for protein complexes. However, when massive sampling is applied to
-AlphaFold2, the difference disappears" (Elofsson 2026,
-[*Proteins* 94:154](https://doi.org/10.1002/prot.70044)). The official
-assessment concluded that complex prediction "remains an unsolved
-challenge", with "model ranking and selection" as major bottlenecks
-(Zhang et al. 2026,
-[*Proteins* 94:106](https://doi.org/10.1002/prot.70068)).
-
-### The ranking problem
-
-Generating a good model has become easier than *knowing* which of your
-models is good.
-
-- **Antibody-antigen complexes** have no coevolution between partners to
-  learn from. On 110 complexes unseen in training, with 200 models per
-  complex, AlphaFold3 beat AlphaFold2, Boltz-1 and Chai-1. The average
-  DockQ of the best model rose "from below 0.3 to above 0.5" with more
-  samples. But AlphaFold's own confidence often "cannot identify the best
-  predicted structures", so the top-ranked model is much worse than the
-  best one. Performance also "declines significantly for complexes that
-  lack structural similarity to the training set" (Fromm, Ludaic &
-  Elofsson 2026,
-  [*Bioinformatics* 42:btag136](https://doi.org/10.1093/bioinformatics/btag136)).
-  A learned ranker, ABAG-Rank, "significantly outperforms AF3 internal
-  scoring" (Tadiello et al. 2026,
-  [*Bioinformatics* 42:btag663](https://doi.org/10.1093/bioinformatics/btag663)).
-- **ipTM depends on what you include.** Trimming a full-length construct
-  to its interacting domains raises ipTM "even though the structure
-  prediction of the interaction is unchanged". **ipSAE** counts only
-  residue pairs with good PAE and separates true from false complexes
-  better (Dunbrack 2025,
-  [bioRxiv](https://doi.org/10.1101/2025.02.10.637595)).
 - **RNA.** Ten methods were benchmarked on RNAs and RNA complexes not seen
   in training. AlphaFold3 and Boltz-1 lead, but "accuracy depends greatly
   on similarity to the training set", and the methods "recognize recurring
   motifs rather than generalize to novel RNA folds" (Ludaic & Elofsson
   2026, [*NAR* 54:gkag813](https://doi.org/10.1093/nar/gkag813)).
-
-The common thread is Session 8's lesson on a grand scale. Performance on
-examples similar to the training data says little about genuinely new
-ones, and confidence scores do not always know the difference.
-
-### After AlphaFold3: ESMFold2, IsoDDE and OpenDDE
 
 The field moves fast. Three systems from 2026 show three different ways
 of moving beyond AlphaFold3.
@@ -639,7 +442,7 @@ of moving beyond AlphaFold3.
   established methods for biomolecular complex prediction across
   benchmarks, including for the interactions of antibodies with their
   targets" (Candido et al. 2026). The notebook runs it on
-  one complex from each of the four regions below, five seeds each (figure).
+  one complex from each of the four regions above, five seeds each (figure).
   For every complex the seed with the highest ipTM is a good model
   (DockQ 0.61-0.85). For the 1996 D1.3 antibody, though, three of five
   seeds put the antibody in the wrong place. No single ipTM threshold
@@ -682,56 +485,22 @@ of moving beyond AlphaFold3.
 The contrast matters for science. Open tools such as ESMFold2, Boltz-2
 and OpenFold3 can be tested by anyone, on data they have never seen. A
 closed system can only be judged by what its owners choose to report.
-
-### Where AI structure prediction works: four regions
-
-The lecture organises all of this into four regions of protein
-interactions. Current methods mainly answer *how* two proteins could
-interact, not *whether* and *when* they do in a cell.
-
-| Region | Character | Example | Current methods |
-|---|---|---|---|
-| I, tractable | Stable interfaces, strong coevolution | Obligate heterodimers (Ephrin-A5:EphB2) | Work well |
-| II, ambiguity and competition | A plausible interface is easy; the right partner or stoichiometry is hard | Proteasome paralogs; Izumo1 and its competing partners | Struggle to rank the correct partner |
-| III, missing coevolution | No joint selective pressure | Antibody-antigen, host-pathogen | AlphaFold3-class models help, partly through memorisation |
-| IV, missing context or dynamics | Transient, conditional, disordered | p53 transactivation domain binding MDM2 | Static structure prediction is the wrong tool |
-
-The lab tests this: one AlphaFold3 Server prediction per region,
-and a look at whether the model's confidence tracks how hard each problem
-really is.
+:::
 
 ### Designing new proteins
 
-The same generative machinery runs in reverse:
+The same generative machinery runs in reverse. A typical design pipeline:
 
-- **RFdiffusion** (Watson et al. 2023,
-  [*Nature* 620:1089](https://doi.org/10.1038/s41586-023-06415-8))
-  fine-tuned RoseTTAFold to denoise protein backbones and generates new
-  ones. Hundreds of designed assemblies, metal-binding proteins and binders
-  were characterised in the lab, including a binder to influenza
-  haemagglutinin whose cryo-EM structure was "nearly identical to the
-  design model".
-- **ProteinMPNN** (Dauparas et al. 2022,
-  [*Science* 378:49](https://doi.org/10.1126/science.add2187)) designs a
-  sequence for a given backbone. On native backbones it recovers 52.4% of
-  the native sequence, against 32.9% for Rosetta.
-- **Chroma** (Ingraham et al. 2023,
-  [*Nature* 623:1070](https://doi.org/10.1038/s41586-023-06728-8))
-  generates structure and sequence together, conditioned on properties or
-  "even natural-language prompts".
-- **DiffDock** (Corso et al.,
-  [arXiv:2210.01776](https://arxiv.org/abs/2210.01776)) applies diffusion
-  to ligand docking, over translations, rotations and torsion angles.
-
-Designs are usually checked by refolding the designed sequence with
-AlphaFold2 or ESMFold and comparing it with the intended structure.
+1. **RFdiffusion** (Watson et al. 2023, [*Nature* 620:1089](https://doi.org/10.1038/s41586-023-06415-8)) generates a new backbone, for example one that binds a chosen target surface;
+2. **ProteinMPNN** (Dauparas et al. 2022, [*Science* 378:49](https://doi.org/10.1126/science.add2187)) designs a sequence for that backbone;
+3. **AlphaFold2 or ESMFold** refolds the designed sequence, to check that it folds into the intended structure;
+4. **experiments** test whether it does, and whether it works. Refolding is a computational consistency check, not experimental validation. Hundreds of RFdiffusion designs were characterised in the lab, including an influenza-haemagglutinin binder whose cryo-EM structure was "nearly identical to the design model".
 
 #### Further reading
 
 - Abramson et al. (2024), [Accurate structure prediction of biomolecular interactions with AlphaFold 3](https://doi.org/10.1038/s41586-024-07487-w)
-- Fromm, Ludaic & Elofsson (2026), [Evaluating deep learning based structure prediction methods on antibody-antigen complexes](https://doi.org/10.1093/bioinformatics/btag136)
-- Elofsson & Ben-Tal (2026), [What will be the future of computational biology for macromolecules in the era of AI?](https://doi.org/10.1371/journal.pcbi.1014467)
 - Watson et al. (2023), [De novo design of protein structure and function with RFdiffusion](https://doi.org/10.1038/s41586-023-06415-8)
+- Elofsson & Ben-Tal (2026), [What will be the future of computational biology for macromolecules in the era of AI?](https://doi.org/10.1371/journal.pcbi.1014467)
 
 #### Further watching
 
@@ -742,6 +511,11 @@ AlphaFold2 or ESMFold and comparing it with the intended structure.
 <iframe src="https://www.youtube.com/embed/firXjwZ_6KI" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="Flow-Matching vs Diffusion Models explained side by side"></iframe>
 </div>
 ```
+
+## The course in one line
+
+Alignment and evolution, plus neural networks, plus attention, plus pair representations, plus geometry: modern structure prediction. And the scientific warning that goes with it: **a model is a hypothesis with confidence estimates, not an experiment.**
+
 
 ## Check your understanding
 
@@ -791,7 +565,7 @@ renderQuiz("session12-quiz", [
       "The model was built without an alignment"
     ],
     correctIndex: 0,
-    explanation: "Low pLDDT often marks disorder, not failure. The transactivation domain folds only when bound to partners such as MDM2 (Region IV)."
+    explanation: "Low pLDDT means low confidence. For p53 it matches regions known from experiments to be disordered (the transactivation domain folds only when bound to partners such as MDM2, Region IV); for other proteins low confidence can have other causes."
   },
   {
     question: "What did AlphaFold3 change compared with AlphaFold2?",
@@ -813,7 +587,7 @@ renderQuiz("session12-quiz", [
       "DockQ is a poor measure"
     ],
     correctIndex: 0,
-    explanation: "Fromm, Ludaic and Elofsson (2026); learned rankers (ABAG-Rank) and interface-specific scores such as ipSAE address this."
+    explanation: "Fromm, Ludaic and Elofsson (2026); learned rankers and interface-specific scores such as ipSAE address this."
   },
   {
     question: "In the four-regions framework, why is an antibody-antigen complex (Region III) harder than an obligate heterodimer (Region I)?",
@@ -835,7 +609,7 @@ renderQuiz("session12-quiz", [
       "RFdiffusion designs the sequence and ProteinMPNN the backbone"
     ],
     correctIndex: 0,
-    explanation: "Designs are then usually checked by refolding the sequence with AlphaFold2 or ESMFold."
+    explanation: "Designs are then checked by refolding the sequence with AlphaFold2 or ESMFold, a computational consistency check, not experimental validation."
   },
   {
     question: "In the CheY contact maps on this page, mutual information reaches top-L precision 0.49 and DCA 0.73 from the same alignment. What does DCA do differently?",
@@ -849,17 +623,6 @@ renderQuiz("session12-quiz", [
     explanation: "If A touches B and B touches C, A and C look correlated. A global (Potts) model explains that correlation through the A-B and B-C couplings."
   },
   {
-    question: "Classical FFT docking (Katchalski-Katzir 1992, GRAMM, ZDOCK) could score millions of poses quickly. Why was docking without a template still hard?",
-    choices: [
-      "Ranking: a correct pose is usually among the candidates, but scoring functions rarely put it on top",
-      "The FFT gives wrong answers",
-      "No protein structures were known",
-      "Docking only works for DNA"
-    ],
-    correctIndex: 0,
-    explanation: "At CASP13-CAPRI only 3 of 11 difficult targets got medium- or high-quality models. The ranking problem returns with AlphaFold3."
-  },
-  {
     question: "Why is AlphaFold2's invariant point attention (IPA) built to be invariant to rotating and moving the whole protein?",
     choices: [
       "A protein's structure does not depend on where it sits in space, so the network should not waste effort learning, or be misled by, global position and orientation",
@@ -871,15 +634,26 @@ renderQuiz("session12-quiz", [
     explanation: "IPA uses distances between points attached to residue frames, which do not change under global rotations and translations."
   },
   {
-    question: "Isomorphic Labs reports that its IsoDDE engine more than doubles AlphaFold3's accuracy on protein-ligand complexes unlike the training data. How should you treat this?",
+    question: "A region of an AlphaFold2 model has pLDDT below 50. Which conclusion is justified?",
     choices: [
-      "As a claim: IsoDDE is proprietary, with no code, model or independent benchmark, so nobody else can test it on new data",
-      "As proof that AlphaFold3 is obsolete",
-      "As irrelevant, because ligands cannot be predicted",
-      "As a result that OpenDDE has reproduced"
+      "The model is not confident about that region; disorder is one common reason, but too few homologs, several conformations or an uncertain domain orientation can also cause it",
+      "The region is certainly intrinsically disordered",
+      "The region has been shown experimentally to be unstructured",
+      "The rest of the model must be wrong too"
     ],
     correctIndex: 0,
-    explanation: "OpenDDE is a pipeline of existing open tools (AlphaFold3, P2Rank, Boltz-2, ImmuneBuilder), not a reproduction of IsoDDE."
+    explanation: "pLDDT is the model's own confidence estimate. Interpreting low confidence as disorder needs independent evidence."
+  },
+  {
+    question: "AlphaFold3 returns a confident model (high ipTM) for two human proteins you submitted together. What does this establish?",
+    choices: [
+      "How the two proteins could interact, if they do; not whether they actually interact in the cell, or when",
+      "That the two proteins interact in the cell",
+      "That the interaction has been measured experimentally",
+      "That no other partner can bind either protein"
+    ],
+    correctIndex: 0,
+    explanation: "Structure predictors suggest HOW supplied molecules could fit together; WHETHER they interact needs other evidence. A model is a hypothesis with confidence estimates, not an experiment."
   }
 ]);
 </script>
@@ -887,8 +661,8 @@ renderQuiz("session12-quiz", [
 
 ## The notebook
 
-`notebooks/session12-alphafold-and-generative-models-in-code.ipynb` runs the
-computations on this page, in the same three parts:
+`notebooks/session12-alphafold-and-generative-models-in-code.ipynb` computes the
+numbers on this page:
 
 1. Contact prediction for CheY by mutual information and DCA, computed
    from an alignment, and compared with ESM-2 and AlphaFold2; 3 × 3
@@ -907,7 +681,7 @@ It runs on a CPU in a few minutes. Open it in
 **Full lab:** adapted from the previous course's AlphaFold2 lab and the
 2026 AlphaFold3 Server exercise. Your group runs one of four targets on
 the [AlphaFold Server](https://alphafoldserver.com), one per region of
-the framework on this page:
+the four-regions heuristic on this page:
 
 - Region I: Ephrin-A5 : EphB2 (1SHW);
 - Region II: Izumo1 : Juno (5F4E);
