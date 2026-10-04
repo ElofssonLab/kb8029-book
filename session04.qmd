@@ -590,7 +590,9 @@ mechanism.
 
 ## What's next
 
-Session 5 asks a different question about the same underlying problem: exact
+Sequence alignment infers corresponding residues from the sequences;
+Session 6 asks the analogous question directly in 3D, with structure
+alignment. Before that, Session 5 asks a different question about the same underlying problem: exact
 dynamic programming like Needleman-Wunsch doesn't scale to searching a
 new sequence against an entire database — that's what BLAST's heuristic
 is for. The same session then goes a step further and asks what to do

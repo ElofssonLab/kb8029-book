@@ -212,17 +212,27 @@ gives:
 
 The first four are all confident, high-quality hits — high percent
 identity, astronomically small E-values, comfortably high bit scores.
-Myoglobin is the interesting case: it shares the same globin fold and a
-real evolutionary origin with hemoglobin, but its sequence has diverged
-so far that plain BLAST gives it an E-value of 63. Even in this
-five-sequence toy database we would expect 63 alignments that good by
-chance, so the search provides no statistical evidence for the
-relationship, although myoglobin is a known remote homolog. A single
-BLAST pass cannot detect it. Note also that these
-E-values are relative to a tiny five-sequence database; the same
-alignments against the whole of GenBank would report much larger
-(less impressive-looking) E-values for the reason the formula
-predicts, even though the underlying alignments haven't changed at all.
+Myoglobin is the interesting case. It shares the globin fold and a real
+evolutionary origin with hemoglobin, yet BLAST reports only a weak
+alignment with an E-value of 63: taken at face value, no statistical
+evidence at all. But that number only evaluates the alignment BLAST
+*found*. Run the same search with the two-hit rule switched off (every
+single seed gets extended; `-window_size 0` in BLAST+) and BLAST finds a
+full-length alignment, 145 residues at 25.5% identity, with an E-value of
+5×10⁻¹¹. With the default settings no pair of seeds happened to fall
+close enough together on the right diagonal, so the good alignment was
+never extended. This is the price of a heuristic: BLAST is fast because
+it skips most of the search, and occasionally it skips the answer. An
+optimal Smith–Waterman search would not have missed it.
+
+Database size still matters too. These E-values are relative to a tiny
+five-sequence database; against a database the size of UniProtKB (about
+$9\times10^{10}$ residues) the same full-length myoglobin alignment
+would get an E-value of about 0.007 — significant, but only just.
+Relatives that have diverged further than myoglobin, such as the
+bacterial *truncated* hemoglobins, give no detectable pairwise signal at
+all, even with the optimal alignment (Session 6 shows that they still
+share the globin fold).
 
 ### Further reading
 
@@ -263,15 +273,16 @@ than BLAST at similar sensitivity. There is no machine learning
 involved, just the same seed-extend-evaluate ideas engineered for scale.
 Like PSI-BLAST below, MMseqs2 can also iterate, turning its hits into a
 profile and searching again; ColabFold uses it to build the alignments
-AlphaFold needs (Session 12).
+AlphaFold needs (Session 12). Session 6 meets its structural counterpart,
+Foldseek, from the same group.
 
 ## From one sequence to many: PSI-BLAST and the PSSM
 
-The myoglobin result above is the motivating case, and faster
-searching does not fix it: ordinary BLAST
-scores everything against one fixed substitution matrix, no matter which
-family the query belongs to, and that's why it struggles with a
-real but distant relative like myoglobin. **PSI-BLAST**
+Myoglobin sits near the edge of what a single sequence can detect, and
+more distant relatives lie beyond it. Ordinary BLAST scores everything
+against one fixed substitution matrix, no matter which family the query
+belongs to, so a faint but real family signal is easily lost against
+the background of a large database. **PSI-BLAST**
 (Position-Specific Iterated BLAST) does better by building a
 *query-specific* scoring matrix and refining it over several rounds:
 
@@ -682,9 +693,10 @@ mechanism.
 
 ## What's next
 
-Session 6 turns from sequence to structure: the four levels of protein
-structure, explored hands-on in PyMOL, and why predicting a 3D fold is so
-much harder than aligning sequences. Session 7 then returns to the
+A remote homolog can become impossible to recognize from sequence while
+its fold stays conserved. Session 6 turns to structure: the four levels
+of protein structure, explored hands-on in PyMOL, structure alignment,
+and structural search with Foldseek. Session 7 then returns to the
 weighted sum $S(x) = \sum_i w[i, x_i]$ that a PSSM computes, formalizes it
 as a **perceptron**, and shows that its weights can be *learned* from labelled
 examples by gradient descent instead of derived from alignment

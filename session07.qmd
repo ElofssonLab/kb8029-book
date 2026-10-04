@@ -20,6 +20,10 @@
 > *Me*: It's 121
 :::
 
+Session 6 gave us structural properties we would like to predict from
+sequence, secondary structure first among them. Now we start building
+the mathematical machinery for doing that.
+
 ## Learning goals
 
 By the end of this session you should be able to:

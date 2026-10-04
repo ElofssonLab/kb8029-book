@@ -203,7 +203,7 @@ with no residue above 0.11. Nobody told it about signal peptides.
 
 ### Same residue, different context: contextual embeddings
 
-In a one-hot encoding (Sessions 7-10), every leucine is the same vector, wherever it occurs. A protein language model computes each residue's vector from the whole sequence around it, a **contextual embedding**: a leucine in a signal peptide and a leucine in a cytoplasmic enzyme get different vectors. The notebook collects the ESM-2 vectors of 2,924 leucines from the first 70 residues of 450 proteins:
+In a one-hot encoding (Sessions 7-10), every leucine is the same vector, wherever it occurs. (You have met one learned representation before: in Session 6, Foldseek turned each residue's 3D environment into a letter of a learned 3Di alphabet.) A protein language model computes each residue's vector from the whole sequence around it, a **contextual embedding**: a leucine in a signal peptide and a leucine in a cytoplasmic enzyme get different vectors. The notebook collects the ESM-2 vectors of 2,924 leucines from the first 70 residues of 450 proteins:
 
 ![PCA of the ESM-2 vectors of leucines in signal peptides (orange), in cytoplasmic or nuclear proteins (blue) and in transmembrane proteins (green). In a one-hot encoding all of them would be a single point.](figs/session11-contextual-leucine.png){width=65%}
 

@@ -24,11 +24,12 @@ By the end of this session you should be able to:
 - explain at a high level what a diffusion model does and what AlphaFold3 changed;
 - say what current structure predictors cannot tell us.
 
-This session closes the course. Nearly every earlier session contributes a piece:
+In Session 6 we treated structure as the answer, and learned to inspect and compare it. Now we ask how that answer can be predicted from sequence. This session closes the course, and nearly every earlier session contributes a piece:
 
 | From | Idea used in modern structure prediction |
 |---|---|
 | Sessions 4-5 | alignments and profiles: the evolutionary record of a family |
+| Session 6 | structure comparison (TM-score), distance and contact maps, conformational states |
 | Session 7 | nonlinear models, and secondary structure from local sequence |
 | Session 8 | honest evaluation on proteins unlike the training data |
 | Session 9 | training deep networks |
@@ -41,7 +42,7 @@ The opening question: **what information is missing if we try to predict a resid
 
 ### The folding problem
 
-A protein's sequence determines its structure (Anfinsen, 1973, [*Science* 181:223](https://doi.org/10.1126/science.181.4096.223)), yet a protein cannot find that structure by trying every conformation: with even a few states per residue, a random search would take longer than the age of the universe, while real proteins fold in milliseconds to seconds (**Levinthal's paradox**, 1969). Dill & MacCallum ([*Science* 338:1042](https://doi.org/10.1126/science.1219021), 2012) summarised fifty years of work as three questions, the last of which is "can we devise a computer algorithm to predict protein structures from their sequences?"
+For many proteins the sequence determines the structure (Anfinsen, 1973, [*Science* 181:223](https://doi.org/10.1126/science.181.4096.223)), yet a protein cannot find that structure by trying every conformation: with even a few states per residue, a random search would take longer than the age of the universe, while real proteins fold in milliseconds to seconds (**Levinthal's paradox**, 1969). Dill & MacCallum ([*Science* 338:1042](https://doi.org/10.1126/science.1219021), 2012) summarised fifty years of work as three questions, the last of which is "can we devise a computer algorithm to predict protein structures from their sequences?"
 
 ### Three generations of structure prediction
 
@@ -177,7 +178,7 @@ AlphaFold2 (Jumper et al. 2021, [*Nature* 596:583](https://doi.org/10.1038/s4158
 Two representations are carried through the whole network:
 
 - the **MSA representation**: a vector for every residue of every aligned sequence;
-- the **pair representation**: a vector for every pair of residues, a learned, much richer version of the contact and distance maps above.
+- the **pair representation**: a vector for every pair of residues, a learned, much richer version of the contact and distance maps above (and of the distance map of β-globin in Session 6).
 
 The **Evoformer** updates both, many times over. Three of its operations carry the main ideas:
 

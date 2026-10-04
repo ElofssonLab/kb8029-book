@@ -185,7 +185,7 @@ The real tool, DeepLoc (Almagro Armenteros et al. 2017, [*Bioinformatics* 33:338
 
 ## Beyond sequences: a contact map is an image {#sec-s10-structure}
 
-A **contact map** is an $L \times L$ grid with one pixel per residue pair, 1 if the two residues are close in the structure (Cβ atoms within 8 Å). For hemoglobin's β chain (PDB 4HHB, Session 6):
+A **contact map** is an $L \times L$ grid with one pixel per residue pair, 1 if the two residues are close in the structure (Cβ atoms within 8 Å). You first saw this representation in Session 6. For hemoglobin's β chain (PDB 4HHB):
 
 ![Contact map of β-globin (4HHB chain B, 146 residues). The band along the diagonal is each helix contacting itself; the off-diagonal blocks are pairs of helices packed against each other. Red bars: the eight α-helices annotated in the PDB file.](figs/session10-hbb-contact-map.png){width="60%"}
 
