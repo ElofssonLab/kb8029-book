@@ -183,6 +183,16 @@ predictor), to 0.99 (the contacts in the AlphaFold2 model):
   binary contacts. They folded by minimising against them. By CASP13 most
   single-domain proteins could be predicted "quite accurately".
 
+The blind CASP assessments show how sudden the change was once contact
+maps were treated as images for deep CNNs:
+
+![Precision of the best group's top-L/5 long-range contact predictions on free-modelling targets in each CASP, from the official assessment papers (CASP10: Monastyrskyy et al. 2014; CASP11: 2016; CASP12: Schaarschmidt et al. 2018; CASP13: Shrestha et al. 2019; CASP14: Ruiz-Serra et al. 2021).](figs/session10-casp-contacts.png){width="80%"}
+
+From CASP9 to CASP11 (2010-2014), precision stayed around 20-27%. It
+reached 47% in CASP12 (2016) and more than 70% in CASP13 (2018). In
+CASP14 contact precision stopped improving: AlphaFold2 made contacts a
+by-product of predicting the whole 3D structure directly.
+
 ### Fifty years of docking
 
 Docking asks how two proteins of known structure fit together. It
