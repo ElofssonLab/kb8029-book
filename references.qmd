@@ -48,7 +48,6 @@ commercial use. Every page names which of them it used.
 - Altschul SF, Gish W, Miller W, et al. (1990). Basic local alignment search tool. J Mol Biol 215(3):403-410. [doi:10.1016/S0022-2836(05)80360-2](https://doi.org/10.1016/S0022-2836(05)80360-2). PMID 2231712. *Cited in:* [Setup](setup.qmd), [Session 5](session05.qmd).
 - Altschul SF, Madden TL, Schäffer AA, et al. (1997). Gapped BLAST and PSI-BLAST: a new generation of protein database search programs. Nucleic Acids Res 25(17):3389-3402. [doi:10.1093/nar/25.17.3389](https://doi.org/10.1093/nar/25.17.3389). PMID 9254694. *Cited in:* [Session 5](session05.qmd).
 - Anfinsen CB (1973). Principles that Govern the Folding of Protein Chains. Science 181:223-230. [doi:10.1126/science.181.4096.223](https://doi.org/10.1126/science.181.4096.223). PMID:4124164. *Cited in:* [Session 12](session12.qmd).
-- Apweiler R, Bairoch A, Wu CH, et al. (2004). UniProt: the Universal Protein knowledgebase. Nucleic Acids Research 32(Database issue):D115-D119. [doi:10.1093/nar/gkh131](https://doi.org/10.1093/nar/gkh131). PMID:14681372. *Cited in:* [Session 3](session03.qmd).
 - Avsec Ž, Agarwal V, Visentin D et al. (2021). Effective gene expression prediction from sequence by integrating long-range interactions. Nat Methods 18:1196-1203. [doi:10.1038/s41592-021-01252-x](https://doi.org/10.1038/s41592-021-01252-x). PMID:34608324. *Cited in:* [Session 10](session10.qmd).
 - Baek M, DiMaio F, Anishchenko I et al. (2021). Accurate prediction of protein structures and interactions using a three-track neural network. Science 373:871-876. [doi:10.1126/science.abj8754](https://doi.org/10.1126/science.abj8754). PMID:34282049. *Cited in:* [Session 12](session12.qmd).
 - Bahdanau D, Cho K, Bengio Y (2014). Neural Machine Translation by Jointly Learning to Align and Translate. arXiv:1409.0473 (ICLR 2015). [doi:10.48550/arXiv.1409.0473](https://doi.org/10.48550/arXiv.1409.0473). *Cited in:* [Session 11](session11.qmd).
@@ -409,6 +408,7 @@ Wikipedia articles, textbook chapters, tutorials and videos suggested on each pa
 - NCBI. About RefSeq. <https://www.ncbi.nlm.nih.gov/refseq/about/>
 - NCBI. GenBank overview. <https://www.ncbi.nlm.nih.gov/genbank/>
 - NCBI. RefSeq FAQ. <https://www.ncbi.nlm.nih.gov/books/NBK50679/>
+- UniProt help: Protein existence (the five evidence levels used in every UniProtKB entry). CC BY 4.0. <https://www.uniprot.org/help/protein_existence>
 - Wikipedia. Accession number (bioinformatics). <https://en.wikipedia.org/wiki/Accession_number_(bioinformatics>) <https://en.wikipedia.org/wiki/Accession_number_(bioinformatics)>
 - Wikipedia. Biological database. <https://en.wikipedia.org/wiki/Biological_database>
 - Wikipedia. BioRxiv. <https://en.wikipedia.org/wiki/BioRxiv>
