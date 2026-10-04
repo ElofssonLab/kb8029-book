@@ -17,7 +17,7 @@ By the end of this session you should be able to:
 
 Sessions 7, 8 and 9 form one progression. Session 7 asked **what a neural network can represent**. Session 8 asked **how we know whether a model generalizes**. This session asks **how we actually train a network, and why training sometimes succeeds and sometimes fails**.
 
-The starting point is concrete. In Session 8 we built a network, but its weights were random, so its predictions were no better than chance. We had labelled examples, so how do we turn the random weights into useful predictions? Here, we try to answers that question. We will be using four different datasets: breast-cancer biopsies (the training loop), a protein fitness landscape (why training fails, and when a hidden layer pays off), Session 8's protein localization (when a network is too large for its data), and MNIST digits in the lab.
+The starting point is concrete. In Session 8 we built a network, but its weights were random, so its predictions were no better than chance. We had labelled examples, so how do we turn the random weights into useful predictions? Here, we try to answer that question. We will be using four different datasets: breast-cancer biopsies (the training loop), a protein fitness landscape (why training fails, and when a hidden layer pays off), Session 8's protein localization (when a network is too large for its data), and blood-cell images in the lab.
 
 ## From an untrained network to a trained network {#sec-s09-trained}
 
@@ -40,6 +40,12 @@ On the test set the trained network reaches accuracy 0.953, MCC 0.900 and AUROC 
 Gradient descent (Session 1, Session 7) needs $\partial L / \partial w$, the slope of the loss, for **every** weight. For a single layer that was easy. But what about a weight buried several layers inside a network, whose effect on the loss passes through every later layer?
 
 ![A tiny network: two inputs, one tanh hidden unit $h$, one sigmoid output $\hat y$, and the loss $L$. The forward pass (grey) computes the prediction and the loss. The backward pass (red) applies the chain rule from the loss back towards the inputs: $\partial L/\partial \hat y$ is computed once and reused for $w_3$, then multiplied by $\partial \hat y/\partial h$ and reused for $w_1$ and $w_2$.](figs/session09-backprop.png){width="90%"}
+
+For $w_1$, the chain rule multiplies the local slopes along the path from the loss back to the weight:
+
+$$
+\frac{\partial L}{\partial w_1} = \frac{\partial L}{\partial \hat y}\;\frac{\partial \hat y}{\partial h}\;\frac{\partial h}{\partial w_1}
+$$
 
 **Backpropagation is an efficient application of the chain rule, from the loss backwards through the network.** Each layer's "error signal" is computed once and reused for all the weights feeding into it, so the cost of all the gradients is about the same as one forward pass. Without that reuse, networks with thousands or millions of weights could not be trained.
 
@@ -122,47 +128,30 @@ The training loop always runs; it does not always learn. Here are three common f
 ### Failure 2: deep sigmoid networks, and vanishing gradients
 
 - **Observation.** A network with six hidden layers of sigmoid units, trained with plain SGD, does not learn at all: its validation MAE stays around 0.48, the error of predicting the mean. The same network with tanh (0.321) or ReLU (0.312) learns.
-- **Why?** Backpropagation multiplies one activation *derivative* per layer, and sigmoid's derivative is at most 0.25 (and almost 0 when the unit saturates). Even in the best case, six layers multiply the gradient by $0.25^6 \approx 0.00024$, so the first layer gets at least 4,000 times less gradient than the last. In practice it is worse: most units are not at the steepest point, and the weights shrink the gradient further. In a freshly initialized six-layer sigmoid network, the first layer's gradient is about **ten million times smaller** than the last layer's; for tanh and ReLU the ratio is a few hundred to two thousand. The first layers barely move.
-- **Fix.** ReLU-like activations; initialization scaled to each layer's size; standardized inputs; normalization layers such as batch normalization (Ioffe & Szegedy, 2015); and modern architectures. Adaptive optimizers also help: the same sigmoid network trained with Adam, which rescales small gradients ([see below](#sec-s09-adam)), does learn (0.291).
+- **Why?** Backpropagation multiplies one activation *derivative* per layer, and sigmoid's derivative is at most 0.25. Even in the best case, six layers multiply the gradient by $0.25^6 \approx 0.00024$. Measured in the freshly initialized network, the first layer's gradient is about **ten million times smaller** than the last layer's (for tanh and ReLU: a few hundred to two thousand times). The first layers barely move.
+- **Fix.** Change what the gradient has to pass through: ReLU-like activations, initialization scaled to each layer's size, standardized inputs, normalization layers such as batch normalization (Ioffe & Szegedy, 2015), and, in later sessions, residual connections. Adam (below) gets the sigmoid network to 0.291 by enlarging the tiny steps, but that is a workaround, not a cure: the gradients still vanish.
 
 ![Derivatives of sigmoid, tanh and ReLU. Sigmoid's is at most 0.25 (at $z = 0$) and below 0.01 by $|z| = 6$. Tanh's peaks at 1 but also vanishes in both tails. ReLU's is exactly 0 or exactly 1.](figs/session09-activation-derivatives.png){width="65%"}
 
-ReLU never shrinks the gradient for positive inputs and is cheap to compute, so it is the default for hidden layers. Its weakness is the flat side: a unit whose input is negative for every example gets no gradient and never recovers ("dying ReLU"; the first discussion problem). **Leaky ReLU** and **GELU** keep a small slope there. Sigmoid remains standard for a binary *output*.
-
-::: {.callout-tip}
-#### The same problem comes back, three more times
-
-Whenever a gradient has to pass through many multiplications, it can vanish (or explode). You will meet it again:
-
-- **Very deep CNNs (Session 10).** Even with ReLU and batch normalization, plain networks deeper than about 20 layers trained *worse* than shallower ones. ResNet (2015) added **residual connections**: each block adds its output to its input, $x + f(x)$, so the signal and the gradient always have a direct path through the network.
-- **Recurrent networks (Session 11).** An RNN applies the same weights at every position, so the gradient is multiplied by the same factor once per step through the sequence. **LSTM** gates were invented to give it a protected path.
-- **Transformers (Session 11).** Dozens of blocks deep, they use residual connections and layer normalization in every block, for the same reason.
-:::
+ReLU (Session 8) never shrinks the gradient for positive inputs, which is why it is the default for hidden layers; its flat side can leave a unit with no gradient at all ("dying ReLU", the first discussion problem). The problem comes back in very deep CNNs (Session 10), recurrent networks and Transformers (Session 11), and each of those sessions shows the architectural fix.
 
 ### Failure 3: the optimizer and the learning rate
 
 - **Observation.** The same 64/64 network reaches a validation MAE of 0.250 with Adam (learning rate 0.001), but only 0.305 with plain SGD in the same 20 epochs. With Adam and a learning rate of 0.1, the error jumps around and never gets below 0.298.
-- **Why?** The learning rate sets the step size of gradient descent (Session 1). Too small is slow; too large overshoots the minimum. Adam averages the recent gradients and adapts the step size for each weight; the next subsection explains why that helps.
+- **Why?** The learning rate sets the step size of gradient descent (Session 1). Too small is slow; too large overshoots the minimum. And plain SGD uses the same step size for every weight; Adam does not (next subsection).
 - **Fix.** Start with Adam and a learning rate around $10^{-3}$, and always watch the validation curve.
 
 ### Momentum and Adam: why an optimizer can beat plain SGD {#sec-s09-adam}
 
-Plain SGD takes each step straight down the gradient of the current mini-batch, with the same learning rate for every weight. That works badly when the loss surface is a long, narrow valley, which is common in networks because some weights affect the loss far more than others. The gradient then points mostly *across* the valley: a learning rate large enough to make progress *along* the valley makes SGD zigzag from wall to wall or blow up, and a safe one crawls along the valley floor. Two ideas fix this.
+Plain SGD takes each step straight down the gradient of the current mini-batch. In a long, narrow valley of the loss, which is common because some weights affect the loss far more than others, that gradient points mostly *across* the valley. A learning rate large enough to make progress *along* the valley makes SGD zigzag from wall to wall; a safe one crawls.
 
-- **Momentum.** Step along a running average of the recent gradients instead of the latest one, like a heavy ball rolling downhill. Across the valley, successive gradients point in opposite directions and cancel; along the valley they agree and add up. Averaging also smooths out the noise of individual mini-batches.
-- **A step size for each weight.** Divide each weight's step by the typical size of its own recent gradients. A weight whose gradients are tiny (the gentle direction of the valley, or an early layer of a deep sigmoid network) gets a larger step; a weight whose gradients are large gets a smaller one.
+- **SGD** follows the current gradient.
+- **Momentum** follows an average of the recent gradients, like a heavy ball rolling downhill: directions that agree from step to step add up, and the zigzag across the valley cancels out.
+- **Adam** (Kingma & Ba, 2015) combines momentum with a separate step size for every weight, scaled to the size of that weight's recent gradients. Its default learning rate of $10^{-3}$ works for many networks.
 
-**Adam** (Kingma & Ba, 2015) combines the two. For every weight it keeps an average of the gradient $g$ (the momentum, $m$) and an average of $g^2$ ($s$, which measures the gradient's typical size), and updates
+![Three optimizers, 60 steps each, on a valley 100 times steeper across ($w_2$) than along ($w_1$). SGD zigzags and then crawls (loss 0.09 after 60 steps); momentum (0.0004) and Adam (0.006) reach the minimum.](figs/session09-optimizers.png){width="100%"}
 
-$$m \leftarrow \beta_1 m + (1-\beta_1)\,g, \qquad s \leftarrow \beta_2 s + (1-\beta_2)\,g^2, \qquad w \leftarrow w - \eta\,\frac{m}{\sqrt{s} + \epsilon}$$
-
-with $\beta_1 = 0.9$, $\beta_2 = 0.999$ and a tiny $\epsilon$ that avoids dividing by zero (Adam also corrects $m$ and $s$ for starting at zero). Because $m/\sqrt{s}$ is roughly $\pm 1$ when the gradients are consistent, every weight moves by about the learning rate $\eta$, whatever the scale of its gradient. That is why one default, $\eta = 10^{-3}$, works for many networks, and why Adam rescued the deep sigmoid network of Failure 2.
-
-![Three optimizers on a valley that is 100 times steeper across ($w_2$) than along ($w_1$), 60 steps each. SGD, with the largest learning rate it tolerates, first zigzags across the valley and then crawls along it (loss 0.09 after 60 steps). Momentum (loss 0.0004) and Adam (0.006) both reach the minimum. Adam heads for it from the first step, because it takes equal steps in both directions.](figs/session09-optimizers.png){width="100%"}
-
-Adam is a good default, not a law. In the figure, well-tuned momentum ends even lower than Adam, and for some image networks plain SGD with momentum still generalizes slightly better. On the GB1 network, Adam reached a validation MAE of 0.250 against 0.305 for plain SGD in the same 20 epochs. The lab asks you to run this comparison yourself and explain the result.
-
-The lab repeats all of these on the blood-cell images of the Session 8 lab, and adds the comparison of loss functions: *change one thing, see what happens, explain why*.
+Adam is a good default, not a universal winner: in the figure, tuned momentum ends even lower, and which optimizer wins depends on the learning rate and the training time. The lab repeats all three failures on blood-cell images, including this comparison: *change one thing, see what happens, explain why*.
 
 ## When a hidden layer pays off: epistasis in a protein {#sec-s09-epistasis}
 
@@ -213,11 +202,20 @@ Training works, since every number is far above chance. But **the linear model i
 
 - **More data.** The most reliable fix, and often the only one that really helps.
 - **A smaller model, or a better architecture.** Fewer weights for the same input. Session 10's convolutional network needs 19,237 weights instead of 192,389.
-- **Early stopping.** Keep the weights from the epoch with the best validation score. It costs nothing and is used throughout this course.
+- **Early stopping.** Keep the weights from the epoch with the best validation score ([below](#sec-s09-early)).
 - **Weight decay (L2) and L1 regularization.** Add a penalty for large weights to the loss ([below](#sec-s09-l1l2)).
 - **Dropout.** Randomly switch off a fraction of the units in every training step, so the network cannot rely on any single unit ([below](#sec-s09-dropout)).
 
 Applied to the localization network, dropout and weight decay do *not* beat early stopping alone (best validation accuracy 0.476 against 0.486). Training accuracy still reaches 1.000 whatever we do: with 192,389 weights and 486 examples the network can always memorize. Regularization is not a substitute for enough data.
+
+### Early stopping: when to stop training {#sec-s09-early}
+
+The two curves of a training run answer two different questions:
+
+- **The training loss tells you whether optimization is working.** If it does not fall, something in the previous sections is wrong (initialization, gradients, learning rate).
+- **The validation loss tells you whether further optimization still helps generalization.** When it stops falling while the training loss keeps going down, the network has started to fit the training set rather than the problem.
+
+For the breast-cancer biopsies the validation loss levels off after about 50 epochs while the training loss keeps falling (the first figure of this page). For protein localization, training accuracy reaches 1.000 within a few epochs, while validation accuracy peaks at 0.486 in epoch 5 and then falls. **Early stopping** keeps the weights from the epoch with the best validation score. It costs nothing and is used in every training loop of this course. Because the epoch is chosen on the validation set, only the test set, used once, gives an honest estimate (Session 8).
 
 ### Penalizing large weights: L2 and L1 {#sec-s09-l1l2}
 
@@ -236,21 +234,17 @@ For linear regression the two have their own names, **ridge** (L2) and **lasso**
 
 With $\lambda$ chosen on the validation set, L2 keeps all 30 weights (test accuracy 0.965), while L1 keeps only **6** (test accuracy 0.942), led by the largest tumour radius and the number of concave points on the cell nuclei: almost the same accuracy, with a model a pathologist can read. When features are many and examples few, as in gene-expression data with 20,000 genes and a few hundred patients, that is often the main reason to use L1. The third discussion problem checks the same effect by hand.
 
-### Dropout: training many thinned networks at once {#sec-s09-dropout}
+### Dropout {#sec-s09-dropout}
 
-**Dropout** (Srivastava et al. 2014, [*JMLR* 15:1929-1958](https://jmlr.org/papers/v15/srivastava14a.html)) switches off each hidden unit with probability $p$ (often 0.2-0.5), a fresh random choice for every mini-batch. The switched-off units output zero, and nothing flows back through them in that step.
+**Dropout** (Srivastava et al. 2014, [*JMLR* 15:1929-1958](https://jmlr.org/papers/v15/srivastava14a.html)) switches off each hidden unit with probability $p$ (often 0.2-0.5), a fresh random choice for every mini-batch.
 
-![Dropout with $p = 0.5$. In every training step a different random set of hidden units is switched off, so each step trains a different thinned network. At test time every unit is on.](figs/session09-dropout.png){width="100%"}
+![Dropout with $p = 0.5$. In every training step a different random set of hidden units is switched off. At test time every unit is on.](figs/session09-dropout.png){width="100%"}
 
-Why should damaging the network during training help?
+Why should damaging the network help? **No unit can count on its partners.** Without dropout, units can form fragile combinations that fit the quirks of the training set; with dropout, any partner may be missing in the next step, so the information gets spread over many units.
 
-- **No unit can count on its partners.** Without dropout, units can develop fragile combinations that only work together and fit the quirks of the training set. With dropout, any partner may be missing in the next step, so each unit has to learn something useful on its own, and the information gets spread over many units.
-- **A cheap ensemble.** Every step trains a different thinned network, all sharing the same weights. A network with 64 hidden units has $2^{64}$ possible thinned versions. At test time the full network behaves roughly like the average of all of them, and an average of many models overfits less than any one of them.
-- **Noise, like augmentation.** Data augmentation (Session 10) perturbs the *inputs* so the network learns what should not matter; dropout perturbs the *hidden units*.
+**Training mode and evaluation mode.** Dropout is only for training; at evaluation time all units are used (PyTorch scales the surviving units by $1/(1-p)$ during training, so nothing else needs to change). `model.train()` switches dropout on and `model.eval()` switches it off, which is why every training loop in this course calls both. Forget `model.eval()`, and the same input gives a different prediction every time; the notebook shows it.
 
-**Training mode and evaluation mode.** Dropout is only for training. To keep the expected input to the next layer the same, PyTorch multiplies the surviving units by $1/(1-p)$ during training, so at test time the full network can be used unchanged. `model.train()` switches dropout (and batch normalization's training behaviour) on, and `model.eval()` switches it off. That is why every training loop in this course calls both. Forget `model.eval()`, and the same input gives a different prediction every time; the notebook shows it.
-
-Does it help? On GB1, dropout 0.2 raises the training error a little (MAE 0.212 → 0.220) and lowers the test error a little (0.254 → 0.247; test $R^2$ 0.787 → 0.798): exactly the narrowing of the gap between training and test that a regularizer should give. On the localization network, with 192,389 weights and 486 proteins, it does not beat early stopping. Dropout is most useful in large fully connected layers: AlexNet (Session 10) used it in its two big fully connected layers, the small CNN of Session 10 uses it before its last layer, and Transformers (Session 11) use small rates throughout.
+On GB1, dropout 0.2 raises the training error a little (MAE 0.212 → 0.220) and lowers the test error a little (0.254 → 0.247): the gap narrows, as a regularizer should make it. On the localization network it does not beat early stopping.
 
 ## Is the improvement real? {#sec-s09-real}
 
@@ -391,15 +385,26 @@ renderQuiz("session09-quiz", [
     explanation: "The learning rate is the step size of gradient descent: too large overshoots, too small is slow. Around 0.001 is a good starting point for Adam."
   },
   {
-    question: "In a six-layer sigmoid network, the first layer's gradients are about ten million times smaller than the last layer's. Plain SGD barely changes the first layer, but Adam trains the network. Why?",
+    question: "A six-layer sigmoid network does not learn because its first layer gets ten million times less gradient than its last. Which change attacks the cause rather than the symptom?",
     choices: [
-      "Adam divides each weight's step by the typical size of that weight's recent gradients, so weights with tiny gradients still take steps of about the learning rate",
-      "Adam computes the gradients more accurately than backpropagation",
-      "Adam replaces the sigmoid activations with ReLU during training",
-      "Adam uses a larger learning rate for every weight"
+      "Replacing sigmoid with ReLU (or adding normalization or residual connections), so the gradient is no longer multiplied by a small derivative in every layer",
+      "Switching from SGD to Adam, which enlarges the tiny steps but leaves the gradients vanishing",
+      "Training for more epochs with the same settings",
+      "Using a larger test set"
     ],
     correctIndex: 0,
-    explanation: "Adam keeps, for each weight, an average of its gradient and of its squared gradient, and steps by m / sqrt(s). That ratio is about 1 whatever the gradient's scale, so the vanishing gradients of the early layers are scaled back up."
+    explanation: "Vanishing gradients are a property of what the gradient passes through; the fixes are ReLU-like activations, scaled initialization, normalization and residual connections. Momentum and Adam address slow or noisy optimization; Adam's per-weight step sizes can mask the problem, not remove it."
+  },
+  {
+    question: "During training, the training loss keeps falling while the validation loss has stopped falling and starts to rise. What does this tell you, and what does early stopping do?",
+    choices: [
+      "Optimization still works, but the network now fits the training set rather than the problem; early stopping keeps the weights from the epoch with the best validation score",
+      "The learning rate is too small; early stopping increases it",
+      "The training data are mislabelled; early stopping removes them",
+      "The network has converged perfectly; early stopping is not needed"
+    ],
+    correctIndex: 0,
+    explanation: "Training loss answers 'is optimization working?'; validation loss answers 'does more optimization still help generalization?'. When they diverge, keep the best-validation weights, and judge them once on the test set."
   },
   {
     question: "With the penalty strength chosen on the validation set, L2 logistic regression on the 30 biopsy features keeps all 30 weights, while L1 keeps only a handful, at almost the same test accuracy. Why does L1 produce exact zeros?",
