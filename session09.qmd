@@ -162,7 +162,7 @@ Adam is a good default, not a universal winner: in the figure, tuned momentum en
 Trained with early stopping on 20,000 variants (5,000 for validation, 20,000 for testing):
 
 | Model                       | Weights | Train MAE | Val MAE | Test MAE | **Test** $R^2$ |
-|-----------------------------|---------|-----------|---------|----------|----------------|
+|-----------------|-----------|-----------|-----------|-----------|-----------|
 | Linear (additive)           | 81      | 0.379     | 0.371   | 0.385    | **0.496**      |
 | 64/64                       | 9,409   | 0.212     | 0.250   | 0.254    | **0.787**      |
 | 64/64 + weight decay (10⁻³) | 9,409   | 0.215     | 0.241   | 0.249    | 0.795          |
