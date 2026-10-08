@@ -32,6 +32,14 @@ introduced by Schneider & Stephens (1990), *Nucleic Acids Research*
 
 # Session 4: Sequence Alignment
 
+::: {.callout-tip icon="false"}
+## Homology
+
+> Two sequences walk into a bar. The bartender asks: "Are you two related?"
+>
+> They answer: "Depends on your gap penalty."
+:::
+
 ## Learning goals
 
 By the end of this session you should be able to explain why sequence

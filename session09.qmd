@@ -4,6 +4,12 @@
 
 # Session 9: How a Neural Network Learns, and Why Training Fails
 
+::: {.callout-tip icon="false"}
+## Generalization
+
+> I have a machine learning joke, but it doesn't perform as well on a new audience.
+:::
+
 ## Learning goals
 
 By the end of this session you should be able to:

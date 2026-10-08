@@ -5,7 +5,7 @@
 # Session 8: Machine Learning Foundations & Practical PyTorch
 
 ::: {.callout-tip icon="false"}
-## A fast learner
+## Overfitting
 
 > Why did the deep learning model refuse to attend the party?
 >

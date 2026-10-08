@@ -28,6 +28,12 @@ fetched live while writing this page (2026-09-18) — see the notebook.
 
 # Session 5: Advanced Database Search & Profile Methods
 
+::: {.callout-tip icon="false"}
+## Profile drift
+
+> PSI-BLAST is like social media: after a few iterations, everything it finds agrees with it.
+:::
+
 ## Learning goals
 
 By the end of this session you should be able to explain why exact

@@ -10,6 +10,12 @@ assumed from a folder name).
 
 # Capstone: Secondary Structure Prediction Project {.unnumbered}
 
+::: {.callout-tip icon="false"}
+## Tertiary structure
+
+> **Why are tertiary structures selfish?** Because the amino acids are all wrapped up in themselves.
+:::
+
 ## Framing
 
 This project is not a new topic. It's the same problem posed

@@ -4,6 +4,12 @@
 
 # Session 10: CNNs, and How They Took Over Biology
 
+::: {.callout-tip icon="false"}
+## Translation
+
+> **Why did the CNN fail its language exam?** It was only translation-equivariant.
+:::
+
 ## Learning goals
 
 By the end of this session you should be able to:
@@ -29,7 +35,7 @@ Every model so far gives every input position its own weight: 3,000 weights per 
 A **convolutional layer** slides a small **kernel** (say 3 × 3 pixels, or 7 residues), *the same weights*, across every position. Its number of weights does not depend on the input length. One layer of each kind on the localization data (150 residues × 20 amino acids):
 
 | Layer | Weights | Count |
-|------------------|------------------|------------------|
+|------------------------|------------------------|------------------------|
 | Dense, 3,000 inputs → 64 units | inputs × outputs + biases | 3,000 × 64 + 64 = **192,064** |
 | Convolution, 20 channels → 32 filters, kernel 7 | kernel × input channels × filters + biases | 7 × 20 × 32 + 32 = **4,512** |
 
@@ -119,7 +125,7 @@ The notebook pretends we have only **40 labelled tiles per class** for training 
 - **Transfer learning** is what the field actually did: keep the layers of a network trained on millions of images frozen, as a feature extractor, and train only a new last layer. ResNet-18 never saw a tissue tile, yet its features match the augmented CNN.
 - **Validation from the same slides, test from new patients.** Every model scores clearly higher on validation than on test, because validation tiles share patients, staining runs and scanner with the training tiles. This is Session 8's homology trap again: when examples come in groups (proteins in families, tiles in patients), the honest split is by group.
 
-::: {.callout-note}
+::: callout-note
 #### Transfer learning from very large image collections
 
 A network trained on a huge image collection has learned features that are useful for a new task with few labels. DINOv2 (Oquab et al. 2023, [arXiv:2304.07193](https://arxiv.org/abs/2304.07193)) was trained on 142 million images *without any labels* (self-supervised), and its features still work best on tissue it has never seen. Such reusable models are called **foundation models**; Session 11 shows the same recipe for proteins.
@@ -175,7 +181,6 @@ Nobody told the network about signal peptides: it found a detector for their hyd
 **But position matters in proteins.** Convolution assumes that a pattern can be *detected* the same way everywhere, not that it *means* the same thing everywhere. A hydrophobic stretch at the N-terminus is a signal peptide; in the middle of a protein it may be a transmembrane helix, and some targeting signals sit specifically at the C-terminus. Global average pooling throws away *where* the filter fired: our network only knows that a hydrophobic stretch occurred somewhere. **If signal peptides matter at the N-terminus, what has the network lost, and how could you give it back?** Later layers, positional features or position-aware pooling are options; Session 11's models, which read the sequence in order and encode position explicitly, return to signal peptides in depth.
 
 The real tool, DeepLoc (Almagro Armenteros et al. 2017, [*Bioinformatics* 33:3387](https://pubmed.ncbi.nlm.nih.gov/29036616/)), puts convolutions first and a bidirectional LSTM with attention (Session 11) after them: the order-aware part restores position.
-
 
 #### Further reading
 

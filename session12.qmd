@@ -4,6 +4,12 @@
 
 # Session 12: AlphaFold and Generative Models of Protein Structure
 
+::: {.callout-tip icon="false"}
+## A solved problem
+
+> Protein folding was a 50-year-old problem. Then AlphaFold solved it, and created 200 million new ones.
+:::
+
 ## Learning goals
 
 By the end of this session you should be able to:

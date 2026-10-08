@@ -4,6 +4,12 @@
 
 # Session 3: Biological Databases
 
+::: {.callout-tip icon="false"}
+## Naming things
+
+> **Why do databases trust accession numbers more than gene names?** Ask the gene *Pokemon*, renamed *Zbtb7* in 2005 after Pokémon's owners objected.
+:::
+
 ## Learning goals
 
 By the end of this session you should be able to:

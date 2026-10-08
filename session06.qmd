@@ -63,6 +63,14 @@ classifications were fetched live from the PDBe and InterPro APIs.
 
 # Session 6: Protein Structure
 
+::: {.callout-tip icon="false"}
+## Tense and relaxed
+
+> Hemoglobin walks into a bar. The bartender says: "You look tense."
+>
+> Hemoglobin: "Give me some oxygen and I'll relax."
+:::
+
 ## Learning goals
 
 By the end of this session you should be able to:

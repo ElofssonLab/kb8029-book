@@ -4,6 +4,12 @@
 
 # Session 0: Introduction to the Course {.unnumbered}
 
+::: {.callout-tip icon="false"}
+## Reproducibility
+
+> **How many bioinformaticians does it take to change a light bulb?** One, but first they write a pipeline for it, and then it only works on their own laptop.
+:::
+
 ## What this course is about
 
 KB8029 brings two subjects together: **bioinformatics**, the computational analysis of biological sequences and structures, and **machine learning**, in particular the neural networks behind today's methods. They are not taught as two separate halves. The classical bioinformatics methods motivate the machine learning, and the machine learning is applied to the same biological problems.
