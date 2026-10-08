@@ -161,7 +161,7 @@ candidates and keeping the largest. The figure shows this for cell
 $V(1,1)$ of a pair of 13- and 12-residue sequences, with a gap penalty
 of $g=1$:
 
-![](figs/session04-cell-fill.png){width=90%}
+![Filling one cell, $V(1,1)$, of the dynamic-programming matrix: all three candidates are computed and the largest is kept (gap penalty $g=1$).](figs/session04-cell-fill.png){#fig-session04-cell-fill width=90%}
 
 Every other cell is filled in the same way, and only the numbers that go
 into the three candidates change. **Worked example.** The following case
@@ -171,14 +171,16 @@ $= -1$ and gap $= -1$:
 
 |       |   | G  | A  | C  |
 |---|---|---|---|---|
-|       | 0 | -1 | -2 | -3 |
-| **G** | -1 | 1 | 0 | -1 |
-| **C** | -2 | 0 | 0 | 1 |
-| **A** | -3 | -1 | 1 | 0 |
-| **T** | -4 | -2 | 0 | 0 |
+|       | **0** | -1 | -2 | -3 |
+| **G** | -1 | **1** | 0 | -1 |
+| **C** | -2 | **0** | 0 | 1 |
+| **A** | -3 | -1 | **1** | 0 |
+| **T** | -4 | -2 | 0 | **0** |
 
-Tracing back from the bottom-right corner (score 0) gives the optimal
-global alignment:
+: The dynamic-programming matrix for aligning $x = \texttt{GCAT}$ with $y = \texttt{GAC}$ (match $+1$, mismatch $-1$, gap $-1$). The traceback path of the optimal alignment is in bold. {#tbl-s04-gcat-gac}
+
+Tracing back from the bottom-right corner (score 0) along the cells in
+bold in @tbl-s04-gcat-gac gives the optimal global alignment:
 
 ```
 G C A T
@@ -192,7 +194,7 @@ The same procedure works at the scale where it is actually used. The
 figure below shows two protein sequences of 12 and 13 residues, with the
 completed matrix and its full traceback path highlighted:
 
-![](figs/session04-nw-traceback.png){width=95%}
+![The completed Needleman-Wunsch matrix for two protein sequences of 12 and 13 residues, with the traceback path highlighted.](figs/session04-nw-traceback.png){#fig-session04-nw-traceback width=95%}
 
 This algorithm, **Needleman-Wunsch**, produces a *global* alignment, in
 which the entire length of both sequences is forced into the result,
@@ -245,7 +247,7 @@ are scattered and break up the shared "QQW" motif, and once with an
 affine penalty (bottom pair), where the gaps are consolidated into
 contiguous stretches and "QQW" stays together:
 
-![](figs/session04-gap-penalty.png){width=90%}
+![The same two sequences aligned with a linear gap penalty (top pair) and with an affine gap penalty (bottom pair).](figs/session04-gap-penalty.png){#fig-session04-gap-penalty width=90%}
 
 ### Further reading
 
@@ -348,7 +350,7 @@ identical except for sequence 4, their pairwise Hamming-distance matrix,
 and the resulting guide tree. Sequence 4 merges in only at the very last
 step, which reflects how clearly it differs from the other four.
 
-![](figs/session04-guidetree-worked-example.png){width=90%}
+![A guide tree for five toy sequences: the pairwise Hamming distances and the resulting order of merges.](figs/session04-guidetree-worked-example.png){#fig-session04-guidetree-worked-example width=90%}
 
 A guide tree is only an *ordering device* for the alignment and not
 necessarily a phylogenetic tree. It is usually built by a quick method
@@ -380,7 +382,7 @@ does not. A tree is read as follows:
 The notebook uses these ideas to build a tree of α-globin, β-globin and
 myoglobin from human, mouse and chicken:
 
-![A gene tree of nine globins (neighbour joining on the fraction of differing residues in pairwise BLOSUM62 alignments, midpoint-rooted). Red squares: gene duplications, where both branches contain the same species; the copies below them are paralogs. Blue circles: speciations; the copies are orthologs.](figs/session04-globin-tree.png){width=85%}
+![A gene tree of nine globins (neighbour joining on the fraction of differing residues in pairwise BLOSUM62 alignments, midpoint-rooted). Red squares: gene duplications, where both branches contain the same species; the copies below them are paralogs. Blue circles: speciations; the copies are orthologs.](figs/session04-globin-tree.png){#fig-session04-globin-tree width=85%}
 
 This tree is a **gene tree**, and comparing it with the **species tree**
 (in which chicken branched off before human and mouse) tells the two
@@ -447,7 +449,7 @@ The logo of the Pfam globin family, 73 globins from bacteria, plants,
 worms, insects and vertebrates, shows how few positions are conserved
 across the whole family:
 
-![Sequence logo of the Pfam Globin (PF00042) seed alignment: 73 sequences, 141 columns. Stack height is the information content in bits; letter height is the residue's frequency. Colours by chemistry: hydrophobic black, polar green, basic blue, acidic red, amide purple. The three labelled columns are numbered as in human beta-globin (HBB, mature chain).](figs/session04-globin-logo.png){width=100%}
+![Sequence logo of the Pfam Globin (PF00042) seed alignment: 73 sequences, 141 columns. Stack height is the information content in bits; letter height is the residue's frequency. Colours by chemistry: hydrophobic black, polar green, basic blue, acidic red, amide purple. The three labelled columns are numbered as in human beta-globin (HBB, mature chain).](figs/session04-globin-logo.png){#fig-session04-globin-logo width=100%}
 
 Only two columns are identical in all 73 sequences. One is **His92**
 (F8, the "proximal" histidine, whose side chain binds the haem iron), and

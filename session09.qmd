@@ -31,11 +31,11 @@ We start with a problem on which training works well. The **Wisconsin breast-can
 
 Training the network means repeating one cycle over and over:
 
-![The training cycle. The network turns inputs into predictions; the loss measures how wrong they are compared with the labels; backpropagation computes the gradient of the loss with respect to every weight; the optimiser updates the weights. The same five lines of PyTorch (right) do this for every mini-batch, in every epoch.](figs/session09-training-cycle.png){width="100%"}
+![The training cycle. The network turns inputs into predictions; the loss measures how wrong they are compared with the labels; backpropagation computes the gradient of the loss with respect to every weight; the optimiser updates the weights. The same five lines of PyTorch (right) do this for every mini-batch, in every epoch.](figs/session09-training-cycle.png){#fig-session09-training-cycle width="100%"}
 
 Before training, the network's predicted probabilities all sit close to 0.5, so the network is guessing (validation accuracy 0.659, roughly the share of benign biopsies). After 100 passes through the training data, the benign biopsies are pushed towards 0 and the malignant ones towards 1:
 
-![Left: training and validation loss per epoch. Both fall quickly; after about 50 epochs the validation loss stops improving while the training loss keeps falling, and we keep the weights from the epoch with the lowest validation loss (early stopping). Right: predicted probability of malignancy for the 85 validation biopsies, before and after training.](figs/session09-bc-training.png){width="100%"}
+![Left: training and validation loss per epoch. Both fall quickly; after about 50 epochs the validation loss stops improving while the training loss keeps falling, and we keep the weights from the epoch with the lowest validation loss (early stopping). Right: predicted probability of malignancy for the 85 validation biopsies, before and after training.](figs/session09-bc-training.png){#fig-session09-bc-training width="100%"}
 
 On the test set the trained network reaches an accuracy of 0.953, an MCC of 0.900 and an AUROC of 0.984. Only 2 benign biopsies are called malignant, and only 2 malignant ones are missed.
 
@@ -45,7 +45,7 @@ On the test set the trained network reaches an accuracy of 0.953, an MCC of 0.90
 
 Gradient descent (Session 1, Session 7) needs $\partial L / \partial w$, the slope of the loss, for **every** weight. For a single layer that was easy. But what about a weight buried several layers inside a network, whose effect on the loss passes through every later layer? The tiny network below shows how backpropagation answers this question.
 
-![A tiny network: two inputs, one tanh hidden unit $h$, one sigmoid output $\hat y$, and the loss $L$. The forward pass (grey) computes the prediction and the loss. The backward pass (red) applies the chain rule from the loss back towards the inputs: $\partial L/\partial \hat y$ is computed once and reused for $w_3$, then multiplied by $\partial \hat y/\partial h$ and reused for $w_1$ and $w_2$.](figs/session09-backprop.png){width="90%"}
+![A tiny network: two inputs, one tanh hidden unit $h$, one sigmoid output $\hat y$, and the loss $L$. The forward pass (grey) computes the prediction and the loss. The backward pass (red) applies the chain rule from the loss back towards the inputs: $\partial L/\partial \hat y$ is computed once and reused for $w_3$, then multiplied by $\partial \hat y/\partial h$ and reused for $w_1$ and $w_2$.](figs/session09-backprop.png){#fig-session09-backprop width="90%"}
 
 For $w_1$, the chain rule multiplies the local slopes along the path from the loss back to the weight:
 
@@ -99,7 +99,7 @@ $$
 
 that is, its *surprise* in the language of Session 1. Averaged over a dataset, cross-entropy is the negative log-likelihood, so minimising it is the same as maximum likelihood (Session 1).
 
-![Cross-entropy as a function of the probability given to the true class. A confident correct answer costs almost nothing; a confident mistake costs a lot.](figs/session09-cross-entropy.png){width="60%"}
+![Cross-entropy as a function of the probability given to the true class. A confident correct answer costs almost nothing; a confident mistake costs a lot.](figs/session09-cross-entropy.png){#fig-session09-cross-entropy width="60%"}
 
 Cross-entropy punishes a confident mistake far more than hedging. A probability of 0.9 on the true class costs 0.105, but a probability of 0.01 costs 4.6, over 40 times more. This is what pushes a classifier to separate the classes, as in the right panel of the breast-cancer figure. In PyTorch, `nn.BCEWithLogitsLoss` (for two classes) and `nn.CrossEntropyLoss` (for more classes) combine the sigmoid or log-softmax with this loss in one numerically stable step, so the model outputs raw logits (Session 8). The notebook checks both by hand. The lab compares cross-entropy with the mean squared and mean absolute error for the same blood-cell classifier, and cross-entropy trains best.
 
@@ -123,7 +123,7 @@ Cross-entropy is built from the relative entropy (Kullback-Leibler divergence) o
 
 The training loop always runs, but it does not always learn. This section shows three common failures. Each is produced by changing one thing in a network that predicts the fitness of protein variants, using the GB1 data of @sec-s09-epistasis (20,000 training variants, each described by the one-hot encoding of four residues). We measure the validation error as the mean absolute error (MAE) of the predicted $\log_{10}$ fitness. As reference points, predicting the training mean for every variant gives an MAE of 0.488, and a working 64/64 network reaches 0.250 within 20 epochs.
 
-![Four experiments. (1) Gradient size per layer in a freshly initialised network with six hidden layers: with sigmoid, the first layer receives about ten million times less gradient than the last. (2) Starting every weight at the same value. (3) Six hidden layers with sigmoid, tanh or ReLU, trained with plain gradient descent (SGD), and sigmoid trained with Adam. (4) Optimiser and learning rate. The dotted line is the error of predicting the mean.](figs/session09-training-failures.png){width="100%"}
+![Four experiments. (1) Gradient size per layer in a freshly initialised network with six hidden layers: with sigmoid, the first layer receives about ten million times less gradient than the last. (2) Starting every weight at the same value. (3) Six hidden layers with sigmoid, tanh or ReLU, trained with plain gradient descent (SGD), and sigmoid trained with Adam. (4) Optimiser and learning rate. The dotted line is the error of predicting the mean.](figs/session09-training-failures.png){#fig-session09-training-failures width="100%"}
 
 ### Failure 1: every weight starts the same
 
@@ -137,7 +137,7 @@ The training loop always runs, but it does not always learn. This section shows 
 - **Why?** Backpropagation multiplies one activation *derivative* per layer, and the derivative of the sigmoid is at most 0.25. Even in the best case, six layers therefore multiply the gradient by $0.25^6 \approx 0.00024$. Measured in the freshly initialised network, the first layer's gradient is about **ten million times smaller** than the last layer's (for tanh and ReLU, a few hundred to two thousand times). The first layers barely move.
 - **Fix.** Change what the gradient has to pass through. The options are ReLU-like activations, initialisation scaled to each layer's size, standardised inputs, normalisation layers such as batch normalisation (Ioffe & Szegedy, 2015), and, in later sessions, residual connections. Adam (below) gets the sigmoid network to 0.291 by enlarging the tiny steps, but that is a workaround, not a cure, because the gradients still vanish.
 
-![Derivatives of sigmoid, tanh and ReLU. Sigmoid's is at most 0.25 (at $z = 0$) and below 0.01 by $|z| = 6$. Tanh's peaks at 1 but also vanishes in both tails. ReLU's is exactly 0 or exactly 1.](figs/session09-activation-derivatives.png){width="65%"}
+![Derivatives of sigmoid, tanh and ReLU. Sigmoid's is at most 0.25 (at $z = 0$) and below 0.01 by $|z| = 6$. Tanh's peaks at 1 but also vanishes in both tails. ReLU's is exactly 0 or exactly 1.](figs/session09-activation-derivatives.png){#fig-session09-activation-derivatives width="65%"}
 
 ReLU (Session 8) never shrinks the gradient for positive inputs, which is why it is the default for hidden layers. Its flat side, however, can leave a unit with no gradient at all ("dying ReLU", the first discussion problem). Vanishing gradients come back in very deep CNNs (Session 10), recurrent networks and Transformers (Session 11), and each of those sessions shows the architectural fix.
 
@@ -155,7 +155,7 @@ Plain SGD takes each step straight down the gradient of the current mini-batch. 
 - **Momentum** follows an average of the recent gradients, like a heavy ball rolling downhill. Directions that agree from step to step add up, and the zigzag across the valley cancels out.
 - **Adam** (Kingma & Ba, 2015) combines momentum with a separate step size for every weight, scaled to the size of that weight's recent gradients. Its default learning rate of $10^{-3}$ works for many networks.
 
-![Three optimisers, 60 steps each, on a valley 100 times steeper across ($w_2$) than along ($w_1$). SGD zigzags and then crawls (loss 0.09 after 60 steps); momentum (0.0004) and Adam (0.006) reach the minimum.](figs/session09-optimizers.png){width="100%"}
+![Three optimisers, 60 steps each, on a valley 100 times steeper across ($w_2$) than along ($w_1$). SGD zigzags and then crawls (loss 0.09 after 60 steps); momentum (0.0004) and Adam (0.006) reach the minimum.](figs/session09-optimizers.png){#fig-session09-optimizers width="100%"}
 
 Adam is a good default, not a universal winner. In the figure, tuned momentum ends even lower, and which optimiser wins depends on the learning rate and the training time. The lab repeats all three failures on blood-cell images, including this comparison, with one rule: *change one thing, see what happens, explain why*.
 
@@ -175,11 +175,13 @@ We train the models with early stopping on 20,000 variants, with 5,000 for valid
 | 64/64 + dropout 0.2         | 9,409   | 0.220     | 0.242   | 0.247    | 0.798          |
 | 256/256                     | 86,785  | 0.193     | 0.252   | 0.259    | 0.779          |
 
-![Training (dashed) and validation (solid) MAE per epoch, for the additive model and the 64/64 network.](figs/session09-gb1-curves.png){width="70%"}
+: Models trained on the GB1 fitness data. {#tbl-s09-gb1}
+
+![Training (dashed) and validation (solid) MAE per epoch, for the additive model and the 64/64 network.](figs/session09-gb1-curves.png){#fig-session09-gb1-curves width="70%"}
 
 The network explains about 79% of the variance in fitness, against 50% for the additive model. Weight decay and dropout help a little, and a network ten times larger does not help further.
 
-![Left and middle: predicted against measured $\log_{10}$ fitness for the 20,000 test variants (colour: how many variants fall in each hexagon). The additive model compresses the predictions into a narrow band and misses the fit variants; the network follows the diagonal. Right: test $R^2$ against the number of training variants.](figs/session09-gb1-epistasis.png){width="100%"}
+![Left and middle: predicted against measured $\log_{10}$ fitness for the 20,000 test variants (colour: how many variants fall in each hexagon). The additive model compresses the predictions into a narrow band and misses the fit variants; the network follows the diagonal. Right: test $R^2$ against the number of training variants.](figs/session09-gb1-epistasis.png){#fig-session09-gb1-epistasis width="100%"}
 
 **The network needs data to learn the interactions.** With 500 training variants the two models are equally good ($R^2$ 0.43 against 0.41). The interactions exist, but there are too few examples to learn them. From a few thousand variants on, the network pulls away (0.72 at 5,000, 0.82 at 60,000), while the additive model is stuck at about 0.49, however much data it gets. No amount of data lets a sum represent an interaction.
 
@@ -189,7 +191,7 @@ This is Session 7's lesson, now on real biological data. A hidden layer can repr
 
 If larger networks can represent more, why not always use an enormous one? Session 8's protein-localisation network answers that question. It has 3000 inputs (150 residues, one-hot), a hidden layer of 64 units and 5 outputs, **192,389 weights** in all, and it is trained on only **486 proteins** of the homology-aware split.
 
-![Training and validation accuracy of the localisation network per epoch. Training accuracy reaches 1.0 within a few epochs; validation accuracy peaks at 0.486 (epoch 5) and then falls.](figs/session09-localization-overfitting.png){width="65%"}
+![Training and validation accuracy of the localisation network per epoch. Training accuracy reaches 1.0 within a few epochs; validation accuracy peaks at 0.486 (epoch 5) and then falls.](figs/session09-localization-overfitting.png){#fig-session09-localization-overfitting width="65%"}
 
 Training accuracy reaches **1.000**, so the network memorises every training protein. Validation accuracy, in contrast, peaks at **0.486** after five epochs and then *falls*, to 0.438 by epoch 29. This is **overfitting** in its plainest form. With far more freedom than data, the network learns the idiosyncrasies of the training sequences instead of the general signal.
 
@@ -201,6 +203,8 @@ Moreover, the simple baseline wins, as the test set (used once) shows:
 | Macro F1 | 0.124 | 0.493 | — |
 | MCC | −0.027 | 0.394 | **0.461** |
 | Macro AUROC | 0.474 | 0.831 | **0.849** |
+
+: The localisation classifier: the untrained network of Session 8, the trained network and logistic regression. {#tbl-s09-localisation}
 
 Training works, since every number is far above chance, but **the linear model is better**. Before believing that a bigger model is better, always compare it against a simple baseline.
 
@@ -238,7 +242,7 @@ $$
 
 For linear regression the two have their own names, **ridge** (L2) and **lasso** (L1). The notebook fits both to the 30 features of the breast-cancer biopsies of @sec-s09-trained. It uses logistic regression, so that every feature has exactly one weight:
 
-![Logistic regression on the 30 biopsy features. Left and middle: every line is one feature's weight as the penalty gets stronger (to the right). Right: the number of non-zero weights (solid) and the validation accuracy (dotted).](figs/session09-l1-l2.png){width="100%"}
+![Logistic regression on the 30 biopsy features. Left and middle: every line is one feature's weight as the penalty gets stronger (to the right). Right: the number of non-zero weights (solid) and the validation accuracy (dotted).](figs/session09-l1-l2.png){#fig-session09-l1-l2 width="100%"}
 
 With $\lambda$ chosen on the validation set, L2 keeps all 30 weights (test accuracy 0.965), while L1 keeps only **6** (test accuracy 0.942). The six are led by the largest tumour radius and the number of concave points on the cell nuclei. L1 thus gives almost the same accuracy with a model that a pathologist can read. When features are many and examples few, as in gene-expression data with 20,000 genes and a few hundred patients, this is often the main reason to use L1. The third discussion problem checks the same effect by hand.
 
@@ -246,7 +250,7 @@ With $\lambda$ chosen on the validation set, L2 keeps all 30 weights (test accur
 
 **Dropout** (Srivastava et al. 2014, [*JMLR* 15:1929-1958](https://jmlr.org/papers/v15/srivastava14a.html)) switches off each hidden unit with probability $p$ (often 0.2-0.5), with a fresh random choice for every mini-batch.
 
-![Dropout with $p = 0.5$. In every training step a different random set of hidden units is switched off. At test time every unit is on.](figs/session09-dropout.png){width="100%"}
+![Dropout with $p = 0.5$. In every training step a different random set of hidden units is switched off. At test time every unit is on.](figs/session09-dropout.png){#fig-session09-dropout width="100%"}
 
 Why should damaging the network help? The answer is that **no unit can count on its partners.** Without dropout, units can form fragile combinations that fit the quirks of the training set. With dropout, any partner may be missing in the next step, so the information is spread over many units.
 
@@ -263,6 +267,8 @@ Session 8's rules apply to every comparison in this session. Choices (epochs, si
 | Breast cancer | 398 | 513 | 0.78 | tie (CV accuracy 0.979 vs. 0.979) |
 | GB1 fitness | 20,000 | 9,409 | 2.1 | **network** (test $R^2$ 0.787 vs. 0.496) |
 | Protein localisation | 486 | 192,389 | 0.003 | **linear** (test accuracy 0.514 vs. 0.569) |
+
+: The three datasets of this session side by side. {#tbl-s09-datasets}
 
 - **Breast cancer:** the network trains well, but a linear model is just as good, because the problem is nearly additive.
 - **GB1 fitness:** the network clearly wins, because the relationship is non-additive (epistasis) and there are enough data to learn it.

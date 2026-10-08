@@ -117,6 +117,8 @@ computational problem:
 | **Tertiary** | the 3D fold of one chain | structure comparison, prediction | this session; Session 12 |
 | **Quaternary** | several chains packed together | interfaces, complexes | this session; Session 12 |
 
+: The four levels of protein structure and where they appear in the course. {#tbl-s06-levels}
+
 - An **α-helix** is a coil held together by hydrogen bonds between the
   backbone N-H and C=O groups of residues four apart. A **β-sheet** is
   built from extended **β-strands** that are hydrogen-bonded edge to
@@ -143,7 +145,7 @@ helix ends.
 
 ![PDB entry `2HHB`, human deoxyhaemoglobin: two α chains (blue/cyan),
 two β chains (salmon/pink), four haem iron atoms (orange spheres).
-Rendered from the real structure with PyMOL.](figs/session06-hemoglobin-tetramer.png){width=85%}
+Rendered from the real structure with PyMOL.](figs/session06-hemoglobin-tetramer.png){#fig-session06-hemoglobin-tetramer width=85%}
 
 ### Does the sequence determine the structure?
 
@@ -185,7 +187,7 @@ Middle: the distance map. Right: the contact map, with the eight
 α-helices of the PDB file as red bars. The band along the diagonal is
 each helix in contact with itself (local interactions); the
 off-diagonal stripes are helices packed against each other (long-range
-interactions).](figs/session06-hbb-distance-map.png){width=100%}
+interactions).](figs/session06-hbb-distance-map.png){#fig-session06-hbb-distance-map width=100%}
 
 This representation returns twice later in the course. First, an $L
 \times L$ map looks like an image, which is why image-processing
@@ -241,6 +243,8 @@ five proteins, ranging from a close paralog to an unrelated fold:
 | truncated haemoglobin N (*M. tuberculosis*, 1IDR) | 16% | 28 (49) | 0% | 0.57 |
 | GFP (jellyfish, 1EMA) | 6% | 25 (50) | — | 0.33 |
 
+: Five proteins compared with β-globin, by sequence and by structure. {#tbl-s06-globins}
+
 \*Identity over the structurally aligned residues. "Sequence-only score"
 is the best Smith–Waterman alignment with BLOSUM62, and the number in
 brackets is the highest score among 200 alignments against shuffled
@@ -288,7 +292,7 @@ of intramolecular distances agree.
 
 ![Distance maps of β-globin, human myoglobin and GFP. The first two are
 almost indistinguishable although only a quarter of their residues are
-identical; GFP's β-barrel gives a completely different pattern.](figs/session06-distance-maps-compared.png){width=100%}
+identical; GFP's β-barrel gives a completely different pattern.](figs/session06-distance-maps-compared.png){#fig-session06-distance-maps-compared width=100%}
 
 The analogy with sequence alignment is direct:
 
@@ -310,6 +314,8 @@ does the same for structures:
 |---|---|---|
 | Sequence (Session 5) | BLAST, MMseqs2 | the amino-acid sequence |
 | Structure (this session) | Foldseek | a "structural sequence" |
+
+: Searching by sequence and by structure. {#tbl-s06-search}
 
 The key idea of Foldseek is a change of representation. For each
 residue, Foldseek looks at the local 3D environment (the geometry

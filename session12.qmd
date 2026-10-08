@@ -33,6 +33,8 @@ In Session 6 we treated structure as the answer, and we learned to inspect and c
 | Session 10 | pairwise maps treated as images, residual networks, invariance |
 | Session 11 | attention and protein language models |
 
+: Where the ideas of modern structure prediction come from in this course. {#tbl-s12-ideas}
+
 The session starts from one question: **what information is missing if we try to predict a residue's structure from its local sequence alone?** The answer is the contacts and interactions with residues far away in the sequence. The rest of the session is therefore about where this long-range information comes from, how AlphaFold2 learned to use it, and what we can trust in the result.
 
 ## Where does long-range structural information come from? {#sec-s12-af1}
@@ -59,11 +61,11 @@ The second generation found this long-range information in evolution. If two res
 
 The figure shows this progress on one protein, the bacterial response regulator CheY, using an alignment of 11,084 homologs. For each method, the 128 highest-scoring residue pairs (L = 128, the length of the protein) are plotted over the true contacts. Precision rises from 0.49 (mutual information) to 0.73 (DCA), 0.89 (a deep-learning contact predictor) and 0.99 (the contacts in the AlphaFold2 model):
 
-![Contact prediction for CheY (PDB 3CHY), computed in the notebook. Upper triangle: each method's 128 highest-scoring residue pairs (sequence separation of at least 6), blue if the pair is a true contact, red if not. Lower triangle, grey: the true contacts (Cβ atoms within 8 Å). The deep-learning panel uses the contact head of the ESM-2 language model (650M parameters), a stand-in for the contact predictors of 2017-2019, whose software no longer installs. Mutual information's false positives cluster in blocks, from phylogeny and conservation; DCA's are scattered.](figs/session12-contact-progress.png){width="100%"}
+![Contact prediction for CheY (PDB 3CHY), computed in the notebook. Upper triangle: each method's 128 highest-scoring residue pairs (sequence separation of at least 6), blue if the pair is a true contact, red if not. Lower triangle, grey: the true contacts (Cβ atoms within 8 Å). The deep-learning panel uses the contact head of the ESM-2 language model (650M parameters), a stand-in for the contact predictors of 2017-2019, whose software no longer installs. Mutual information's false positives cluster in blocks, from phylogeny and conservation; DCA's are scattered.](figs/session12-contact-progress.png){#fig-session12-contact-progress width="100%"}
 
 The next step was from contacts to **distances**. AlphaFold 1 (Senior et al. 2020, [*Nature* 577:706](https://doi.org/10.1038/s41586-019-1923-7)) and trRosetta (Yang et al. 2020, [*PNAS* 117:1496](https://doi.org/10.1073/pnas.1914677117)) predicted distance distributions between residue pairs with deep residual networks, and they folded proteins by minimising against these distributions. The blind CASP assessments show how sudden the change was:
 
-![Precision of the best group's top-L/5 long-range contact predictions on free-modelling targets in each CASP, from the official assessment papers (CASP10: Monastyrskyy et al. 2014; CASP11: 2016; CASP12: Schaarschmidt et al. 2018; CASP13: Shrestha et al. 2019; CASP14: Ruiz-Serra et al. 2021).](figs/session10-casp-contacts.png){width="80%"}
+![Precision of the best group's top-L/5 long-range contact predictions on free-modelling targets in each CASP, from the official assessment papers (CASP10: Monastyrskyy et al. 2014; CASP11: 2016; CASP12: Schaarschmidt et al. 2018; CASP13: Shrestha et al. 2019; CASP14: Ruiz-Serra et al. 2021).](figs/session10-casp-contacts.png){#fig-session10-casp-contacts width="80%"}
 
 From CASP9 to CASP11 (2010-2014), contact precision stayed around 20-27%. It then reached 47% in CASP12 (2016) and more than 70% in CASP13 (2018). In CASP14, AlphaFold2 made contacts a by-product of predicting the whole structure directly.
 
@@ -115,7 +117,7 @@ AlphaFold2 (Jumper et al. 2021, [*Nature* 596:583](https://doi.org/10.1038/s4158
 
 ### The data flow
 
-![The data flow of AlphaFold2, simplified. Inputs are embedded into an MSA representation and a pair representation, which the Evoformer updates many times, each informing the other. A geometry-aware structure module turns them into 3D coordinates with confidence scores, and the whole network is run again on its own outputs (recycling).](figs/session12-af2-simple.png){width="100%"}
+![The data flow of AlphaFold2, simplified. Inputs are embedded into an MSA representation and a pair representation, which the Evoformer updates many times, each informing the other. A geometry-aware structure module turns them into 3D coordinates with confidence scores, and the whole network is run again on its own outputs (recycling).](figs/session12-af2-simple.png){#fig-session12-af2-simple width="100%"}
 
 AlphaFold2 carries two representations through the whole network:
 
@@ -135,7 +137,7 @@ In short, AlphaFold2 kept the ingredients of the second generation (alignments, 
 ::: {.callout-note collapse="true"}
 #### For reference: AlphaFold2 in detail
 
-![AlphaFold2's architecture, drawn for this course after Jumper et al. (2021). (a) The whole network. (b) The operations of one Evoformer block, in the order they are applied.](figs/session12-af2-architecture.png){width="100%"}
+![AlphaFold2's architecture, drawn for this course after Jumper et al. (2021). (a) The whole network. (b) The operations of one Evoformer block, in the order they are applied.](figs/session12-af2-architecture.png){#fig-session12-af2-architecture width="100%"}
 
 The numbers below are from the paper and its Supplementary Information.
 
@@ -207,7 +209,7 @@ A predicted structure is only useful if we know how far to trust it. AlphaFold2'
 
 **In the notebook.** The AlphaFold DB model of human β-globin (mean pLDDT 97.2) matches the crystal structure 4HHB with TM-score 0.988 and RMSD 0.51 Å. For p53, 30% of the residues have pLDDT below 50. The DNA-binding domain averages 95.3, while the N-terminal transactivation region (47.6) and the C-terminus (45.8) are not confident. For p53 that low confidence matches biology, since these regions are known from experiments to be intrinsically disordered:
 
-![p53 (P04637) in the AlphaFold DB. Left: pLDDT per residue, with the DNA-binding domain shaded. Right: predicted aligned error. Only the DNA-binding domain forms a confident block.](figs/session12-p53-plddt-pae.png){width="100%"}
+![p53 (P04637) in the AlphaFold DB. Left: pLDDT per residue, with the DNA-binding domain shaded. Right: predicted aligned error. Only the DNA-binding domain forms a confident block.](figs/session12-p53-plddt-pae.png){#fig-session12-p53-plddt-pae width="100%"}
 
 **Scale and tools.** AlphaFold predicted almost the entire human proteome (Tunyasuvunakool et al. 2021, [*Nature* 596:590](https://doi.org/10.1038/s41586-021-03828-1)), and the AlphaFold Database made predicted structures available for essentially every protein in UniProt (Varadi et al. 2024, [*NAR* 52:D368](https://doi.org/10.1093/nar/gkad1011)). **ColabFold** (Mirdita et al. 2022, [*Nat Methods* 19:679](https://doi.org/10.1038/s41592-022-01488-1)) replaced the slow alignment search with MMseqs2 and put AlphaFold in a Colab notebook. **ESMFold** predicts from a single sequence, using the ESM-2 language model (Session 11) instead of an alignment. In the notebook it predicts Ephrin-A5 in seconds, with TM-score 0.941 against the crystal structure (1SHW). In 2024, Demis Hassabis and John Jumper shared half of the [Nobel Prize in Chemistry](https://www.nobelprize.org/prizes/chemistry/2024/summary/) "for protein structure prediction", and the other half went to David Baker "for computational protein design".
 
@@ -246,6 +248,8 @@ How, then, can we decide when to trust a complex prediction? The lecture sorts p
 | III, missing coevolution | No joint selective pressure | Antibody-antigen, host-pathogen | AlphaFold3-class models help, partly through memorisation |
 | IV, missing context or dynamics | Transient, conditional, disordered | p53 transactivation domain binding MDM2 | Static structure prediction is the wrong tool |
 
+: Four regions of protein-protein interactions, by how well current methods handle them (a heuristic). {#tbl-s12-regions}
+
 The lab tests this heuristic. Each group makes one AlphaFold3 Server prediction per region and checks whether the model's confidence tracks how hard each problem really is.
 
 #### Further reading
@@ -264,7 +268,7 @@ The newest structure predictors are generative models, and most of them are buil
 2.  **Training.** A network is shown a noisy example and its step number, and it is trained to predict the noise that was added.
 3.  **Generation.** Starting from pure noise, the network is applied many times, and each step removes a little noise.
 
-![Left: points on a noisy ring. Right: 1,000 points generated from pure Gaussian noise by 100 learned denoising steps, in the notebook.](figs/session12-toy-diffusion.png){width="70%"}
+![Left: points on a noisy ring. Right: 1,000 points generated from pure Gaussian noise by 100 learned denoising steps, in the notebook.](figs/session12-toy-diffusion.png){#fig-session12-toy-diffusion width="70%"}
 
 The idea goes back to Sohl-Dickstein et al. (2015). Ho, Jain & Abbeel ([arXiv:2006.11239](https://arxiv.org/abs/2006.11239), 2020) made it practical, and it is behind image generators such as DALL-E. Two relatives deserve one sentence each. **Flow matching** learns a smooth path from noise to data and needs fewer steps. A **variational autoencoder** generates data by decoding samples from a learned low-dimensional space. The third discussion problem asks whether a diffusion model learns a distribution or memorises its training examples.
 
@@ -301,7 +305,7 @@ The field moves fast, and three systems from 2026 show three different ways of m
 
 - **ESMFold2** (Candido et al. 2026, [bioRxiv](https://doi.org/10.64898/2026.06.03.729735); Biohub; MIT licence, open weights). It joins a large protein language model, ESMC (the successor to Session 11's ESM-2), to an AlphaFold3-style diffusion structure module, and the whole model has about 6.6 billion parameters. The original ESMFold was built for single chains, whereas ESMFold2 predicts complexes of proteins, nucleic acids and ligands, from single sequences or with an optional alignment. The authors report that it "exceeds the performance of established methods for biomolecular complex prediction across benchmarks, including for the interactions of antibodies with their targets" (Candido et al. 2026). The notebook runs it on one complex from each of the four regions above, with five seeds each (figure). For every complex, the seed with the highest ipTM is a good model (DockQ 0.61-0.85). For the 1996 D1.3 antibody, however, three of five seeds put the antibody in the wrong place. Moreover, no single ipTM threshold separates right from wrong across complexes, since correct Fab : MHC-I models (ipTM 0.73) score below wrong D1.3 models (0.78).
 
-  ![ESMFold2 on one complex per region, five seeds each, scored with DockQ against the crystal structure (0.23 acceptable, 0.49 medium, 0.80 high). Left: all seeds; the bar marks the seed with the highest ipTM. Right: ipTM against DockQ. These are well-known complexes; p53 : MDM2 has been in the PDB since 1996, so a good model here does not show that Region IV is solved.](figs/session12-esmfold2-regions.png)
+  ![ESMFold2 on one complex per region, five seeds each, scored with DockQ against the crystal structure (0.23 acceptable, 0.49 medium, 0.80 high). Left: all seeds; the bar marks the seed with the highest ipTM. Right: ipTM against DockQ. These are well-known complexes; p53 : MDM2 has been in the PDB since 1996, so a good model here does not show that Region IV is solved.](figs/session12-esmfold2-regions.png){#fig-session12-esmfold2-regions}
 
 - **IsoDDE**, the Isomorphic Labs Drug Design Engine (Isomorphic Labs 2026, [technical report](https://doi.org/10.5281/zenodo.19699685)), is proprietary and comes from DeepMind's drug-discovery sister company. The company claims:
 

@@ -27,7 +27,7 @@ The whole session answers two questions:
 
 Session 10's CNNs share local detectors and widen their receptive field with depth. But what if residue 10 needs information from residue 200? There are three ways to bring in such context, and this session covers the last two:
 
-![Three ways to use sequence context. A CNN unit sees only its receptive field, which grows with depth. An RNN carries a hidden state along the sequence, so context must pass through every step in between. Attention lets every position consult every other directly, with learned weights.](figs/session11-context.png){width="100%"}
+![Three ways to use sequence context. A CNN unit sees only its receptive field, which grows with depth. An RNN carries a hidden state along the sequence, so context must pass through every step in between. Attention lets every position consult every other directly, with learned weights.](figs/session11-context.png){#fig-session11-context width="100%"}
 
 ## How can a model remember sequence context? {#sec-s11-rnn}
 
@@ -45,7 +45,7 @@ In the notebook, each residue $x_t$ enters as a learned **embedding** of 24 numb
 
 Carrying context through many steps has a cost during training. Training an RNN means backpropagating through every step it took (**backpropagation through time**). The gradient that reaches an early position is a product of many factors, one per step, each involving the recurrent weights and the derivative of the activation. If their effective size is repeatedly below 1, the product tends to vanish, and if it is above 1, the product can explode. This is Session 9's vanishing-gradient problem again, now along the sequence instead of through the layers. A single repeated factor shows the scale of the effect:
 
-![Repeated multiplication by a fixed factor over many recurrent steps. At 0.8 the signal shrinks to about $1.5\times10^{-6}$ after 60 steps; at 1.2 it grows to about $5.6\times10^4$.](figs/session11-vanishing-exploding.png){width="80%"}
+![Repeated multiplication by a fixed factor over many recurrent steps. At 0.8 the signal shrinks to about $1.5\times10^{-6}$ after 60 steps; at 1.2 it grows to about $5.6\times10^4$.](figs/session11-vanishing-exploding.png){#fig-session11-vanishing-exploding width="80%"}
 
 ### LSTM: an additive memory path
 
@@ -70,7 +70,9 @@ The split is homology-aware (Session 8). The proteins fall into 3,205 MMseqs2 cl
 | LSTM | 14,761 | 0.631 | 0.767 |
 | **Bidirectional LSTM** | 29,017 | **0.820** | **0.920** |
 
-![Residue-level comparison of the four models on the homology-aware test set: summary metrics (left) and precision-recall curves (right).](figs/session11-model-comparison.png){width="100%"}
+: Per-residue signal-peptide labelling on the test set. {#tbl-s11-models}
+
+![Residue-level comparison of the four models on the homology-aware test set: summary metrics (left) and precision-recall curves (right).](figs/session11-model-comparison.png){#fig-session11-model-comparison width="100%"}
 
 **Why does reading both directions help so much?** Think of residue 3, in the n-region. When a forward LSTM labels it, it has seen only "M-x-x", and nothing yet of the hydrophobic h-region that identifies a signal peptide. Whether residue 3 belongs to a signal peptide is decided by what comes *after* it. The first discussion problem measures this effect. The forward LSTM mislabels 76% of the first five residues of signal peptides, and the bidirectional one only 12%. Near the cleavage site, in contrast, both err about equally often (0.20 and 0.23). The forward model also labels the N-terminus of many proteins without a signal peptide as part of one, because it cannot yet see that no h-region follows.
 
@@ -121,7 +123,7 @@ $$
 \text{Attention}(Q, K, V) = \text{softmax}\!\left(\frac{QK^\top}{\sqrt{d_k}}\right) V
 $$
 
-![Self-attention weights for a six-token toy sentence with random (untrained) projections. Each row, one query, is a probability distribution over all positions.](figs/session11-attention-heatmap.png){width="55%"}
+![Self-attention weights for a six-token toy sentence with random (untrained) projections. Each row, one query, is a probability distribution over all positions.](figs/session11-attention-heatmap.png){#fig-session11-attention-heatmap width="55%"}
 
 Unlike an RNN, attention connects any two positions in one step, however far apart they are, and it computes all positions at once. Two cautions apply. First, a high attention weight means that residue *j* contributes strongly when residue *i* is updated. It does not prove a 3D contact, and it is not by itself a biological explanation (the second discussion problem tests how much structural signal attention maps actually carry). Second, attention by itself has no idea of *order*, so "ACDE" and "EDCA" give the same set of outputs, just shuffled. The Transformer adds the order back.
 
@@ -141,7 +143,7 @@ Going further: [*How might LLMs store facts*](https://www.youtube.com/watch?v=9-
 
 Attention alone is not yet a complete model. A **Transformer** (Vaswani et al. 2017) is a stack of identical **blocks**. Each block takes one vector per token and returns one vector per token of the same size, so blocks can be stacked as deep as the budget allows.
 
-![A Transformer. Left: tokens become vectors, pass through N identical blocks, and come out as one vector per token, from which the model predicts tokens. Right: one block. This is the original (2017) arrangement; many newer models, ESM-2 among them, apply the layer normalisation before each step instead of after it.](figs/session11-transformer-block.png){width="95%"}
+![A Transformer. Left: tokens become vectors, pass through N identical blocks, and come out as one vector per token, from which the model predicts tokens. Right: one block. This is the original (2017) arrangement; many newer models, ESM-2 among them, apply the layer normalisation before each step instead of after it.](figs/session11-transformer-block.png){#fig-session11-transformer-block width="95%"}
 
 Besides self-attention, a block uses four tricks, most of which you have met before:
 
@@ -154,7 +156,7 @@ The notebook's ESM-2 has 12 blocks and 480 numbers per residue (33.5 million wei
 
 **BERT vs. GPT is one mask**, and it is the same distinction as between a forward and a bidirectional LSTM. A BERT-style encoder lets every position attend to every other position and learns by filling in masked tokens. This is fine when the whole sequence is known, as in annotation. A GPT-style decoder masks out the *future*, so each position sees only earlier ones and learns by predicting the next token. This is what lets it generate sequences:
 
-![Causal (GPT-style) attention: each token can only attend to itself and earlier tokens.](figs/session11-causal-mask.png){width="45%"}
+![Causal (GPT-style) attention: each token can only attend to itself and earlier tokens.](figs/session11-causal-mask.png){#fig-session11-causal-mask width="45%"}
 
 Protein language models such as ESM-2 are encoders, trained BERT-style, so every residue sees the whole sequence.
 
@@ -186,7 +188,7 @@ The same recipe works for proteins. There are hundreds of millions of unlabelled
 
 In a one-hot encoding (Sessions 7-10), every leucine is the same vector, wherever it occurs. (You have met one learned representation before: in Session 6, Foldseek turned the 3D environment of each residue into a letter of a learned 3Di alphabet.) A protein language model instead computes the vector of each residue from the whole sequence around it. This is a **contextual embedding**, and with it a leucine in a signal peptide and a leucine in a cytoplasmic enzyme get different vectors. To see this, the notebook collects the ESM-2 vectors of 2,924 leucines from the first 70 residues of 450 proteins:
 
-![PCA of the ESM-2 vectors of leucines in signal peptides (orange), in cytoplasmic or nuclear proteins (blue) and in transmembrane proteins (green). In a one-hot encoding all of them would be a single point.](figs/session11-contextual-leucine.png){width="65%"}
+![PCA of the ESM-2 vectors of leucines in signal peptides (orange), in cytoplasmic or nuclear proteins (blue) and in transmembrane proteins (green). In a one-hot encoding all of them would be a single point.](figs/session11-contextual-leucine.png){#fig-session11-contextual-leucine width="65%"}
 
 In one-hot encoding, every pair of these leucines has cosine similarity 1. In ESM-2, leucines inside signal peptides have a mean cosine similarity of 0.745 with each other, but only 0.633 with leucines in cytoplasmic proteins, so the vector carries information about the surroundings of the residue. This is what a classifier on top of a protein language model gets to work with, and it is probably the single most important idea of this part.
 
@@ -219,6 +221,8 @@ SignalP has been online since 1995, is one of the most used tools in bioinformat
 | SignalP 5.0 (2019) | a deep recurrent network: bidirectional LSTM + CRF (above) |
 | SignalP 6.0 (2022) | the pretrained protein language model **ProtBERT** + CRF |
 
+: SignalP versions and the models behind them. {#tbl-s11-signalp}
+
 (Nielsen et al., [*Protein Eng* 10:1](https://pubmed.ncbi.nlm.nih.gov/9051728/); Almagro Armenteros et al., [*Nat Biotechnol* 37:420](https://pubmed.ncbi.nlm.nih.gov/30778233/); Teufel et al., [*Nat Biotechnol* 40:1023](https://pubmed.ncbi.nlm.nih.gov/34980915/); history by the authors themselves in Nielsen et al. 2024.)
 
 **What changed when a representation pretrained on huge unlabelled protein collections became available?** The SignalP 6.0 paper reports four changes:
@@ -244,15 +248,17 @@ Can we see the same effects ourselves? We use a simpler task, *does this protein
 | one-hot + 1D CNN                          | 0.825     | 0.916     |
 | **ESM-2 embedding + logistic regression** | **0.955** | **0.978** |
 
+: Classifiers on the homology-aware test set (741 proteins). {#tbl-s11-classifiers}
+
 **Few-shot.** To mimic scarce labels, we train on random subsets of the training proteins:
 
-![Test MCC against the number of labelled training proteins (log scale). With 20 proteins, the ESM-2 classifier reaches MCC 0.762; the one-hot models are near zero (0.045 and 0.122).](figs/session11-fewshot.png){width="75%"}
+![Test MCC against the number of labelled training proteins (log scale). With 20 proteins, the ESM-2 classifier reaches MCC 0.762; the one-hot models are near zero (0.045 and 0.122).](figs/session11-fewshot.png){#fig-session11-fewshot width="75%"}
 
 With only 50 labelled proteins, the ESM-2 classifier (MCC 0.907) already beats both one-hot models trained on all 4,169 (0.745 and 0.845). This is the central result of the session: **pretraining transfers information learned from millions of unlabelled sequences into a task where labelled examples are scarce.** The language model has already learned most of what distinguishes a signal peptide, and the labels only need to point at it.
 
 **Generalisation.** SignalP 6.0's authors compared performance on test proteins at different identities to the training set. To see the whole range of identities, we use a plain random 80/20 split and measure the identity of each test protein to its most similar training protein with MMseqs2. This is a diagnostic that shows why random splits can be deceptively easy, not an argument for using them. The homology-aware result above remains the honest estimate for new protein families (Session 8).
 
-![Test MCC in bins of identity to the most similar training protein. Proteins with no detectable homolog (37% of the test set) fall in the lowest bin.](figs/session11-identity-bins.png){width="75%"}
+![Test MCC in bins of identity to the most similar training protein. Proteins with no detectable homolog (37% of the test set) fall in the lowest bin.](figs/session11-identity-bins.png){#fig-session11-identity-bins width="75%"}
 
 Close homologs (\>90% identity) are predicted perfectly by all three classifiers. Without a close homolog (\<30%), however, the one-hot classifiers drop to MCC 0.681 and 0.773, while the ESM-2 classifier stays at 0.960. This is the same pattern that SignalP 6.0's authors found. (Our task is easier than SignalP's, and our model is smaller and not fine-tuned. ESM-2 has seen these sequences during pretraining, but never their labels, which is also true of ProtBERT inside SignalP 6.0.)
 

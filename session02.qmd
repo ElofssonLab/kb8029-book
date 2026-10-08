@@ -79,6 +79,8 @@ print(genes[genes["length"] > 600])        # a table with named columns and mixe
 | Biopython `Seq` / `SeqRecord` | a biological sequence / a sequence with its identifier, description and annotations | reverse complement, translate, GC content, parse and write FASTA or GenBank (@sec-s02-bioobjects) |
 | PyTorch `Tensor` | an array that can live on a GPU and remember how it was computed | everything an array does, plus automatic gradients (Session 7 onwards) |
 
+: Python objects for biological data, what they represent and what they are useful for. {#tbl-s02-objects}
+
 Choosing the right object therefore matters. On a list, `lengths * 2` silently does something you did not mean, whereas on an array it does the maths you expect and multiplies every number by 2.
 
 **Looking ahead: tensors and autograd.** A PyTorch **tensor** is the array of deep learning, and its extra trick is **automatic differentiation**. PyTorch records every operation on a tensor, and `.backward()` replays them in reverse, applying Session 1's chain rule at each step. As a result, Session 1's gradient practice problem, done by hand there, takes only a few lines of PyTorch code:
@@ -125,7 +127,7 @@ The most significant gene is *Osbpl3* (adjusted $p = 8 \times 10^{-18}$, down 3.
 
 A summary is only a handful of numbers, whereas a plot shows all 3,001 genes at once. Three plots answer three different questions:
 
-![Three views of the same 3,001 genes, drawn in the notebook. Left: histogram of log2 fold changes. There is a gap around zero, because genes with very small changes rarely reach p \< 0.12, so the filtering removed them. Slightly more genes go down than up. Middle: fold change against mean expression, with expression on a log scale. Lowly expressed genes show the largest changes in both directions. Right: volcano plot of effect size against significance; genes with adjusted p \< 0.05 are coloured (later courses discuss this in much more detail).](figs/session02-explore.png){width="100%"}
+![Three views of the same 3,001 genes, drawn in the notebook. Left: histogram of log2 fold changes. There is a gap around zero, because genes with very small changes rarely reach p \< 0.12, so the filtering removed them. Slightly more genes go down than up. Middle: fold change against mean expression, with expression on a log scale. Lowly expressed genes show the largest changes in both directions. Right: volcano plot of effect size against significance; genes with adjusted p \< 0.05 are coloured (later courses discuss this in much more detail).](figs/session02-explore.png){#fig-session02-explore width="100%"}
 
 ``` python
 import matplotlib.pyplot as plt
@@ -373,6 +375,8 @@ The notebook has a worked solution, which finds the following:
 | *MB*   | 1,286     | 0.55        | 154          | 821               |
 | *NGB*  | 1,778     | 0.62        | 151          | 1,322             |
 | *CYGB* | 1,962     | 0.62        | 190          | 1,389             |
+
+: The globin genes of the mini challenge, from the notebook's worked solution. {#tbl-s02-globins}
 
 The proteins are all about the same size (142-190 amino acids, one globin fold each), but the mRNAs differ more than threefold in length. Almost all of the difference is untranslated sequence (UTRs), which ranges from 147 nt in *HBA2* to 1,389 nt in *CYGB*. A transcript's length therefore says little about its protein. With six genes, Pearson's correlation between mRNA and protein length is $r = 0.78$, but $p = 0.07$, so a strong-looking correlation from few points is only weak evidence (the second discussion problem).
 

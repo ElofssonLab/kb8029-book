@@ -36,7 +36,7 @@ By the end of this session you should be able to:
 
 This session uses many names: profile score (PSSM), perceptron, linear and logistic regression, sigmoid, tanh, hidden layer, multilayer perceptron and PHD. Behind them there are only two pictures, and together these two pictures explain the whole idea of the lecture.
 
-![Top: one weighted sum followed by an activation. A PSSM score, a perceptron and logistic regression are all this picture, and all of them draw one straight boundary. Bottom: a hidden layer of weighted sums with a nonlinear activation, followed by one more weighted sum. This is a multilayer perceptron (MLP), such as PHD, and it can combine several boundaries.](figs/session07-two-diagrams.png){width="95%"}
+![Top: one weighted sum followed by an activation. A PSSM score, a perceptron and logistic regression are all this picture, and all of them draw one straight boundary. Bottom: a hidden layer of weighted sums with a nonlinear activation, followed by one more weighted sum. This is a multilayer perceptron (MLP), such as PHD, and it can combine several boundaries.](figs/session07-two-diagrams.png){#fig-session07-two-diagrams width="95%"}
 
 Keep them in mind as you read. The goal of the session is to understand what changes between the two pictures, and why that change makes XOR possible.
 
@@ -52,7 +52,7 @@ The extra term $b$, a **bias**, shifts the whole sum by a constant amount, so th
 
 **Where the name comes from.** Frank Rosenblatt introduced the perceptron in 1958, first as a simulation on an IBM 704 computer, and the Mark I Perceptron machine followed in 1960. He modelled it on a simplified neuron. Each synapse weights its input, the cell sums the weighted inputs, and the cell fires once the sum crosses a threshold. The weights $w_i$ therefore stand for connection strengths, and $b$ for how easily the cell fires. His own diagram set the circuit of the brain next to the perceptron built to mirror it:
 
-![Rosenblatt's own 1958 diagram: a biological brain's circuit (top) next to the perceptron he built to mirror it (bottom) — retina/sensory input, an association layer, and motor/response output on both sides. Public domain (US federal government work) — Rosenblatt, F., "The Design of an Intelligent Automaton," *Research Reviews*, Office of Naval Research, October 1958, pp. 5-13.](figs/session07-rosenblatt-brain-perceptron.png){width="75%"}
+![Rosenblatt's own 1958 diagram: a biological brain's circuit (top) next to the perceptron he built to mirror it (bottom) — retina/sensory input, an association layer, and motor/response output on both sides. Public domain (US federal government work) — Rosenblatt, F., "The Design of an Intelligent Automaton," *Research Reviews*, Office of Naval Research, October 1958, pp. 5-13.](figs/session07-rosenblatt-brain-perceptron.png){#fig-session07-rosenblatt-brain-perceptron width="75%"}
 
 Geometrically, $z = 0$ is a line in two dimensions (a plane, or hyperplane, in higher dimensions), and this line is the model's **decision boundary**. On one side of it the output is 1, and on the other side it is 0.
 
@@ -93,6 +93,8 @@ The table shows the first iterations of gradient descent, $w_{n+1} = w_n - \eta 
 | 0 | 0.00 | 0.00 | $2(0-6)(2) = -24.0$ | 0.00 − 0.05 × (−24.0) = 1.20 |
 | 1 | 1.20 | 2.40 | $2(2.4-6)(2) = -14.4$ | 1.20 − 0.05 × (−14.4) = 1.92 |
 | 2 | 1.92 | 3.84 | $2(3.84-6)(2) = -8.64$ | 1.92 − 0.05 × (−8.64) = 2.35 |
+
+: The first iterations of gradient descent with learning rate $\eta = 0.05$. {#tbl-s07-gradient-descent}
 
 The weight converges towards $w = 3$, where the prediction $wx = 3 \times 2 = 6$ would exactly match the target. Just as in Session 1's one-variable example, the size of each correction ($dL/dw$) shrinks by itself as the prediction gets closer, so $\eta$ needs no manual adjustment. This holds only as long as the learning rate is not too large. With an excessive learning rate, gradient descent overshoots the minimum and can oscillate or diverge (Session 1's second discussion problem).
 
@@ -136,13 +138,15 @@ Before asking what a perceptron cannot do, it helps to see what it can do. A sin
 | OR   | 1     | 1     | −0.5 |
 | NAND | −1    | −1    | 1.5  |
 
+: Perceptron weights, chosen by hand, that implement three logic gates. {#tbl-s07-gates}
+
 Take AND as an example. At $(1,1)$, $z = 1+1-1.5 = 0.5 > 0 \to 1$, and at every other corner $z \le -0.5 \to 0$, which is exactly the truth table of AND. (NAND is AND with both weights and the bias negated, which flips every output.) In the notebook, all three gates check out exactly against their truth tables.
 
 Each gate is one straight decision boundary through the square of four inputs, with the "1" corners on one side and the "0" corners on the other. For AND, only $(1,1)$ lies on the positive side of the line $x_1 + x_2 = 1.5$. The second discussion problem asks you to find weights for OR yourself.
 
 This is easiest to see if we draw the four inputs as dots on a plane and the decision boundary $z = 0$ as a line between them. The step activation then simply asks on which side of the line a dot lies:
 
-![The three gates of the table, one panel each. Filled circles are inputs where the perceptron outputs 1, open circles where it outputs 0; the value of $z$ is written under each corner. The green line is the decision boundary $z = 0$; on the shaded side $z > 0$. For AND the line cuts off one corner, for OR it cuts off the opposite corner, and NAND is AND with the sides swapped.](figs/session07-gates.png){width="100%"}
+![The three gates of the table, one panel each. Filled circles are inputs where the perceptron outputs 1, open circles where it outputs 0; the value of $z$ is written under each corner. The green line is the decision boundary $z = 0$; on the shaded side $z > 0$. For AND the line cuts off one corner, for OR it cuts off the opposite corner, and NAND is AND with the sides swapped.](figs/session07-gates.png){#fig-session07-gates width="100%"}
 
 ::: {.callout-tip icon="false"}
 ## In the course notebook
@@ -161,9 +165,11 @@ A model built purely from weighted sums has a real limitation, because there is 
 | 1     | 0     | 1   |
 | 1     | 1     | 0   |
 
+: The XOR function. {#tbl-s07-xor}
+
 **Before reading on, try it:** find weights $w_1, w_2, b$ that reproduce this table with one perceptron. You will not succeed. The two "1" outputs sit on opposite corners of the input square, and no straight line can put both of them on one side while leaving both "0" outputs on the other. [Section 4 of the notebook](notebooks/session07-gradient-descent-xor.ipynb#what-it-can-never-do-xor) tries 226,981 combinations of $w_1$, $w_2$ and $b$ (every value from −3 to 3 in steps of 0.1). About 5,000 of them reproduce AND, 9,500 OR and 4,500 NAND, but not one reproduces XOR.
 
-![A linear model trained on XOR (left) settles on predicting 0.5 everywhere. Every straight-line boundary it could draw leaves at least one point on the wrong side, so gradient descent settles for the least-wrong compromise. A hidden-layer model on the same data (right) combines two linear boundaries into a non-linear one that separates all four points correctly. Both panels show the notebook's own trained models, not illustrative sketches.](figs/session07-xor-boundary.png){width="95%"}
+![A linear model trained on XOR (left) settles on predicting 0.5 everywhere. Every straight-line boundary it could draw leaves at least one point on the wrong side, so gradient descent settles for the least-wrong compromise. A hidden-layer model on the same data (right) combines two linear boundaries into a non-linear one that separates all four points correctly. Both panels show the notebook's own trained models, not illustrative sketches.](figs/session07-xor-boundary.png){#fig-session07-xor-boundary width="95%"}
 
 ::: {.callout-note collapse="true"}
 ## Optional: the algebraic proof
@@ -192,9 +198,11 @@ One perceptron draws one line, but XOR needs two. Combining perceptrons therefor
 | 1     | 0     | 1   | 1    | 1             | 1   |
 | 1     | 1     | 1   | 0    | 0             | 0   |
 
+: XOR built from OR, NAND and AND. {#tbl-s07-xor-from-gates}
+
 Drawn as a network, this is a **two-layer perceptron**, with two inputs, a hidden layer of two units and one output unit. Every arrow carries a weight, and every unit adds its bias and applies the step activation:
 
-![The hand-built two-layer perceptron for XOR. The hidden unit $h_1$ computes OR (weights $+1, +1$, bias $-0.5$), $h_2$ computes NAND (weights $-1, -1$, bias $+1.5$), and the output unit $y$ computes AND of the two hidden outputs (weights $+1, +1$, bias $-1.5$).](figs/session07-network.png){width="80%"}
+![The hand-built two-layer perceptron for XOR. The hidden unit $h_1$ computes OR (weights $+1, +1$, bias $-0.5$), $h_2$ computes NAND (weights $-1, -1$, bias $+1.5$), and the output unit $y$ computes AND of the two hidden outputs (weights $+1, +1$, bias $-1.5$).](figs/session07-network.png){#fig-session07-network width="80%"}
 
 **Step by step.** For each input, we first compute the two hidden units, and then the output unit from their outputs:
 
@@ -204,6 +212,8 @@ Drawn as a network, this is a **two-layer perceptron**, with two inputs, a hidde
 | 0 | 1 | +0.5 | 1 | +0.5 | 1 | +0.5 | **1** |
 | 1 | 0 | +0.5 | 1 | +0.5 | 1 | +0.5 | **1** |
 | 1 | 1 | +1.5 | 1 | −0.5 | 0 | −0.5 | **0** |
+
+: The two-layer perceptron for XOR, computed step by step. {#tbl-s07-xor-network}
 
 The last column is XOR. Take $(1,1)$ as an example. Both inputs are on, so the OR unit fires ($z = 1.5$), but the NAND unit does not ($z = -0.5$). The output unit then sees $h_1 + h_2 = 1$, and since $1 - 1.5 < 0$, $y = 0$. Only the two mixed inputs switch on *both* hidden units, and only then does the AND unit fire.
 
@@ -244,6 +254,8 @@ which is again a single weighted sum of the inputs, with one matrix $W_2 W_1$ an
 | weights $W_2$ | $(2, 1)$ | two hidden units → one output |
 | output $y = \sigma(h W_2 + b_2)$ | $(4, 1)$ | one prediction per example |
 
+: The shapes of the matrices in the notebook's network for XOR. {#tbl-s07-shapes}
+
 If you can follow these shapes, the training loop in the notebook is simply this table written in code.
 
 ::: {.callout-tip icon="false"}
@@ -258,7 +270,7 @@ Minsky and Papert's book *Perceptrons* (1969) proved rigorously that single-laye
 
 XOR is not just a toy puzzle about logic gates, because the same structure shows up in real sequence motifs. Bulyk, Johnson & Church (2002) used protein-binding microarrays to measure how the binding affinity of a zinc-finger transcription factor depended on the nucleotides at different positions of its binding site. They found that the positions do **not** contribute independently, since the effect of the nucleotide at one position depends on what is at another position. This directly violates the assumption behind a profile score, namely that the contribution of each position can simply be added to the others. They measured the zinc-finger protein Zif268 (mouse Egr1) and mutants of it binding to all 64 possible central triplets of its site, and concluded that neither a consensus sequence nor a position weight matrix describes the protein's true specificity.
 
-![(a) What a binding-site description normally looks like: the sequence logo of Egr1 (Zif268) sites in the human genome, from ChIP-seq peaks (JASPAR MA0162.4, CC BY 4.0), with the familiar GCG TGG GCG core. A logo, like a profile, describes each position on its own. (b) The logo of the strong sites of the XOR-shaped toy motif below is completely flat: each position, taken alone, carries 0 bits. (c) Yet the *pair* of positions decides binding completely. A logo or a profile cannot show this; a hidden layer can learn it. Drawn by tools/builders/make_session07_figures.py.](figs/session07-bulyk.png){width="100%"}
+![(a) What a binding-site description normally looks like: the sequence logo of Egr1 (Zif268) sites in the human genome, from ChIP-seq peaks (JASPAR MA0162.4, CC BY 4.0), with the familiar GCG TGG GCG core. A logo, like a profile, describes each position on its own. (b) The logo of the strong sites of the XOR-shaped toy motif below is completely flat: each position, taken alone, carries 0 bits. (c) Yet the *pair* of positions decides binding completely. A logo or a profile cannot show this; a hidden layer can learn it. Drawn by tools/builders/make_session07_figures.py.](figs/session07-bulyk.png){#fig-session07-bulyk width="100%"}
 
 To see why this kind of dependency is an XOR-shaped problem, consider a deliberately simplified, illustrative version. It is not the actual data from the paper, which involve more positions and continuous binding affinities, but it has the same qualitative shape. Suppose a two-position motif binds strongly only when the two positions belong to **different** purine/pyrimidine classes (one R, one Y), and weakly when they belong to the **same** class:
 
@@ -268,6 +280,8 @@ To see why this kind of dependency is an XOR-shaped problem, consider a delibera
 | Y          | R          | strong  |
 | R          | Y          | strong  |
 | R          | R          | weak    |
+
+: Binding strength depending on the purine/pyrimidine classes of two positions. {#tbl-s07-binding}
 
 If we relabel "weak" as 0 and "strong" as 1, this is the XOR table above. Neither position predicts binding on its own, and only their combination does. This is exactly what no profile score, and no single perceptron, can represent. A hidden layer with a nonlinear activation (@sec-s07-hidden), in contrast, can represent such an interaction.
 
@@ -289,13 +303,13 @@ Bulyk et al.'s zinc-finger microarrays make the XOR-shaped limitation concrete o
 
 GOR in particular is a linear model in the sense of Sections [-@sec-s07-weighted-sum]–[-@sec-s07-represent]. To label a residue, it looks at a window of 17 residues centred on it. For each offset in the window, it looks up in a table how much the amino acid at that offset favours helix, strand or coil, and it adds up these values. Each state thus gets a score, and the largest score wins. This amounts to three position-specific scoring matrices, one per state, read off the same window. GOR is therefore three weighted sums, with one straight boundary between each pair of states.
 
-![GOR as a linear model. For the middle residue of a 17-residue window (here from HBB), every residue in the window contributes a value to the helix, strand and coil scores, depending on its amino acid and its offset from the middle. The contributions are added, and the state with the largest total is predicted. The bar heights are illustrative; GOR estimated its tables from the protein structures known at the time (originally for four states, with turns separate).](figs/session07-gor.png){width="100%"}
+![GOR as a linear model. For the middle residue of a 17-residue window (here from HBB), every residue in the window contributes a value to the helix, strand and coil scores, depending on its amino acid and its offset from the middle. The contributions are added, and the state with the largest total is predicted. The bar heights are illustrative; GOR estimated its tables from the protein structures known at the time (originally for four states, with turns separate).](figs/session07-gor.png){#fig-session07-gor width="100%"}
 
-![The real historical accuracy progression: Chou-Fasman's propensities and nucleation/extension rules, GOR's neighbour-window information-theoretic score, and Rost & Sander's profile-fed neural network. Figures are the broadly-cited historical consensus (Wikipedia, "Protein structure prediction") — the three original papers used different, non-identical benchmark sets, not one shared modern test set.](figs/session07-ss-accuracy-history.png){width="75%"}
+![The real historical accuracy progression: Chou-Fasman's propensities and nucleation/extension rules, GOR's neighbour-window information-theoretic score, and Rost & Sander's profile-fed neural network. Figures are the broadly-cited historical consensus (Wikipedia, "Protein structure prediction") — the three original papers used different, non-identical benchmark sets, not one shared modern test set.](figs/session07-ss-accuracy-history.png){#fig-session07-ss-accuracy-history width="75%"}
 
 **Why a single sequence is not enough.** A window of neighbours is still only local information, and local sequence does not determine local structure. Kabsch & Sander (1984) searched the 62 protein structures then known and found identical five-residue stretches that were part of a helix in one protein and of a strand in another. With today's PDB, the effect extends to stretches of ten residues. These **chameleon sequences** (Li et al. 2015, ChSeq database) adopt different secondary structures depending on the protein around them.
 
-![The same ten residues, QGTAVVVSAA, in two unrelated proteins: part of a long helix in a malate oxidoreductase from *Thermotoga maritima* (PDB 1VL6) and a strand followed by coil in a human antibody heavy chain (PDB 4JB9). Positions are counted along each chain's sequence (1VL6: 164-183, 4JB9: 118-137); in the PDB files' own numbering these are residues 152-171 of 1VL6 and, in antibody numbering, 100F-119 of 4JB9. The secondary structure of each residue is taken from the PDB entries (via PDBe). No method that sees only this window can label both correctly. Example from Li et al. (2015).](figs/session07-chameleon.png){width="100%"}
+![The same ten residues, QGTAVVVSAA, in two unrelated proteins: part of a long helix in a malate oxidoreductase from *Thermotoga maritima* (PDB 1VL6) and a strand followed by coil in a human antibody heavy chain (PDB 4JB9). Positions are counted along each chain's sequence (1VL6: 164-183, 4JB9: 118-137); in the PDB files' own numbering these are residues 152-171 of 1VL6 and, in antibody numbering, 100F-119 of 4JB9. The secondary structure of each residue is taken from the PDB entries (via PDBe). No method that sees only this window can label both correctly. Example from Li et al. (2015).](figs/session07-chameleon.png){#fig-session07-chameleon width="100%"}
 
 Even a better model did not overcome this. Qian & Sejnowski (1988, *J Mol Biol* 202:865) trained a network with a hidden layer on windows of single sequences and reached **64.3%**. They concluded that "no method based solely on local information in the protein sequence is likely to produce significantly better results for non-homologous proteins". The limit was the information in the input, not only the model.
 
@@ -307,7 +321,7 @@ $$
 
 Every amino acid is then equally different from every other, and the network learns its own weight for each amino acid at each position. A window of 13 residues becomes $13 \times 20 = 260$ input numbers. This is how Qian & Sejnowski's network read single sequences, and it is also the encoding of the localisation data in Session 8 (150 residues, 3000 numbers). For DNA, the same idea gives 4 numbers per base.
 
-![The same 13-residue window around His63 in two encodings. Left: one-hot encoding of human HBB, one 1 per position. Right: the profile of the window, the residue frequencies at the aligned positions of the 73 globins in the Pfam seed alignment (Session 4). His63 (orange) is His in most globins; other positions vary much more. A profile column is the average of the one-hot vectors of the aligned sequences. Drawn by tools/builders/make_session07_figures.py.](figs/session07-onehot.png){width="100%"}
+![The same 13-residue window around His63 in two encodings. Left: one-hot encoding of human HBB, one 1 per position. Right: the profile of the window, the residue frequencies at the aligned positions of the 73 globins in the Pfam seed alignment (Session 4). His63 (orange) is His in most globins; other positions vary much more. A profile column is the average of the one-hot vectors of the aligned sequences. Drawn by tools/builders/make_session07_figures.py.](figs/session07-onehot.png){#fig-session07-onehot width="100%"}
 
 One-hot encoding is not the only choice. A residue can also be described by a few **physicochemical properties** (hydrophobicity, charge, size), which is compact and lets similar residues look similar. It can be described by its row of a **substitution matrix** such as BLOSUM62 (Session 4), or, as PHD does below, by a **profile** of its homologs. Later in the course, the network learns the representation itself. An **embedding layer** (`nn.Embedding` in PyTorch, used by the recurrent networks of Session 11) gives each amino acid a short vector of trainable numbers. This is exactly a linear layer applied to the one-hot vector, since multiplying a one-hot vector by a weight matrix simply picks out one row. Protein language models (Session 11) go one step further and give each residue a vector that also depends on its context in the sequence.
 
@@ -315,17 +329,17 @@ One-hot encoding is not the only choice. A residue can also be described by a fe
 
 PHD combined this input with networks at **three levels**:
 
-![PHD's design. Level 1, a sequence-to-structure network with one hidden layer, reads a window of 13 residues, each described by its 20 profile frequencies from the multiple alignment, and outputs helix (H), strand (E) and loop (L) values for the middle residue. Level 2, a structure-to-structure network, reads the level-1 outputs for a window of 17 residues and learns that helices and strands come in segments of plausible lengths. Level 3, a jury, averages several such networks trained in different ways. PHD also reports how reliable each residue's prediction is. The alignment and profile shown are schematic.](figs/session07-phd.png){width="100%"}
+![PHD's design. Level 1, a sequence-to-structure network with one hidden layer, reads a window of 13 residues, each described by its 20 profile frequencies from the multiple alignment, and outputs helix (H), strand (E) and loop (L) values for the middle residue. Level 2, a structure-to-structure network, reads the level-1 outputs for a window of 17 residues and learns that helices and strands come in segments of plausible lengths. Level 3, a jury, averages several such networks trained in different ways. PHD also reports how reliable each residue's prediction is. The alignment and profile shown are schematic.](figs/session07-phd.png){#fig-session07-phd width="100%"}
 
 Each level is a network of the kind described in @sec-s07-hidden, only larger: weighted sums, a nonlinear activation, and more weighted sums. The lesson therefore combines both halves of this session. A better representation of the input (profiles) and a model flexible enough to use it (networks with hidden layers) together achieved what additive scores on single sequences could not. Session 9 returns to PHD once you can train such networks yourself.
 
 **What a per-residue predictor has to do: *HBB*.** To see what such a predictor must produce, take beta-globin (*HBB*), this course's running example. In the crystal structure of human haemoglobin (PDB entry `2HHB`), every residue of its chain has a label, either helix (H) or coil (C), and there are no strands.
 
-![*HBB* (chain B of PDB 2HHB): helices in blue, coil in grey. The haem (red, iron in orange) sits in a pocket between helices; His63 (upper, blue sticks) and His92 (lower) are the distal and proximal histidines that Session 4's globin logo showed to be conserved. The orange helix is the 13-residue window around His63 in the next figure. Rendered with PyMOL by tools/builders/make_session07_hbb_structure.py.](figs/session07-hbb-structure.png){width="60%"}
+![*HBB* (chain B of PDB 2HHB): helices in blue, coil in grey. The haem (red, iron in orange) sits in a pocket between helices; His63 (upper, blue sticks) and His92 (lower) are the distal and proximal histidines that Session 4's globin logo showed to be conserved. The orange helix is the 13-residue window around His63 in the next figure. Rendered with PyMOL by tools/builders/make_session07_hbb_structure.py.](figs/session07-hbb-structure.png){#fig-session07-hbb-structure width="60%"}
 
 A secondary-structure predictor has to produce that whole string from the sequence. PHD-style methods label one residue at a time, from a *window* of its neighbours:
 
-![Two views of the same protein. Top: HBB's sequence with the secondary structure of each residue in 2HHB (blue = helix, grey = coil), and the 13-residue window a PHD-style predictor reads to label His63. Bottom: the same protein as 20 amino-acid fractions, the input of today's lab, and its single target, the helix fraction. Secondary structure from EBI's PDBe API, drawn by tools/builders/make_session07_hbb_views.py.](figs/session07-hbb-two-views.png){width="100%"}
+![Two views of the same protein. Top: HBB's sequence with the secondary structure of each residue in 2HHB (blue = helix, grey = coil), and the 13-residue window a PHD-style predictor reads to label His63. Bottom: the same protein as 20 amino-acid fractions, the input of today's lab, and its single target, the helix fraction. Secondary structure from EBI's PDBe API, drawn by tools/builders/make_session07_hbb_views.py.](figs/session07-hbb-two-views.png){#fig-session07-hbb-two-views width="100%"}
 
 The top view keeps what matters for the label: which residues are neighbours, in what order, and where helices start and stop (five of HBB's helices begin at a proline). A single sequence in that window gave Qian and Sejnowski their 64%, and PHD replaced each position of the window by a profile of its homologs (Session 5). The bottom view is what this session's lab uses. *HBB* becomes 20 numbers, and the question becomes "what fraction is helix?" (0.80, 117 of its 146 residues). Everything in the top view that is not a count has been thrown away. Keep both views in mind for the lab.
 
@@ -357,7 +371,7 @@ A more powerful model cannot recover information that is not in its input. What 
 
 ## Summary: the two pictures again
 
-![The same two pictures as at the start of the page. Everything in this session is one of them.](figs/session07-two-diagrams.png){width="95%"}
+![The same two pictures as at the start of the page. Everything in this session is one of them.](figs/session07-two-diagrams.png){#fig-session07-two-diagrams-2 width="95%"}
 
 - **Top:** one weighted sum, then an activation. A PSSM reports the sum as a score, a perceptron thresholds it, and logistic regression passes it through a sigmoid. The weights can be learned from examples by gradient descent (@sec-s07-learning). Whatever the weights, the model draws one straight boundary, so it can represent AND, OR and NAND, but never XOR (Sections [-@sec-s07-represent]–[-@sec-s07-xor]).
 - **Bottom:** a hidden layer of weighted sums with a nonlinear activation, then one more weighted sum. Each hidden unit draws its own boundary, and the output combines them, so XOR becomes possible (@sec-s07-hidden). Remove the nonlinear activation and the two layers collapse back into the top picture.

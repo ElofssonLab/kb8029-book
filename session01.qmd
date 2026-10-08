@@ -51,7 +51,7 @@ $$
 \lVert \mathbf{v} \rVert = \sqrt{3^2 + 4^2} = \sqrt{25} = 5
 $$
 
-![5 is literally the hypotenuse of a 3-4-5 right triangle.](figs/session01-triangle.png){width="10%"}
+![5 is literally the hypotenuse of a 3-4-5 right triangle.](figs/session01-triangle.png){#fig-session01-triangle width="10%"}
 
 
 ### Dimensions and shapes
@@ -87,7 +87,7 @@ $$
 
 Here $\theta$ is the angle between the two vectors and $\lVert \cdot \rVert$ is the length defined above. The formula gives the *sign* of a dot product for free, without computing anything. The dot product is positive when the angle between the vectors is less than 90° (they point in broadly the same direction), zero when they are exactly perpendicular, and negative when the angle exceeds 90° (they point in broadly opposite directions). In the worked example above, $\mathbf{w}$ and $\mathbf{x}$ are about 103° apart, just past perpendicular, which is why their dot product came out negative:
 
-![](figs/session01-vector-angle.png){width="55%"}
+![The vectors $\mathbf{w} = (2, -1)$ and $\mathbf{x} = (1, 4)$ are about 103° apart, so their dot product is negative.](figs/session01-vector-angle.png){#fig-session01-vector-angle width="55%"}
 
 Why does this one computation deserve so much attention before the course has properly started? The reason is that it reappears, unchanged, in two very different-looking places later in the course. A **profile score** (Session 5), the standard way of asking "how well does this sequence match a known family?", multiplies each position's observed value by a position-specific weight and sums the results. A **perceptron** (Session 7), the simplest kind of artificial neuron, computes its output in the same way, as a dot product between a weight vector and an input vector. When we get there, you will therefore already know both the arithmetic and the geometric intuition, and the only new part will be what to *do* with the result.
 
@@ -342,11 +342,13 @@ The table below lists the derivatives that come up constantly in this course. Th
 | $\cos(x)$                  | $-\sin(x)$                 |
 | $\sigma(z) = 1/(1+e^{-z})$ | $\sigma(z)\,(1-\sigma(z))$ |
 
+: Derivatives used throughout the course. {#tbl-s01-derivatives}
+
 The last row deserves special attention. It is the derivative that Session 9's backpropagation needs for every sigmoid-activated unit in a network. It is usually written in terms of $\sigma(z)$ itself, rather than expanded in $e^{-z}$, because $\sigma(z)$ has already been computed on the forward pass, so the derivative costs nothing extra.
 
 A derivative is zero where a function is momentarily flat, that is, at a peak, a trough, or an inflection point with a horizontal tangent. $\sin(x)$ and its derivative $\cos(x)$ make this directly visible:
 
-![$f(x)=\sin(x)$ (solid) and $f'(x)=\cos(x)$ (dashed). Wherever $\sin(x)$ reaches a peak or trough (dotted vertical lines), $\cos(x)$ crosses exactly zero.](figs/session01-derivative-cheat-sheet.png){width="85%"}
+![$f(x)=\sin(x)$ (solid) and $f'(x)=\cos(x)$ (dashed). Wherever $\sin(x)$ reaches a peak or trough (dotted vertical lines), $\cos(x)$ crosses exactly zero.](figs/session01-derivative-cheat-sheet.png){#fig-session01-derivative-cheat-sheet width="85%"}
 
 ### Partial derivatives and the gradient
 
@@ -386,6 +388,8 @@ where $\eta$ (eta) is a small positive **learning rate** that controls the step 
 | 1   | 1.800 | 1.44     | -2.40     | 2.520                         |
 | 2   | 2.520 | 0.23     | -0.96     | 2.808                         |
 | 3   | 2.808 | 0.037    | -0.384    | 2.923                         |
+
+: Gradient descent on $f(x) = (x-3)^2$, starting from $x_0 = 0$ with $\eta = 0.3$. {#tbl-s01-gradient-descent}
 
 Two things stand out in the table. First, $x_n$ closes in on 3, the true minimum, where $f'(x) = 0$. Second, the *steps themselves* shrink as $x_n$ gets closer, simply because the derivative shrinks, so nobody has to decrease $\eta$ by hand. From Session 7 on, you will see the same iterations inside a real model's training loop. The only difference is that many weights are updated at once, using the gradient vector instead of a single derivative.
 
@@ -646,6 +650,8 @@ Entropy therefore measures how unpredictable, or how *variable*, the outcomes ar
 | all four bases equally likely | 2 bits, the maximum for DNA |
 | all 20 amino acids equally likely | $\log_2 20 \approx 4.32$ bits, the maximum for proteins |
 
+: The entropy of some distributions of bases and amino acids. {#tbl-s01-entropy}
+
 The difference from the maximum, for example $2 - H$ for a DNA column, is the column's **information content**. It says how much knowing the family tells you about that position, and it is what the height of a stack in a sequence logo shows (Session 4).
 
 **Cross-entropy.** Entropy assumes that we know the true distribution. Suppose instead that the data really come from a distribution $P$, but we describe them with a model $Q$. The average surprise we then experience is the **cross-entropy**:
@@ -682,7 +688,7 @@ The following example puts these ideas together on a realistic problem. We compa
 
 A **volcano plot** shows both quantities at once, with the $\log_2$ fold change on the x-axis and $-\log_{10}(p\text{-value})$ on the y-axis. Smaller p-values, that is, stronger evidence, therefore plot higher up. The interesting genes are those that are both far from the centre (a big effect) and high up (strong evidence), and they give the plot the shape of its name:
 
-![](figs/session01-volcano-plot.png){width="85%"}
+![Volcano plot of the 2000 simulated genes: $\log_2$ fold change against $-\log_{10}(p\text{-value})$.](figs/session01-volcano-plot.png){#fig-session01-volcano-plot width="85%"}
 
 With only the naive threshold $p<0.05$ (Welch's t-test for each gene), 135 genes in this simulated data are flagged as "significant". Of those, 85 are false positives among the 1950 genes with no real effect, close to the \~97.5 expected by chance. With the Benjamini-Hochberg procedure at an FDR of 5% instead, 44 genes are flagged, and all 44 are among the 50 genes that are really differentially expressed. In this particular test there are no false positives, so the procedure recovers the large majority of the true effects while it stops the flood of false positives that the naive threshold let through. Note, however, that an FDR threshold of 5% does **not** guarantee zero false discoveries. That none of the 44 discoveries is false here is a property of this particular simulation.
 

@@ -52,13 +52,15 @@ Within supervised learning, the kind of problem is decided by the *label*:
 | Binding affinity (pK~d~) of a drug to a target | Helix / strand / coil for each residue (Session 7, Session 9) |
 | Relative solvent accessibility of a residue (0-1) | Is this residue buried or exposed? |
 
+: Regression and classification problems in biology. {#tbl-s08-problem-types}
+
 The last row shows that the same biology can often be posed either way. Setting a threshold on a continuous quantity turns regression into classification, which makes the problem easier but throws information away.
 
-![Two real problems. **Left, regression:** for 55 PDB entries (fetched live from PDBe), the fraction of residues in helices against the fraction of strong Chou-Fasman helix formers (E, M, A, L, K, F, Q) in the sequence. A straight line captures a real trend ($r = 0.71$) with plenty of scatter. **Right, classification:** 488 secreted and 497 nuclear human proteins from UniProt, plotted by the hydrophobicity of their first 25 residues and their lysine + arginine content. Logistic regression draws the black boundary where $P(\text{secreted}) = 0.5$.](figs/session08-regression-vs-classification.png){width="100%"}
+![Two real problems. **Left, regression:** for 55 PDB entries (fetched live from PDBe), the fraction of residues in helices against the fraction of strong Chou-Fasman helix formers (E, M, A, L, K, F, Q) in the sequence. A straight line captures a real trend ($r = 0.71$) with plenty of scatter. **Right, classification:** 488 secreted and 497 nuclear human proteins from UniProt, plotted by the hydrophobicity of their first 25 residues and their lysine + arginine content. Logistic regression draws the black boundary where $P(\text{secreted}) = 0.5$.](figs/session08-regression-vs-classification.png){#fig-session08-regression-vs-classification width="100%"}
 
 The classifier on the right tells a biological story. It gives N-terminal hydrophobicity a weight of 4.26 and K+R content a weight of only −0.20. Secreted proteins begin with a hydrophobic **signal peptide**, and the model found that single feature almost on its own. On held-out proteins it is right 93.5% of the time, from just two numbers per protein:
 
-![The predicted $P(\text{secreted})$ for each held-out protein, grouped by its real class (spread sideways so the points do not overlap). Almost all nuclear proteins are far below the threshold of 0.5 and almost all secreted proteins far above it; the few on the wrong side are the classifier's errors.](figs/session08-classification-predictions.png){width="60%"}
+![The predicted $P(\text{secreted})$ for each held-out protein, grouped by its real class (spread sideways so the points do not overlap). Almost all nuclear proteins are far below the threshold of 0.5 and almost all secreted proteins far above it; the few on the wrong side are the classifier's errors.](figs/session08-classification-predictions.png){#fig-session08-classification-predictions width="60%"}
 
 #### Logistic regression: the bridge between the two
 
@@ -80,11 +82,13 @@ Once the problem type is chosen, three things downstream follow from it:
 | Loss minimised in training (Session 9) | mean squared error | cross-entropy (Session 1) |
 | Evaluation metrics (@sec-s08-evaluation) | RMSE, Pearson $r$, $R^2$ | confusion matrix, precision, recall, F1, MCC, AUROC |
 
+: What follows from the choice between regression and classification. {#tbl-s08-consequences}
+
 ### A running toy example: 3×3 pixel patterns
 
 Deep learning had its first great breakthrough in image classification (Session 10), where a computer learns whether an image contains a cat, a house, and so on. To see how a classifier is evaluated, we play here with the smallest image-classification problem worth the name. Each image has nine pixels on a continuous scale (dark = +1, light = −1), and there are five classes: horizontal, vertical, diagonal, anti-diagonal and cross. Every example is a clean pattern plus random noise on each pixel (Gaussian, σ = 0.8). "Cross" shares its middle row with "horizontal" and its middle column with "vertical", so we can expect some confusion there.
 
-![The five clean 3×3 patterns (top row) and two noisy examples of each. The noise is strong enough that some examples are hard even for a human.](figs/session08-3x3-patterns.png){width="75%"}
+![The five clean 3×3 patterns (top row) and two noisy examples of each. The noise is strong enough that some examples are hard even for a human.](figs/session08-3x3-patterns.png){#fig-session08-3x3-patterns width="75%"}
 
 The classifier is five Session 7 perceptrons, one per pattern. Each is trained to output +1 for its own pattern and −1 for every other, and the predicted class is whichever perceptron gives the highest score. This is called **one-vs-rest**. There is no hidden layer, so nothing here needs backpropagation. @sec-s08-evaluation uses this model to show what the three data sets are for and what the evaluation metrics mean.
 
@@ -107,7 +111,7 @@ An often-told story: an army wanted a neural network to recognise tanks in photo
 
 A model is only useful if it works on data it has **not** seen. Its performance on the training data says little, because a flexible enough model can memorise every training example. A model that predicts its training data accurately but fails on new examples is said to **overfit**. The labelled data are therefore split three ways. This is not always done in practice, but it should be:
 
-![The three data sets and what each one is for.](figs/session08-three-sets.png){width="90%"}
+![The three data sets and what each one is for.](figs/session08-three-sets.png){#fig-session08-three-sets width="90%"}
 
 - **Training set**: used to fit the weights.
 - **Validation set**: used to make *choices*, such as how long to train, how large a network to use, or which features to include. Every choice tuned on it makes it slightly optimistic.
@@ -115,7 +119,7 @@ A model is only useful if it works on data it has **not** seen. Its performance 
 
 **On the 3×3 problem.** We draw 100 training, 100 validation and 200 test examples, and first measure the model by its **accuracy**, the fraction of examples, over all five classes, that it classifies correctly. (The next section breaks this single number down.) The one choice to make is how many **epochs** (passes through the training set) to train for, and we make it on the validation set. If we train for 50 epochs and record both accuracies after every epoch, we get this picture ([the notebook](notebooks/session08-ml-foundations-and-pytorch.ipynb#training-validation-and-test-sets-on-the-33-problem) computes every number and draws the figure):
 
-![Training (grey) and validation (blue) accuracy of the 3×3 perceptrons after every epoch. The shaded band is the plateau of the validation curve (its mean, 0.89) plus or minus the standard error of an accuracy measured on 100 examples (about 0.03). The orange line marks the chosen model, 2 epochs, and the star its test accuracy, measured once: 0.895.](figs/session08-3x3-epochs.png){width="85%"}
+![Training (grey) and validation (blue) accuracy of the 3×3 perceptrons after every epoch. The shaded band is the plateau of the validation curve (its mean, 0.89) plus or minus the standard error of an accuracy measured on 100 examples (about 0.03). The orange line marks the chosen model, 2 epochs, and the star its test accuracy, measured once: 0.895.](figs/session08-3x3-epochs.png){#fig-session08-3x3-epochs width="85%"}
 
 The figure shows three things:
 
@@ -139,7 +143,7 @@ The model trained for two epochs is then measured **once** on the test set, givi
 
 Accuracy is a single number, and it hides *which* mistakes are made. The **confusion matrix** shows them, because it cross-tabulates the true class (rows) against the predicted class (columns).
 
-![Left: test-set confusion matrix for the 3×3 perceptrons. Almost all mistakes involve "cross": 9 crosses predicted as "vertical", and 4 horizontals and 2 verticals predicted as "cross". These are the pairs that share pixels. Right: the ROC curve of the "cross" perceptron's score, cross vs. everything else.](figs/session08-3x3-evaluation.png){width="100%"}
+![Left: test-set confusion matrix for the 3×3 perceptrons. Almost all mistakes involve "cross": 9 crosses predicted as "vertical", and 4 horizontals and 2 verticals predicted as "cross". These are the pairs that share pixels. Right: the ROC curve of the "cross" perceptron's score, cross vs. everything else.](figs/session08-3x3-evaluation.png){#fig-session08-3x3-evaluation width="100%"}
 
 For any classification task, even one with many classes, we can treat one class as "positive" and all the others together as "negative". Every prediction is then a true or false positive (TP, FP) or a true or false negative (TN, FN). From these four counts we can define several useful measures, which are worth remembering:
 
@@ -189,7 +193,7 @@ They can disagree sharply. A systematically biased predictor, for example one th
 
 **Why we need held-out data, in one picture.** A model that is flexible enough can simply memorise its training data. A **1-nearest-neighbour** model is the extreme case, because it predicts the helix fraction of the most similar protein (by amino-acid composition) that it was trained on. If we train it on all 55 proteins and evaluate it on the same 55, every protein's nearest neighbour is itself, so the predictions are perfect ($R^2 = 1.00$, RMSE $= 0$). If we train it on 41 proteins and evaluate it on the other 14, it is no better than predicting the mean ($R^2 = 0.03$):
 
-![Predicted against measured helix fraction; points on the dashed line are perfect predictions. Left: the one-feature line, on the 14 held-out proteins (blue; training proteins in grey). Middle: 1-nearest-neighbour, trained and evaluated on the same 55 proteins: apparently perfect. Right: the same kind of model, trained on 41 proteins and evaluated on the 14 it has not seen.](figs/session08-regression-evaluation.png){width="100%"}
+![Predicted against measured helix fraction; points on the dashed line are perfect predictions. Left: the one-feature line, on the 14 held-out proteins (blue; training proteins in grey). Middle: 1-nearest-neighbour, trained and evaluated on the same 55 proteins: apparently perfect. Right: the same kind of model, trained on 41 proteins and evaluated on the 14 it has not seen.](figs/session08-regression-evaluation.png){#fig-session08-regression-evaluation width="100%"}
 
 The middle panel is what you get if you evaluate on the training data, and it says nothing about new proteins. With only 14 test proteins, however, all of these numbers are themselves uncertain, which leads to the next question.
 
@@ -201,7 +205,7 @@ To answer it, we turn to a real, though still small, problem: predicting subcell
 
 **Split-to-split noise.** A quick logistic-regression baseline, refitted on ten different random 70/15/15 splits, gives validation accuracies from 0.505 to 0.610 (mean 0.561, standard deviation 0.031). The data and the model are the same, and only the random draw of the split differs. **k-fold cross-validation** makes better use of limited data and reduces the dependence on one particular split, although it does not remove sampling variability. The data are cut into $k$ class-stratified folds, the model is trained $k$ times with a different fold held out each time, and the results are averaged. With $k = 5$ the notebook gets 0.540 ± 0.044. Every protein is used for validation exactly once, at $k$ times the computing cost.
 
-![Validation accuracy of the same logistic-regression baseline on ten random splits of the same 700 proteins (blue), and on the five folds of one 5-fold cross-validation (orange, with its mean and standard deviation). Only the random choice of proteins differs.](figs/session08-split-noise.png){width="70%"}
+![Validation accuracy of the same logistic-regression baseline on ten random splits of the same 700 proteins (blue), and on the five folds of one 5-fold cross-validation (orange, with its mean and standard deviation). Only the random choice of proteins differs.](figs/session08-split-noise.png){#fig-session08-split-noise width="70%"}
 
 ### The biological trap: homologs on both sides of the split
 
@@ -213,7 +217,7 @@ This effect can be measured. Clustering the 700 proteins with **MMseqs2** (a fas
 - the baseline classifies those correctly **67.5%** of the time;
 - it classifies the remaining proteins correctly only **50.9%** of the time.
 
-![Left: over ten random splits, validation proteins that have a homolog (≥30% identity) in the training set are classified correctly far more often than those that do not. Right: baseline accuracy on ten random and ten homology-aware splits; each dot is one split, the black line the mean.](figs/session08-homology-leakage.png){width="95%"}
+![Left: over ten random splits, validation proteins that have a homolog (≥30% identity) in the training set are classified correctly far more often than those that do not. Right: baseline accuracy on ten random and ten homology-aware splits; each dot is one split, the black line the mean.](figs/session08-homology-leakage.png){#fig-session08-homology-leakage width="95%"}
 
 The fix is **homology partitioning**. We cluster first and then put whole clusters into training, validation or test, so that no cluster of sequences with ≥30% identity crosses the split. This substantially reduces homology leakage, although it cannot guarantee that no remote homolog below the cutoff remains. Averaged over ten splits of each kind, baseline accuracy drops from 0.553 (random) to 0.536 (homology-aware). The overall drop is small *here* only because 476 of the 700 proteins have no homolog in the set at all. In more redundant data, such as a whole proteome or the PDB with its thousands of near-identical structures of popular proteins, the gap can be much larger. **From this session on, the course uses the homology-aware split** (486 training / 105 validation / 109 test proteins), and Sessions 9 and 10 reuse it.
 
@@ -243,7 +247,7 @@ This part prepares Session 9, in which networks are trained. It covers how units
 
 A network connects many units of the kind that Session 7 introduced. How they are connected decides how many weights a layer has, and it also builds an assumption about the data into the model:
 
-![How units are connected decides how many weights a layer has. Fully connected: every input to every output (Sessions 8-9). Sparse: only some connections, closer to real brains. Local with shared weights: each output sees only a small window of neighbouring inputs, and every window reuses the same three weights. This is convolution, Session 10's key idea, and it is why convolutional networks need so many fewer parameters.](figs/session08-connectivity.png){width="100%"}
+![How units are connected decides how many weights a layer has. Fully connected: every input to every output (Sessions 8-9). Sparse: only some connections, closer to real brains. Local with shared weights: each output sees only a small window of neighbouring inputs, and every window reuses the same three weights. This is convolution, Session 10's key idea, and it is why convolutional networks need so many fewer parameters.](figs/session08-connectivity.png){#fig-session08-connectivity width="100%"}
 
 A fully connected layer (`nn.Linear`) connects every input to every output, so its size grows with the length of the input. The third discussion problem compares it with a convolution, whose number of weights does not depend on the input length at all.
 
@@ -252,7 +256,7 @@ A fully connected layer (`nn.Linear`) connects every input to every output, so i
 
 Session 7 introduced the perceptron as Rosenblatt's simplified neuron. Beyond single units, the analogy with biology becomes loose:
 
-![Top: a biological neuron and a small biological network, with sparse connections, feedback loops, and both excitatory (grey) and inhibitory (red) synapses. Bottom: the artificial counterparts. A unit computes a weighted sum and applies an activation $f$. A feed-forward network arranges units in layers with connections running in one direction only.](figs/session08-neuron-to-network.png){width="100%"}
+![Top: a biological neuron and a small biological network, with sparse connections, feedback loops, and both excitatory (grey) and inhibitory (red) synapses. Bottom: the artificial counterparts. A unit computes a weighted sum and applies an activation $f$. A feed-forward network arranges units in layers with connections running in one direction only.](figs/session08-neuron-to-network.png){#fig-session08-neuron-to-network width="100%"}
 
 - **Real neurons spike.** They send discrete pulses over time. Artificial units output a single number.
 - **Brains are recurrent.** Signals loop back. The networks of Sessions 8-10 are strictly feed-forward; Session 11's recurrent networks bring loops back in a controlled form.
@@ -260,7 +264,7 @@ Session 7 introduced the perceptron as Rosenblatt's simplified neuron. Beyond si
 
 Each architecture in the rest of the course builds a different assumption about the data into its wiring:
 
-![The architectures still to come, each with a biological application from this course. Feed-forward networks take a fixed-size input (this session's localisation model; PHD in Session 9). CNNs look for local patterns with shared weights (contact maps, Session 10). RNNs read a sequence one position at a time (signal peptides, Session 11). Transformers let every position attend to every other (language models and SignalP 6.0, Session 11; AlphaFold, Session 12). Generative diffusion models learn to turn noise into new examples (protein design, Session 12).](figs/session08-architectures.png){width="100%"}
+![The architectures still to come, each with a biological application from this course. Feed-forward networks take a fixed-size input (this session's localisation model; PHD in Session 9). CNNs look for local patterns with shared weights (contact maps, Session 10). RNNs read a sequence one position at a time (signal peptides, Session 11). Transformers let every position attend to every other (language models and SignalP 6.0, Session 11; AlphaFold, Session 12). Generative diffusion models learn to turn noise into new examples (protein design, Session 12).](figs/session08-architectures.png){#fig-session08-architectures width="100%"}
 :::
 
 ### From step functions to trainable activations
@@ -273,7 +277,7 @@ $$
 \text{ReLU}(z) = \max(0, z)
 $$
 
-![The step function of Session 7's perceptron (dashed) and three replacements that gradient descent can work with.](figs/session08-activation-functions.png){width="70%"}
+![The step function of Session 7's perceptron (dashed) and three replacements that gradient descent can work with.](figs/session08-activation-functions.png){#fig-session08-activation-functions width="70%"}
 
 - **Sigmoid** outputs a value in $(0, 1)$. It remains the standard for a binary output unit.
 - **tanh** has the same S shape but is centred on zero, with outputs in $(-1, 1)$.

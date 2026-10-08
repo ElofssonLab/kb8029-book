@@ -117,6 +117,8 @@ clear the threshold in total. The top ones are:
 | `YWG` | 16 |
 | `KWG` | 15 |
 
+: The highest-scoring neighbour words of the query word `LWG`. {#tbl-s05-neighbours}
+
 These query words and their high-scoring neighbours go into a **lookup
 table**, which is built once per query and records, for every 3-letter
 word, which query positions it would seed. BLAST then scans each
@@ -228,6 +230,8 @@ gives the following hits:
 | Alpha-globin (`HBA`) | 43.4% | 9.0×10⁻³⁸ | 114 |
 | Zeta-globin (`HBAZ`) | 35.9% | 3.8×10⁻³² | 100 |
 | Myoglobin (`MYG`) | 16.0% | 63 | 10.8 |
+
+: A local BLASTP search of *HBB* against its five closest human globin relatives. {#tbl-s05-hbb-hits}
 
 The first four are all confident, high-quality hits, with high percent
 identity, astronomically small E-values and comfortably high bit scores.

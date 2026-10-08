@@ -48,6 +48,8 @@ The most useful skill of this session is to know what kind of identifier you are
 | `HBB_HUMAN` | UniProt entry name | a readable label for the same entry, which can change |
 | `2HHB` | PDB ID | one experimental structure; *HBB* appears in hundreds of them |
 
+: Seven identifiers for the human *HBB* gene and its products. {#tbl-s03-identifiers}
+
 An accession is unique only within its own database. The same gene has different accessions in RefSeq, Ensembl, UniProt and the PDB, and the records are tied together by explicit **cross-references**. The RefSeq protein record `NP_000509.1`, for example, states that it was translated from `NM_000518.5`, and the UniProt entry `P68871` lists both. One biological entity thus has many linked records.
 
 Two habits follow from this. First, to move between records, follow an explicit cross-reference when one exists. Otherwise, search with a stable identifier or the approved symbol (and the organism), and check the organism and sequence of what you find. Second, when you report a sequence, give the accession *with* its version, because `NM_000518` alone does not say which revision you used. The same holds for genome coordinates, which only mean something together with the genome **build** (GRCh37/hg19 or GRCh38/hg38). The lab shows the same gene at different coordinates in the two builds.
@@ -61,6 +63,8 @@ RefSeq accessions also encode the kind of record in their prefix:
 | `NP_` | protein, not predicted (many curated) | `NP_000509.1` |
 | `NR_` | non-coding RNA, not predicted | — |
 | `XM_` / `XP_` | mRNA / protein **predicted** by NCBI's genome-annotation pipeline | `XP_011536997.1` |
+
+: RefSeq accession prefixes and the kind of record they denote. {#tbl-s03-refseq}
 
 ### Where does a record's information come from?
 
@@ -117,6 +121,8 @@ A family or domain database tells you which group a sequence belongs to, which i
 | IPR050056          | Hemoglobin and related oxygen transporters |
 | IPR002337          | Hemoglobin, beta-type                      |
 
+: The five InterPro entries that match β-globin (`P68871`), from broad to specific. {#tbl-s03-interpro}
+
 Most of these signatures are profile hidden Markov models, the method that Session 5 explains. For non-coding RNA, **Rfam** plays the same role. It uses covariance models, which score the conserved base-pairing pattern together with the sequence, because an RNA's function depends on its fold. *HBB* is protein-coding and has no Rfam entry; Rfam's tRNA family, for comparison, is RF00005.
 
 ### Is there a structure?
@@ -149,6 +155,8 @@ Put together, the answers to the five questions form a short **database dossier*
 | What does it interact with? | IntAct; Complex Portal | HBB-HBZ; `CPX-2158` (HbA) | experimental; curated |
 | Where is it described? | PubMed | PMID 6726807 (Fermi et al. 1984, *J Mol Biol* 175:159), the paper behind 2HHB | literature |
 
+: The databases that answer each question about β-globin, and the main evidence behind each answer. {#tbl-s03-questions}
+
 The notebook fetches every one of these records live, and the lab ends with a dossier of your own, for human myoglobin.
 
 ### Further reading
@@ -171,6 +179,8 @@ A good habit for every database is to **predict what a query will return, run it
 | `hemoglobin AND malaria` | 4,458 | both terms present |
 | `hemoglobin OR malaria` | 409,561 | 288,577 + 125,442 − 4,458 (union) |
 | `hemoglobin NOT malaria` | 284,119 | 288,577 − 4,458 (difference) |
+
+: PubMed queries combined with Boolean operators. {#tbl-s03-pubmed}
 
 **Quotation marks** are the second tool. The query `hemoglobin beta` is read as `hemoglobin AND beta`, that is, both words anywhere, in any order. The query `"hemoglobin beta"` requires the exact phrase, and it usually returns far fewer records. The third discussion problem asks you to predict the counts for a new pair of terms before running the searches.
 
