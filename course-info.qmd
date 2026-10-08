@@ -31,6 +31,33 @@ Most sessions have a lab (see the [Course Schedule](schedule.qmd)): a notebook i
 - **Available as soon as published.** You do not have to wait for the lecture.
 - **One redo chance** if you fail, normally only the next time the course runs, and the lab may have changed by then.
 
+## Expected workload {#workload}
+
+Each session takes about 5–7.5 hours of your own time, besides the three-hour lecture. The table below gives our estimate, split into reading the material and doing the lab.
+
+- **Reading and understanding** means studying the session page carefully, with its worked examples, practice problems, quiz and main videos, and working through the course notebook. Optional videos and boxes are not included.
+- **Lab** is the total time for the lab, including its quiz on Canvas. Every lab is designed to fit into the scheduled three-hour lab afternoon, and most students need about two to two and a half hours. Optional extras in the lab notebooks are not included.
+
+| Session | Reading and understanding | Lab | Total |
+|---|---|---|---|
+| 0 Introduction | 0.5 h | – | 0.5 h |
+| 1 Mathematics | 7.5 h | no lab | 7.5 h |
+| Setup, before Session 2 | – | 1.5 h | 1.5 h |
+| 2 Python | 4 h | 2.5 h | 6.5 h |
+| 3 Biological databases | 2.5 h | 2 h | 4.5 h |
+| 4 Sequence alignment | 3 h | 2.5 h | 5.5 h |
+| 5 Database search and profiles | 3 h | 2.5 h | 5.5 h |
+| 6 Protein structure | 2.5 h | 2.5 h | 5 h |
+| 7 Linear models and XOR | 5 h | 1.5 h | 6.5 h |
+| 8 Machine-learning foundations | 4.5 h | 2 h | 6.5 h |
+| 9 Training neural networks | 5.5 h | 2 h | 7.5 h |
+| 10 CNNs | 3.5 h | 2.5 h | 6 h |
+| 11 Sequences and language models | 4.5 h | 2.5 h | 7 h |
+| 12 AlphaFold | 5 h | 2.5 h | 7.5 h |
+| **Sum** | **51 h** | **26.5 h** | **77.5 h** |
+
+These numbers are estimates from the amount of material, not measurements, and they depend a lot on your background. If you already know Python well, Session 2 goes quickly, and if the mathematics is new to you, Session 1 takes longer. In total, the sessions take about 78 hours, which comes on top of the lectures, the [capstone project](capstone.qmd) and preparing for the exam.
+
 ## Plagiarism
 
 Plagiarism has unfortunately been an issue in earlier years. You may already have signed a plagiarism policy form; if not, you will be given one. Please set an example of honesty for your peers, since not everyone has fully understood the rules. If you see a problem, or have a suggestion for how to handle it, talk to the teachers. In general we trust everyone: you are honest until proven otherwise.

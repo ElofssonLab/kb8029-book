@@ -642,8 +642,8 @@ renderQuiz("session06-quiz", [
 
 **The full lab starts with PyMOL** and uses three structures beyond
 haemoglobin. An HIV envelope glycoprotein trimer with an antibody
-(`7LXM`) is used for representations, chains, structural alignment
-(`cealign`) and finding a sequence inside a structure. A chitinase with
+(`7LXM`) is used for representations, chains and structural alignment
+(`cealign`). A chitinase with
 bound metal ions and an inhibitor (`8C6Z`) is used for ligands and
 charged residues. Human neuroglobin (`1OJ6`) is used for the central
 comparison, which you run with Foldseek in
@@ -655,11 +655,11 @@ a different globin (hemoglobin)                       → same fold
 GFP                                                   → unrelated fold
 ```
 
-Today, AlphaFold DB simply supplies a structure to inspect, and Session
+Here AlphaFold DB simply supplies a structure to inspect, and Session
 12 asks how that prediction is produced and how to decide which parts of
-it to trust. The lab ends with a structural domain lookup in CATH, and
-it shows how to view structures directly in VS Code (the Protein Viewer
-extension, which is handy on the course server).
+it to trust. The lab ends with a structural domain lookup in CATH. An
+optional tip shows how to view structures directly in VS Code (the
+Protein Viewer extension, which is handy on the course server).
 
 ### Submitting this lab
 

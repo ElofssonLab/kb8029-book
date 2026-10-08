@@ -38,6 +38,8 @@ Each of the twelve sessions has the same parts:
 | **Live quizzes** | [quiz.bioinfo.se](https://quiz.bioinfo.se), on your phone | quick questions during the lecture, to check what has landed |
 | **The lab** | a separate lab notebook in this book, questions on [Canvas](https://canvas.su.se/) | most sessions; hands-on work with real data, submitted as a short online quiz |
 
+How much time each session takes, split into reading and lab, is in the table [Expected workload](course-info.qmd#workload).
+
 Read the page before the lecture: the lectures assume you have seen the material once, and use the time for the parts that are hard to learn alone. **Lectures are not recorded.**
 
 ## Where to find everything
@@ -51,7 +53,7 @@ Read the page before the lecture: the lectures assume you have seen the material
 | Setting up your computer, the course server and Colab | [Setup](setup.qmd) |
 | The session-by-session plan | [Course Schedule](schedule.qmd) |
 | Exam, grading, labs, plagiarism, AI tools, weekly schedule, student office | [Course Information & Logistics](course-info.qmd) |
-| The capstone project | [Capstone](capstone.qmd) |
+| The capstone project | [Capstone project](capstone.qmd) |
 | Past exams | [Exam preparation](schedule.qmd#exam-preparation) |
 | Further reading for the whole course | [References](references.qmd) |
 
@@ -82,9 +84,12 @@ If you do not have a laptop that can do this, tell us now, not on the day of a l
 ## Before Session 1
 
 1.  Accept the course invitation on [Canvas](https://canvas.su.se/), and check the schedule there.
-2.  Work through the [Setup](setup.qmd) page: create an SSH key and send the public key, and make sure you can open a notebook in Colab.
-3.  Open [quiz.bioinfo.se](https://quiz.bioinfo.se) on your phone and check that you can log in.
-4.  Read the [Session 1](session01.qmd) page, the mathematics refresher, and try its practice problems.
+2.  Open [quiz.bioinfo.se](https://quiz.bioinfo.se) on your phone and check that you can log in.
+3.  Read the [Session 1](session01.qmd) page, the mathematics refresher, and try its practice problems.
+
+## Before Session 2
+
+Session 2 has the first lab, and it runs on the course server or on Colab. Before it, work through the [Setup](setup.qmd) page: create an SSH key and send the public key, connect VS Code to the server, and make sure you can open a notebook in Colab. Setting up takes about an hour and a half, and it is easier to sort out problems before the lab than during it.
 
 ## What's next
 

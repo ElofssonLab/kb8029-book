@@ -413,11 +413,12 @@ The dataset is loaded from the course repository. On Colab, run `!pip install fa
 
 **Full lab:** the lab is adapted from the previous course's "Neural Networks" labs and rebuilt in PyTorch on biological data. Work through [`notebooks/session11-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session11-lab.ipynb), replacing every `todo(...)` call with your own code:
 
-1.  write one step of a simple RNN by hand and check it against `nn.RNN`;
-2.  label signal-peptide residues with a feed-forward sliding window of 1 to 41 residues, and see how the window size matters;
-3.  build a forward and a bidirectional LSTM tagger for the same task, and explain why reading the sequence in both directions helps;
-4.  compute ESM-2 embeddings and cosine similarities for two myoglobins and an unrelated membrane transporter;
-5.  embed eleven PDB proteins, plot them with PCA, cluster them, and check the clusters against their Pfam families.
+1.  label signal-peptide residues with a feed-forward sliding window of 1, 11 and 41 residues, and see how the window size matters;
+2.  build a forward and a bidirectional LSTM tagger for the same task, and explain why reading the sequence in both directions helps;
+3.  compute ESM-2 embeddings and cosine similarities for two myoglobins and an unrelated membrane transporter;
+4.  embed eleven PDB proteins, plot them with PCA, cluster them, and check the clusters against their Pfam families.
+
+An optional extra at the end of the notebook, not part of the quiz, lets you write one step of a simple RNN by hand and check it against `nn.RNN`.
 
 ### Submitting this lab
 

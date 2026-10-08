@@ -524,7 +524,7 @@ It runs on a CPU in a few minutes. Open the notebook in [Google Colab](https://c
 Work through [`notebooks/session12-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session12-lab.ipynb), replacing every `todo(...)` call with your own code:
 
 1.  fetch your target's chain sequences from the PDB and submit them to the AlphaFold Server (20 jobs per day and account);
-2.  read AlphaFold DB models: pLDDT, the PAE matrix, a hydrogen bond, which models are disordered, and how closely a model matches its crystal structure;
+2.  read AlphaFold DB models: pLDDT, the PAE matrix, which models are disordered, and how closely a model matches its crystal structure;
 3.  load your AlphaFold Server result, plot its PAE heatmap, and compute pTM, ipTM and the interface score ipSAE;
 4.  pool the class's results and compare ipTM with ipSAE across the four regions;
 5.  superimpose your model on the crystal structure in PyMOL.

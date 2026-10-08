@@ -8,7 +8,7 @@ below (1,200 real entries, three file formats, checked directly — not
 assumed from a folder name).
 :::
 
-# Capstone: Secondary Structure Prediction Project {.unnumbered}
+# Capstone Project: Secondary Structure Prediction {.unnumbered}
 
 ::: {.callout-tip icon="false"}
 ## Tertiary structure

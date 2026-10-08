@@ -4,7 +4,7 @@
 
 # Session 1: Math Prerequisites
 
-This session is not "all the mathematics you might need". It is the mathematical vocabulary we use in this course, worked through with real numbers, and each idea comes with a pointer to where it shows up later. This session has no programming exercises and no lab; programming starts in Session 2, whose lab is the first of the course. The notebook linked at the bottom nevertheless lets you check this session's answers in code. If you have not yet got the SSH connection to our server working through VS Code, talk to us after the lecture.
+This session is not "all the mathematics you might need". It is the mathematical vocabulary we use in this course, worked through with real numbers, and each idea comes with a pointer to where it shows up later. This session has no programming exercises and no lab; programming starts in Session 2, whose lab is the first of the course. The notebook linked at the bottom nevertheless lets you check this session's answers in code. You set up the connection to the course server ([Setup](setup.qmd)) before Session 2, whose lab is the first to use it.
 
 The session has three parts:
 
@@ -12,7 +12,7 @@ The session has three parts:
 2.  **Calculus for machine learning:** derivatives, partial derivatives, the gradient, gradient descent and the chain rule.
 3.  **Probability and statistics:** a short recap, correlation (Pearson and Spearman), conditional probability, logs and log-odds, likelihood, p-values and multiple testing, and an RNA-seq example.
 
-Each part ends with practice problems, a quick self-check and a short video (not done by us).
+Each part ends with practice problems, a quick self-check and one short video (not made by us). The other videos listed there are optional: most of this material will be familiar, and they are there if you want to refresh a topic.
 
 ## Learning goals
 
@@ -292,7 +292,7 @@ renderQuiz("session01-quiz-1", [
 
 ### Further watching
 
-[*Dot products and duality*](https://www.youtube.com/watch?v=LyGKycYT2v0) (3Blue1Brown, Essence of Linear Algebra, ch. 9), animating the geometric picture above:
+[*Dot products and duality*](https://www.youtube.com/watch?v=LyGKycYT2v0) (3Blue1Brown, Essence of Linear Algebra, ch. 9, 14 min) animates the geometric picture of the dot product above:
 
 ```{=html}
 <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
@@ -300,21 +300,10 @@ renderQuiz("session01-quiz-1", [
 </div>
 ```
 
-[*Cross products*](https://www.youtube.com/watch?v=eu6i7WJeinw) (3Blue1Brown, Essence of Linear Algebra, ch. 10), for the optional cross-product box:
+**Optional videos**, if you want to refresh more of this part:
 
-```{=html}
-<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
-<iframe src="https://www.youtube.com/embed/eu6i7WJeinw" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="Cross products, 3Blue1Brown"></iframe>
-</div>
-```
-
-[*Eigenvectors and eigenvalues*](https://www.youtube.com/watch?v=PFDu9oVAE-g) (3Blue1Brown, Essence of Linear Algebra, ch. 14):
-
-```{=html}
-<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
-<iframe src="https://www.youtube.com/embed/PFDu9oVAE-g" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="Eigenvectors and eigenvalues, 3Blue1Brown"></iframe>
-</div>
-```
+- [*Cross products*](https://www.youtube.com/watch?v=eu6i7WJeinw) (3Blue1Brown, Essence of Linear Algebra, ch. 10, 9 min), for the optional cross-product box;
+- [*Eigenvectors and eigenvalues*](https://www.youtube.com/watch?v=PFDu9oVAE-g) (3Blue1Brown, Essence of Linear Algebra, ch. 14, 17 min).
 
 ## Calculus for machine learning {#sec-s01-calculus}
 
@@ -478,7 +467,7 @@ renderQuiz("session01-quiz-2", [
 
 ### Further watching
 
-[*Visualizing the chain rule and product rule*](https://www.youtube.com/watch?v=YG15m2VwSjA) (3Blue1Brown, Essence of Calculus, ch. 4):
+[*Visualizing the chain rule and product rule*](https://www.youtube.com/watch?v=YG15m2VwSjA) (3Blue1Brown, Essence of Calculus, ch. 4, 16 min):
 
 ```{=html}
 <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
@@ -486,37 +475,12 @@ renderQuiz("session01-quiz-2", [
 </div>
 ```
 
-[*The paradox of the derivative*](https://www.youtube.com/watch?v=9vKqVkMQHKk) (3Blue1Brown, Essence of Calculus, ch. 2) — what "instantaneous rate of change" actually means, resolving the apparent paradox that change needs two moments to compare, not one:
+**Optional videos**, if you want to refresh more of this part (3Blue1Brown, Essence of Calculus):
 
-```{=html}
-<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
-<iframe src="https://www.youtube.com/embed/9vKqVkMQHKk" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="The paradox of the derivative, 3Blue1Brown"></iframe>
-</div>
-```
-
-[*Derivative formulas through geometry*](https://www.youtube.com/watch?v=S0_qX4VJhMQ) (3Blue1Brown, Essence of Calculus, ch. 3) — where the derivative cheat-sheet formulas above actually come from, visually:
-
-```{=html}
-<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
-<iframe src="https://www.youtube.com/embed/S0_qX4VJhMQ" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="Derivative formulas through geometry, 3Blue1Brown"></iframe>
-</div>
-```
-
-[*Integration and the fundamental theorem of calculus*](https://www.youtube.com/watch?v=rfG8ce4nNh0) (3Blue1Brown, Essence of Calculus, ch. 8):
-
-```{=html}
-<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
-<iframe src="https://www.youtube.com/embed/rfG8ce4nNh0" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="Integration and the fundamental theorem of calculus, 3Blue1Brown"></iframe>
-</div>
-```
-
-[*What does area have to do with slope?*](https://www.youtube.com/watch?v=FnJqaIESC2s) (3Blue1Brown, Essence of Calculus, ch. 9) — a second, complementary view of why integration and differentiation are inverses:
-
-```{=html}
-<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
-<iframe src="https://www.youtube.com/embed/FnJqaIESC2s" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="What does area have to do with slope?, 3Blue1Brown"></iframe>
-</div>
-```
+- [*The paradox of the derivative*](https://www.youtube.com/watch?v=9vKqVkMQHKk) (ch. 2, 17 min), on what "instantaneous rate of change" actually means;
+- [*Derivative formulas through geometry*](https://www.youtube.com/watch?v=S0_qX4VJhMQ) (ch. 3, 18 min), on where the formulas in the table of derivatives come from;
+- [*Integration and the fundamental theorem of calculus*](https://www.youtube.com/watch?v=rfG8ce4nNh0) (ch. 8, 21 min);
+- [*What does area have to do with slope?*](https://www.youtube.com/watch?v=FnJqaIESC2s) (ch. 9, 13 min), a second view of why integration and differentiation are inverses.
 
 ## Probability and statistics {#sec-s01-probability}
 
@@ -835,7 +799,7 @@ renderQuiz("session01-quiz-3", [
 
 ### Further watching
 
-[*What Is A P-Value? - Clearly Explained*](https://www.youtube.com/watch?v=ukcFrzt6cHk) (Steven Bradburn):
+[*What Is A P-Value? - Clearly Explained*](https://www.youtube.com/watch?v=ukcFrzt6cHk) (Steven Bradburn, 8 min):
 
 ```{=html}
 <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
@@ -843,15 +807,10 @@ renderQuiz("session01-quiz-3", [
 </div>
 ```
 
-[*False Discovery Rates, FDR, clearly explained*](https://www.youtube.com/watch?v=L3nlGfSyHV0) (StatQuest with Josh Starmer):
+**Optional videos**, if you want to refresh more of this part:
 
-```{=html}
-<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
-<iframe src="https://www.youtube.com/embed/L3nlGfSyHV0" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="False Discovery Rates, FDR, clearly explained, StatQuest with Josh Starmer"></iframe>
-</div>
-```
-
-**Optional extras** (3Blue1Brown), for the Bayes box and the recap: [*Bayes theorem, the geometry of changing beliefs*](https://www.youtube.com/watch?v=HZGCoVF3YvM), [*But what is the Central Limit Theorem?*](https://www.youtube.com/watch?v=zeJD6dqJ5lo), [*Binomial distributions*](https://www.youtube.com/watch?v=8idr1WZ1A7Q) and [*Why "probability of 0" does not mean "impossible"*](https://www.youtube.com/watch?v=ZA4JkHKZM50).
+- [*False Discovery Rates, FDR, clearly explained*](https://www.youtube.com/watch?v=L3nlGfSyHV0) (StatQuest with Josh Starmer, 18 min);
+- from 3Blue1Brown, for the Bayes box and the recap: [*Bayes theorem, the geometry of changing beliefs*](https://www.youtube.com/watch?v=HZGCoVF3YvM), [*But what is the Central Limit Theorem?*](https://www.youtube.com/watch?v=zeJD6dqJ5lo), [*Binomial distributions*](https://www.youtube.com/watch?v=8idr1WZ1A7Q) and [*Why "probability of 0" does not mean "impossible"*](https://www.youtube.com/watch?v=ZA4JkHKZM50).
 
 ## The course notebook
 

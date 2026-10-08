@@ -408,14 +408,9 @@ The lab notebook, [`notebooks/session02-lab.ipynb`](https://colab.research.googl
 
 2.  **Adapt:** change working code to answer new questions. You find the most strongly down-regulated gene, fix a cell with three realistic bugs (one of which runs without an error), and apply the mini challenge's function to six more globin genes.
 
-3.  **Solve:** four open challenges, each with a specification and hints only:
+3.  **Solve:** one open challenge, with a specification and hints only. Across all twelve globins, does a longer mRNA mean a longer protein? You explain what you found in a few sentences, including what to do with the one gene that stands out.
 
-    - download a gene (human leptin) with Entrez and Biopython, report its length, GC and protein, and plot GC content along the mRNA;
-    - explore the RNA-seq table with seaborn: a joint plot, a heatmap of the correlations between its columns, and a plot of your own choice;
-    - a statistical analysis, plot first and test second: are up-regulated genes expressed at a different level than down-regulated ones?
-    - all twelve globins: does a longer mRNA mean a longer protein?
-
-    Each asks you to explain what you found in a few sentences.
+Three more challenges follow as **optional extras**, which are not part of the quiz. In the first you download a gene (human leptin) with Entrez and Biopython and plot GC content along its mRNA. The second explores the RNA-seq table with seaborn, and the third is a statistical analysis, plot first and test second, of whether up-regulated genes are expressed at a different level than down-regulated ones.
 
 Answer the Session 2 lab quiz on Canvas with your notebook's own output.
 

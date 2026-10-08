@@ -332,11 +332,11 @@ The first part of the notebook trains a small CNN six times for 100 epochs, so u
 **Full lab, on blood-cell images** (BloodMNIST, as in the Session 8 and 9 labs). The lab is adapted from the previous course's "Neural Networks" lab. Work through [`notebooks/session10-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session10-lab.ipynb), replacing every `todo(...)` call with your own code:
 
 1.  count the weights of a dense and a convolutional layer, then of whole models, and see why adding a convolutional layer can make the whole model *smaller* (the next dense layer receives a smaller feature map);
-2.  train five models side by side, from a 23,000-weight to a 670,000-weight dense network and a small CNN, and see that the CNN, with 17,640 weights, beats them all;
-3.  find out how many unpadded 5×5 convolutions fit on a 28×28 image, and which settings (padding, kernel size, stride) let you stack them indefinitely;
-4.  build a VGG block, and test it on cells placed at positions it never saw during training, before and after training on randomly placed cells, to see that equivariance is not invariance;
-5.  build a ResNet block with a skip connection and compare it with VGG;
-6.  rotate and mirror the test cells and measure what augmentation buys you.
+2.  train four models side by side, two dense networks of 23,000 and 302,000 weights, a one-layer convolutional network and a small CNN, and see that the CNN, with 17,640 weights, beats them all;
+3.  find out how many unpadded 5×5 convolutions fit on a 28×28 image;
+4.  build a VGG block, and test it on cells placed at positions it never saw during training, before and after training on randomly placed cells, to see that equivariance is not invariance.
+
+Two optional extras, which are not part of the quiz, follow if you have time. In the first you build a ResNet block with a skip connection and compare it with VGG. In the second you rotate and mirror the cells and measure what augmentation buys you.
 
 ### Submitting this lab
 

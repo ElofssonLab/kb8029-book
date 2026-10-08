@@ -458,11 +458,10 @@ Open it in [Google Colab](https://colab.research.google.com/github/ElofssonLab/k
 
 1.  write the four-step mini-batch training loop;
 2.  compare cross-entropy with mean squared and mean absolute error as the loss for a classifier;
-3.  start every weight at 1 and see why random initialisation matters;
-4.  add hidden layers (tanh, sigmoid, ReLU) and measure the gradient that reaches the first layer;
-5.  compare plain SGD, SGD with momentum and Adam, a 128-unit hidden layer with no hidden layer at all, and run a small hyperparameter search chosen on the validation set, using the test set once, at the end.
+3.  add hidden layers (tanh, sigmoid, ReLU) and measure the gradient that reaches the first layer;
+4.  compare plain SGD, SGD with momentum and Adam, a 128-unit hidden layer with no hidden layer at all, and run a small hyperparameter search chosen on the validation set, using the test set once, at the end.
 
-The best dense network ends up near 78% on the test images. Session 10's lab trains a convolutional network on the same cells.
+The best dense network ends up near 78% on the test images. An optional extra at the end of the notebook, not part of the quiz, starts every weight at 1 and shows why random initialisation matters. Session 10's lab trains a convolutional network on the same cells.
 
 ### Submitting this lab
 
