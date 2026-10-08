@@ -33,10 +33,10 @@ Each of the twelve sessions has the same parts:
 | Part | Where | What it is for |
 |------------------------|------------------------|------------------------|
 | **The page** | this book, e.g. [Session 1](session01.qmd) | the material of the session, with self-study questions and a short quiz at the end |
-| **The notebook** | this book, linked from each page, with an "Open in Colab" badge | the same material in code; read it, then run and change it |
+| **The course notebook** | this book, linked from each page, with an "Open in Colab" badge | the same material in code; read it, then run and change it |
 | **The lecture** | on site | explanations, live coding, and short **discussion problems** you work on in groups (notebooks opened by QR code) |
 | **Live quizzes** | [quiz.bioinfo.se](https://quiz.bioinfo.se), on your phone | quick questions during the lecture, to check what has landed |
-| **The lab** | notebook in this book, questions on [Canvas](https://canvas.su.se/) | most sessions; hands-on work with real data, submitted as a short online quiz |
+| **The lab** | a separate lab notebook in this book, questions on [Canvas](https://canvas.su.se/) | most sessions; hands-on work with real data, submitted as a short online quiz |
 
 Read the page before the lecture: the lectures assume you have seen the material once, and use the time for the parts that are hard to learn alone. **Lectures are not recorded.**
 

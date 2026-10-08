@@ -66,16 +66,16 @@ classifications were fetched live from the PDBe and InterPro APIs.
 ::: {.callout-tip icon="false"}
 ## Tense and relaxed
 
-> Hemoglobin walks into a bar. The bartender says: "You look tense."
+> Haemoglobin walks into a bar. The bartender says: "You look tense."
 >
-> Hemoglobin: "Give me some oxygen and I'll relax."
+> Haemoglobin: "Give me some oxygen and I'll relax."
 :::
 
 ## Learning goals
 
 By the end of this session you should be able to:
 
-- describe the four levels of protein structure, using hemoglobin, and
+- describe the four levels of protein structure, using haemoglobin, and
   name the computational task that belongs to each;
 - represent a structure as coordinates, as a distance map and as a
   contact map, and explain what each makes easy to see;
@@ -88,17 +88,18 @@ By the end of this session you should be able to:
 - state secondary-structure prediction as a supervised learning problem:
   what goes in, what comes out.
 
-The question for today: **what information about a protein is contained
-in its sequence, what becomes visible only in 3D, and how can computers
-connect the two?** Sessions 3–5 worked with sequences: retrieving them,
-aligning them, searching for families. In Session 3 you found structures
-as *database records* (a PDB entry, an AlphaFold model). Today the
-structure itself becomes the data: coordinates that can be turned into
-distances, secondary structure, domains and interfaces, and compared
-with other structures. The course's globin thread continues: in Session
-3 you looked up *HBB*'s identifiers, in Session 4 you aligned globin
-sequences, in Session 5 you searched for the globin family; today you
-compare globin structures.
+The question for this session is: **what information about a protein is
+contained in its sequence, what becomes visible only in 3D, and how can
+computers connect the two?** Sessions 3–5 worked with sequences,
+retrieving them, aligning them and searching for families. In Session 3
+you also found structures, but only as *database records* (a PDB entry,
+an AlphaFold model). In this session the structure itself becomes the data. Its
+coordinates can be turned into distances, secondary structure, domains
+and interfaces, and compared with other structures. The course's globin
+thread continues as well. In Session 3 you looked up *HBB*'s
+identifiers, in Session 4 you aligned globin sequences and in Session 5
+you searched for the globin family, and now you compare globin
+structures.
 
 ## Sequence becomes structure {#sec-s06-levels}
 
@@ -106,73 +107,77 @@ compare globin structures.
 
 A protein starts as a **polypeptide chain**, a linear polymer of amino
 acids, which folds into a 3D shape. Structural biology describes the
-result at four levels, and each level has its own computational problem
-in this course:
+result at four levels, and in this course each level comes with its own
+computational problem:
 
 | Level | What it is | Computational task | Where in the course |
 |---|---|---|---|
 | **Primary** | the amino-acid sequence | alignment, BLAST, profiles | Sessions 3–5 |
 | **Secondary** | local backbone shapes: α-helix, β-strand, coil | prediction from sequence | Sessions 7–11 |
-| **Tertiary** | the 3D fold of one chain | structure comparison, prediction | today; Session 12 |
-| **Quaternary** | several chains packed together | interfaces, complexes | today; Session 12 |
+| **Tertiary** | the 3D fold of one chain | structure comparison, prediction | this session; Session 12 |
+| **Quaternary** | several chains packed together | interfaces, complexes | this session; Session 12 |
 
 - An **α-helix** is a coil held together by hydrogen bonds between the
-  backbone N-H and C=O groups of residues four apart; a **β-sheet** is
-  built from extended **β-strands** hydrogen-bonded edge to edge.
-  Everything else is called **coil**. Programs such as DSSP assign these
-  labels from the coordinates of a solved structure.
+  backbone N-H and C=O groups of residues four apart. A **β-sheet** is
+  built from extended **β-strands** that are hydrogen-bonded edge to
+  edge. Everything else is called **coil**. Programs such as DSSP assign
+  these labels from the coordinates of a solved structure.
 - The tertiary fold is held together mainly by the **hydrophobic
-  effect** (non-polar side chains bury themselves away from water), plus
-  hydrogen bonds, electrostatic interactions and van der Waals contacts.
-- Many proteins work as a single chain; others assemble into complexes
-  of two to hundreds of chains.
+  effect** (non-polar side chains bury themselves away from water),
+  together with hydrogen bonds, electrostatic interactions and van der
+  Waals contacts.
+- Many proteins work as a single chain, while others assemble into
+  complexes of two to hundreds of chains.
 
-### Hemoglobin: all four levels in one protein
+### Haemoglobin: all four levels in one protein
 
-Hemoglobin is a **heterotetramer**: two α-globin chains (141 residues)
-and two β-globin chains (146 residues; β-globin is *HBB*, this course's
-running example since Session 3), each folded on its own and each
-carrying an oxygen-binding heme group. The notebook computes with
-PyMOL's secondary-structure algorithm (`dss`) that one β chain is **118
-of 146 residues (80.8%) α-helix and 0% β-strand**; the PDB entry's own
-annotation, which Session 7 uses, gives 117 helical residues. (Two
-methods that differ only in where exactly a helix ends.)
+Haemoglobin is a **heterotetramer** of two α-globin chains (141
+residues) and two β-globin chains (146 residues; β-globin is *HBB*, this
+course's running example since Session 3). Each chain folds on its own
+and carries an oxygen-binding haem group. Using PyMOL's
+secondary-structure algorithm (`dss`), the notebook computes that one β
+chain is **118 of 146 residues (80.8%) α-helix and 0% β-strand**. The
+PDB entry's own annotation, which Session 7 uses, gives 117 helical
+residues, because the two methods differ slightly in where exactly a
+helix ends.
 
-![PDB entry `2HHB`, human deoxyhemoglobin: two α chains (blue/cyan),
-two β chains (salmon/pink), four heme iron atoms (orange spheres).
+![PDB entry `2HHB`, human deoxyhaemoglobin: two α chains (blue/cyan),
+two β chains (salmon/pink), four haem iron atoms (orange spheres).
 Rendered from the real structure with PyMOL.](figs/session06-hemoglobin-tetramer.png){width=85%}
 
 ### Does the sequence determine the structure?
 
-In the 1950s and 60s Christian Anfinsen showed that ribonuclease, unfolded
-in the test tube, refolds into its active shape on its own once the
-denaturant is removed. For many small globular proteins, then, the
-sequence contains enough information to specify the native fold under
-the right conditions. This is the principle that makes structure
-prediction possible at all. It is not a law for every protein: some
-proteins need chaperones to fold efficiently, many need a ligand,
-cofactor or binding partner, some switch between alternative states
-(hemoglobin itself, below), and **intrinsically disordered** regions
-have no single fold.
+Whether a computer can predict a structure at all depends on how much of
+it the sequence determines. In the 1960s Christian Anfinsen
+showed that ribonuclease, unfolded in the test tube, refolds into its
+active shape on its own once the denaturant is removed. For many small
+globular proteins, then, the sequence contains enough information to
+specify the native fold under the right conditions, and this principle
+is what makes structure prediction possible. It is not a law for every
+protein, however. Some proteins need chaperones to fold efficiently,
+many need a ligand, cofactor or binding partner, some switch between
+alternative states (haemoglobin itself, below), and **intrinsically
+disordered** regions have no single fold.
 
 Two kinds of interaction build a fold. **Local** interactions, between
-residues close in sequence, form secondary structure: the hydrogen bonds
-of an α-helix connect residues $i$ and $i+4$. **Long-range**
-interactions, between residues far apart in sequence but close in space,
-pack the helices and strands into a tertiary structure. Local structure
-can be partly guessed from a short window of sequence (Session 7);
-long-range structure cannot, which is why tertiary-structure prediction
-is so much harder.
+residues close in sequence, form secondary structure. The hydrogen bonds
+of an α-helix, for example, connect residues $i$ and $i+4$.
+**Long-range** interactions, between residues far apart in sequence but
+close in space, pack the helices and strands into a tertiary structure.
+Local structure can therefore be partly guessed from a short window of
+sequence (Session 7), whereas long-range structure cannot, which is why
+tertiary-structure prediction is so much harder.
 
 ### A structure as a matrix: distance and contact maps
 
-A structure file is a list of atomic coordinates. A useful alternative
-representation is the distance between every pair of residues: for a
-chain of $L$ residues, an $L \times L$ **distance map**. Thresholding it
-gives a **contact map**: 1 where two residues are close (here, Cβ atoms
-within 8 Å), 0 elsewhere. Unlike coordinates, both stay the same however
-the protein is rotated or moved, so two structures can be compared
-without first superimposing them.
+A structure file is a list of atomic coordinates, but coordinates are
+not always the most useful representation. An alternative is the
+distance between every pair of residues, which for a chain of $L$
+residues gives an $L \times L$ **distance map**. Thresholding the
+distance map gives a **contact map**, with 1 where two residues are
+close (here, Cβ atoms within 8 Å) and 0 elsewhere. Unlike coordinates,
+both maps stay the same however the protein is rotated or moved, so two
+structures can be compared without first superimposing them.
 
 ![Three representations of β-globin (2HHB, chain B). Left: the 3D
 structure, coloured from the N-terminus (blue) to the C-terminus (red).
@@ -182,31 +187,33 @@ each helix in contact with itself (local interactions); the
 off-diagonal stripes are helices packed against each other (long-range
 interactions).](figs/session06-hbb-distance-map.png){width=100%}
 
-This representation returns twice later in the course. An $L \times L$
-map looks like an image, which is why image-processing networks (CNNs,
-Session 10) turned out to be good at predicting contacts; and
-coevolution, contact prediction and AlphaFold's "pair representation"
-(Session 12) all work on residue-pair information like this.
+This representation returns twice later in the course. First, an $L
+\times L$ map looks like an image, which is why image-processing
+networks (CNNs, Session 10) turned out to be good at predicting
+contacts. Second, coevolution, contact prediction and AlphaFold's "pair
+representation" (Session 12) all work on residue-pair information like
+this.
 
 ::: {.callout-tip icon="false"}
 ## Representations
 
-The same protein can be represented as a sequence, a profile (Session 5),
-a set of coordinates, a distance or contact map, or a learned embedding
-(Session 11). The choice of representation determines which patterns are
-easy to see, and later in the course, which patterns a model can easily
-learn.
+The same protein can be represented as a sequence, a profile (Session
+5), a set of coordinates, a distance or contact map, or a learned
+embedding (Session 11). The choice of representation determines which
+patterns are easy to see and, later in the course, which patterns a
+model can easily learn.
 :::
 
 ### Looking at structures: PyMOL
 
+To look at a structure yourself, you need a molecular viewer.
 [PyMOL](https://pymol.org/) is, with ChimeraX, one of the two most
-widely used molecular viewers, and free in its open-source version. It
-loads a structure directly from the PDB and shows it as **cartoon**
-(secondary structure as ribbons and arrows, as in the figures above),
-**sticks** (every bond, useful for a side chain or ligand) or **spheres**
-(every atom, useful for packing), and measures distances and angles
-directly from the coordinates. Today's lab uses it hands-on; the notebook
+widely used, and its open-source version is free. It loads a structure
+directly from the PDB and shows it as **cartoon** (secondary structure
+as ribbons and arrows, as in the figures above), as **sticks** (every
+bond, useful for a side chain or ligand) or as **spheres** (every atom,
+useful for packing). It also measures distances and angles directly from
+the coordinates. This session's lab uses PyMOL hands-on, and the notebook
 drives the same program from Python, without a window, so that its
 figures and measurements are reproducible.
 
@@ -222,59 +229,62 @@ figures and measurements are reproducible.
 Session 4 defined an alignment as a hypothesis about which residues
 correspond. A **sequence alignment** decides this from the sequences
 alone, using substitution scores. A **structure alignment** decides it
-from the 3D coordinates: which residues occupy the same position in the
-two folds. The notebook compares β-globin with five proteins, from a
-close paralog to an unrelated fold, both ways:
+from the 3D coordinates, by asking which residues occupy the same
+position in the two folds. The notebook compares β-globin both ways with
+five proteins, ranging from a close paralog to an unrelated fold:
 
 | Compared with β-globin | Sequence identity\* | Sequence-only score (shuffled max) | Residue pairs agreeing | TM-score |
 |---|---|---|---|---|
 | α-globin (human, 2HHB) | 43% | 288 (43) | 95% | 0.88 |
 | myoglobin (human, 3RGK) | 25% | 111 (46) | 97% | 0.91 |
 | neuroglobin (human, 1OJ6) | 22% | 89 (41) | 66% | 0.82 |
-| truncated hemoglobin N (*M. tuberculosis*, 1IDR) | 16% | 28 (49) | 0% | 0.57 |
+| truncated haemoglobin N (*M. tuberculosis*, 1IDR) | 16% | 28 (49) | 0% | 0.57 |
 | GFP (jellyfish, 1EMA) | 6% | 25 (50) | — | 0.33 |
 
-\*Identity over the structurally aligned residues. "Sequence-only
-score" is the best Smith–Waterman alignment with BLOSUM62; in brackets,
-the highest score among 200 alignments against shuffled versions of the
-same sequence. "Residue pairs agreeing" is the fraction of structurally
-aligned pairs that the sequence alignment also pairs up. TM-scores are
-normalized by the length of β-globin.
+\*Identity over the structurally aligned residues. "Sequence-only score"
+is the best Smith–Waterman alignment with BLOSUM62, and the number in
+brackets is the highest score among 200 alignments against shuffled
+versions of the same sequence. "Residue pairs agreeing" is the fraction
+of structurally aligned pairs that the sequence alignment also pairs up.
+TM-scores are normalised by the length of β-globin.
 
-Read it from top to bottom. For α-globin and myoglobin the sequence
-alignment has a strong signal and pairs up almost exactly the same
-residues as the structure alignment. (Session 5 showed that BLAST, with
-default settings, nevertheless missed myoglobin: a heuristic search can
-skip an alignment that an exhaustive one finds.) For neuroglobin the
-sequence signal is still clear, but a third of the pairs are wrong: the
-gaps are in the wrong places. For the bacterial truncated hemoglobin the
-sequence alignment does no better than shuffled sequences, and pairs up
-none of the right residues, yet the structure alignment still finds a
-shared globin fold over more than 100 residues. This is the central
-lesson: **structure is more conserved than sequence.** When sequence
-evidence fades, structure can still reveal a relationship.
+The table is best read from top to bottom. For α-globin and myoglobin,
+the sequence alignment has a strong signal and pairs up almost exactly
+the same residues as the structure alignment. (Session 5 showed that
+BLAST, with default settings, nevertheless missed myoglobin, because a
+heuristic search can skip an alignment that an exhaustive one finds.)
+For neuroglobin the sequence signal is still clear, but a third of the
+pairs are wrong, because the gaps are in the wrong places. For the
+bacterial truncated haemoglobin, the sequence alignment does no better
+than shuffled sequences and pairs up none of the right residues. The
+structure alignment nevertheless finds a shared globin fold over more
+than 100 residues. This is the central lesson: **structure is more
+conserved than sequence.** When the sequence evidence fades, structure
+can still reveal a relationship.
 
 ### Measuring structural similarity: RMSD and TM-score
 
-**RMSD** (root-mean-square deviation) is the most direct measure: after
-optimally superimposing two structures, the root-mean-square distance
-between corresponding atoms. It is simple, but it grows with protein
-length, and one badly placed loop can inflate it even when the rest of
-the fold matches. The **TM-score** weights each residue pair by how close
-it is, so that small deviations count fully and large ones hardly at
-all, and normalizes by protein length. It runs from 0 to 1 (identical).
-Unrelated proteins typically score around 0.2–0.3, and scores above
-about 0.5 usually mean the same overall fold. This is a rule of thumb,
-not a law: the truncated hemoglobin above (0.57) and GFP (0.33) are
-clear cases, but scores in between need other evidence.
+To compare structures, we need a number for how similar they are.
+**RMSD** (root-mean-square deviation) is the most direct measure. It is
+the root-mean-square distance between corresponding atoms after the two
+structures have been optimally superimposed. RMSD is simple, but it
+grows with protein length, and one badly placed loop can inflate it even
+when the rest of the fold matches. The **TM-score** avoids these
+problems. It weights each residue pair by how close it is, so that small
+deviations count fully and large ones hardly at all, and it normalises
+by protein length. It runs from 0 to 1 (identical). Unrelated proteins
+typically score around 0.2–0.3, and scores above about 0.5 usually mean
+the same overall fold. This is a rule of thumb, not a law. The truncated
+haemoglobin above (0.57) and GFP (0.33) are clear cases, but scores in
+between need other evidence.
 
 ### DALI: comparing distance maps
 
 If two proteins have the same fold, their distance maps should look
 alike, even when their sequences do not. **DALI** (Holm & Sander, 1993)
-compares structures this way: rather than superimposing coordinates, it
-looks for residue correspondences that make the patterns of
-intramolecular distances agree.
+uses this idea to compare structures. Rather than superimposing
+coordinates, it looks for residue correspondences that make the patterns
+of intramolecular distances agree.
 
 ![Distance maps of β-globin, human myoglobin and GFP. The first two are
 almost indistinguishable although only a quarter of their residues are
@@ -282,13 +292,13 @@ identical; GFP's β-barrel gives a completely different pattern.](figs/session06
 
 The analogy with sequence alignment is direct:
 
-- sequence alignment compares residues along two sequences;
+- Sequence alignment compares residues along two sequences.
 - DALI compares patterns of residue–residue geometry.
 
 DALI and **TM-align** (Zhang & Skolnick, 2005), which finds the
-superposition that maximizes the TM-score, are accurate and still used
-for careful pairwise comparisons, but they are far too slow to search
-hundreds of millions of structures.
+superposition that maximises the TM-score, are accurate and still used
+for careful pairwise comparisons. They are, however, far too slow to
+search hundreds of millions of structures.
 
 ### Foldseek: structure search at sequence-search speed
 
@@ -299,15 +309,16 @@ does the same for structures:
 | | Search tool | Searches with |
 |---|---|---|
 | Sequence (Session 5) | BLAST, MMseqs2 | the amino-acid sequence |
-| Structure (today) | Foldseek | a "structural sequence" |
+| Structure (this session) | Foldseek | a "structural sequence" |
 
-Its key idea is a change of representation. For each residue, Foldseek
-looks at its local 3D environment (the geometry between that residue and
-its closest neighbour in space) and assigns one of 20 discrete
-structural states, the **3Di alphabet**. A structure becomes a string of
-3Di letters, one per residue, and two structures can be compared with
-fast sequence-alignment machinery (the same prefilter-and-align
-approach as MMseqs2) instead of expensive geometric superposition:
+The key idea of Foldseek is a change of representation. For each
+residue, Foldseek looks at the local 3D environment (the geometry
+between that residue and its closest neighbour in space) and assigns one
+of 20 discrete structural states, the **3Di alphabet**. A structure thus
+becomes a string of 3Di letters, one per residue. Two structures can
+then be compared with fast sequence-alignment machinery (the same
+prefilter-and-align approach as MMseqs2) instead of expensive geometric
+superposition:
 
 ```
 3D coordinates
@@ -318,34 +329,34 @@ approach as MMseqs2) instead of expensive geometric superposition:
 ```
 
 This makes it possible to search the hundreds of millions of structures
-in the AlphaFold Database and the PDB in seconds to minutes; Foldseek is
+in the AlphaFold Database and the PDB in seconds to minutes. Foldseek is
 tens of thousands of times faster than TM-align at comparable
 sensitivity.
 
 ::: {.callout-note icon="false"}
 ## Machine-learning preview: a learned representation
 
-Nobody designed the 20 states of Foldseek's 3Di alphabet by hand. A
-machine-learning model (a variational autoencoder) was trained on pairs
-of structurally aligned residues to find a compact set of recurring 3D
-environments that are conserved between related structures. You do not
-need to know how such a model works; the point is that a *useful
-representation can itself be learned from data*. In Session 5, humans
-chose the representation (amino acids) and the scoring scheme
-(BLOSUM62); in Foldseek, machine learning helped choose the
-representation. Sessions 7–12 build up the machinery behind models that
-learn increasingly powerful representations.
+Nobody designed the 20 states of Foldseek's 3Di alphabet by hand.
+Instead, a machine-learning model (a variational autoencoder) was
+trained on pairs of structurally aligned residues to find a compact set
+of recurring 3D environments that are conserved between related
+structures. You do not need to know how such a model works. The point is
+that a *useful representation can itself be learned from data*. In
+Session 5, humans chose both the representation (amino acids) and the
+scoring scheme (BLOSUM62), whereas in Foldseek, machine learning helped
+choose the representation. Sessions 7–12 build up the machinery behind
+models that learn increasingly powerful representations.
 :::
 
-**A worked comparison**, run locally with Foldseek on three structures:
-the two hemoglobin states used on this page (`2HHB`, deoxy; `1HHO`, oxy)
-and green fluorescent protein (`1EMA`). Matching α-to-α or β-to-β chains
-between `2HHB` and `1HHO`, the *same* protein in two states, gives a
-TM-score of **0.98** and an RMSD of **0.7 Å**, about as similar as two
-independently solved structures get. α against β globin (43% identical)
-still gives a TM-score of **0.90–0.91** (RMSD 1.7–1.8 Å). Searching
-`2HHB` against GFP returns **no hits**, even with a loosened significance
-threshold.
+**A worked comparison.** We ran Foldseek locally on three structures:
+the two haemoglobin states used on this page (`2HHB`, deoxy; `1HHO`,
+oxy) and green fluorescent protein (`1EMA`). Matching α-to-α or β-to-β
+chains between `2HHB` and `1HHO`, which are the *same* protein in two
+states, gives a TM-score of **0.98** and an RMSD of **0.7 Å**, about as
+similar as two independently solved structures get. α against β globin
+(43% identical) still gives a TM-score of **0.90–0.91** (RMSD 1.7–1.8
+Å). Searching `2HHB` against GFP, in contrast, returns **no hits**, even
+with a loosened significance threshold.
 
 ### Further reading
 
@@ -357,60 +368,63 @@ threshold.
 
 ### Structural domains
 
-A **domain** is a compact, semi-independent unit of a structure, often
-able to fold on its own and reused in many different proteins. Sessions
-3 and 5 met domains from the *sequence* side: Pfam families, built from
-profile HMMs. Structural classifications group domains by their 3D
-shape, which, as the table above showed, can reveal relationships that
-sequence misses.
+A **domain** is a compact, semi-independent unit of a structure, which
+is often able to fold on its own and is reused in many different
+proteins. Sessions 3 and 5 met domains from the *sequence* side, as Pfam
+families built from profile HMMs. Structural classifications instead
+group domains by their 3D shape, which, as the table above showed, can
+reveal relationships that sequence misses.
 
-**CATH** (Orengo et al., 1997) classifies domains in four levels: **C**lass
-(mainly α, mainly β, α/β, few secondary structures), **A**rchitecture
-(the overall arrangement of secondary-structure elements), **T**opology
-(how they are connected: the fold), and **H**omologous superfamily
-(domains with evidence of common ancestry). β-globin's domain is
-`1.10.490.10`: Mainly Alpha → Orthogonal Bundle → Globin-like → Globins.
-So are myoglobin, neuroglobin and the *M. tuberculosis* truncated
-hemoglobin from the table above. Pfam, working from sequence, needs a
-separate family for the truncated hemoglobin (PF01152, "Bacterial-like
-globin", not PF00042, "Globin") and connects the two only at the level of
-a *clan*. GFP, in contrast, is in CATH class 2 (Mainly Beta), Beta
-Barrel.
+**CATH** (Orengo et al., 1997) classifies domains in four levels:
+**C**lass (mainly α, mainly β, α/β, few secondary structures),
+**A**rchitecture (the overall arrangement of secondary-structure
+elements), **T**opology (how they are connected, that is, the fold), and
+**H**omologous superfamily (domains with evidence of common ancestry).
+β-globin's domain is `1.10.490.10`: Mainly Alpha → Orthogonal Bundle →
+Globin-like → Globins. So are myoglobin, neuroglobin and the *M.
+tuberculosis* truncated haemoglobin from the table above. Pfam, which
+works from sequence, needs a separate family for the truncated
+haemoglobin (PF01152, "Bacterial-like globin", not PF00042, "Globin")
+and connects the two only at the level of a *clan*. GFP, in contrast, is
+in CATH class 2 (Mainly Beta), Beta Barrel.
 
-Three other classifications exist, with different philosophies:
+Three other classifications exist, each with a different philosophy:
 **SCOP** (Murzin et al., 1995; expert manual curation), **ECOD** (Cheng
-et al., 2014; organized by evolutionary relationship), and **TED** (Lau,
+et al., 2014; organised by evolutionary relationship), and **TED** (Lau,
 Bordin et al., 2024; domains parsed automatically from the entire
 AlphaFold Database, hundreds of millions of predicted structures). They
-do not always agree on where one domain ends or how distant superfamilies
-group together; knowing that several exist, and why, matters more than
-picking one.
+do not always agree on where one domain ends or on how distant
+superfamilies group together. Knowing that several classifications
+exist, and why, therefore matters more than picking one.
 
 ### Quaternary structure, interfaces and ligands
 
-A complex is held together by **interfaces**: patches of surface where
-two chains touch, usually more hydrophobic and more conserved than the
-rest of the surface. Many proteins also bind **ligands**, small molecules
-or ions such as hemoglobin's heme groups. Interfaces and ligand-binding
-sites are where much of a protein's function happens, and predicting
-them is one of the open problems of Session 12.
+Beyond single chains, a complex is held together by **interfaces**,
+patches of surface where two chains touch. Interfaces are usually more
+hydrophobic and more conserved than the rest of the surface. Many
+proteins also bind **ligands**, small molecules or ions such as
+haemoglobin's haem groups. Interfaces and ligand-binding sites are where
+much of a protein's function happens, and predicting them is one of the
+open problems of Session 12.
 
-### One protein, more than one structure: hemoglobin T and R
+### One protein, more than one structure: haemoglobin T and R
 
-A PDB entry is one snapshot of one state. Hemoglobin has two classic
-states: deoxy (**T**, tense; `2HHB`) and oxy (**R**, relaxed; `1HHO`).
-Each chain hardly changes (TM-score 0.98 between the states), but the
-two α/β pairs rotate relative to each other by about 13–15° (Baldwin &
-Chothia, 1979; the third discussion problem measures it). The notebook measures one consequence: the distance
-between the iron atoms of the two β-chain hemes is about 5 Å shorter in
-the oxy state. This quaternary change is how hemoglobin binds oxygen
-cooperatively: binding at one subunit makes binding at the others easier.
+A PDB entry is one snapshot of one state. Haemoglobin has two classic
+states, deoxy (**T**, tense; `2HHB`) and oxy (**R**, relaxed; `1HHO`).
+Each chain hardly changes between them (TM-score 0.98), but the two α/β
+pairs rotate relative to each other by about 13–15° (Baldwin & Chothia,
+1979; the third discussion problem measures it). The notebook measures
+one consequence: the distance between the iron atoms of the two β-chain
+haems is about 5 Å shorter in the oxy state. This quaternary change is
+how haemoglobin binds oxygen cooperatively, since binding at one subunit
+makes binding at the others easier.
 
-So **a PDB structure is not necessarily "the" structure of a protein.**
-Proteins can occupy different conformational states depending on
-ligands, partners and conditions. This matters when a predicted model is
-compared with "the" experimental structure, and it is one of the
-limitations Session 12 returns to: AlphaFold usually predicts one state.
+It follows that **a PDB structure is not necessarily "the" structure of
+a protein.** Proteins can occupy different conformational states
+depending on ligands, partners and conditions. This matters whenever a
+predicted model is compared with "the" experimental structure, and it is
+one of the limitations that Session 12 returns to, because AlphaFold
+usually predicts one state.
 
 ### Further reading
 
@@ -422,7 +436,7 @@ limitations Session 12 returns to: AlphaFold usually predicts one state.
 ### Secondary structure as a prediction target
 
 Given only the sequence, could a computer predict which residues become
-helix, strand or coil? Stated as a learning problem:
+helix, strand or coil? Stated as a learning problem, the task is:
 
 ```
 input:   the sequence (or its profile), one window per residue
@@ -430,10 +444,11 @@ target:  H (helix), E (strand) or C (coil) for every residue
 ```
 
 The training labels come from solved structures, assigned by DSSP as in
-the notebook. What information could help? The residue itself (some
-amino acids favour helices, others strands; proline and glycine break
-both), its neighbours in the sequence, and, from Session 5, how that
-position varies across homologous sequences: a profile. Sessions 7–11
+the notebook. What information could help the prediction? The residue
+itself is one source, because some amino acids favour helices, others
+strands, and proline and glycine break both. Its neighbours in the
+sequence are another. A third, from Session 5, is how that position
+varies across homologous sequences, that is, a profile. Sessions 7–11
 develop the machinery for learning such mappings, and the course returns
 to this problem in Sessions 7, 9 and 10 and in the capstone project.
 
@@ -445,27 +460,29 @@ Assessment of Structure Prediction) has tested methods blindly, on
 structures that are solved but not yet published. The classical
 strategies each build on something you have already met:
 
-- **Physics** (*de novo* or *ab initio* modelling): search for the
+- **Physics** (*de novo* or *ab initio* modelling) searches for the
   lowest-energy arrangement of the chain, using physical interactions.
-  Rigorous in principle, but so expensive that it long worked only for
-  small proteins. **Rosetta** (Baker lab) assembles structures from
-  short fragments of known structures and grew into a tool for protein
-  *design*.
-- **Comparative (homology) modelling**: find a related protein of known
-  structure (Sessions 4–5) and build the model on it as a template.
-  Reliable when a template exists; useless for a new fold. The table
-  above shows why it works: related sequences share their structure.
-- **Evolutionary restraints**: residues that touch tend to mutate
-  together, so large alignments (Session 5) reveal which pairs are in
-  contact, filling in a contact map like the one above.
-- **Deep learning**: AlphaFold2 (2020) combines learned representations,
-  evolutionary information and geometry, and was the breakthrough in
-  CASP14. David Baker, Demis Hassabis and John Jumper shared the 2024
-  Nobel Prize in Chemistry for protein design and structure prediction.
-  Session 12 covers it, once Sessions 7–11 have built up the
-  neural-network machinery.
+  It is rigorous in principle, but so expensive that it long worked only
+  for small proteins. **Rosetta** (Baker lab) assembles structures from
+  short fragments of known structures, and it grew into a tool for
+  protein *design*.
+- **Comparative (homology) modelling** finds a related protein of known
+  structure (Sessions 4–5) and builds the model on it as a template. It
+  is reliable when a template exists, but useless for a new fold. The
+  table above shows why it works: related sequences share their
+  structure.
+- **Evolutionary restraints** use the fact that residues that touch tend
+  to mutate together. Large alignments (Session 5) therefore reveal
+  which pairs are in contact and fill in a contact map like the one
+  above.
+- **Deep learning** arrived with AlphaFold2 (2020), which combines
+  learned representations, evolutionary information and geometry, and
+  was the breakthrough in CASP14. David Baker, Demis Hassabis and John
+  Jumper shared the 2024 Nobel Prize in Chemistry for protein design and
+  structure prediction. Session 12 covers AlphaFold, once Sessions 7–11
+  have built up the neural-network machinery.
 
-The course's path from here, in representations:
+In terms of representations, the course's path from here is:
 
 ```
 sequence
@@ -480,31 +497,34 @@ sequence
 - Wikipedia, [Homology modeling](https://en.wikipedia.org/wiki/Homology_modeling) and [CASP](https://en.wikipedia.org/wiki/CASP)
 - Rosetta Commons, [`rosettacommons.org`](https://rosettacommons.org/)
 
-## The notebook
+## The course notebook
 
 `notebooks/session06-protein-structure-in-code.ipynb` fetches the two
-hemoglobin structures (deoxy `2HHB`, oxy `1HHO`) and makes each level
-concrete: chains and residues from the file, secondary structure computed
-with PyMOL (and compared with the PDB annotation that Session 7 uses), a
-rendered image of the tetramer, β-globin's distance and contact maps, the
-sequence-versus-structure alignment table above, and the iron-to-iron
-distance that changes by about 5 Å between the two states. Open it in
-[Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session06-protein-structure-in-code.ipynb)
+haemoglobin structures (deoxy `2HHB`, oxy `1HHO`) and makes each level
+of structure concrete. It reads the chains and residues from the file,
+computes the secondary structure with PyMOL (and compares it with the
+PDB annotation that Session 7 uses), and renders an image of the
+tetramer. It also draws β-globin's distance and contact maps, builds the
+sequence-versus-structure alignment table above, and measures the
+iron-to-iron distance that changes by about 5 Å between the two states.
+Open it in [Google
+Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session06-protein-structure-in-code.ipynb)
 via the badge at the top of the notebook page to edit and run it
 yourself.
 
 ## Check your understanding
 
-Immediate-feedback questions covering the sections above — the same style
-used for this course's live in-class peer-instruction quizzes (see
-`quizzes/session06.md` in the repository for the full question bank).
+The questions below give immediate feedback and cover the sections
+above. They are in the same style as the course's live in-class
+peer-instruction quizzes, and the full question bank is in
+`quizzes/session06.md` in the repository.
 
 ```{=html}
 <div id="session06-quiz"></div>
 <script>
 renderQuiz("session06-quiz", [
   {
-    question: "Hemoglobin's four chains (two alpha, two beta), each already folded, packed together into one assembly is an example of which level of structure?",
+    question: "Haemoglobin's four chains (two alpha, two beta), each already folded, packed together into one assembly is an example of which level of structure?",
     choices: ["Quaternary structure", "Primary structure", "Secondary structure", "Tertiary structure"],
     correctIndex: 0,
     explanation: "Quaternary structure is the arrangement of several separately folded chains; tertiary structure is the fold of one chain."
@@ -532,9 +552,9 @@ renderQuiz("session06-quiz", [
     explanation: "Contacts within a helix are local and lie in the band along the diagonal; off-diagonal contacts connect parts of the chain that are far apart in sequence."
   },
   {
-    question: "The bacterial truncated hemoglobin (1IDR) aligns to beta-globin with a sequence-only score no better than shuffled sequences, yet TM-align finds a shared fold over more than 100 residues (TM-score 0.57). What does this show?",
+    question: "The bacterial truncated haemoglobin (1IDR) aligns to beta-globin with a sequence-only score no better than shuffled sequences, yet TM-align finds a shared fold over more than 100 residues (TM-score 0.57). What does this show?",
     choices: [
-      "Structure can remain recognizably similar after sequence similarity has become undetectable: structure is more conserved than sequence",
+      "Structure can remain recognisably similar after sequence similarity has become undetectable: structure is more conserved than sequence",
       "The two proteins cannot be related, since their sequences show no signal",
       "TM-align finds a match between any two proteins",
       "The sequence alignment must contain a bug"
@@ -545,7 +565,7 @@ renderQuiz("session06-quiz", [
   {
     question: "Why is the TM-score usually preferred over RMSD for asking whether two proteins share a fold?",
     choices: [
-      "It weights close residue pairs fully and distant ones hardly at all, and normalizes by length, so one misplaced loop or a longer protein does not dominate it",
+      "It weights close residue pairs fully and distant ones hardly at all, and normalises by length, so one misplaced loop or a longer protein does not dominate it",
       "It does not need the structures to be superimposed or aligned",
       "It is always exactly 1 for proteins with the same fold",
       "RMSD can only be computed for proteins of the same length"
@@ -576,7 +596,7 @@ renderQuiz("session06-quiz", [
     explanation: "A change of representation, like BLAST's and MMseqs2's word tricks for sequences. The 3Di states were learned with a variational autoencoder: a representation learned from data."
   },
   {
-    question: "CATH classifies beta-globin and the M. tuberculosis truncated hemoglobin in the same homologous superfamily (1.10.490.10, Globins), while Pfam puts them in two different families. Why can this happen?",
+    question: "CATH classifies beta-globin and the M. tuberculosis truncated haemoglobin in the same homologous superfamily (1.10.490.10, Globins), while Pfam puts them in two different families. Why can this happen?",
     choices: [
       "CATH groups domains by 3D structure, which can stay similar after sequence similarity has faded too far for one sequence family to cover both",
       "Pfam is wrong and should be replaced by CATH",
@@ -587,12 +607,12 @@ renderQuiz("session06-quiz", [
     explanation: "Sequence- and structure-based classifications are complementary. Pfam links the two families at a higher level, the Globin clan."
   },
   {
-    question: "Deoxy (2HHB) and oxy (1HHO) hemoglobin give a TM-score of 0.98 chain against chain, yet the beta-beta heme iron distance differs by about 5 Angstrom. What is the general lesson?",
+    question: "Deoxy (2HHB) and oxy (1HHO) haemoglobin give a TM-score of 0.98 chain against chain, yet the beta-beta haem iron distance differs by about 5 Angstrom. What is the general lesson?",
     choices: [
       "A PDB entry is one snapshot of one state; a protein can occupy several conformational states, here differing mainly in how the chains are arranged",
       "One of the two structures must be wrong",
       "The chains themselves unfold when oxygen binds",
-      "TM-score cannot be computed for hemoglobin"
+      "TM-score cannot be computed for haemoglobin"
     ],
     correctIndex: 0,
     explanation: "Each chain barely changes; the two alpha/beta pairs rotate relative to each other (the T-to-R transition). Comparing a prediction with 'the' structure needs this caveat."
@@ -614,12 +634,13 @@ renderQuiz("session06-quiz", [
 
 ## The lab
 
-**Full lab, PyMOL first**, on three structures beyond hemoglobin: an HIV
-envelope glycoprotein trimer with an antibody (`7LXM`) for
-representations, chains, structural alignment (`cealign`) and finding a
-sequence inside a structure; a chitinase with bound metal ions and an
-inhibitor (`8C6Z`) for ligands and charged residues; and human
-neuroglobin (`1OJ6`) for the central comparison, run with Foldseek in
+**The full lab starts with PyMOL** and uses three structures beyond
+haemoglobin. An HIV envelope glycoprotein trimer with an antibody
+(`7LXM`) is used for representations, chains, structural alignment
+(`cealign`) and finding a sequence inside a structure. A chitinase with
+bound metal ions and an inhibitor (`8C6Z`) is used for ligands and
+charged residues. Human neuroglobin (`1OJ6`) is used for the central
+comparison, which you run with Foldseek in
 [`notebooks/session06-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session06-lab.ipynb):
 
 ```
@@ -628,24 +649,25 @@ a different globin (hemoglobin)                       → same fold
 GFP                                                   → unrelated fold
 ```
 
-Today AlphaFold DB simply supplies a structure to inspect; Session 12
-asks how that prediction is produced and how to decide which parts of it
-to trust. The lab ends with a structural domain lookup in CATH, and
-shows how to view structures directly in VS Code (the Protein Viewer
-extension, handy on the course server).
+Today, AlphaFold DB simply supplies a structure to inspect, and Session
+12 asks how that prediction is produced and how to decide which parts of
+it to trust. The lab ends with a structural domain lookup in CATH, and
+it shows how to view structures directly in VS Code (the Protein Viewer
+extension, which is handy on the course server).
 
 ### Submitting this lab
 
-This lab is administered through Canvas, not this book — see the
-course's Canvas page for the current quiz, deadline, and submission
-mechanism.
+This lab is administered through Canvas, not through this book. See the
+course's Canvas page for the current quiz, the deadline and how to
+submit.
 
 ## What's next
 
-This session gave you structural properties worth predicting from
-sequence. Session 7 starts building the machinery: it returns to the
-weighted sum a PSSM computes, $S(x) = \sum_i w[i, x_i]$, formalizes it as a
-**perceptron** whose weights are *learned* from labelled examples, and
-applies it to the secondary structure you met today: Rost & Sander's PHD
-method, and why the helix you saw in PyMOL can be hard to predict from a
-window of residues.
+This session gave you structural properties that are worth predicting
+from sequence. Session 7 starts building the machinery to predict them.
+It returns to the weighted sum that a PSSM computes, $S(x) = \sum_i w[i,
+x_i]$, and formalises it as a **perceptron** whose weights are *learned*
+from labelled examples. It then applies the perceptron to the secondary
+structure you met in this session, through Rost & Sander's PHD method, and shows
+why the helix you saw in PyMOL can be hard to predict from a window of
+residues.

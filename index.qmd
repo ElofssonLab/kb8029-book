@@ -27,5 +27,5 @@ Every page names which source(s) it draws on, and because of the CC BY-SA licens
 Most session pages have three parts:
 
 1.  **The idea** — a short, from-scratch explanation of the session's core concept, written to match what's covered in the lecture.
-2.  **The notebook** — for sessions with a full lab, the actual lab notebook, embedded with its saved output so you can read it here or run it yourself.
+2.  **The course notebook** — the session's material in code, embedded with its saved output so you can read it here or run it yourself in Colab. Sessions with a lab also have a separate **lab notebook**, linked from the page's lab section; you answer its questions in the lab quiz on Canvas.
 3.  **What's next** — an explicit pointer to where this session's ideas resurface later in the course. The redesign is built around several continuous threads (most centrally, secondary-structure prediction) rather than disconnected topics, and each page names the connection rather than leaving it implicit.

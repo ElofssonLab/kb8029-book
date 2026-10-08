@@ -42,83 +42,100 @@ introduced by Schneider & Stephens (1990), *Nucleic Acids Research*
 
 ## Learning goals
 
-By the end of this session you should be able to explain why sequence
-alignment needs a dedicated algorithm rather than brute-force comparison,
-work a small global alignment by hand using dynamic programming, explain
-the difference between global and local alignment, explain why an affine
-gap penalty is usually preferred over a linear one, explain what
-distinguishes the PAM and BLOSUM families of substitution matrices, and
-explain why a high alignment score is not by itself significant, read
-a sequence logo (how the entropy of each column of a multiple alignment
-shows which positions are conserved), and read a simple phylogenetic
-tree, telling orthologs from paralogs by speciation and duplication.
+By the end of this session you should be able to:
+
+- explain why sequence alignment needs a dedicated algorithm rather than
+  brute-force comparison;
+- work a small global alignment by hand using dynamic programming;
+- explain the difference between global and local alignment;
+- explain why an affine gap penalty is usually preferred over a linear
+  one;
+- explain what distinguishes the PAM and BLOSUM families of substitution
+  matrices;
+- explain why a high alignment score is not by itself significant;
+- read a sequence logo, and explain how the entropy of each column of a
+  multiple alignment shows which positions are conserved;
+- read a simple phylogenetic tree, and tell orthologs from paralogs by
+  speciation and duplication.
 
 Session 3 ended with two related sequences retrieved from the databases.
-This session asks: **which residues correspond to each other, and how much
-evidence does the alignment give for shared ancestry?** An alignment is a
-hypothesis about correspondence: it proposes which residues descend from
-the same ancestral position. Substitutions appear as aligned pairs,
-insertions and deletions as gaps, and the score says how plausible that
-proposed history is *under the chosen scoring scheme*, which is not the
-same as recovering the true evolutionary history.
+This session asks the next question: **which residues correspond to each
+other, and how much evidence does the alignment give for shared
+ancestry?** An alignment is a hypothesis about that correspondence. It
+proposes which residues descend from the same ancestral position, so
+substitutions appear as aligned pairs, and insertions and deletions as
+gaps. The score of the alignment then says how plausible this proposed
+history is *under the chosen scoring scheme*. That is not the same as
+recovering the true evolutionary history, and much of this session is
+about the choices that go into the score.
 
 ## Why alignment needs an algorithm
 
-Two sequences are **homologous** if they share a common evolutionary
-origin: a yes/no statement about ancestry, which we *infer* from evidence.
-**Identity** and **similarity** describe an alignment: identity is the
-fraction of aligned positions with the same residue; similarity is looser,
-also counting residues with shared physicochemical properties (two
-hydrophobic residues, say). High identity or similarity is *evidence* for
-homology, not homology itself. Homologs come in two kinds, defined by the
-event that separated them:
+By definition, two sequences are **homologous** if and only if they
+share a common evolutionary origin. We cannot observe that ancestry
+directly, so we have to *infer* it from statistical evidence, usually
+the similarity (or identity) of the two sequences. Both measures require
+an alignment. **Identity** is the fraction of aligned positions with the
+same residue. **Similarity** is defined more loosely and also counts
+residues with shared physicochemical properties (two hydrophobic
+residues, say). High identity or similarity is therefore *evidence* for
+homology, not proof of it.
+
+Since homology is defined by a common ancestor, it follows that homologs
+come in two kinds, depending on the event that separated them:
 
 - **orthologs** are homologs separated by a **speciation** event, such as
   myoglobin in human and in mouse;
 - **paralogs** are homologs separated by a **gene duplication**, such as
   α- and β-globin, which descend from a duplicated ancestral globin gene.
 
-Paralogs need not be in the same genome: human α-globin and mouse
-β-globin are paralogs too, because the duplication that separated the
-α- and β-globin genes happened before human and mouse diverged. The
-section "From alignment to tree" below shows how a gene tree makes the
-distinction visible.
+The two definitions refer to events, not to genomes, so paralogs need
+not be in the same genome. Human α-globin and mouse β-globin are
+paralogs too, because the duplication that separated the α- and β-globin
+genes happened before human and mouse diverged. Telling the two kinds
+apart therefore requires the order of events, and the section "From
+alignment to tree" below shows how a gene tree makes that order visible.
 
-When two sequences happen to be the same length, measuring identity is
-trivial — just place one under the other and count matches. Real
-sequences, though, differ in length because of insertions and deletions
-over evolutionary time, and where you choose to place one sequence under
-the other changes the answer dramatically. Two example globin sequences
-that are 21.5% identical when aligned correctly can look as low as 4%
-identical if placed naively.
+To measure identity, we first have to decide which
+residues to compare. When two sequences have the same length, this is
+trivial: we place one under the other and count the matches. Real
+sequences usually differ in length, because insertions and deletions
+have accumulated over evolutionary time. Where we place one sequence
+under the other then changes the answer dramatically. Two example globin
+sequences that are 21.5% identical when aligned correctly can look as
+low as 4% identical if placed naively. Finding the right placement is
+therefore the real problem.
 
-Could you just try every possible placement and keep the best one? For
-two sequences of length $n$, allowing gaps, the number of possible
-alignments grows so fast that for $n = 100$ it's already around
-$10^{59}$ — utterly infeasible to search exhaustively. This is
-why **dynamic programming** algorithms exist for this problem: they find
-the guaranteed-optimal alignment without ever checking most of the
-possibilities. The trick is that many candidate alignments share the same
-beginnings: dynamic programming solves the best alignment of every pair
-of prefixes once, stores it, and reuses it.
+Could we simply try every possible placement and keep the best one?
+Unfortunately not. For two sequences of length $n$, allowing gaps, the
+number of possible alignments grows so fast that for $n = 100$ it is
+already around $10^{59}$, far too many to search exhaustively. This is
+why **dynamic programming** algorithms are used for this problem. They
+find the guaranteed-optimal alignment without ever checking most of the
+possibilities. The trick is that many candidate alignments share the
+same beginnings. Dynamic programming therefore solves the best alignment
+of every pair of prefixes once, stores it, and reuses it. Before we turn
+to the algorithm, it helps to see what a good alignment looks
+like.
 
 ### Further reading
 
 - Wikipedia, [Sequence homology](https://en.wikipedia.org/wiki/Sequence_homology): orthology, paralogy and the other relatedness terms, in more depth than needed here
 
-## Visualizing alignments: dot plots
+## Visualising alignments: dot plots
 
-Before reaching for an algorithm, there's a simple visual check worth
-knowing: a **dot plot**. Put one sequence along each axis of a grid, and
-mark a dot wherever the row and column residues match. A run of matches
-lines up as a diagonal line, which the eye picks out immediately — a
-long alignment shows up as one long diagonal, a repeat shows up as
-several parallel diagonals, and an inversion shows up as a diagonal
-running the opposite direction. There's no score and no optimal
-alignment here, just a fast qualitative screen — but it's still used
-today for visualizing the output of a real alignment (BLAST's web
-output includes one), precisely because a picture answers "is there
-even a match here, roughly where?" faster than reading a score.
+The simplest way to see whether two sequences are related is a **dot
+plot**, and it needs no algorithm at all. We put one sequence along each
+axis of a grid and mark a dot wherever the row and column residues
+match. A run of matches then lines up as a diagonal line, which the eye
+picks out immediately. A long alignment shows up as one long diagonal, a
+repeat as several parallel diagonals, and an inversion as a diagonal
+running in the opposite direction. A dot plot gives no score and no
+optimal alignment, so it is only a fast qualitative screen. It is still
+used today to visualise the output of real alignments (BLAST's web
+output includes one), because a picture answers "is there a match here
+at all, and roughly where?" faster than a score does. To get an actual
+alignment, and a score for it, we need dynamic programming.
 
 ### Further reading
 
@@ -126,28 +143,31 @@ even a match here, roughly where?" faster than reading a score.
 
 ## Dynamic programming: Needleman-Wunsch and Smith-Waterman
 
-The idea: build a matrix $V$ with one extra row and column (for handling
-the sequence starts), fill it in using a simple rule, then trace back
-through it to read off the best alignment. Every cell $V(i,j)$ is filled
-as the best of three options — extend a match/mismatch diagonally, or
-open a gap from above or from the left:
+Dynamic programming builds a matrix $V$ with one extra row and column
+(for handling the sequence starts), fills it in using a simple rule, and
+then traces back through it to read off the best alignment. Each cell
+$V(i,j)$ holds the score of the best alignment of the first $i$ residues
+of one sequence with the first $j$ residues of the other. It is filled
+as the best of three options: extending the alignment diagonally with a
+match or mismatch, or opening a gap from above or from the left.
 
 $$
 V(i,j) = \max \begin{cases} V(i-1,j-1) + s(x_i, y_j) \\ V(i-1,j) + g \\ V(i,j-1) + g \end{cases}
 $$
 
-where $s(x_i, y_j)$ is a substitution score (see below) and $g$ is a gap
-penalty. Concretely, filling one cell means computing all three
-candidates and keeping the largest — here's cell $V(1,1)$ for a pair of
-13/12-residue sequences, with a gap penalty of $g=1$:
+Here $s(x_i, y_j)$ is a substitution score (see below) and $g$ is a gap
+penalty. In practice, filling one cell means computing all three
+candidates and keeping the largest. The figure shows this for cell
+$V(1,1)$ of a pair of 13- and 12-residue sequences, with a gap penalty
+of $g=1$:
 
 ![](figs/session04-cell-fill.png){width=90%}
 
-Every other cell is filled the same way; the only thing that
-changes is which numbers go into the three candidates. **Worked
-example**, small enough to do completely by hand: align $x =
-\texttt{GCAT}$ against $y = \texttt{GAC}$, with match $= +1$, mismatch $=
--1$, gap $= -1$:
+Every other cell is filled in the same way, and only the numbers that go
+into the three candidates change. **Worked example.** The following case
+is small enough to do completely by hand. We align $x =
+\texttt{GCAT}$ against $y = \texttt{GAC}$, with match $= +1$, mismatch
+$= -1$ and gap $= -1$:
 
 |       |   | G  | A  | C  |
 |---|---|---|---|---|
@@ -165,30 +185,32 @@ G C A T
 G - A C
 ```
 
-— G matches G, C is deleted, A matches A, and T is (mis)matched to C, for
-a total score of $1 - 1 + 1 - 1 = 0$.
+Here G matches G, C is deleted, A matches A, and T is mismatched with C,
+for a total score of $1 - 1 + 1 - 1 = 0$.
 
-The same idea, at the scale it's actually used: two 12-13 residue protein
-sequences, with the completed matrix and its full traceback path
-highlighted:
+The same procedure works at the scale where it is actually used. The
+figure below shows two protein sequences of 12 and 13 residues, with the
+completed matrix and its full traceback path highlighted:
 
 ![](figs/session04-nw-traceback.png){width=95%}
 
-This particular algorithm — **Needleman-Wunsch** — produces a *global*
-alignment: the entire length of both sequences is forced into the result,
-gaps and all. **Smith-Waterman** is the same idea adapted for *local*
-alignment — finding the best-matching sub-region rather than aligning
-end-to-end — achieved with one change: negative values in the matrix are
-reset to zero, and the traceback starts from the highest-scoring cell
-anywhere in the matrix (not necessarily the bottom-right corner) and stops
-as soon as it hits a zero.
+This algorithm, **Needleman-Wunsch**, produces a *global* alignment, in
+which the entire length of both sequences is forced into the result,
+gaps and all. Often, however, we want only the best-matching sub-region,
+that is, a *local* alignment. **Smith-Waterman** achieves this with one
+change to the same algorithm. Negative values in the matrix are reset to
+zero, and the traceback starts from the highest-scoring cell anywhere in
+the matrix (not necessarily the bottom-right corner) and stops as soon
+as it reaches a zero.
 
-The choice is biological, not just mechanical. Use **global** alignment
-when you expect the two sequences to correspond along most of their
-length (two myoglobins). Use **local** alignment when they may share only
-part: two large multidomain proteins that have one domain in common, or a
-short motif inside a long sequence. Forcing a global alignment on them
-buries the shared domain under a long tail of meaningless gaps.
+Which of the two to use is a biological choice, not just a mechanical
+one. **Global** alignment is the right choice when we expect the two
+sequences to correspond along most of their length, as two myoglobins
+do. **Local** alignment is the right choice when they may share only a
+part, such as one domain common to two large multidomain proteins, or a
+short motif inside a long sequence. Forcing a global alignment on such
+sequences buries the shared region under a long tail of meaningless
+gaps. How the gaps are penalised is therefore the next question.
 
 ### Further reading
 
@@ -196,30 +218,32 @@ buries the shared domain under a long tail of meaningless gaps.
 
 ## Gap penalties: linear vs. affine
 
-So far $g$ has been a single flat number charged per gap position, but
-that choice matters more than it might seem. A **linear** gap penalty —
-$g(n) = n \times g_{\text{op}}$ for $n$ consecutive gaps — charges exactly
-the same total whether those gaps are spread out or bunched together.
-Evolutionary insertions and deletions often affect contiguous stretches,
-so it is usually more realistic to charge more for opening a gap than for
-extending one. A linear penalty can produce implausible alignments that
-scatter single gaps throughout, breaking up motifs that are conserved as
-a block.
+So far $g$ has been a single flat number charged per gap position, and
+this choice matters more than it might seem. A **linear** gap penalty,
+$g(n) = n \times g_{\text{op}}$ for $n$ consecutive gaps, charges the
+same total whether the gaps are spread out or bunched together.
+Evolutionary insertions and deletions often affect contiguous
+stretches of residues. It is therefore usually more realistic to charge
+more for opening a gap than for extending one. A linear penalty, in
+contrast, can produce implausible alignments that scatter single gaps
+throughout and break up motifs that are conserved as a block.
 
-The fix is an **affine** gap penalty: a larger cost $g_{\text{op}}$ to
-*open* a new gap, plus a much smaller cost $g_{\text{ext}}$ to *extend*
-an already-open one ($g_{\text{ext}} \ll g_{\text{op}}$):
+The fix is an **affine** gap penalty. It charges a larger cost
+$g_{\text{op}}$ to *open* a new gap and a much smaller cost
+$g_{\text{ext}}$ to *extend* an already open one ($g_{\text{ext}} \ll
+g_{\text{op}}$):
 
 $$
 g(n) = g_{\text{op}} + (n-1) \times g_{\text{ext}}
 $$
 
-This makes a single long gap cheaper than the same number of gaps
-scattered as many separate short ones, which is the behavior you
-want. The example below makes this concrete: the same two sequences,
-aligned once with a linear penalty (top pair — gaps scattered, breaking up
-the shared "QQW" motif) and once with an affine penalty (bottom pair —
-gaps consolidated into contiguous stretches, keeping "QQW" together):
+With this penalty, a single long gap costs less than the same number of
+gap positions scattered as many short gaps, which is the behaviour we
+want. The figure below makes this concrete. It shows the same two
+sequences aligned once with a linear penalty (top pair), where the gaps
+are scattered and break up the shared "QQW" motif, and once with an
+affine penalty (bottom pair), where the gaps are consolidated into
+contiguous stretches and "QQW" stays together:
 
 ![](figs/session04-gap-penalty.png){width=90%}
 
@@ -229,33 +253,38 @@ gaps consolidated into contiguous stretches, keeping "QQW" together):
 
 ## Substitution matrices: PAM and BLOSUM
 
-The scores $s(x_i, y_j)$ above are **log-odds scores** (Session 1's
-logarithms of probability ratios): roughly, the log of how often residues
-$a$ and $b$ are aligned in related proteins divided by how often they
-would pair by chance, given how common each residue is. A **positive**
-score means the pair is seen more often among related sequences than
-expected by chance, a **negative** score less often; conservative
-substitutions (K and R, I and V) therefore score positively. Session 5's
-profiles use the same idea, one column at a time. Two families dominate:
+The other ingredient of the alignment score is the substitution score
+$s(x_i, y_j)$. These scores are **log-odds scores**, the logarithms of
+probability ratios from Session 1. Roughly, the score of residues $a$
+and $b$ is the log of how often they are aligned in related proteins,
+divided by how often they would pair by chance given how common each
+residue is. A **positive** score therefore means that the pair is seen
+more often among related sequences than expected by chance, and a
+**negative** score that it is seen less often. Conservative
+substitutions (K and R, I and V) consequently score positively.
+Session 5's profiles use the same idea, one column at a time. Two
+families of substitution matrices dominate, and they differ in the data
+and the model they are built from:
 
 - **PAM** (Point Accepted Mutations; Dayhoff, Schwartz & Orcutt, 1978)
-  is based on **global** alignments of **closely related** proteins, built
-  from an *explicit* evolutionary model: sequences are arranged into
-  phylogenetic trees, ancestral sequences are inferred, and substitutions
-  are counted along the tree's branches; matrices for larger distances
-  (PAM250) are extrapolated from the one for very short distances.
+  is based on **global** alignments of **closely related** proteins and
+  uses an *explicit* evolutionary model. The sequences are arranged into
+  phylogenetic trees, ancestral sequences are inferred, and
+  substitutions are counted along the branches of the tree. Matrices for
+  larger distances (PAM250) are then extrapolated from the one for very
+  short distances.
 - **BLOSUM** (BLOcks SUbstitution Matrix; Henikoff & Henikoff, 1992) is
-  based on **local**, ungapped alignments of **distantly related**
-  proteins instead: substitution frequencies are counted directly from
+  instead based on **local**, ungapped alignments of **distantly
+  related** proteins. Substitution frequencies are counted directly from
   conserved blocks of real multiple alignments, with no phylogenetic tree
-  and no extrapolation — each BLOSUM matrix (BLOSUM45, BLOSUM62, BLOSUM80,
-  ...) is derived independently from the others.
+  and no extrapolation. Each BLOSUM matrix (BLOSUM45, BLOSUM62, BLOSUM80,
+  ...) is therefore derived independently of the others.
 
-One easy source of confusion: the two families' numbering runs in
+The two families are easy to confuse, because their numbering runs in
 *opposite* directions. A **higher** PAM number means a **more distant**
-comparison (PAM250 suits more divergent sequences than PAM100); a
-**higher** BLOSUM number means a **closer** comparison (BLOSUM80 suits
-more similar sequences than BLOSUM45) — the opposite trend.
+comparison, so PAM250 suits more divergent sequences than PAM100. A
+**higher** BLOSUM number, in contrast, means a **closer** comparison, so
+BLOSUM80 suits more similar sequences than BLOSUM45.
 
 ### Further reading
 
@@ -263,19 +292,22 @@ more similar sequences than BLOSUM45) — the opposite trend.
 
 ## Is the score significant?
 
-A high alignment score alone does not prove that two sequences are
-homologous. The raw score depends on the sequence lengths, the
-substitution matrix and the gap penalties, so there is no universal
-threshold for "good enough". One intuitive way to calibrate it: compare
-the observed score with the scores of the same sequences shuffled, or of
-unrelated sequences, aligned the same way. If the real score is far above
-almost all of them, chance is an unlikely explanation.
+Once a substitution matrix and gap penalties are chosen, every
+alignment gets a score. A high score alone, however, does not prove that
+two sequences are homologous. The raw score depends on the sequence
+lengths, the substitution matrix and the gap penalties, so there is no
+universal threshold for "good enough". One intuitive way to calibrate it
+is to compare the observed score with the scores of the same sequences
+shuffled, or of unrelated sequences, aligned in the same way. If the
+real score is far above almost all of them, chance is an unlikely
+explanation.
 
-For local alignments the best scores of unrelated sequences follow a known
-statistical distribution (an extreme-value distribution, not a normal
-one), and database-search tools use that to estimate an **E-value**: the
-number of hits this good expected by chance in a database of this size.
-Session 5 explains BLAST and E-values properly.
+For local alignments this comparison can be made precise. The best
+scores of unrelated sequences follow a known statistical distribution,
+an extreme-value distribution rather than a normal one. Database-search
+tools use this distribution to estimate an **E-value**, the number of
+hits this good expected by chance in a database of this size. Session 5
+explains BLAST and E-values properly.
 
 ### Further reading
 
@@ -283,86 +315,94 @@ Session 5 explains BLAST and E-values properly.
 
 ## Multiple sequence alignment
 
-Aligning more than two sequences at once is harder than it looks. Exact
-dynamic programming extends to $N$ sequences, but its cost grows
-exponentially with $N$, so it becomes impractical for more than a few
-short sequences. Practical methods combine three ideas:
+So far we have aligned two sequences, but a protein family usually has
+many members, and aligning more than two sequences at once is harder
+than it looks. Exact dynamic programming extends to $N$ sequences, but
+its cost grows exponentially with $N$, so it becomes impractical for
+more than a few short sequences. Practical methods therefore combine
+three ideas:
 
-- **progressive alignment**: build a **guide tree** from all pairwise
-  distances, align the closest pair first, then add sequences (or
-  already-aligned groups) one at a time. Early decisions are never
+- **Progressive alignment** builds a **guide tree** from all pairwise
+  distances, aligns the closest pair first, and then adds sequences (or
+  already aligned groups) one at a time. Early decisions are never
   revisited, so an early mistake can persist (ClustalW is the classic
-  example);
-- **iterative refinement**: start from a progressive alignment and
-  repeatedly re-align parts of it, keeping changes that improve the
-  score (as in MUSCLE);
-- **consistency**: use agreement among all the pairwise alignments as
-  extra information; if A aligns with B and B with C, prefer a multiple
-  alignment where A also matches C at that position (as in T-Coffee).
+  example).
+- **Iterative refinement** starts from a progressive alignment and
+  repeatedly re-aligns parts of it, keeping the changes that improve the
+  score (as in MUSCLE).
+- **Consistency** uses the agreement among all the pairwise alignments
+  as extra information. If A aligns with B and B with C at a position, a
+  multiple alignment in which A also matches C there is preferred (as in
+  T-Coffee).
 
 Real tools often combine several of these ideas, and which works best
 depends on the number, length and divergence of the sequences.
 
-Building the guide tree for progressive alignment uses the kind
-of hierarchical clustering you'd use on any distance matrix: treat every
-sequence as its own cluster, repeatedly merge the closest pair of
-clusters, and stop once only one cluster remains — the merge order *is*
-the order sequences get aligned in. A small worked example: five toy
-sequences, almost identical except for sequence 4, and the pairwise
-Hamming-distance matrix and resulting guide tree computed from them —
-notice how sequence 4 doesn't merge in until the very last step, exactly
-reflecting how clearly separate it is from the other four:
+The guide tree for progressive alignment is built by the kind of
+hierarchical clustering used on any distance matrix. Every sequence
+starts as its own cluster, the closest pair of clusters is merged
+repeatedly, and the process stops once only one cluster remains. The
+merge order *is* the order in which the sequences are aligned. The
+figure shows a small worked example: five toy sequences that are almost
+identical except for sequence 4, their pairwise Hamming-distance matrix,
+and the resulting guide tree. Sequence 4 merges in only at the very last
+step, which reflects how clearly it differs from the other four.
 
 ![](figs/session04-guidetree-worked-example.png){width=90%}
 
-A guide tree is an *ordering device* for the alignment, not necessarily a
-phylogenetic tree: it is usually built by a quick method (UPGMA) that
-assumes all lineages evolve at the same rate, and a fast-evolving
-sequence can end up in the wrong place. The third discussion problem
-shows such a case.
+A guide tree is only an *ordering device* for the alignment and not
+necessarily a phylogenetic tree. It is usually built by a quick method
+(UPGMA) that assumes all lineages evolve at the same rate, so a
+fast-evolving sequence can end up in the wrong place. The third
+discussion problem shows such a case. To infer how the sequences are
+actually related, we need a method built for phylogeny.
 
 ## From alignment to tree
 
 A **phylogenetic tree** proposes how sequences are related by descent.
 The quickest route from an alignment to a tree uses the same ingredient
-as a guide tree, a matrix of pairwise distances, but with a method built
-for phylogeny: **neighbour joining** allows lineages to evolve at
-different rates, which UPGMA does not. Reading a tree:
+as a guide tree, a matrix of pairwise distances, but combines it with a
+method built for phylogeny. **Neighbour joining** is such a method,
+because it allows lineages to evolve at different rates, which UPGMA
+does not. A tree is read as follows:
 
-- the **leaves** are the sequences, and the internal **nodes** are
-  inferred ancestors;
-- **branch lengths** show the amount of change (here, the fraction of
-  differing residues);
-- a **clade** is an ancestor with all its descendants;
-- a tree is **rooted** (the root marks the oldest ancestor, so you can
-  read the order of events) or **unrooted**. Distance methods give
-  unrooted trees; a root is added with an **outgroup**, a sequence known to
-  have branched off first, or, as here, at the midpoint of the longest
-  path.
+- The **leaves** are the sequences, and the internal **nodes** are
+  inferred ancestors.
+- The **branch lengths** show the amount of change (here, the fraction
+  of differing residues).
+- A **clade** is an ancestor with all its descendants.
+- A tree is either **rooted** or **unrooted**. In a rooted tree the root
+  marks the oldest ancestor, so the order of events can be read off.
+  Distance methods give unrooted trees, and a root is added either with
+  an **outgroup**, a sequence known to have branched off first, or, as
+  here, at the midpoint of the longest path.
 
-The notebook builds a tree of α-globin, β-globin and myoglobin from
-human, mouse and chicken:
+The notebook uses these ideas to build a tree of α-globin, β-globin and
+myoglobin from human, mouse and chicken:
 
 ![A gene tree of nine globins (neighbour joining on the fraction of differing residues in pairwise BLOSUM62 alignments, midpoint-rooted). Red squares: gene duplications, where both branches contain the same species; the copies below them are paralogs. Blue circles: speciations; the copies are orthologs.](figs/session04-globin-tree.png){width=85%}
 
-The tree is a **gene tree**, and comparing it with the **species tree**
-(chicken branched off before human and mouse) tells the two kinds of
-homolog apart. The first split separates myoglobin from the haemoglobins,
-and the second α- from β-globin. Both are **duplications**: each branch
-still contains all three species, so the genes were copied before birds
-and mammals diverged. Every node below them follows the species tree,
-human and mouse first: those are **speciations**. Human and mouse
+This tree is a **gene tree**, and comparing it with the **species tree**
+(in which chicken branched off before human and mouse) tells the two
+kinds of homolog apart. The first split separates myoglobin from the
+haemoglobins, and the second separates α- from β-globin. Both splits are
+**duplications**, because each branch still contains all three species,
+so the genes must have been copied before birds and mammals diverged.
+Every node below them follows the species tree, with human and mouse
+joining first, so those nodes are **speciations**. Human and mouse
 α-globin are therefore orthologs (human α-globin differs from mouse
 α-globin at 14% of positions, and from chicken α-globin at 30%), while
 human α- and β-globin are paralogs (54% different).
 
-Two cautions. How much to trust a branch is usually measured by
-**bootstrap** support: resample the alignment columns many times, rebuild
-the tree, and count how often each branch reappears. And real
-phylogenetics uses models of how residues substitute and maximum
-likelihood (for example IQ-TREE or FastTree); this course only needs the
-concepts. Session 8's homology-aware splits and Session 12's coevolution
-both come back to the fact that sequences are related by a tree.
+Two cautions apply. First, a tree does not by itself say how much each
+branch can be trusted. This is usually measured by **bootstrap**
+support: the alignment columns are resampled many times, the tree is
+rebuilt each time, and we count how often each branch reappears.
+Second, real phylogenetics uses models of how residues substitute,
+together with maximum likelihood (for example IQ-TREE or FastTree),
+whereas this course only needs the concepts. The fact that sequences are
+related by a tree comes back in Session 8's homology-aware splits and in
+Session 12's coevolution.
 
 ### Further reading
 
@@ -371,35 +411,37 @@ both come back to the fact that sequences are related by a tree.
 
 ## Reading an alignment: entropy and sequence logos
 
-A multiple alignment of a whole family is too large to read row by row.
-What matters is how each **column** varies: a position where every
-sequence has the same residue has been conserved through evolution,
-usually because it matters for structure or function, while a position
-with many different residues is free to change.
+A multiple alignment of a whole family is too large to read row by row,
+so we need a way to summarise it. What matters is how each **column**
+varies. A position where every sequence has the same residue has been
+conserved through evolution, usually because it matters for structure or
+function. A position with many different residues, in contrast, is free
+to change.
 
-Session 1's **entropy** puts a number on this. For the residue
-frequencies $p_a$ in a column,
+Session 1's **entropy** puts a number on this variation. For the residue
+frequencies $p_a$ in a column, the entropy is
 
 $$
 H = -\sum_a p_a \log_2 p_a
 $$
 
-is 0 bits for a fully conserved column and at most
+It is 0 bits for a fully conserved column and at most
 $\log_2 20 \approx 4.32$ bits for a protein column where all 20 amino
 acids are equally common ($\log_2 4 = 2$ bits for DNA). The column's
 **information content** is the distance from that maximum,
-$\log_2 20 - H$: high for conserved columns, near zero for variable
-ones. (This is the simple version, which assumes all amino acids are
-equally common in the background; logo programs often correct for
-background frequencies and for small samples.)
+$\log_2 20 - H$, so it is high for conserved columns and near zero for
+variable ones. (This is the simple version, which assumes that all amino
+acids are equally common in the background. Logo programs often correct
+for background frequencies and for small samples.)
 
-A **sequence logo** (Schneider & Stephens 1990) draws each column as a
-stack of letters. The height of the stack is the column's information
-content, and each letter's height within the stack is its frequency. A
-tall stack with one big letter is a conserved position; a low stack of
-many small letters is a variable one. Here, gaps also lower the stack:
-the height is multiplied by the fraction of sequences that have a residue
-in that column.
+A **sequence logo** (Schneider & Stephens 1990) turns these numbers into
+a picture by drawing each column as a stack of letters. The height of
+the stack is the column's information content, and the height of each
+letter within the stack is its frequency. A tall stack with one big
+letter is therefore a conserved position, and a low stack of many small
+letters is a variable one. In the logo below, gaps also lower the stack,
+because the height is multiplied by the fraction of sequences that have
+a residue in that column.
 
 The logo of the Pfam globin family, 73 globins from bacteria, plants,
 worms, insects and vertebrates, shows how few positions are conserved
@@ -407,64 +449,71 @@ across the whole family:
 
 ![Sequence logo of the Pfam Globin (PF00042) seed alignment: 73 sequences, 141 columns. Stack height is the information content in bits; letter height is the residue's frequency. Colours by chemistry: hydrophobic black, polar green, basic blue, acidic red, amide purple. The three labelled columns are numbered as in human beta-globin (HBB, mature chain).](figs/session04-globin-logo.png){width=100%}
 
-Two columns are identical in all 73 sequences: **His92** (F8, the
-"proximal" histidine, whose side chain binds the heme iron) and
-**Phe42** (CD1, which packs against the heme). **His63** (E7, the
-"distal" histidine, on the oxygen-binding side of the heme) is His in
-73% of them. The average column carries only 1.2 bits. The rest of the
-fold is held together by positions that stay hydrophobic (the black
-L, V, I and F stacks, often with several residues sharing a column)
-rather than by identical residues. This is how an alignment points to
-the residues a protein cannot do without, and how the same globin fold
-is kept even though most pairs of sequences in this alignment share fewer than 20% of their residues.
+Only two columns are identical in all 73 sequences. One is **His92**
+(F8, the "proximal" histidine, whose side chain binds the haem iron), and
+the other is **Phe42** (CD1, which packs against the haem). A third,
+**His63** (E7, the "distal" histidine, on the oxygen-binding side of the
+haem), is His in 73% of the sequences. The average column carries only
+1.2 bits. The rest of the fold is held together by positions that stay
+hydrophobic (the black L, V, I and F stacks, often with several residues
+sharing a column) rather than by identical residues. An alignment can
+therefore point to the residues a protein cannot do without. It also
+shows how the same globin fold is kept even though most pairs of
+sequences in this alignment share fewer than 20% of their residues.
 
-Two practical notes. With few sequences, the frequencies are noisy, and
-a column can look conserved by chance; logo programs often apply a
-small-sample correction. And closely related sequences are
-over-represented in most alignments, so real tools also weight the
-sequences.
+Two practical notes apply to logos. With few sequences, the frequencies
+are noisy and a column can look conserved by chance, so logo programs
+often apply a small-sample correction. Closely related sequences are
+also over-represented in most alignments, so real tools weight the
+sequences as well.
 
-A multiple alignment is not just a picture: each column gives a
-distribution of amino acids. Session 5 turns those distributions into
-position-specific scores.
+A multiple alignment is therefore more than a picture, because each
+column gives a distribution of amino acids. Session 5 turns these
+distributions into position-specific scores.
 
 ### Further reading
 
 - Wikipedia, [Multiple sequence alignment](https://en.wikipedia.org/wiki/Multiple_sequence_alignment) — additional methods and applications, e.g. profile HMMs, which Session 5 picks up in full
 - Wikipedia, [Sequence logo](https://en.wikipedia.org/wiki/Sequence_logo); Schneider & Stephens (1990), "Sequence logos: a new way to display consensus sequences," *Nucleic Acids Research* 18:6097-6100
 
-## The notebook
+## The course notebook
 
-`notebooks/session04-alignment-in-code.ipynb` implements Needleman-Wunsch and
-Smith-Waterman from scratch (adapted from Lukas Käll's open-access
-[*bibook*](https://github.com/statisticalbiotechnology/bibook), CC BY
-4.0), this time using amino-acid sequences with a simple identity scoring
-scheme (a match scores +1, any mismatch or gap −1 — the same idea as the
-$V(i,j)$ recurrence above, just with the identity matrix standing in for
-$s(x_i, y_j)$). Rather than presenting a finished matrix, it fills a small
-worked example (a real HBB fragment against a hypothetical mutated
-variant of it) one cell at a time with the reasoning printed out, gives
-you a partially-filled matrix to complete yourself before revealing the
-real one, and then walks the traceback the same step-by-step way — making
-both halves of the algorithm visible as a sequence of small decisions
-rather than a finished picture. It then switches from that flat identity
-scheme to a real substitution matrix — the PAM250 matrix introduced in
-the "Substitution matrices" section above, loaded from Biopython rather
-than typed in by hand — for a global-vs-local comparison on two real
-globin fragments (from HBB and myoglobin) that share one conserved motif
-but differ elsewhere, making both the practical difference between the
-two algorithms, and the effect of a graded substitution matrix versus a
-flat identity scheme, directly visible. It ends by building the globin gene tree of the
-section "From alignment to tree" by neighbour joining. Open it in
+`notebooks/session04-alignment-in-code.ipynb` implements Needleman-Wunsch
+and Smith-Waterman from scratch, adapted from Lukas Käll's open-access
+[*bibook*](https://github.com/statisticalbiotechnology/bibook) (CC BY
+4.0). It starts with amino-acid sequences and a simple identity scoring
+scheme, in which a match scores +1 and any mismatch or gap −1. This is
+the $V(i,j)$ recurrence above, with the identity matrix standing in for
+$s(x_i, y_j)$.
+
+Rather than presenting a finished matrix, the notebook fills a small
+worked example one cell at a time, with the reasoning printed out. The
+example is a real HBB fragment aligned against a hypothetical mutated
+variant of it. You then complete a partially filled matrix yourself
+before the real one is revealed, and the traceback is walked through in
+the same step-by-step way. Both halves of the algorithm thus appear as a
+sequence of small decisions rather than as a finished picture.
+
+The notebook then replaces the flat identity scheme with a real
+substitution matrix, the PAM250 matrix from the "Substitution matrices"
+section above, loaded from Biopython rather than typed in by hand. With
+it, the notebook compares global and local alignment of two real globin
+fragments (from HBB and myoglobin) that share one conserved motif but
+differ elsewhere. This makes two things directly visible: the practical
+difference between the two algorithms, and the effect of a graded
+substitution matrix compared with a flat identity scheme. Finally, the
+notebook builds the globin gene tree of the section "From alignment to
+tree" by neighbour joining. Open it in
 [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session04-alignment-in-code.ipynb)
 via the badge at the top of the notebook page to edit and run it
 yourself.
 
 ## Check your understanding
 
-Immediate-feedback questions covering the sections above — the same style
-used for this course's live in-class peer-instruction quizzes (see
-`quizzes/session04.md` in the repository for the full question bank).
+The questions below give immediate feedback and cover the sections
+above. They are in the same style as the course's live in-class
+peer-instruction quizzes, and the full question bank is in
+`quizzes/session04.md` in the repository.
 
 ```{=html}
 <div id="session04-quiz"></div>
@@ -482,7 +531,7 @@ renderQuiz("session04-quiz", [
     explanation: "Stack height is the information content, log2(20) - H. A height near log2(20) = 4.32 bits means entropy near 0: one residue in every sequence."
   },
   {
-    question: "Human hemoglobin and human myoglobin arose from an ancient gene duplication within the same genome. What relationship do they have?",
+    question: "Human haemoglobin and human myoglobin arose from an ancient gene duplication within the same genome. What relationship do they have?",
     choices: ["Orthologs", "Paralogs", "Analogs", "They are not homologous"],
     correctIndex: 1,
     explanation: "Paralogs are homologs separated by a gene duplication; orthologs are homologs separated by a speciation event. Paralogs can also sit in different species, if the duplication came before the speciation."
@@ -565,43 +614,44 @@ renderQuiz("session04-quiz", [
 
 ## The lab
 
-Four steps, all reached through
+The lab has four steps, all reached through
 [`notebooks/session04-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session04-lab.ipynb):
 
 1. **By hand**: fill in a small Needleman-Wunsch dynamic-programming
-   matrix and trace back the optimal alignment yourself, on paper — this
-   time using a real substitution matrix (BLOSUM62) instead of the
-   teaching notebook's flat identity scheme, on two real protein
-   fragments not used anywhere else on this page. The notebook checks
-   your work a row at a time, rather than computing it for you.
-2. **In code**: see how the score and alignment from Step 1 change
-   across different gap penalties and substitution matrices, then a real
-   local `blastp` search against a small real database shows the same
+   matrix and trace back the optimal alignment yourself, on paper. This
+   time you use a real substitution matrix (BLOSUM62) instead of the
+   course notebook's flat identity scheme, on two real protein
+   fragments that are not used anywhere else on this page. The lab notebook
+   checks your work one row at a time rather than computing it for you.
+2. **In code**: see how the score and the alignment from Step 1 change
+   with different gap penalties and substitution matrices. A real local
+   `blastp` search against a small real database then shows the same
    kind of sensitivity in a genuine E-value.
-3. **In code**: build and visualize a small, real multiple sequence
-   alignment — the "Progressive" strategy from the section above, made
-   concrete on three real, short windows from proteins already used
-   throughout this course.
+3. **In code**: build and visualise a small, real multiple sequence
+   alignment. This makes the progressive strategy from the section above
+   concrete, on three short real windows from proteins used throughout
+   this course.
 4. **By hand, then in code**: work out the entropy of three columns of
-   that alignment by hand, then draw the sequence logo of the Pfam
+   that alignment by hand. Then draw the sequence logo of the Pfam
    globin family, map its most conserved columns onto human HBB, and
    (optionally) see how few sequences it takes to be fooled by chance.
 
-Once all four steps are done, answer the Session 4 lab quiz on Canvas using
-your own results.
+When all four steps are done, answer the Session 4 lab quiz on Canvas
+using your own results.
 
 ### Submitting this lab
 
-This lab is administered through Canvas, not this book — see the
-course's Canvas page for the current quiz, deadline, and submission
-mechanism.
+This lab is administered through Canvas, not through this book. See the
+course's Canvas page for the current quiz, the deadline and how to
+submit.
 
 ## What's next
 
-Sequence alignment infers corresponding residues from the sequences;
-Session 6 asks the analogous question directly in 3D, with structure
-alignment. Before that, Session 5 asks a different question about the same underlying problem: exact
-dynamic programming like Needleman-Wunsch doesn't scale to searching a
-new sequence against an entire database — that's what BLAST's heuristic
-is for. The same session then goes a step further and asks what to do
-once you have many aligned sequences rather than two: build a *profile*.
+Sequence alignment infers which residues correspond from the sequences
+alone, and Session 6 asks the same question directly in 3D, with
+structure alignment. Before that, Session 5 takes up two problems that
+this session leaves open. First, exact dynamic programming such as
+Needleman-Wunsch does not scale to searching a new sequence against an
+entire database, and that is what BLAST's heuristic is for. Second, once
+we have many aligned sequences rather than two, we can build a *profile*
+from them.

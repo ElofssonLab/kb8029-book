@@ -5,7 +5,7 @@
 # Session 2: Working like a computational biologist in Python
 
 ::: callout-important
-**Set up first.** Today's notebooks run on the course server through VS Code, or on Google Colab. If you haven't yet, follow [Setup: VS Code, the course server and Colab](setup.qmd): create an SSH key, connect VS Code to `students.bioinfo.se`, and try Colab from VS Code.
+**Set up first.** This session's notebooks run on the course server through VS Code, or on Google Colab. If you have not done so yet, follow [Setup: VS Code, the course server and Colab](setup.qmd): create an SSH key, connect VS Code to `students.bioinfo.se`, and try Colab from VS Code.
 :::
 
 ::: {.callout-tip icon="false"}
@@ -14,14 +14,14 @@
 > **Why do bioinformaticians prefer using Unix?** Because they can't live without grep.
 :::
 
-You already know Python from the prerequisite course. Today is not about new syntax. It is about the four things a computational biologist does with Python every day, and it uses the libraries you know to do them:
+You already know Python from the prerequisite course, so this session is not about new syntax. Instead, it is about the four things a computational biologist does with Python every day, using the libraries you already know:
 
 1.  **Represent data** with the right object: arrays, DataFrames, biological sequence objects and, later, tensors.
 2.  **Explore data** with summaries, filtering and plots, before trusting any number.
 3.  **Use existing tools**, meaning libraries, documentation and online databases, rather than reinventing them.
 4.  **Solve problems when code does not work**, using error messages, documentation, AI assistants and tests of your own assumptions.
 
-The page follows one real dataset (a published RNA-seq experiment on mouse liver) and one real gene family (the human globins) from representation to a small finished analysis. @sec-s02-challenge's mini challenge leads straight into the lab.
+To keep these four things concrete, the page follows one real dataset (a published RNA-seq experiment on mouse liver) and one real gene family (the human globins) all the way from representation to a small finished analysis. The mini challenge in @sec-s02-challenge then leads straight into the lab.
 
 ## Learning goals
 
@@ -36,17 +36,17 @@ By the end of this session you should be able to:
 
 ## Notebooks: what they are and why we use them
 
-Every notebook in this book runs on the course server (through VS Code) or on Google Colab (for a GPU); see [Setup](setup.qmd).
+Every notebook in this book runs either on the course server (through VS Code) or on Google Colab (for a GPU), as described in [Setup](setup.qmd). Before we use them, it is worth knowing what a notebook is and where its pitfalls lie.
 
-A **notebook** (a `.ipynb` file, the Jupyter format) mixes three things in one document: **text** (explanations, like this page), **code cells**, and each cell's **output** (numbers, tables, plots, error messages) shown directly underneath it. You run one cell at a time, in whatever order you choose.
+A **notebook** (a `.ipynb` file, the Jupyter format) mixes three things in one document. It holds **text** (explanations, like this page), **code cells**, and the **output** of each cell (numbers, tables, plots, error messages), shown directly underneath it. You run one cell at a time, in whatever order you choose.
 
-That makes notebooks well suited to exploring data:
+This makes notebooks well suited to exploring data, for three reasons:
 
 - **Run a small piece, look, adjust, re-run** just that piece, without starting the whole analysis from the top.
 - **Results stay next to the code that made them**, so you, a teacher or a colleague can see what was done and what came out.
 - **Text explains the reasoning**, which a plain script does not.
 
-The price is **hidden state**. A notebook's variables live in the memory of a running Python process (the *kernel*), not on the page. Running cells out of order, re-running one cell several times, or editing a cell without re-running it all leave the memory different from what the page shows. The notebook has a small demonstration (@sec-s02-unknown): a cell that adds 1 to `counter` gives a new number every time you re-run it, although its code never changes. This is one of the most common sources of confusion for new notebook users.
+The price of this flexibility is **hidden state**. A notebook's variables live in the memory of a running Python process (the *kernel*), not on the page. Running cells out of order, re-running one cell several times, or editing a cell without re-running it all leave the memory different from what the page shows. The notebook has a small demonstration (@sec-s02-unknown), in which a cell that adds 1 to `counter` gives a new number every time you re-run it, although its code never changes. This is one of the most common sources of confusion for new notebook users, and the remedy is simple:
 
 ::: callout-important
 **Before submitting or sharing a notebook: Restart Kernel → Run All.**
@@ -56,7 +56,7 @@ This clears the memory and runs every cell from top to bottom, in order. If the 
 
 ## Scientific Python objects {#sec-s02-objects}
 
-Different objects represent different kinds of data, and each gives you the operations that make sense for that kind of data. Here are the same three transcript lengths (in nucleotides) held in increasingly specialized objects. Here are some examples that can be run (in the notebook):
+Different objects represent different kinds of data, and each gives you the operations that make sense for its kind. The examples below, which you can run in the notebook, hold the same three transcript lengths (in nucleotides) in increasingly specialised objects:
 
 ``` python
 lengths = [628, 577, 576]                  # a list: a general container
@@ -75,13 +75,13 @@ print(genes[genes["length"] > 600])        # a table with named columns and mixe
 |------------------------|------------------------|------------------------|
 | `list` | any collection of things | append, loop over, index |
 | NumPy `ndarray` | numbers of one type, in any number of dimensions (Session 1's vectors and matrices) | elementwise maths, means, matrix products, boolean masks |
-| pandas `DataFrame` | a table: named columns, possibly of different types, one row per observation | select and filter by name, group, summarize, read and write CSV files |
+| pandas `DataFrame` | a table: named columns, possibly of different types, one row per observation | select and filter by name, group, summarise, read and write CSV files |
 | Biopython `Seq` / `SeqRecord` | a biological sequence / a sequence with its identifier, description and annotations | reverse complement, translate, GC content, parse and write FASTA or GenBank (@sec-s02-bioobjects) |
 | PyTorch `Tensor` | an array that can live on a GPU and remember how it was computed | everything an array does, plus automatic gradients (Session 7 onwards) |
 
-Choosing the right object is important, for instance `lengths * 2` on a list silently does something you did not mean, while on an array it does the math as expected (multiplying all numbers by 2).
+Choosing the right object therefore matters. On a list, `lengths * 2` silently does something you did not mean, whereas on an array it does the maths you expect and multiplies every number by 2.
 
-**Looking ahead: tensors and autograd.** A PyTorch **tensor** is the array of deep learning, and its extra trick is **automatic differentiation**: PyTorch records every operation on a tensor, and `.backward()` replays them in reverse, applying Session 1's chain rule at each step. Session 1's gradient practice problem, done by hand there, takes only three lines of PyTorch code:
+**Looking ahead: tensors and autograd.** A PyTorch **tensor** is the array of deep learning, and its extra trick is **automatic differentiation**. PyTorch records every operation on a tensor, and `.backward()` replays them in reverse, applying Session 1's chain rule at each step. As a result, Session 1's gradient practice problem, done by hand there, takes only a few lines of PyTorch code:
 
 ``` python
 import torch
@@ -92,11 +92,11 @@ f.backward()
 print(x0.grad, x1.grad)                    # tensor(10.) tensor(2.): Session 1's answer, (10, 2)
 ```
 
-From Session 7 onwards you never write a derivative by hand again; you call `.backward()`.
+From Session 7 onwards you therefore never write a derivative by hand again. You call `.backward()` instead.
 
 ## Exploring a biological dataset {#sec-s02-explore}
 
-The first dataset is from a mouse-liver RNA-seq experiment (Becares et al., 2019): all mice were fed a high-fat/high-cholesterol diet, and the livers of mice carrying a mutant form of the transcription factor LXRα (S196A, which cannot be phosphorylated at that site) are compared with those of wild-type mice, three per group. The data have already been analysed with DESeq2; here we will explore the resulting table. The set contains one row per gene, with its mean expression (`baseMean`), log2 fold change, p-value and adjusted p-value.
+With the objects in place, we can turn to real data. The first dataset comes from a mouse-liver RNA-seq experiment (Becares et al., 2019). All the mice were fed a high-fat/high-cholesterol diet, and the livers of mice carrying a mutant form of the transcription factor LXRα (S196A, which cannot be phosphorylated at that site) are compared with those of wild-type mice, three per group. The data have already been analysed with DESeq2, so here we explore the resulting table. It contains one row per gene, with the gene's mean expression (`baseMean`), log2 fold change, p-value and adjusted p-value.
 
 ``` python
 url = "https://raw.githubusercontent.com/JoachimGoedhart/VolcaNoseR/master/Becares-diffgenes_HFHC.csv"
@@ -107,9 +107,9 @@ df.head()           # the first five rows
 df.describe()       # count, mean, spread and range of every numeric column
 ```
 
-**Summaries tell you how the data were made.** `describe()` shows that the largest p-value in the file is 0.12, and the largest adjusted p-value 0.50. A genome-wide experiment has p-values all the way up to 1, so this file is not all genes: it is a pre-filtered list of the 3,001 genes with $p < 0.12$. Any conclusion about "all genes" drawn from it would be wrong. Always look at the summaries before you look at a result.
+**Summaries tell you how the data were made.** `describe()` shows that the largest p-value in the file is 0.12, and the largest adjusted p-value 0.50. A genome-wide experiment has p-values all the way up to 1, so this file cannot contain all genes. It is a pre-filtered list of the 3,001 genes with $p < 0.12$, and any conclusion about "all genes" drawn from it would be wrong. Always look at the summaries before you look at a result.
 
-**Selecting and filtering** uses conditions on columns:
+**Selecting and filtering** use conditions on columns:
 
 ``` python
 significant = df[df["padj"] < 0.05]                                   # 656 genes
@@ -117,15 +117,15 @@ strong = df[(df["padj"] < 0.05) & (df["log2_FoldChange"].abs() > 1)]  # 171 gene
 df.sort_values("padj").head()                                         # the most significant genes
 ```
 
-The most significant gene is *Osbpl3* (adjusted $p = 8 \times 10^{-18}$, down 3.1-fold), and among the significant genes the largest increase is *Cyp2c69* (log2 fold change 2.39, 5.2-fold up).
+The most significant gene is *Osbpl3* (adjusted $p = 8 \times 10^{-18}$, down 3.1-fold). Among the significant genes, the largest increase is in *Cyp2c69* (log2 fold change 2.39, 5.2-fold up).
 
-**NumPy calculations** work directly on columns: mean expression spans five orders of magnitude, from 10 to 954,964 (albumin, *Alb*), with a median of 329, so it is usually worked with as `np.log10(df["baseMean"])`.
+**NumPy calculations** work directly on columns. Mean expression, for example, spans five orders of magnitude, from 10 to 954,964 (albumin, *Alb*), with a median of 329. It is therefore usually worked with as `np.log10(df["baseMean"])`.
 
 ## Seeing the data {#sec-s02-seeing}
 
-A summary is a handful of numbers; a plot shows all 3,001 genes at once. Three plots answer three different questions:
+A summary is only a handful of numbers, whereas a plot shows all 3,001 genes at once. Three plots answer three different questions:
 
-![Three views of the same 3,001 genes, drawn in the notebook. Left: histogram of log2 fold changes. There is a gap around zero: genes with very small changes rarely reach p \< 0.12, so the filtering removed them. You can notice that slightly more genes go down than up. Middle: fold change against mean expression, with expression on a log scale: lowly expressed genes show the largest changes in both directions. Right: volcano plot of effect size against significance; genes with adjusted p \< 0.05 are coloured (this will be discussed in much more details in later courses).](figs/session02-explore.png){width="100%"}
+![Three views of the same 3,001 genes, drawn in the notebook. Left: histogram of log2 fold changes. There is a gap around zero, because genes with very small changes rarely reach p \< 0.12, so the filtering removed them. Slightly more genes go down than up. Middle: fold change against mean expression, with expression on a log scale. Lowly expressed genes show the largest changes in both directions. Right: volcano plot of effect size against significance; genes with adjusted p \< 0.05 are coloured (later courses discuss this in much more detail).](figs/session02-explore.png){width="100%"}
 
 ``` python
 import matplotlib.pyplot as plt
@@ -143,32 +143,32 @@ sns.scatterplot(data=df, x="log2_FoldChange", y="minus_log10_pvalue",
 - A **histogram** shows the distribution of one variable.
 - A **scatter plot** shows the relationship between two.
 - **seaborn** draws from a DataFrame by column name, and colours points by a third column (`hue=`) in one argument.
-- **Plots reveal how data were made, too.** The empty band around zero in the left and middle panels is the pre-filtering from @sec-s02-explore seen again: genes whose expression barely changed rarely reach $p < 0.12$, so they are not in the file. A complete experiment would have its tallest histogram bar at zero.
-- Label your axes with units, and use a **log scale** for data that span orders of magnitude, like expression levels. On a linear axis, the middle panel would be 3,001 points squeezed against the left edge and a few outliers.
+- **Plots reveal how the data were made, too.** The empty band around zero in the left and middle panels is the pre-filtering from @sec-s02-explore seen again. Genes whose expression barely changed rarely reach $p < 0.12$, so they are not in the file. A complete experiment would have its tallest histogram bar at zero.
+- Label your axes with units, and use a **log scale** for data that span orders of magnitude, such as expression levels. On a linear axis, the middle panel would show 3,001 points squeezed against the left edge, plus a few outliers.
 
 ## Asking quantitative questions {#sec-s02-questions}
 
-**Plot first, test second.** Is the size of a gene's fold change related to how highly it is expressed? A test on the raw numbers says no:
+**Plot first, test second.** Suppose we ask whether the size of a gene's fold change is related to how highly the gene is expressed. A test on the raw numbers says no:
 
 ``` python
 from scipy import stats
 stats.pearsonr(df["baseMean"], df["log2_FoldChange"].abs())     # r = -0.01, p = 0.43
 ```
 
-The middle plot says yes: lowly expressed genes have larger fold changes. The two disagree because Pearson's correlation measures a *linear* relationship, and on the raw scale a handful of hugely expressed genes (albumin at 954,964) dominate it. Test what the plot shows instead:
+The middle plot, however, says yes, because lowly expressed genes have larger fold changes. The two disagree because Pearson's correlation measures a *linear* relationship, and on the raw scale a handful of hugely expressed genes (albumin at 954,964) dominate it. The solution is to test what the plot shows:
 
 ``` python
 stats.pearsonr(np.log10(df["baseMean"]), df["log2_FoldChange"].abs())  # r = -0.30, p = 2e-64
 stats.spearmanr(df["baseMean"], df["log2_FoldChange"].abs())           # rho = -0.42, p = 2e-129
 ```
 
-Spearman's correlation uses only the ranks, so it doesn't care about the scale. Had you run the first test without plotting, you would have reported "no relationship". (Why lowly expressed genes show larger fold changes is itself a lesson: with few reads per gene, estimates are noisier. Session 8 returns to noise and evaluation.)
+Spearman's correlation uses only the ranks, so the scale does not matter to it. Had you run the first test without plotting, you would have reported "no relationship". (Why lowly expressed genes show larger fold changes is itself a lesson. With few reads per gene, the estimates are noisier. Session 8 returns to noise and evaluation.)
 
-**Existing tools for standard questions.** SciPy and scikit-learn implement the standard methods, so you don't:
+**Existing tools for standard questions.** SciPy and scikit-learn implement the standard methods, so you do not have to:
 
-- `stats.ttest_ind(control, treatment, equal_var=False)` is Session 1's Welch t-test: for Session 1's control $(5.1, 4.9, 5.3, 5.0)$ and treatment $(7.2, 6.8, 7.5, 7.0)$ it gives $t \approx -11.9$, $p \approx 0.0001$. SciPy's default, `equal_var=True`, is Student's test, which assumes equal variances.
-- `scipy.cluster.hierarchy.linkage` builds a tree by repeatedly merging the closest clusters: the algorithm behind Session 4's guide tree.
-- scikit-learn has ready-made models (`LinearRegression`, `LogisticRegression`, `train_test_split`, `MLPClassifier`, ...). Sessions 7-9 build these by hand, so that you see the mechanics; in practice you would call the library.
+- `stats.ttest_ind(control, treatment, equal_var=False)` is Session 1's Welch t-test. For Session 1's control $(5.1, 4.9, 5.3, 5.0)$ and treatment $(7.2, 6.8, 7.5, 7.0)$ it gives $t \approx -11.9$, $p \approx 0.0001$. SciPy's default, `equal_var=True`, is Student's test, which assumes equal variances.
+- `scipy.cluster.hierarchy.linkage` builds a tree by repeatedly merging the closest clusters. This is the algorithm behind Session 4's guide tree.
+- scikit-learn has ready-made models (`LinearRegression`, `LogisticRegression`, `train_test_split`, `MLPClassifier`, ...). Sessions 7-9 build these by hand so that you see the mechanics, but in practice you would call the library.
 
 **Check your understanding:**
 
@@ -188,7 +188,7 @@ renderQuiz("session02-quiz-1", [
 
 ## Biological objects {#sec-s02-bioobjects}
 
-Biopython's `Seq` is a sequence that knows biology, so you never write a complement table yourself. Here we will use (as an example) the human beta-globin (*HBB*, accession `NM_000518.5`). If you want to see the first ten codons and the corresponding amino acids you can do this:
+Besides tables of numbers, a computational biologist works with sequences. Biopython's `Seq` is a sequence that knows biology, so you never have to write a complement table yourself. As an example, we use human beta-globin (*HBB*, accession `NM_000518.5`). The first ten codons and the corresponding amino acids can be examined like this:
 
 ``` python
 from Bio.Seq import Seq
@@ -201,11 +201,11 @@ hbb.reverse_complement()   # AGACTTCTCCTCAGGAGTCAGATGCACCAT
 hbb.translate()            # MVHLTPEEKS
 ```
 
-A **`SeqRecord`** wraps a `Seq` with what a database knows about it: `record.id`, `record.description`, and `record.features`, the annotated regions such as the coding sequence (CDS). `record.seq` and `record.features` are **attributes**, and `record.seq.translate()` is a **method**: a `SeqRecord` is an **object**, built from a **class** Biopython defines, that bundles data with the functions that act on it. Session 8 has you write your own class, a PyTorch model; for now, recognizing the pattern is enough.
+A **`SeqRecord`** wraps a `Seq` together with what a database knows about it: `record.id`, `record.description`, and `record.features`, the annotated regions such as the coding sequence (CDS). Here `record.seq` and `record.features` are **attributes**, and `record.seq.translate()` is a **method**. A `SeqRecord` is thus an **object**, built from a **class** that Biopython defines, and it bundles data with the functions that act on it. Session 8 has you write your own class, a PyTorch model, so for now it is enough to recognise the pattern.
 
 ## Data coming from somewhere {#sec-s02-remote}
 
-Real data arrive from files on disk or from databases over the network. Either way, Python gives you a **file handle**, an object you read from. Open it with `with`, which closes it again automatically when the block ends, even if an error happens inside:
+Real data arrive either from files on disk or from databases over the network. In both cases Python gives you a **file handle**, an object you read from. You open it with `with`, which closes it again automatically when the block ends, even if an error happens inside:
 
 ``` python
 from Bio import SeqIO
@@ -223,9 +223,9 @@ with gzip.open("reads.fasta.gz", "rt") as handle:
     records = list(SeqIO.parse(handle, "fasta"))
 ```
 
-`.zip` and `.tar.gz` archives, which hold several files (the capstone project's data come as a `.zip`), are opened with the standard-library modules `zipfile` and `tarfile` (`.namelist()` or `.getnames()` to list, `.extractall()` to unpack).
+Archives in `.zip` and `.tar.gz` format hold several files (the capstone project's data, for example, come as a `.zip`). They are opened with the standard-library modules `zipfile` and `tarfile`, which list the contents with `.namelist()` or `.getnames()` and unpack them with `.extractall()`.
 
-**Remote data** work the same way. `pd.read_csv(url)` read @sec-s02-explore's table straight from the web. For NCBI, `Bio.Entrez` returns a handle:
+**Remote data** work in the same way. `pd.read_csv(url)` read the table of @sec-s02-explore straight from the web, and for NCBI, `Bio.Entrez` returns a handle:
 
 ``` python
 from Bio import Entrez, SeqIO
@@ -236,7 +236,7 @@ with Entrez.efetch(db="nuccore", id="NM_000518.5", rettype="gb", retmode="text")
 print(record.description, len(record.seq))             # Homo sapiens hemoglobin subunit beta (HBB), mRNA 628
 ```
 
-NCBI allows about three requests per second without an API key, so fetch many records in one request, or pause between requests, rather than hammering the server in a fast loop.
+NCBI allows about three requests per second without an API key. You should therefore fetch many records in one request, or pause between requests, rather than hammer the server in a fast loop.
 
 **Check your understanding:**
 
@@ -245,7 +245,7 @@ NCBI allows about three requests per second without an API key, so fetch many re
 <script>
 renderQuiz("session02-quiz-2", [
   {"question": "hbb = Seq('ATGGTGCATCTGACTCCTGAGGAGAAGTCT') translates to MVHLTPEEKS. Predict: what does hbb[1:].translate() give, the same sequence read from its second base?", "choices": ["A different, meaningless peptide with a stop codon: WCI*LLRRS (and a warning about a partial codon)", "The same protein, MVHLTPEEKS", "An error, because the sequence does not start with ATG", "An empty sequence"], "correctIndex": 0, "explanation": "Biopython translates whatever you give it, three bases at a time. Shifted by one base, every codon changes, and a stop codon (*) appears. Nothing stops you translating the wrong frame: a mistake of the third kind (see *When you don't know how to do something*)."},
-  {"question": "You translate the whole HBB mRNA (628 nt) from its first base. The result does not start with M and contains 7 stop codons (*). Why?", "choices": ["The mRNA begins with a 50-nt untranslated region, so translation from base 1 is in the wrong frame; the protein starts at the CDS (base 51)", "The mRNA is corrupted", "Biopython cannot translate human sequences", "Hemoglobin has seven separate proteins"], "correctIndex": 0, "explanation": "Only the coding sequence is translated. Use the record's CDS feature, cds.extract(record.seq).translate(to_stop=True), to get the 147-residue protein."},
+  {"question": "You translate the whole HBB mRNA (628 nt) from its first base. The result does not start with M and contains 7 stop codons (*). Why?", "choices": ["The mRNA begins with a 50-nt untranslated region, so translation from base 1 is in the wrong frame; the protein starts at the CDS (base 51)", "The mRNA is corrupted", "Biopython cannot translate human sequences", "Haemoglobin has seven separate proteins"], "correctIndex": 0, "explanation": "Only the coding sequence is translated. Use the record's CDS feature, cds.extract(record.seq).translate(to_stop=True), to get the 147-residue protein."},
   {"question": "Why open files with 'with open(path) as handle:' rather than handle = open(path)?", "choices": ["The file is closed automatically when the block ends, even if an error happens inside it", "It reads the file faster", "It is the only way to read FASTA files", "It decompresses the file automatically"], "correctIndex": 0, "explanation": "The same pattern works for gzip.open and for Entrez.efetch handles."},
   {"question": "What does gzip.open('reads.fasta.gz', 'rt') give you?", "choices": ["A text file handle that SeqIO.parse can read directly, with no separate unpacking", "An unpacked copy of the file on disk", "A list of sequences", "An error, because FASTA files cannot be compressed"], "correctIndex": 0, "explanation": "'rt' means read as text. The decompression happens as you read."},
   {"question": "You need 50 records from NCBI. What is the best way to fetch them?", "choices": ["One Entrez.efetch request with all 50 accessions, separated by commas", "50 requests in a fast loop", "50 requests, each in a new notebook", "Copy them from the NCBI web page by hand"], "correctIndex": 0, "explanation": "NCBI allows about three requests per second without an API key; one request for many records is faster and polite."}
@@ -255,11 +255,11 @@ renderQuiz("session02-quiz-2", [
 
 ## When you don't know how to do something {#sec-s02-unknown}
 
-Everyone's code fails, all the time. There are three kinds of mistakes, and they are not equally easy to catch:
+Everyone's code fails, all the time, so the useful question is how to notice and fix the failures. There are three kinds of mistake, and they are not equally easy to catch:
 
 1.  **A Python error.** Python stops and tells you what went wrong, for example a `KeyError` when a column name is misspelled.
-2.  **Correct code, wrong analysis.** The code runs, but it does not answer your question: plotting GC content on the x-axis when you meant length, or filtering on the p-value when you meant the adjusted p-value. Nothing fails.
-3.  **A biologically nonsensical result.** The code runs and the numbers look reasonable, but they cannot be right: computing a globin's protein length as its mRNA length divided by three gives 654 amino acids for cytoglobin, while globins are about 150 amino acids long. (The mRNA includes untranslated regions; only the coding sequence is translated.)
+2.  **Correct code, wrong analysis.** The code runs, but it does not answer your question, for example because you plotted GC content on the x-axis when you meant length, or filtered on the p-value when you meant the adjusted p-value. Nothing fails.
+3.  **A biologically nonsensical result.** The code runs and the numbers look reasonable, but they cannot be right. Computing a globin's protein length as its mRNA length divided by three, for example, gives 654 amino acids for cytoglobin, while globins are about 150 amino acids long. (The mRNA includes untranslated regions, and only the coding sequence is translated.)
 
 ::: {.callout-tip icon="false"}
 ## Remember
@@ -267,58 +267,58 @@ Everyone's code fails, all the time. There are three kinds of mistakes, and they
 > > **Code running without an error does not mean the analysis is correct.**
 :::
 
-AI assistants are very good at removing mistakes of the first kind. They do much less to stop the second and third, which you catch only by asking whether the result answers your question and whether it is biologically plausible. For the first kind, experienced programmers have a routine for getting unstuck:
+AI assistants are very good at removing mistakes of the first kind. They do much less to stop the second and third kinds, which you catch only by asking whether the result answers your question and whether it is biologically plausible. For the first kind, experienced programmers follow a routine for getting unstuck:
 
 **read the error → inspect → documentation → AI assistant (or google) → verify.**
 
-**Read the error message, from the bottom.** The last line says *what* went wrong; the arrow above it says *where* in your code. For example, asking for a column that doesn't exist:
+**Read the error message, from the bottom.** The last line says *what* went wrong, and the arrow above it says *where* in your code. Asking for a column that does not exist, for example, gives:
 
 ```         
 ----> 1 df["log2FC"].mean()
 KeyError: 'log2FC'
 ```
 
-A `KeyError` on a DataFrame means "no column with that name".
+On a DataFrame, a `KeyError` means "no column with that name".
 
-**Inspect the objects involved.** `df.columns` shows the column is called `log2_FoldChange`. The same few tools answer most questions:
+**Inspect the objects involved.** Here `df.columns` shows that the column is called `log2_FoldChange`. The same few tools answer most questions:
 
 - `type(x)`: what kind of object is this?
 - `x.shape`, `len(x)`, `df.dtypes`: how big is it, and what is in it?
 - `df.head()`: what does it actually look like?
 - `help(x)` or `x?` in a notebook: what can it do?
 
-**Read the documentation.** Every library on this page has a user guide and an API reference, and it is the authority on what a function does in *your* version. For example, old tutorials still write `from Bio.SeqUtils import GC`, which fails in current Biopython (1.86 on the course server):
+**Read the documentation.** Every library on this page has a user guide and an API reference, and the documentation is the authority on what a function does in *your* version. Old tutorials, for example, still write `from Bio.SeqUtils import GC`, which fails in current Biopython (1.86 on the course server):
 
 ```         
 ImportError: cannot import name 'GC' from 'Bio.SeqUtils'
 ```
 
-The documentation shows its replacement, `gc_fraction`.
+The documentation names its replacement, `gc_fraction`.
 
-**Ask an AI assistant (if useful)**, well. Assistants are good at explaining an error message, suggesting which function to use, and writing a first draft. Give them what a human helper would need:
+**Ask an AI assistant, if it is useful, and ask well.** Assistants are good at explaining an error message, suggesting which function to use, and writing a first draft. Give them what a human helper would need:
 
 - the full error message;
-  - a small example of your data (`df.head()`);pdb
+- a small example of your data (`df.head()`);
 - the library versions;
 - what you expected, and what you tried.
 
 ::: {.callout-tip icon="false"}
-## How to use chatbots.
+## How to use chatbots
 
 > Never ask only “fix my code.” Tell the assistant what you **intended the code to do**, show the relevant data/object, and ask it to **explain the proposed change**.
 >
 > Afterwards, verify the result independently whenever possible.
 :::
 
-**Then verify.** Assistants can invent functions and arguments that don't exist, use outdated APIs (like `GC` above: they learned from the same old tutorials), or write code that runs but computes the wrong thing. That last case is the dangerous one, because nothing fails. Treat the answer as a suggestion:
+**Then verify.** Assistants can invent functions and arguments that do not exist, use outdated APIs (like `GC` above, because they learned from the same old tutorials), or write code that runs but computes the wrong thing. The last case is the dangerous one, because nothing fails. Treat the answer as a suggestion, and check it:
 
 - run it on a tiny example whose answer you know;
 - check shapes and ranges;
-- look up any function you don't recognize.
+- look up any function you do not recognise.
 
-Check the course rules on Canvas for what is allowed in graded work.
+What is allowed in graded work is set out in the course rules on Canvas.
 
-**Test your assumptions in code.** An `assert` stops the notebook when something you believe is false:
+**Test your assumptions in code.** An `assert` stops the notebook when something you believe turns out to be false:
 
 ``` python
 assert df["pvalue"].between(0, 1).all(), "p-values must lie between 0 and 1"
@@ -326,11 +326,11 @@ assert not df["Gene"].duplicated().any(), "one row per gene"
 assert len(record.seq) == 628, "HBB mRNA should be 628 nt"
 ```
 
-**The notebook trap: stale state.** A notebook's variables live in memory, independent of where cells sit on the page. Run cell 3, then cell 7, then edit cell 3 without re-running it, and cell 7 still uses the *old* value. The page says one thing, and the memory holds another. When a result surprises you, use **Restart Kernel → Run All**: it clears the memory and runs every cell top to bottom, the only way to be sure the output matches the code (see the box at the start of the page).
+**The notebook trap: stale state.** A notebook's variables live in memory, independently of where the cells sit on the page. If you run cell 3, then cell 7, and then edit cell 3 without re-running it, cell 7 still uses the *old* value. The page then says one thing while the memory holds another. When a result surprises you, use **Restart Kernel → Run All**. It clears the memory and runs every cell from top to bottom, and it is the only way to be sure that the output matches the code (see the box at the start of the page).
 
 ## Two tools outside Python: ssh and git
 
-**ssh** logs you in to another computer, such as the course server, over an encrypted connection. It uses a key pair: the *private* key (`~/.ssh/id_ed25519`) never leaves your laptop, and the *public* key (`id_ed25519.pub`) is what you give to the server. The [Setup](setup.qmd) page creates both and the `kb8029-server` shortcut used below.
+Two tools outside Python are part of everyday work. **ssh** logs you in to another computer, such as the course server, over an encrypted connection. It uses a key pair. The *private* key (`~/.ssh/id_ed25519`) never leaves your laptop, and the *public* key (`id_ed25519.pub`) is the one you give to the server. The [Setup](setup.qmd) page creates both, together with the `kb8029-server` shortcut used below.
 
 ``` bash
 ssh kb8029-server                      # log in; type exit to leave
@@ -340,7 +340,7 @@ scp kb8029-server:~/data/genes.csv .   # ... and a file back to the current fold
 
 VS Code's Remote-SSH uses the same connection. Never share or copy your private key.
 
-**git** keeps the history of a folder (a *repository*) as a series of snapshots (*commits*), so you can see what changed, go back to a version that worked, and share work through GitHub.
+**git** keeps the history of a folder (a *repository*) as a series of snapshots (*commits*). You can therefore see what changed, go back to a version that worked, and share work through GitHub.
 
 ``` bash
 git clone https://github.com/ElofssonLab/kb8029-book.git   # a copy of the course notebooks
@@ -351,11 +351,11 @@ git log --oneline                   # the history
 git pull                            # fetch others' changes (git push sends yours to your own repository)
 ```
 
-Commit small, working steps with messages that say *why*. Do not commit large data files or passwords and keys; list them in a `.gitignore` file instead. Further reading: the Software Carpentry lessons [The Unix Shell](https://swcarpentry.github.io/shell-novice/) and [Version Control with Git](https://swcarpentry.github.io/git-novice/) (CC BY 4.0).
+Commit small, working steps, with messages that say *why*. Do not commit large data files, passwords or keys; list them in a `.gitignore` file instead. For further reading, see the Software Carpentry lessons [The Unix Shell](https://swcarpentry.github.io/shell-novice/) and [Version Control with Git](https://swcarpentry.github.io/git-novice/) (CC BY 4.0).
 
 ## Mini challenge: a small analysis, start to finish {#sec-s02-challenge}
 
-Put the pieces together on the globin family, the paralogous genes Session 4 aligns:
+The mini challenge puts the pieces together on the globin family, the paralogous genes that Session 4 aligns:
 
 1.  **Fetch** the six human globin mRNAs from NCBI: *HBB* (`NM_000518.5`), *HBA1* (`NM_000558.5`), *HBA2* (`NM_000517.6`), *MB* (`NM_001382809.1`), *NGB* (`NM_021257.4`) and *CYGB* (`NM_134268.5`).
 2.  **Represent** them as a DataFrame: one row per gene, with the mRNA length, GC fraction and the length of the protein, from the record's CDS feature.
@@ -363,7 +363,7 @@ Put the pieces together on the globin family, the paralogous genes Session 4 ali
 4.  **Plot** something: protein length against mRNA length.
 5.  **Explain** what you found, in two or three sentences.
 
-The notebook has a worked solution. What it finds:
+The notebook has a worked solution, which finds the following:
 
 | Gene   | mRNA (nt) | GC fraction | Protein (aa) | Untranslated (nt) |
 |--------|-----------|-------------|--------------|-------------------|
@@ -374,7 +374,7 @@ The notebook has a worked solution. What it finds:
 | *NGB*  | 1,778     | 0.62        | 151          | 1,322             |
 | *CYGB* | 1,962     | 0.62        | 190          | 1,389             |
 
-The proteins are all about the same size (142-190 amino acids, one globin fold each), but the mRNAs differ more than threefold. The difference is almost all untranslated sequence (UTRs), from 147 nt in *HBA2* to 1,389 nt in *CYGB*. A transcript's length says little about its protein. With six genes, Pearson's correlation between mRNA and protein length is $r = 0.78$ but $p = 0.07$: a strong-looking correlation from few points is weak evidence (the second discussion problem).
+The proteins are all about the same size (142-190 amino acids, one globin fold each), but the mRNAs differ more than threefold in length. Almost all of the difference is untranslated sequence (UTRs), which ranges from 147 nt in *HBA2* to 1,389 nt in *CYGB*. A transcript's length therefore says little about its protein. With six genes, Pearson's correlation between mRNA and protein length is $r = 0.78$, but $p = 0.07$, so a strong-looking correlation from few points is only weak evidence (the second discussion problem).
 
 **Check your understanding:**
 
@@ -392,17 +392,17 @@ renderQuiz("session02-quiz-3", [
 </script>
 ```
 
-## The notebook
+## The course notebook
 
-`notebooks/session02-working-in-python.ipynb` follows this page section by section and runs everything above: the objects, the exploration and plots of the Becares data, the tests, Biopython, reading local, compressed and remote data, a debugging walk-through, and the mini challenge's solution. Open it in [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session02-working-in-python.ipynb) or on the course server.
+`notebooks/session02-working-in-python.ipynb` follows this page section by section and runs everything above. It covers the objects, the exploration and plots of the Becares data, the tests, Biopython, reading local, compressed and remote data, a debugging walk-through, and the solution to the mini challenge. Open it in [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session02-working-in-python.ipynb) or on the course server.
 
 ## The lab
 
-The lab notebook, [`notebooks/session02-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session02-lab.ipynb), continues from the mini challenge, with less help at each step. Lines to complete are marked with `todo(...)`, which stops the cell with a message saying what is missing.
+The lab notebook, [`notebooks/session02-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session02-lab.ipynb), continues from the mini challenge, with less help at each step. Lines to complete are marked with `todo(...)`, which stops the cell with a message saying what is missing. The lab has three parts:
 
-1.  **Fill in:** complete marked lines in working code. Explore the same RNA-seq table with other columns and thresholds, plot first and test second, run `Seq` operations on a mystery fragment, and fetch its record from NCBI into a local file and back.
+1.  **Fill in:** complete the marked lines in working code. You explore the same RNA-seq table with other columns and thresholds, plot first and test second, run `Seq` operations on a mystery fragment, and fetch its record from NCBI into a local file and back.
 
-2.  **Adapt:** change working code to answer new questions. Find the most strongly down-regulated gene, fix a cell with three realistic bugs (one of which runs without an error), and apply the mini challenge's function to six more globin genes.
+2.  **Adapt:** change working code to answer new questions. You find the most strongly down-regulated gene, fix a cell with three realistic bugs (one of which runs without an error), and apply the mini challenge's function to six more globin genes.
 
 3.  **Solve:** four open challenges, each with a specification and hints only:
 
@@ -417,11 +417,11 @@ Answer the Session 2 lab quiz on Canvas with your notebook's own output.
 
 ### Submitting this lab
 
-This lab is administered through Canvas, not this book — see the course's Canvas page for the current quiz, deadline, and submission mechanism.
+This lab is administered through Canvas, not through this book. See the course's Canvas page for the current quiz, the deadline and how to submit.
 
 ## Further watching
 
-The animations in the 3Blue1Brown videos used throughout this course are made with **Manim**, an open-source Python library written by Grant Sanderson, 3Blue1Brown's creator. Two views of Python used for something very different from data analysis:
+The animations in the 3Blue1Brown videos used throughout this course are made with **Manim**, an open-source Python library written by Grant Sanderson, the creator of 3Blue1Brown. The two videos below show Python used for something very different from data analysis.
 
 [*Animate Like 3Blue1Brown - No Coding Required (Manim Animation Using A.I.)*](https://www.youtube.com/watch?v=InHuoGkOb2s) (Sycamore), generating Manim animations with an AI assistant. Watch it with @sec-s02-unknown in mind: how do you check that what the assistant produced is what you wanted?
 
@@ -441,4 +441,4 @@ The animations in the 3Blue1Brown videos used throughout this course are made wi
 
 ## What's next
 
-Session 3 uses Biopython's database access at full scale: retrieving and cross-referencing real sequences across biological databases. Tensors and autograd return in Session 7's gradient-descent lab, and on Session 8 you write your first class, a PyTorch model.
+Session 3 uses Biopython's database access at full scale, to retrieve and cross-reference real sequences across biological databases. Tensors and autograd return in Session 7's gradient-descent lab, and in Session 8 you write your first class, a PyTorch model.

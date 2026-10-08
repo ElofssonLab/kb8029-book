@@ -36,46 +36,52 @@ fetched live while writing this page (2026-09-18) — see the notebook.
 
 ## Learning goals
 
-By the end of this session you should be able to explain why exact
-dynamic programming doesn't scale to searching a whole database and
-describe BLAST's seed-extend-evaluate heuristic and how MMseqs2 scales
-the same ideas; interpret a real BLAST
-result's E-value and bit score; construct a small position-specific
-scoring matrix (PSSM) by hand, including why pseudocounts matter;
-describe PSI-BLAST as BLAST iterated with a PSSM instead of a single
-sequence, including why iteration can drift; and explain, at a conceptual level, what a profile Hidden
-Markov Model adds beyond a PSSM.
+By the end of this session you should be able to:
+
+- explain why exact dynamic programming does not scale to searching a
+  whole database;
+- describe BLAST's seed-extend-evaluate heuristic, and how MMseqs2
+  scales the same ideas;
+- interpret the E-value and bit score of a real BLAST result;
+- construct a small position-specific scoring matrix (PSSM) by hand, and
+  explain why pseudocounts matter;
+- describe PSI-BLAST as BLAST iterated with a PSSM instead of a single
+  sequence, and explain why iteration can drift;
+- explain, at a conceptual level, what a profile Hidden Markov Model
+  adds beyond a PSSM.
 
 ## The scaling problem, and BLAST's heuristic answer
 
 Session 4's dynamic programming finds the *provably optimal* alignment
-between two sequences, but it costs time proportional to the product of
-their lengths. That's fine for two sequences a few hundred residues long.
-It is not fine for searching one query against a database — GenBank and
-UniProt hold well over a hundred million sequences between them — where
-running full dynamic programming against every single entry would take
-far too long to be useful.
+between two sequences, but its cost is proportional to the product of
+their lengths. For two sequences a few hundred residues long, this is no
+problem. For searching one query against a database, it is. GenBank and
+UniProt hold well over a hundred million sequences between them, and
+running full dynamic programming against every entry would take far too
+long to be useful. A database search therefore needs a faster method.
 
-**BLAST** (Basic Local Alignment Search Tool) trades the guarantee of
-optimality for speed: instead of exhaustively filling a DP matrix for
-every database sequence, it looks for short, exact-or-near-exact matches
-first, and only spends the expensive alignment step on the promising
-regions those matches point to. Concretely, BLAST runs in three stages:
+**BLAST** (Basic Local Alignment Search Tool) is such a method, and it
+trades the guarantee of optimality for speed. Instead of filling a DP
+matrix for every database sequence, it first looks for short exact or
+near-exact matches. Only the promising regions that these matches point
+to get the expensive alignment step. Concretely, BLAST runs in three
+stages:
 
-1. **Seeding** — break the query into short "words", list every word
-   that scores well against each of them, and scan the database for
+1. **Seeding.** Break the query into short "words", list every word that
+   scores well against each of them, and scan the database for
    occurrences of those words.
-2. **Extension** — grow each seed hit outward, in both directions, into
+2. **Extension.** Grow each seed hit outwards, in both directions, into
    a full local alignment.
-3. **Evaluation** — ask whether the resulting alignment's score is
+3. **Evaluation.** Ask whether the score of the resulting alignment is
    better than what pure chance would produce.
 
 Each stage is covered in its own section below. This three-stage picture
-is the core idea, deliberately simplified: production BLAST adds
-refinements such as the *two-hit* rule (only extend when two seeds lie
-close together on the same diagonal), masking of low-complexity regions,
-gapped extension, and corrections for unusual amino-acid composition.
-None of them changes the logic of seed, extend, evaluate.
+is the core idea, and it is deliberately simplified. Production BLAST
+adds refinements such as the *two-hit* rule (only extend when two seeds
+lie close together on the same diagonal), masking of low-complexity
+regions, gapped extension, and corrections for unusual amino-acid
+composition. None of these refinements changes the logic of seed,
+extend, evaluate.
 
 ### Further reading
 
@@ -84,20 +90,21 @@ None of them changes the logic of seed, extend, evaluate.
 
 ## Stage 1: seeding — turning the query into fast lookups
 
-For protein sequences, a "word" is usually just 3 residues long. A query
-of length 200 therefore has 198 overlapping 3-letter words. For each one,
-BLAST doesn't search the database for an *exact* match only — using a
-substitution matrix (BLOSUM62, from Session 4), it precomputes every 3-letter
-combination that scores *above a threshold* $T$ against the query word,
-since a biologically real match may substitute a residue or two without
-losing significance.
+The first stage turns the query into a set of short words. For protein
+sequences, a "word" is usually only 3 residues long, so a query of
+length 200 has 198 overlapping 3-letter words. BLAST does not search the
+database only for *exact* matches to these words, because a biologically
+real match may substitute a residue or two without losing significance.
+Instead, it uses a substitution matrix (BLOSUM62, from Session 4) to
+precompute every 3-letter combination that scores *above a threshold*
+$T$ against each query word.
 
-**Worked example.** For the query word `LWG` scored against the real
-BLOSUM62 matrix, several other words also clear a typical threshold of
-$T=12$ (computed directly from BLOSUM62 in the notebook — 49 words clear
-this threshold in total; the top ones):
+**Worked example.** Scored with the real BLOSUM62 matrix, several other
+words besides the query word `LWG` itself clear a typical threshold of
+$T=12$. The notebook computes them directly from BLOSUM62, and 49 words
+clear the threshold in total. The top ones are:
 
-| Neighbor word | Score vs. `LWG` |
+| Neighbour word | Score vs. `LWG` |
 |---|---|
 | `LWG` | 21 |
 | `IWG` | 19 |
@@ -111,31 +118,33 @@ this threshold in total; the top ones):
 | `KWG` | 15 |
 
 These query words and their high-scoring neighbours go into a **lookup
-table**, built once per query: for every 3-letter word, the table records
-which query positions it would seed. BLAST then scans each database
-sequence once, from start to end, and for every 3-letter word it reads
-asks the table "does this word seed anything in the query, and where?"
-That check is a single table lookup, so the scan is fast and linear in
-the size of the database, and only the few places that produce a seed go
-on to the expensive extension step.
+table**, which is built once per query and records, for every 3-letter
+word, which query positions it would seed. BLAST then scans each
+database sequence once, from start to end. For every 3-letter word it
+reads, it asks the table "does this word seed anything in the query, and
+where?" Because that check is a single table lookup, the scan is fast
+and linear in the size of the database. Only the few places that produce
+a seed go on to the expensive extension step.
 
 ## Stage 2: extension — growing a seed into a real alignment
 
-A seed hit is just a 3-letter coincidence — not yet evidence of anything.
-BLAST extends it outward in both directions, recomputing a running score
-as it goes, using the same substitution-matrix logic as Session 4's dynamic
-programming but without filling a full matrix: it stops as soon as the
+A seed hit is only a 3-letter coincidence and not yet evidence of
+anything. BLAST therefore extends it outwards in both directions and
+recomputes a running score as it goes. The scoring uses the same
+substitution-matrix logic as Session 4's dynamic programming, but
+without filling a full matrix. Instead, extension stops as soon as the
 running score has fallen too far below its own best point so far.
 
-**The X-drop rule.** Track the *running score* as the alignment extends,
-and separately track the *best score seen so far*. If the running score
-ever falls more than a threshold $X$ below that running best, stop
-extending — the alignment is very unlikely to recover — and trim the
-reported alignment back to wherever the running best actually occurred.
+**The X-drop rule.** BLAST tracks the *running score* as the alignment
+extends, and separately the *best score seen so far*. If the running
+score ever falls more than a threshold $X$ below that best score, the
+alignment is very unlikely to recover, so extension stops. The reported
+alignment is then trimmed back to the point where the best score
+occurred.
 
-**Worked example**, adapted from Korf, Yandell & Bedell (2003): treat two
-short strings as if they were sequences, scoring $+1$ for a matching
-character and $-1$ for a mismatch (spaces ignored), with $X=5$:
+**Worked example**, adapted from Korf, Yandell & Bedell (2003). We treat
+two short strings as if they were sequences, score $+1$ for a matching
+character and $-1$ for a mismatch (ignoring spaces), and use $X=5$:
 
 ```
 query:    Thequickbrownfoxjumps...
@@ -143,13 +152,13 @@ database: Thequietbrownncatpurrs...
 ```
 
 The running score climbs steadily through `Thequ`, dips slightly at the
-`ick`/`iet` mismatch, recovers and climbs further through `brown` to a
-peak of **9** right after `...brown`/`...brown`, then falls steadily as
-`foxjump` diverges from `catpurr`. By the time the running score has
-dropped 5 points below that peak of 9, extension stops — and the
-reported alignment is trimmed back to the peak itself: `Thequickbrown`
-paired with `Thequietbrown`, not the lower-scoring tail beyond it. The
-notebook reproduces this computation in code.
+`ick`/`iet` mismatch, and then recovers and climbs further through
+`brown` to a peak of **9** right after `...brown`/`...brown`. After that
+it falls steadily, as `foxjump` diverges from `catpurr`. Once the
+running score has dropped 5 points below the peak of 9, extension stops.
+The reported alignment is trimmed back to the peak itself, so it pairs
+`Thequickbrown` with `Thequietbrown` and leaves out the lower-scoring
+tail beyond it. The notebook reproduces this computation in code.
 
 ### Further watching
 
@@ -163,50 +172,54 @@ notebook reproduces this computation in code.
 
 ## Stage 3: is this hit significant? E-values and bit scores
 
-Extending every seed produces a raw alignment score — but a raw score
-alone doesn't say whether the alignment is *meaningful* or just what you'd
-expect from two random sequences of that length. Scores from aligning a
-query against random sequence data follow an **extreme value (Gumbel)
-distribution** — not a normal distribution — a result Karlin and Altschul
-proved in 1990 and that underpins BLAST's statistics.
+Extending every seed produces a raw alignment score. A raw score alone,
+however, does not say whether the alignment is *meaningful* or simply
+what we would expect from two random sequences of that length. To
+decide, we need to know how scores are distributed by chance. Karlin and
+Altschul proved in 1990 that the scores from aligning a query against
+random sequence data follow an **extreme value (Gumbel) distribution**,
+not a normal distribution, and this result underpins BLAST's statistics.
 
-From that distribution, the expected number of alignments scoring at
-least $S$ purely by chance — the **E-value** — is
+From that distribution follows the expected number of alignments that
+score at least $S$ purely by chance, the **E-value**:
 
 $$
 E = K m n\, e^{-\lambda S}
 $$
 
-where $m$ and $n$ are the lengths of the query and the database, and $K$ and $\lambda$ are constants of the particular scoring
-system (substitution matrix and gap penalties) — reported directly in
-real BLAST output as "Karlin-Altschul statistics." This is the simplified
-textbook form: real BLAST replaces $m$ and $n$ by slightly smaller
-*effective* lengths (an alignment cannot start right at the end of a
-sequence) and adjusts for composition, but the behaviour is the same.
-Two consequences matter: a higher score gives an exponentially smaller
-$E$, and a bigger database ($n$) inflates $E$
-for the *same* alignment, since chance has more opportunities to produce
-a false hit — this is why an E-value is only meaningful together with the
-database it was computed against, and why the same alignment can be
+Here $m$ and $n$ are the lengths of the query and the database, and $K$
+and $\lambda$ are constants of the particular scoring system
+(substitution matrix and gap penalties), which real BLAST output reports
+as "Karlin-Altschul statistics". This is the simplified textbook form.
+Real BLAST replaces $m$ and $n$ by slightly smaller *effective* lengths
+(an alignment cannot start right at the end of a sequence) and adjusts
+for composition, but the behaviour is the same.
+
+Two consequences of the formula matter. First, a higher score gives an
+exponentially smaller $E$. Second, a bigger database ($n$) inflates $E$
+for the *same* alignment, because chance has more opportunities to
+produce a false hit. An E-value is therefore only meaningful together
+with the database it was computed against, and the same alignment can be
 "significant" against a small database but not against all of GenBank.
 
-Raw scores and E-values both depend on which scoring system was used,
-which makes them awkward to compare across different searches. The
-**bit score** fixes this by normalizing away the scoring system:
+Raw scores and E-values both depend on the scoring system, which makes
+them awkward to compare across different searches. The **bit score**
+solves this by normalising away the scoring system:
 
 $$
 S' = \frac{\lambda S - \ln K}{\ln 2}
 $$
 
-Bit scores from completely different searches — even ones using different
-substitution matrices — can be compared directly. A bit score is not a
-significance test on its own, though: there is no universal bit-score
-cutoff, because whether a given score is surprising still depends on how
-large a search space it was found in. For significance, read the E-value.
+Bit scores from completely different searches, even ones that use
+different substitution matrices, can therefore be compared directly. A
+bit score is not a significance test on its own, though. There is no
+universal bit-score cutoff, because whether a given score is surprising
+still depends on the size of the search space it was found in. For
+significance, read the E-value.
 
-**Reading real output.** Running a real local BLASTP search of *HBB*
+**Reading real output.** A real local BLASTP search of *HBB*
 (beta-globin, `P68871`) against its five closest human globin relatives
-gives:
+gives the following hits:
 
 | Hit | % identity | E-value | Bit score |
 |---|---|---|---|
@@ -216,29 +229,30 @@ gives:
 | Zeta-globin (`HBAZ`) | 35.9% | 3.8×10⁻³² | 100 |
 | Myoglobin (`MYG`) | 16.0% | 63 | 10.8 |
 
-The first four are all confident, high-quality hits — high percent
-identity, astronomically small E-values, comfortably high bit scores.
+The first four are all confident, high-quality hits, with high percent
+identity, astronomically small E-values and comfortably high bit scores.
 Myoglobin is the interesting case. It shares the globin fold and a real
-evolutionary origin with hemoglobin, yet BLAST reports only a weak
-alignment with an E-value of 63: taken at face value, no statistical
-evidence at all. But that number only evaluates the alignment BLAST
-*found*. Run the same search with the two-hit rule switched off (every
-single seed gets extended; `-window_size 0` in BLAST+) and BLAST finds a
-full-length alignment, 145 residues at 25.5% identity, with an E-value of
-5×10⁻¹¹. With the default settings no pair of seeds happened to fall
-close enough together on the right diagonal, so the good alignment was
-never extended. This is the price of a heuristic: BLAST is fast because
-it skips most of the search, and occasionally it skips the answer. An
-optimal Smith–Waterman search would not have missed it.
+evolutionary origin with haemoglobin, yet BLAST reports only a weak
+alignment with an E-value of 63, which taken at face value is no
+statistical evidence at all. That number, however, only evaluates the
+alignment BLAST *found*. If we run the same search with the two-hit rule
+switched off (so that every single seed gets extended; `-window_size 0`
+in BLAST+), BLAST finds a full-length alignment, 145 residues at 25.5%
+identity, with an E-value of 5×10⁻¹¹. With the default settings, no pair
+of seeds happened to fall close enough together on the right diagonal,
+so the good alignment was never extended. This is the price of a
+heuristic. BLAST is fast because it skips most of the search, and
+occasionally it skips the answer, which an optimal Smith–Waterman search
+would not have missed.
 
-Database size still matters too. These E-values are relative to a tiny
-five-sequence database; against a database the size of UniProtKB (about
-$9\times10^{10}$ residues) the same full-length myoglobin alignment
-would get an E-value of about 0.007 — significant, but only just.
-Relatives that have diverged further than myoglobin, such as the
-bacterial *truncated* hemoglobins, give no detectable pairwise signal at
-all, even with the optimal alignment (Session 6 shows that they still
-share the globin fold).
+Database size still matters as well. These E-values are relative to a
+tiny five-sequence database. Against a database the size of UniProtKB
+(about $9\times10^{10}$ residues), the same full-length myoglobin
+alignment would get an E-value of about 0.007, which is significant, but
+only just. Relatives that have diverged further than myoglobin, such as
+the bacterial *truncated* haemoglobins, give no detectable pairwise
+signal at all, even with the optimal alignment (Session 6 shows that
+they still share the globin fold).
 
 ### Further reading
 
@@ -249,91 +263,95 @@ share the globin fold).
 
 BLAST was designed in 1990, when the protein databases held tens of
 thousands of sequences. Today's metagenomic collections hold billions,
-and even BLAST becomes too slow. **MMseqs2** (Steinegger & Söding, 2017)
-is a widely used modern search tool that keeps BLAST's logic but turns
-one part of it around. In simplified form:
+and at that scale even BLAST becomes too slow. **MMseqs2** (Steinegger &
+Söding, 2017) is a widely used modern search tool that keeps BLAST's
+logic but turns one part of it around. In simplified form, it works as
+follows:
 
 1. **Index the target database by short words** (k-mers, typically 6–7
-   residues for proteins): a table that maps each k-mer to the database
-   sequences and positions where it occurs, built once and reused.
+   residues for proteins). The index is a table that maps each k-mer to
+   the database sequences and positions where it occurs, and it is built
+   once and reused.
 2. For each k-mer in the query, generate the **similar** k-mers (scored
    with a substitution matrix, exactly like BLAST's neighbour words) and
    look them up in the index.
-3. Keep only database sequences where **two matching k-mers fall on the
-   same diagonal** — the same offset between query and target position,
-   just as in a dot plot from Session 4. Two consistent hits are much
-   stronger evidence of a real alignment than one.
+3. Keep only database sequences in which **two matching k-mers fall on
+   the same diagonal**, that is, at the same offset between query and
+   target position, just as in a dot plot from Session 4. Two consistent
+   hits are much stronger evidence of a real alignment than one.
 4. Score the surviving candidates quickly with an **ungapped alignment**
    along that diagonal, and discard the weak ones.
 5. Run the expensive **gapped Smith–Waterman** alignment, heavily
-   optimized to use the processor's vector instructions, only on the
+   optimised to use the processor's vector instructions, only on the
    small set that is left.
 
-The difference from classic BLAST is which side gets indexed. BLAST
+The difference from classic BLAST lies in which side gets indexed. BLAST
 builds a lookup table from the *query* and its neighbour words, and then
-reads through every database sequence. MMseqs2 indexes the *database*
-once, so each query only has to look up its own k-mers. Steps 3–5 are a
-cascade of ever more expensive filters, each passing on only a small
-fraction of the candidates. The result is often hundreds of times faster
-than BLAST at similar sensitivity. There is no machine learning
-involved, just the same seed-extend-evaluate ideas engineered for scale.
+reads through every database sequence. MMseqs2 instead indexes the
+*database* once, so each query only has to look up its own k-mers. Steps
+3–5 form a cascade of ever more expensive filters, each of which passes
+on only a small fraction of the candidates. As a result, MMseqs2 is
+often hundreds of times faster than BLAST at similar sensitivity. No
+machine learning is involved, because MMseqs2 simply engineers the same
+seed-extend-evaluate ideas for scale.
+
 Like PSI-BLAST below, MMseqs2 can also iterate, turning its hits into a
-profile and searching again; ColabFold uses it to build the alignments
-AlphaFold needs (Session 12). Session 6 meets its structural counterpart,
-Foldseek, from the same group.
+profile and searching again, and ColabFold uses it to build the
+alignments that AlphaFold needs (Session 12). Session 6 meets its
+structural counterpart, Foldseek, from the same group.
 
 ## From one sequence to many: PSI-BLAST and the PSSM
 
 Myoglobin sits near the edge of what a single sequence can detect, and
-more distant relatives lie beyond it. Ordinary BLAST scores everything
-against one fixed substitution matrix, no matter which family the query
-belongs to, so a faint but real family signal is easily lost against
-the background of a large database. **PSI-BLAST**
-(Position-Specific Iterated BLAST) does better by building a
-*query-specific* scoring matrix and refining it over several rounds:
+more distant relatives lie beyond it. The reason is that ordinary BLAST
+scores everything against one fixed substitution matrix, whatever family
+the query belongs to, so a faint but real family signal is easily lost
+against the background of a large database. **PSI-BLAST**
+(Position-Specific Iterated BLAST) does better, because it builds a
+*query-specific* scoring matrix and refines it over several rounds:
 
 1. Run an ordinary BLAST search with the query sequence.
 2. Take the hits that pass the **inclusion threshold** (an E-value
    cutoff, by default stricter than the one used for *reporting* hits),
    align them to the query, and turn that alignment into a
-   **position-specific scoring matrix (PSSM)** — described below. Hits
+   **position-specific scoring matrix (PSSM)**, described below. Hits
    that are displayed but fall short of the inclusion threshold do not
    enter the profile.
 3. Search the database again, this time scoring with the PSSM instead of
    a generic substitution matrix.
-4. Repeat: each round's included hits refine the PSSM further, until no
-   new sequences pass the threshold (convergence) or a set number of
-   rounds is reached.
+4. Repeat, so that each round's included hits refine the PSSM further,
+   until no new sequences pass the threshold (convergence) or a set
+   number of rounds is reached.
 
-This is more sensitive than a single BLAST pass, particularly for finding
-*remote* homologs whose similarity to the original query is too faint for
-a fixed substitution matrix to catch.
+This makes PSI-BLAST more sensitive than a single BLAST pass,
+particularly for *remote* homologs whose similarity to the original
+query is too faint for a fixed substitution matrix to catch.
 
-**Iteration is not automatically better: profile drift.** If one
-unrelated sequence passes the inclusion threshold, it enters the
-alignment and shifts the next PSSM a little towards itself. The next
-round then finds more sequences like the intruder, which shift the
-profile further, and after a few rounds the "family" can be dominated by
-proteins that have nothing to do with the original query — often through
-a shared low-complexity or coiled-coil region rather than real homology.
-This is a general lesson that returns in the machine-learning half of
-the course: a model is only as good as the examples it was built from,
-and a model that chooses its own training data can reinforce its own
-mistakes. In practice: keep the inclusion threshold strict, look at what
-entered each round, and check surprising late-round hits independently.
+**Iteration is not automatically better: profile drift.** Suppose that
+one unrelated sequence passes the inclusion threshold. It then enters
+the alignment and shifts the next PSSM a little towards itself. The next
+round finds more sequences like the intruder, which shift the profile
+further. After a few rounds, the "family" can be dominated by proteins
+that have nothing to do with the original query, often through a shared
+low-complexity or coiled-coil region rather than real homology. This is
+a general lesson that returns in the machine-learning half of the
+course. A model is only as good as the examples it was built from, and a
+model that chooses its own training data can reinforce its own mistakes.
+In practice, keep the inclusion threshold strict, look at what entered
+in each round, and check surprising late-round hits independently.
 
 ### Building a PSSM, step by step
 
 Session 4 ended with alignment columns, their entropy, and sequence
-logos. A logo *describes* an alignment column; a PSSM turns those same
-column statistics into numbers that can *score* a new sequence. The
-recipe below is a teaching model — the real PSI-BLAST computation also
-weights sequences and uses more sophisticated pseudocounts, as noted
-along the way — but every step has the same purpose in the real thing.
+logos. A logo *describes* an alignment column, whereas a PSSM turns the
+same column statistics into numbers that can *score* a new sequence. The
+recipe below is a teaching model. The real PSI-BLAST computation also
+weights the sequences and uses more sophisticated pseudocounts, as noted
+along the way, but every step serves the same purpose in the real thing.
 
 **1. Count.** From a multiple sequence alignment, count how often each
-residue appears at each position. Take this small 5-sequence toy
-alignment:
+residue appears at each position. Take this small toy alignment of 5
+sequences:
 
 ```
 Position:   1 2 3 4 5
@@ -344,35 +362,36 @@ Protein 4:  A A L S Q
 Protein 5:  A A L S P
 ```
 
-At position 1: 4 of 5 sequences have `A`, 1 has `R`. At position 5: 4
-have `P`, 1 has `Q`. And so on.
+At position 1, 4 of the 5 sequences have `A` and 1 has `R`. At position
+5, 4 have `P` and 1 has `Q`, and so on.
 
 Real alignments are rarely this balanced. If a search returns fifty
 nearly identical mammalian sequences and three distant ones, raw counts
-would make the profile describe mammals, not the family. Real tools
-therefore **reduce redundancy or weight sequences**: near-duplicates are
-removed or down-weighted so that an over-represented subfamily does not
-dominate the counts. The exact recipe varies between programs; the
-principle is what matters.
+would make the profile describe mammals rather than the family. Real
+tools therefore **reduce redundancy or weight sequences**, removing or
+down-weighting near-duplicates so that an over-represented subfamily
+does not dominate the counts. The exact recipe varies between programs,
+but the principle is what matters.
 
 **2. Add pseudocounts.** Turning raw counts straight into frequencies
-causes two problems: a residue that never appears at a position gets a
-frequency of exactly zero, and its log-odds score becomes $-\infty$; and
-with only 5 sequences, a residue's absence might just be bad luck rather
-than a real biological signal. **Pseudocounts** — adding a small constant
-to every count, before computing frequencies — fix both. In our teaching
-model we add $+1$ uniformly to every residue type's count at every
-position. Conceptually, a pseudocount is a **prior**: what we assume
-about a column before looking at the alignment (here "every residue is
-possible"). With only five sequences the prior has a large influence;
-with hundreds of sequences the observed counts swamp it. Real tools use
-smarter priors, for example giving residues that substitute easily for
-the observed ones (according to a substitution matrix) larger
-pseudocounts.
+causes two problems. First, a residue that never appears at a position
+gets a frequency of exactly zero, and its log-odds score becomes
+$-\infty$. Second, with only 5 sequences, the absence of a residue might
+be bad luck rather than a real biological signal. **Pseudocounts**,
+small constants added to every count before the frequencies are
+computed, solve both problems. In our teaching model we add $+1$
+uniformly to the count of every residue type at every position.
+Conceptually, a pseudocount is a **prior**, that is, what we assume
+about a column before looking at the alignment (here, "every residue is
+possible"). With only five sequences the prior has a large influence,
+while with hundreds of sequences the observed counts swamp it. Real
+tools use smarter priors, for example by giving larger pseudocounts to
+residues that substitute easily for the observed ones (according to a
+substitution matrix).
 
 **3. Compare to background.** Compute each residue's **background
-frequency** $q_j$ — how often it occurs in proteins generally (e.g.
-alanine ≈7.4%, tryptophan ≈1.3%) — independent of this alignment.
+frequency** $q_j$, that is, how often it occurs in proteins generally
+(e.g. alanine ≈7.4%, tryptophan ≈1.3%), independently of this alignment.
 
 **4. Compute log-odds scores.** For each position $i$ and residue $j$,
 
@@ -380,37 +399,41 @@ $$
 S_{i,j} = \log_2 \frac{f_{i,j}}{q_j}
 $$
 
-where $f_{i,j}$ is the (pseudocount-adjusted) observed frequency. Base 2
-means a score of $+1$ means "twice as likely here as by chance," $+3$
-means "8× as likely," and so on. Arrange $S_{i,j}$ into a matrix — one
-row per alignment position, one column per residue (some tools store it
-the other way round; the orientation is only a storage convention) — and
-that matrix *is* the PSSM: scoring a candidate sequence against it means
-looking up one value per position and **summing**, the
-weighted-sum/dot-product idea from Session 1, generalized to sequence
-positions.
+Here $f_{i,j}$ is the (pseudocount-adjusted) observed frequency. With
+base 2, a score of $+1$ means "twice as likely here as by chance", $+3$
+means "8× as likely", and so on. Arranged into a matrix, with one row
+per alignment position and one column per residue, the scores $S_{i,j}$
+*are* the PSSM. (Some tools store the matrix the other way round, but
+the orientation is only a storage convention.) Scoring a candidate
+sequence against the PSSM means looking up one value per position and
+**summing** them. This is the weighted-sum, or dot-product, idea from
+Session 1, generalised to sequence positions.
 
-The notebook builds this PSSM from the alignment above and confirms
-that the highest-scoring sequence the matrix can produce is `AGLSP` — the
+The notebook builds this PSSM from the alignment above and confirms that
+the highest-scoring sequence the matrix can produce is `AGLSP`, the
 alignment's own consensus, as it should be.
 
-**Why pseudocounts really matter.** Without them, a residue that appears
-just *once* at a position, but happens to be biologically rare overall,
-can score *higher* than a well-conserved, common residue at another
-position — purely because rarity in the background makes any observation
-of it look surprising. Concretely: at a position where 4 of 5 sequences
-show alanine (background frequency 7.4%) and 1 shows the much rarer
-tryptophan (background frequency 1.3%), alanine's raw log-odds score is
-$\log_2(0.8/0.074) \approx 3.43$, but tryptophan's is
-$\log_2(0.2/0.013) \approx 3.94$ — the single rare occurrence outscores
-the four common ones. Pseudocounts damp this effect.
+**Why pseudocounts really matter.** With only five sequences, every
+frequency is a small-sample estimate, and the raw log-odds score takes
+it at face value. Take a position where 4 of 5 sequences show alanine
+(background 7.4%) and 1 shows the much rarer tryptophan (1.3%). The raw
+scores are $\log_2(0.8/0.074) \approx 3.43$ for alanine and
+$\log_2(0.2/0.013) \approx 3.94$ for tryptophan, so a single observation
+outscores four. Yet one tryptophan in five sequences could easily be
+chance, and the score treats it as a reliable frequency of 20%. With
+$+1$ pseudocounts the frequencies become 5/25 and 2/25, and the scores
+fall to 1.43 and 2.62. The pseudocounts make every score more cautious,
+but they do not change the ranking: tryptophan still wins. A pseudocount
+cannot tell a lucky single observation from a real one; only more
+sequences can.
 
-**Gaps.** A PSSM itself only contains substitution scores, one row per
-position. To align a new sequence to it, PSI-BLAST uses ordinary gapped
-alignment — the same dynamic programming as Session 4, with the PSSM row
-for position $i$ taking the place of the substitution-matrix row for
-query residue $i$ — and ordinary gap-open and gap-extension penalties,
-the same at every position.
+**Gaps.** A PSSM contains only substitution scores, one row per
+position. To align a new sequence to it, PSI-BLAST therefore uses
+ordinary gapped alignment, the same dynamic programming as in Session 4,
+with the PSSM row for position $i$ taking the place of the
+substitution-matrix row for query residue $i$. The gap-open and
+gap-extension penalties are the ordinary ones, the same at every
+position.
 
 **A PSSM is already a linear model.** For an ungapped sequence
 $x = x_1 x_2 \dots x_L$, the PSSM score is
@@ -419,10 +442,10 @@ $$
 S(x) = \sum_{i=1}^{L} w[i, x_i],
 $$
 
-where $w[i, x_i]$ is the matrix entry for residue $x_i$ at position $i$:
-look up one weight per position and add them. Session 7 keeps this
-weighted-sum idea but *learns* the weights from labelled examples
-instead of deriving them from alignment counts.
+where $w[i, x_i]$ is the matrix entry for residue $x_i$ at position $i$.
+The score is thus one weight looked up per position and added up.
+Session 7 keeps this weighted-sum idea but *learns* the weights from
+labelled examples instead of deriving them from alignment counts.
 
 ### Further reading
 
@@ -430,51 +453,52 @@ instead of deriving them from alignment counts.
 
 ## Profile Hidden Markov Models: what a PSSM still can't represent
 
-A PSSM gives position-specific *substitution* scores, while gaps are
-handled separately by the alignment algorithm, with the same penalties
-everywhere. Real families are not like that: a loop between two helices
-may tolerate insertions of any length, while the core of the domain
-almost never has one. A **profile Hidden Markov Model (profile HMM)**
+A PSSM gives position-specific *substitution* scores, but the alignment
+algorithm handles gaps separately, with the same penalties everywhere.
+Real families are not like that. A loop between two helices may tolerate
+insertions of any length, while the core of the domain almost never has
+one. A **profile Hidden Markov Model (profile HMM)** therefore
 integrates position-specific match, insertion and deletion behaviour
-into one probabilistic model of the family, using three kinds of states
-arranged in a repeating unit, one per alignment position:
+into one probabilistic model of the family. It uses three kinds of
+states, arranged in a repeating unit with one unit per alignment
+position:
 
-- **Match (M)** states — a conserved position, with its own
-  per-residue emission probabilities, playing the same role as one column
-  of a PSSM.
-- **Insert (I)** states — extra residues between conserved positions,
-  which the model can emit and then loop on to allow more than one.
-- **Delete (D)** states — a skipped conserved position, emitting
+- **Match (M)** states represent a conserved position. Each has its own
+  per-residue emission probabilities and plays the same role as one
+  column of a PSSM.
+- **Insert (I)** states represent extra residues between conserved
+  positions. The model can emit a residue from them and then loop back
+  to allow more than one.
+- **Delete (D)** states represent a skipped conserved position and emit
   nothing at all.
 
-Special **Begin** and **End** states bookend the model, and transitions
-connect consecutive positions' M/I/D states together (e.g. $M_i \to
-M_{i+1}$, $M_i \to I_i$, $M_i \to D_{i+1}$), each with its own learned
-probability.
+Special **Begin** and **End** states bookend the model. Transitions
+connect the M/I/D states of consecutive positions (e.g. $M_i \to
+M_{i+1}$, $M_i \to I_i$, $M_i \to D_{i+1}$), and each transition has its
+own learned probability.
 
-**Why "hidden."** Given an observed residue in a real sequence, the model
-never directly tells you whether it came from a Match state or an Insert
-state — that has to be *inferred* from which path through the states best
-explains the whole sequence, using the emission and transition
-probabilities together. The states generate what you observe; they
+**Why "hidden".** For an observed residue in a real sequence, the model
+never tells you directly whether it came from a Match state or an Insert
+state. That has to be *inferred* from the path through the states that
+best explains the whole sequence, using the emission and transition
+probabilities together. The states generate what you observe, but they
 themselves stay hidden.
 
-This is the extra structure PSSMs lack, and it's why profile HMMs
-(not PSSMs) are the standard tool behind large-scale protein family
-databases like **Pfam**: a profile HMM trained on a protein family can
-recognize a new sequence as a member even when it has a genuinely
-different number of residues at a variable region, because the model
-itself has learned *where* insertions and deletions are common in that
-family, something a PSSM with uniform gap penalties can only
-approximate.
+This is the extra structure that PSSMs lack, and it is why profile HMMs,
+not PSSMs, are the standard tool behind large-scale protein family
+databases such as **Pfam**. A profile HMM trained on a protein family
+can recognise a new sequence as a member even when it has a genuinely
+different number of residues in a variable region. The model itself has
+learned *where* insertions and deletions are common in that family,
+which a PSSM with uniform gap penalties can only approximate.
 
 ::: {.callout-note icon="false"}
 ## What neither a PSSM nor a profile HMM can represent
 
-Both score a sequence position by position: the score is a sum over
-columns, so each position contributes independently of the others. Real
-proteins do not always work that way. When mutations interact, so that
-the effect of one depends on the residue at another position
+Both models score a sequence position by position. The score is a sum
+over columns, so each position contributes independently of the others.
+Real proteins do not always work that way. When mutations interact, so
+that the effect of one depends on the residue at another position
 (**epistasis**), no profile can capture it. Session 9 shows a protein
 where this matters (all 160,000 variants at four positions of GB1), and
 Session 12 shows how pairwise models fitted to an alignment (direct
@@ -497,31 +521,34 @@ coupling analysis) add those interactions.
 
 ## Worked example: a real profile-HMM hit on *HBB*
 
-Tying this back to the *HBB* (beta-globin) locus from Session 3: searching
-Pfam's library of profile HMMs against the real UniProt entry `P68871`
-(HBB_HUMAN) — fetched live via EBI's InterPro API — finds a match to
-**PF00042 ("Globin")**, spanning residues 27-142 of the 147-residue
-protein, with an E-value around $1.3\times10^{-29}$ (in a database of
-this size, essentially no match that good is expected by chance). That's a profile HMM doing, on a real sequence and at
-production scale, what the toy PSSM above did on paper: scoring
-how well a sequence matches a family, position by position.
+The same idea works on a real sequence at production scale. To tie this
+back to the *HBB* (beta-globin) locus from Session 3, we search Pfam's
+library of profile HMMs against the real UniProt entry `P68871`
+(HBB_HUMAN), fetched live via EBI's InterPro API. The search finds a
+match to **PF00042 ("Globin")**, spanning residues 27-142 of the
+147-residue protein, with an E-value of around $1.3\times10^{-29}$. In a
+database of this size, essentially no match that good is expected by
+chance. The profile HMM thus does on a real sequence what the toy PSSM
+above did on paper: it scores how well a sequence matches a family,
+position by position.
 
-## The notebook
+## The course notebook
 
 `notebooks/session05-blast-and-profiles-in-code.ipynb` reproduces every
-worked example on this page in code: the X-drop extension trace, the
-PSSM built from the toy alignment (with and without pseudocounts,
-including the rare-residue-dominance check), and a live fetch of *HBB*'s
-real Pfam domain hit from the InterPro API. Open it in
-[Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session05-blast-and-profiles-in-code.ipynb)
+worked example on this page in code. It traces the X-drop extension,
+builds the PSSM from the toy alignment (with and without pseudocounts,
+including the rare-residue-dominance check), and fetches *HBB*'s real
+Pfam domain hit live from the InterPro API. Open it in [Google
+Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session05-blast-and-profiles-in-code.ipynb)
 via the badge at the top of the notebook page to edit and run it
 yourself.
 
 ## Check your understanding
 
-Immediate-feedback questions covering the sections above — the same style
-used for this course's live in-class peer-instruction quizzes (see
-`quizzes/session05.md` in the repository for the full question bank).
+The questions below give immediate feedback and cover the sections
+above. They are in the same style as the course's live in-class
+peer-instruction quizzes, and the full question bank is in
+`quizzes/session05.md` in the repository.
 
 ```{=html}
 <div id="session05-quiz"></div>
@@ -574,7 +601,7 @@ renderQuiz("session05-quiz", [
   {
     question: "Why can bit scores be compared directly across two BLAST searches that used different substitution matrices, when raw scores cannot?",
     choices: [
-      "The bit score formula normalizes the raw score using the scoring system's own K and &lambda; constants, removing the scoring-system-specific part",
+      "The bit score formula normalises the raw score using the scoring system's own K and &lambda; constants, removing the scoring-system-specific part",
       "Bit scores are always computed using BLOSUM62, regardless of what the search actually used",
       "Bit scores ignore the alignment entirely and only depend on sequence length",
       "Raw scores and bit scores are actually the same number under a different name"
@@ -665,45 +692,45 @@ renderQuiz("session05-quiz", [
 
 ## The lab
 
-**Full lab**, covering BLAST and profile methods as one continuous
-exercise (Session 4 now has its own short lab for alignment practice, so
-this one no longer needs to cover that too): identify a real, unknown
-gene from a raw sequence via a real NCBI BLAST search (it turns out to
-be a sixth real human globin-family gene, continuing this course's own
-running thread), then three real code exercises — a real ClustalW
-alignment and PSSM on five globin-family proteins, a real PSI-BLAST
-search comparing its first iteration against its third against a real
-local copy of the PDB, and a live Pfam domain search for HIV-1's
-Gag-Pol polyprotein via the same real InterPro API this page's own HBB
-worked example uses.
+**The full lab** covers BLAST and profile methods as one continuous
+exercise. (Session 4 now has its own short lab for alignment practice,
+so this one no longer needs to cover alignment as well.) You first
+identify a real, unknown gene from a raw sequence through a real NCBI
+BLAST search. It turns out to be a sixth real human globin-family gene,
+continuing this course's running thread. Three code exercises follow: a
+real ClustalW alignment and PSSM on five globin-family proteins, a real
+PSI-BLAST search that compares its first iteration with its third
+against a real local copy of the PDB, and a live Pfam domain search for
+HIV-1's Gag-Pol polyprotein via the same InterPro API that this page's
+HBB worked example uses.
 
-**Recommended: run this for real on the shared course server**, not
-just in Colab — the bioinformatics tools these exercises use
-(`clustalw`, `psiblast`) are real command-line programs. On Colab the
-notebook installs them first; on the course server they are already
-installed. Running them over a real
-SSH connection (see Session 2's "Connecting to the shared course server")
-is a real, transferable skill in its own right. Once connected via
-VSCode, either open
+**We recommend running this lab on the shared course server**, not only
+in Colab, because the bioinformatics tools it uses (`clustalw`,
+`psiblast`) are real command-line programs. On Colab the lab notebook
+installs them first, while on the course server they are already
+installed. Running them over an SSH connection (see Session 2's
+"Connecting to the shared course server") is also a transferable skill
+in its own right. Once you are connected via VS Code, either open
 [`notebooks/session05-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session05-lab.ipynb)
-there directly (VSCode's Jupyter support runs it on the server, not
+there directly (VS Code's Jupyter support runs it on the server, not on
 your laptop), or open a terminal alongside it and run the same commands
-by hand. Colab still works if you don't have server access set up yet
-— same notebook either way.
+by hand. Colab still works if you do not have server access set up yet,
+since it is the same lab notebook either way.
 
 ### Submitting this lab
 
-This lab is administered through Canvas, not this book — see the
-course's Canvas page for the current quiz, deadline, and submission
-mechanism.
+This lab is administered through Canvas, not through this book. See the
+course's Canvas page for the current quiz, the deadline and how to
+submit.
 
 ## What's next
 
-A remote homolog can become impossible to recognize from sequence while
-its fold stays conserved. Session 6 turns to structure: the four levels
-of protein structure, explored hands-on in PyMOL, structure alignment,
-and structural search with Foldseek. Session 7 then returns to the
-weighted sum $S(x) = \sum_i w[i, x_i]$ that a PSSM computes, formalizes it
-as a **perceptron**, and shows that its weights can be *learned* from labelled
-examples by gradient descent instead of derived from alignment
-statistics the way this session's PSSM was.
+A remote homolog can become impossible to recognise from its sequence
+while its fold stays conserved. Session 6 therefore turns to structure:
+the four levels of protein structure, explored hands-on in PyMOL,
+structure alignment, and structural search with Foldseek. Session 7 then
+returns to the weighted sum $S(x) = \sum_i w[i, x_i]$ that a PSSM
+computes. It formalises the sum as a **perceptron** and shows that its
+weights can be *learned* from labelled examples by gradient descent,
+instead of being derived from alignment statistics as this session's
+PSSM was.
