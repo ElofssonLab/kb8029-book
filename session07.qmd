@@ -299,13 +299,19 @@ Bulyk et al.'s zinc-finger microarrays make the XOR-shaped limitation concrete o
 
 **What secondary structure is.** A protein's *secondary structure* is the local, repeating shape into which its backbone folds, short of the full 3D fold (its *tertiary* structure), as Session 6 showed in PyMOL. Two patterns dominate. The **alpha helix** is a right-handed coil held together by hydrogen bonds between backbone atoms four residues apart. The **beta sheet** is made of extended strands lying alongside each other and hydrogen-bonded edge to edge. Everything else is usually called **coil** (or loop/turn). Predicting secondary structure therefore means labelling every residue in a sequence with one of these three classes. This is a per-residue classification problem rather than a single yes/no like XOR, but it is built from the same kind of position-by-position scoring that this course has used throughout.
 
-**Two classical methods, before neural networks entered the picture.** The first real attempts predate neural networks by decades. **Chou & Fasman (1974)** derived empirical propensities for helix, sheet and turn from the (then small) set of known structures. Alanine, glutamate, leucine and methionine, for example, are strong helix-formers, while proline and glycine are helix-breakers. The method combined these propensities with rules. It first finds short *nucleation* regions of high-propensity residues and then *extends* them along the chain until breakers stop them. It is therefore a propensity- and rule-based method, not a simple one-residue-at-a-time classifier, and it reached roughly **50-60%** three-state accuracy. **Garnier, Osguthorpe & Robson (1978)**, the **GOR** method, scored each residue with an information-theoretic sum of contributions from a whole *window* of neighbours. It reached roughly **65%** and was better at helices than at sheets. Neither method is literally a perceptron, but both build their score mostly by adding up per-residue contributions, and this is where the limitation lies.
+**Before neural networks.** The first methods, Chou & Fasman (1974) and GOR (1978), predate neural networks by decades. Both build each residue's score mostly by adding up contributions from single residues, and they reached roughly 50-65% three-state accuracy. The optional box below explains how they work, and the rest of this section explains why adding up residues from a single sequence is not enough.
+
+::: {.callout-note collapse="true"}
+## Optional: Chou-Fasman, GOR and the accuracy curve
+
+The first real attempts predate neural networks by decades. **Chou & Fasman (1974)** derived empirical propensities for helix, sheet and turn from the (then small) set of known structures. Alanine, glutamate, leucine and methionine, for example, are strong helix-formers, while proline and glycine are helix-breakers. The method combined these propensities with rules. It first finds short *nucleation* regions of high-propensity residues and then *extends* them along the chain until breakers stop them. It is therefore a propensity- and rule-based method, not a simple one-residue-at-a-time classifier, and it reached roughly **50-60%** three-state accuracy. **Garnier, Osguthorpe & Robson (1978)**, the **GOR** method, scored each residue with an information-theoretic sum of contributions from a whole *window* of neighbours. It reached roughly **65%** and was better at helices than at sheets. Neither method is literally a perceptron, but both build their score mostly by adding up per-residue contributions, and this is where the limitation lies.
 
 GOR in particular is a linear model in the sense of Sections [-@sec-s07-weighted-sum]–[-@sec-s07-represent]. To label a residue, it looks at a window of 17 residues centred on it. For each offset in the window, it looks up in a table how much the amino acid at that offset favours helix, strand or coil, and it adds up these values. Each state thus gets a score, and the largest score wins. This amounts to three position-specific scoring matrices, one per state, read off the same window. GOR is therefore three weighted sums, with one straight boundary between each pair of states.
 
 ![GOR as a linear model. For the middle residue of a 17-residue window (here from HBB), every residue in the window contributes a value to the helix, strand and coil scores, depending on its amino acid and its offset from the middle. The contributions are added, and the state with the largest total is predicted. The bar heights are illustrative; GOR estimated its tables from the protein structures known at the time (originally for four states, with turns separate).](figs/session07-gor.png){#fig-session07-gor width="100%"}
 
 ![The real historical accuracy progression: Chou-Fasman's propensities and nucleation/extension rules, GOR's neighbour-window information-theoretic score, and Rost & Sander's profile-fed neural network. Figures are the broadly-cited historical consensus (Wikipedia, "Protein structure prediction") — the three original papers used different, non-identical benchmark sets, not one shared modern test set.](figs/session07-ss-accuracy-history.png){#fig-session07-ss-accuracy-history width="75%"}
+:::
 
 **Why a single sequence is not enough.** A window of neighbours is still only local information, and local sequence does not determine local structure. Kabsch & Sander (1984) searched the 62 protein structures then known and found identical five-residue stretches that were part of a helix in one protein and of a strand in another. With today's PDB, the effect extends to stretches of ten residues. These **chameleon sequences** (Li et al. 2015, ChSeq database) adopt different secondary structures depending on the protein around them.
 
@@ -460,17 +466,6 @@ renderQuiz("session07-quiz", [
     explanation: "The family information from multiple alignments added six to eight percentage points (Rost &amp; Sander's abstract). Qian &amp; Sejnowski had already concluded that local information from a single sequence limits any method: the input mattered as much as the model."
   },
   {
-    question: "Which description of Chou-Fasman (1974) and GOR (1978) is most accurate?",
-    choices: [
-      "Chou-Fasman combines residue propensities with nucleation and extension rules; GOR sums information from a window of neighbouring residues. Both build scores mostly from per-residue contributions, from single sequences",
-      "Both are neural networks with a hidden layer, smaller than PHD's",
-      "Both ignore the protein sequence and use only structural data",
-      "Chou-Fasman classifies each residue independently from its own propensity alone"
-    ],
-    correctIndex: 0,
-    explanation: "Chou-Fasman is a propensity- and rule-based method, not a one-residue-at-a-time classifier. Neither method uses information from homologous sequences, which is what PHD added."
-  },
-  {
     question: "The Session 7 lab describes HBB by its amino-acid composition (20 numbers) and predicts its helix fraction, 0.80. What can such a model never tell you?",
     choices: [
       "Which residues are in helices, and where each helix starts and stops",
@@ -513,17 +508,6 @@ renderQuiz("session07-quiz", [
     ],
     correctIndex: 0,
     explanation: "The boundary is z = 0, i.e. x&#8321; + x&#8322; - 0.5 = 0. Only (0,0) gives z &lt; 0; the other three corners give z &gt; 0 and output 1."
-  },
-  {
-    question: "Why is the GOR method, which sums a table value for each residue in a 17-residue window, called a linear model on this page?",
-    choices: [
-      "Each state's score is a weighted sum over the window, like a position-specific scoring matrix, so it cannot represent interactions between positions",
-      "It predicts only straight (linear) stretches of helix",
-      "It uses linear regression to fit the helix fraction",
-      "It reads the sequence in a straight line from N- to C-terminus"
-    ],
-    correctIndex: 0,
-    explanation: "GOR adds up independent contributions: three profile-like weighted sums, one per state. That is picture 1 of this session."
   },
   {
     question: "The ten residues QGTAVVVSAA form a helix in a malate oxidoreductase and a strand in an antibody. What does this tell you about secondary-structure prediction?",

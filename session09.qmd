@@ -81,13 +81,7 @@ Real training uses **mini-batches**. A `DataLoader` shuffles the training set ev
 </div>
 ```
 
-[*Backpropagation calculus*](https://www.youtube.com/watch?v=tIeHLnjs5U8) (3Blue1Brown, Deep Learning ch. 4): the full chain-rule mechanics for a general multi-layer network:
-
-```{=html}
-<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
-<iframe src="https://www.youtube.com/embed/tIeHLnjs5U8" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="Backpropagation calculus, 3Blue1Brown"></iframe>
-</div>
-```
+**Optional video:** [*Backpropagation calculus*](https://www.youtube.com/watch?v=tIeHLnjs5U8) (3Blue1Brown, Deep Learning ch. 4, 10 min), the full chain-rule mechanics for a general multi-layer network.
 
 ## Which loss to minimise {#sec-s09-loss}
 
@@ -109,15 +103,7 @@ Cross-entropy punishes a confident mistake far more than hedging. A probability 
 Cross-entropy is built from the relative entropy (Kullback-Leibler divergence) of Session 4. It is the entropy of the true distribution plus the extra cost of describing it with the model's distribution $Q$: $H(P, Q) = H(P) + D_{\text{KL}}(P \| Q)$. Since $H(P)$ does not depend on the model, minimising cross-entropy is the same as minimising the KL divergence between the model's predictions and the true labels.
 :::
 
-### Further watching
-
-[*But what is cross-entropy?*](https://www.youtube.com/watch?v=GlYgs6v2YfU) (3Blue1Brown, Compression is Intelligence part 2): cross-entropy from the information-theory side, built up from first principles:
-
-```{=html}
-<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
-<iframe src="https://www.youtube.com/embed/GlYgs6v2YfU" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="But what is cross-entropy?, 3Blue1Brown"></iframe>
-</div>
-```
+**Optional video:** [*But what is cross-entropy?*](https://www.youtube.com/watch?v=GlYgs6v2YfU) (3Blue1Brown, Compression is Intelligence part 2, 34 min), cross-entropy from the information-theory side, built up from first principles.
 
 ## Why training fails {#sec-s09-failures}
 

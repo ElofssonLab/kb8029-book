@@ -48,15 +48,15 @@ Each session takes about 5–7.5 hours of your own time, besides the three-hour 
 | 4 Sequence alignment | 3 h | 2.5 h | 5.5 h |
 | 5 Database search and profiles | 3 h | 2.5 h | 5.5 h |
 | 6 Protein structure | 2.5 h | 2.5 h | 5 h |
-| 7 Linear models and XOR | 5 h | 1.5 h | 6.5 h |
+| 7 Linear models and XOR | 4.5 h | 1.5 h | 6 h |
 | 8 Machine-learning foundations | 4.5 h | 2 h | 6.5 h |
-| 9 Training neural networks | 5.5 h | 2 h | 7.5 h |
+| 9 Training neural networks | 4.5 h | 2 h | 6.5 h |
 | 10 CNNs | 3.5 h | 2.5 h | 6 h |
 | 11 Sequences and language models | 4.5 h | 2.5 h | 7 h |
 | 12 AlphaFold | 5 h | 2.5 h | 7.5 h |
-| **Sum** | **51 h** | **26.5 h** | **77.5 h** |
+| **Sum** | **49.5 h** | **26.5 h** | **76 h** |
 
-These numbers are estimates from the amount of material, not measurements, and they depend a lot on your background. If you already know Python well, Session 2 goes quickly, and if the mathematics is new to you, Session 1 takes longer. In total, the sessions take about 78 hours, which comes on top of the lectures, the [capstone project](capstone.qmd) and preparing for the exam.
+These numbers are estimates from the amount of material, not measurements, and they depend a lot on your background. If you already know Python well, Session 2 goes quickly, and if the mathematics is new to you, Session 1 takes longer. In total, the sessions take about 76 hours, which comes on top of the lectures, the [capstone project](capstone.qmd) and preparing for the exam.
 
 ## Plagiarism
 
@@ -75,7 +75,7 @@ You may use AI tools during the course, but not during the exam. The final repor
 
 ## Schedule
 
-The schedule is on Canvas. As far as possible, teaching is on Mondays, Wednesdays and Fridays, with lectures 09:00-12:00 and labs 13:00-17:00. What each session covers is on the [Course Schedule](schedule.qmd) page.
+The schedule is on Canvas. As far as possible, teaching is on Mondays, Wednesdays and Fridays, with lectures 09:00-12:00 and labs 13:00-16:00. What each session covers is on the [Course Schedule](schedule.qmd) page.
 
 ## Administration
 
