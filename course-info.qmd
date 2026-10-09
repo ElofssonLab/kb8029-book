@@ -27,7 +27,7 @@ The 5 extra points for finishing all labs before the exam count only on the main
 Most sessions have a lab (see the [Course Schedule](schedule.qmd)): a notebook in this book, with a short online quiz on Canvas.
 
 - **Mandatory.** Every lab quiz must be passed, with at least 50% correct.
-- **Due before the next lecture.** Each lab quiz is due at 23:59 the evening before the next lecture (the last one the evening before the exam), so that you come to each lecture with the previous lab done; the dates are on Canvas.
+- **Due before the next lecture.** Each lab quiz is due at 23:59 the evening before the next lecture (the last one the evening before the exam; when the next lecture is the morning after the lab, you get one more day), so that you come to each lecture with the previous lab done; the dates are on Canvas.
 - **Available as soon as published.** You do not have to wait for the lecture.
 - **One redo chance** if you fail, normally only the next time the course runs, and the lab may have changed by then.
 
