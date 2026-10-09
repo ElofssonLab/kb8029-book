@@ -10,7 +10,7 @@ This page holds the rules of the course: what you need to do to pass, how the gr
 
 The course has three mandatory parts:
 
-- **The labs** are pass/fail, and must all be passed to pass the course (see [Labs](#labs) below). If you have passed all of them before the exam, you get 5 extra points on the exam.
+- **The labs** are pass/fail, and must all be passed to pass the course (see [Labs](#labs) below). If you pass **every** lab quiz by its due date (see [Labs](#labs)), you get 5 extra points on the exam; a single late lab means no extra points.
 - **The project** is graded 0-100, and you need at least 40% to pass it. It has three graded parts: the code you have written, the final report, and an oral presentation of your code to one of the teaching assistants. See the [Capstone](capstone.qmd) page for the task and the grading criteria.
 - **The exam** is a pen-and-paper exam, graded 0-100; you need at least 40% to pass it. You may bring up to five pages (single-sided) of your own notes.
 
@@ -20,7 +20,7 @@ The final grade is 70% from the exam and 30% from the project, and you need 50% 
 |---|---|---|---|---|---|---|---|
 | Total score | ≥ 90% | ≥ 80% | ≥ 70% | ≥ 60% | ≥ 50% | ≥ 45% | < 45% |
 
-The 5 extra points for finishing all labs before the exam count only on the main exam, not on a re-exam, and only once. If you fail the exam, a re-exam is normally offered a few weeks after the course; if you have already passed (grade E or higher), there is no retake to improve the grade. Past exams are on the [Schedule](schedule.qmd#exam-preparation) page. Two question-and-answer sessions, one after Session 6 and one after Session 12, are there to ask about anything in the course before the exam; bring your questions.
+The 5 extra points for passing all labs on time count only on the main exam, not on a re-exam, and only once. If you fail the exam, a re-exam is normally offered a few weeks after the course; if you have already passed (grade E or higher), there is no retake to improve the grade. Past exams are on the [Schedule](schedule.qmd#exam-preparation) page. Two question-and-answer sessions, one after Session 6 and one after Session 12, are there to ask about anything in the course before the exam; bring your questions.
 
 ## Labs {#labs}
 
