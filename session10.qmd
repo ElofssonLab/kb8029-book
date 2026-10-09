@@ -105,7 +105,7 @@ The lesson is architectural: **convolution + depth + data + GPUs**, with residua
 
 ### More weights are not better: dense vs. CNN on blood cells
 
-The lab trains five models on the same BloodMNIST blood-cell images, and the result shows that more weights are not better. The best dense network, with two hidden layers of 256 units and **670,216 weights**, reaches a validation accuracy of 0.797. A small CNN with two convolution blocks and only **17,640 weights** reaches **0.887**. The CNN wins with 38 times fewer weights because it does not have to learn locality and weight sharing from the data, since they are built in. This is Session 9's lesson again, seen from the other side: more weights do not help, but the right assumptions do.
+The lab trains four models on the same BloodMNIST blood-cell images, and the result shows that more weights are not better. The best dense network, with one hidden layer of 128 units and **302,216 weights**, reaches a validation accuracy of 0.793. A small CNN with two convolution blocks and only **17,640 weights** reaches **0.887**. The CNN wins with 17 times fewer weights because it does not have to learn locality and weight sharing from the data, since they are built in. This is Session 9's lesson again, seen from the other side: more weights do not help, but the right assumptions do.
 
 ### Few labels: transfer learning on cancer histology
 
