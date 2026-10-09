@@ -1,0 +1,437 @@
+BEGIN:VCALENDAR
+VERSION:2.0
+PRODID:-//KB8029//course schedule//EN
+CALSCALE:GREGORIAN
+METHOD:PUBLISH
+X-WR-CALNAME:KB8029 Bioinformatics & Deep Learning
+X-WR-TIMEZONE:Europe/Stockholm
+BEGIN:VTIMEZONE
+TZID:Europe/Stockholm
+BEGIN:DAYLIGHT
+TZOFFSETFROM:+0100
+TZOFFSETTO:+0200
+TZNAME:CEST
+DTSTART:19700329T020000
+RRULE:FREQ=YEARLY;BYMONTH=3;BYDAY=-1SU
+END:DAYLIGHT
+BEGIN:STANDARD
+TZOFFSETFROM:+0200
+TZOFFSETTO:+0100
+TZNAME:CET
+DTSTART:19701025T030000
+RRULE:FREQ=YEARLY;BYMONTH=10;BYDAY=-1SU
+END:STANDARD
+END:VTIMEZONE
+BEGIN:VEVENT
+UID:ce88ab3f67c562e3@kb8029.course.bioinfo.se
+DTSTAMP:20261009T091526Z
+DTSTART;TZID=Europe/Stockholm:20270222T090000
+DTEND;TZID=Europe/Stockholm:20270222T120000
+SUMMARY:KB8029 Lecture 0 + 1: Introduction to the Course + Math Prerequisit
+ es
+LOCATION:Air&Fire (Gamma 2)
+DESCRIPTION:Arne Elofsson
+URL:https://course.bioinfo.se/session00.html
+END:VEVENT
+BEGIN:VEVENT
+UID:369a9c5b37a8b054@kb8029.course.bioinfo.se
+DTSTAMP:20261009T091526Z
+DTSTART;TZID=Europe/Stockholm:20270224T090000
+DTEND;TZID=Europe/Stockholm:20270224T120000
+SUMMARY:KB8029 Lecture 2: Working like a computational biologist in Python
+LOCATION:Air&Fire (Gamma 2)
+DESCRIPTION:Arne Elofsson
+URL:https://course.bioinfo.se/session02.html
+END:VEVENT
+BEGIN:VEVENT
+UID:42ba69a8d39c25fe@kb8029.course.bioinfo.se
+DTSTAMP:20261009T091526Z
+DTSTART;TZID=Europe/Stockholm:20270224T130000
+DTEND;TZID=Europe/Stockholm:20270224T160000
+SUMMARY:KB8029 Lab 2: Working like a computational biologist in Python
+LOCATION:Air&Fire (Gamma 2)
+DESCRIPTION:Arne Elofsson\; TAs: to be decided
+URL:https://course.bioinfo.se/session02.html
+END:VEVENT
+BEGIN:VEVENT
+UID:dc7c01dd723d9a21@kb8029.course.bioinfo.se
+DTSTAMP:20261009T091526Z
+DTSTART;TZID=Europe/Stockholm:20270225T235900
+DTEND;TZID=Europe/Stockholm:20270226T000000
+SUMMARY:KB8029 Lab 2 quiz due
+LOCATION:Canvas
+DESCRIPTION:Submit the lab quiz on Canvas.
+URL:https://canvas.su.se/
+END:VEVENT
+BEGIN:VEVENT
+UID:ececd54baa202fa6@kb8029.course.bioinfo.se
+DTSTAMP:20261009T091526Z
+DTSTART;TZID=Europe/Stockholm:20270226T090000
+DTEND;TZID=Europe/Stockholm:20270226T120000
+SUMMARY:KB8029 Lecture 3: Biological Databases
+LOCATION:Air&Fire (Gamma 2)
+DESCRIPTION:Petras Kundrotas
+URL:https://course.bioinfo.se/session03.html
+END:VEVENT
+BEGIN:VEVENT
+UID:ae99e6a32e60422b@kb8029.course.bioinfo.se
+DTSTAMP:20261009T091526Z
+DTSTART;TZID=Europe/Stockholm:20270226T130000
+DTEND;TZID=Europe/Stockholm:20270226T160000
+SUMMARY:KB8029 Lab 3: Biological Databases
+LOCATION:Air&Fire (Gamma 2)
+DESCRIPTION:Petras Kundrotas\; TAs: Marko Ludaic (responsible)
+URL:https://course.bioinfo.se/session03.html
+END:VEVENT
+BEGIN:VEVENT
+UID:631dce3c9a63ec4a@kb8029.course.bioinfo.se
+DTSTAMP:20261009T091526Z
+DTSTART;TZID=Europe/Stockholm:20270228T235900
+DTEND;TZID=Europe/Stockholm:20270301T000000
+SUMMARY:KB8029 Lab 3 quiz due
+LOCATION:Canvas
+DESCRIPTION:Submit the lab quiz on Canvas.
+URL:https://canvas.su.se/
+END:VEVENT
+BEGIN:VEVENT
+UID:47a3b129cf7ab72c@kb8029.course.bioinfo.se
+DTSTAMP:20261009T091526Z
+DTSTART;TZID=Europe/Stockholm:20270301T090000
+DTEND;TZID=Europe/Stockholm:20270301T120000
+SUMMARY:KB8029 Lecture 4: Sequence Alignment
+LOCATION:Air&Fire (Gamma 2)
+DESCRIPTION:Petras Kundrotas
+URL:https://course.bioinfo.se/session04.html
+END:VEVENT
+BEGIN:VEVENT
+UID:acefd1d2d08399b6@kb8029.course.bioinfo.se
+DTSTAMP:20261009T091526Z
+DTSTART;TZID=Europe/Stockholm:20270301T130000
+DTEND;TZID=Europe/Stockholm:20270301T160000
+SUMMARY:KB8029 Lab 4: Sequence Alignment
+LOCATION:Air&Fire (Gamma 2)
+DESCRIPTION:Petras Kundrotas\; TAs: Marko Ludaic (responsible)
+URL:https://course.bioinfo.se/session04.html
+END:VEVENT
+BEGIN:VEVENT
+UID:29c19d81470c055a@kb8029.course.bioinfo.se
+DTSTAMP:20261009T091526Z
+DTSTART;TZID=Europe/Stockholm:20270302T235900
+DTEND;TZID=Europe/Stockholm:20270303T000000
+SUMMARY:KB8029 Lab 4 quiz due
+LOCATION:Canvas
+DESCRIPTION:Submit the lab quiz on Canvas.
+URL:https://canvas.su.se/
+END:VEVENT
+BEGIN:VEVENT
+UID:68cfca1326461d9e@kb8029.course.bioinfo.se
+DTSTAMP:20261009T091526Z
+DTSTART;TZID=Europe/Stockholm:20270303T090000
+DTEND;TZID=Europe/Stockholm:20270303T120000
+SUMMARY:KB8029 Lecture 5: Advanced Database Search & Profile Methods
+LOCATION:Air&Fire (Gamma 2)
+DESCRIPTION:Petras Kundrotas
+URL:https://course.bioinfo.se/session05.html
+END:VEVENT
+BEGIN:VEVENT
+UID:9d16cc0a97287872@kb8029.course.bioinfo.se
+DTSTAMP:20261009T091526Z
+DTSTART;TZID=Europe/Stockholm:20270303T130000
+DTEND;TZID=Europe/Stockholm:20270303T160000
+SUMMARY:KB8029 Lab 5: Advanced Database Search & Profile Methods
+LOCATION:Air&Fire (Gamma 2)
+DESCRIPTION:Petras Kundrotas\; TAs: Sarah Narrowe Danielsson (responsible)\
+ , Marko Ludaic
+URL:https://course.bioinfo.se/session05.html
+END:VEVENT
+BEGIN:VEVENT
+UID:420dde1ecdb1235c@kb8029.course.bioinfo.se
+DTSTAMP:20261009T091526Z
+DTSTART;TZID=Europe/Stockholm:20270304T235900
+DTEND;TZID=Europe/Stockholm:20270305T000000
+SUMMARY:KB8029 Lab 5 quiz due
+LOCATION:Canvas
+DESCRIPTION:Submit the lab quiz on Canvas.
+URL:https://canvas.su.se/
+END:VEVENT
+BEGIN:VEVENT
+UID:cfda7cac49e7e343@kb8029.course.bioinfo.se
+DTSTAMP:20261009T091526Z
+DTSTART;TZID=Europe/Stockholm:20270305T090000
+DTEND;TZID=Europe/Stockholm:20270305T120000
+SUMMARY:KB8029 Lecture 6: Protein Structure
+LOCATION:Air&Fire (Gamma 2)
+DESCRIPTION:Petras Kundrotas
+URL:https://course.bioinfo.se/session06.html
+END:VEVENT
+BEGIN:VEVENT
+UID:19aa36706adf526f@kb8029.course.bioinfo.se
+DTSTAMP:20261009T091526Z
+DTSTART;TZID=Europe/Stockholm:20270305T130000
+DTEND;TZID=Europe/Stockholm:20270305T160000
+SUMMARY:KB8029 Lab 6: Protein Structure
+LOCATION:Air&Fire (Gamma 2)
+DESCRIPTION:Petras Kundrotas\; TAs: Sarah Narrowe Danielsson (responsible)\
+ , Marko Ludaic
+URL:https://course.bioinfo.se/session06.html
+END:VEVENT
+BEGIN:VEVENT
+UID:2d6d7e5afb4f9b75@kb8029.course.bioinfo.se
+DTSTAMP:20261009T091526Z
+DTSTART;TZID=Europe/Stockholm:20270307T235900
+DTEND;TZID=Europe/Stockholm:20270308T000000
+SUMMARY:KB8029 Lab 6 quiz due
+LOCATION:Canvas
+DESCRIPTION:Submit the lab quiz on Canvas.
+URL:https://canvas.su.se/
+END:VEVENT
+BEGIN:VEVENT
+UID:9fe0f773687d9028@kb8029.course.bioinfo.se
+DTSTAMP:20261009T091526Z
+DTSTART;TZID=Europe/Stockholm:20270308T090000
+DTEND;TZID=Europe/Stockholm:20270308T120000
+SUMMARY:KB8029 Lecture 7: Linear Models\, Gradient Descent\, the XOR Proble
+ m & Secondary Structure Prediction
+LOCATION:Air&Fire (Gamma 2)
+DESCRIPTION:Arne Elofsson
+URL:https://course.bioinfo.se/session07.html
+END:VEVENT
+BEGIN:VEVENT
+UID:554ee36980819324@kb8029.course.bioinfo.se
+DTSTAMP:20261009T091526Z
+DTSTART;TZID=Europe/Stockholm:20270308T130000
+DTEND;TZID=Europe/Stockholm:20270308T160000
+SUMMARY:KB8029 Lab 7: Linear Models\, Gradient Descent\, the XOR Problem & 
+ Secondary Structure Prediction
+LOCATION:Air&Fire (Gamma 2)
+DESCRIPTION:Arne Elofsson\; TAs: Ines Cunha (responsible)
+URL:https://course.bioinfo.se/session07.html
+END:VEVENT
+BEGIN:VEVENT
+UID:c4304ffc3bb88b57@kb8029.course.bioinfo.se
+DTSTAMP:20261009T091526Z
+DTSTART;TZID=Europe/Stockholm:20270308T235900
+DTEND;TZID=Europe/Stockholm:20270309T000000
+SUMMARY:KB8029 Lab 7 quiz due
+LOCATION:Canvas
+DESCRIPTION:Submit the lab quiz on Canvas.
+URL:https://canvas.su.se/
+END:VEVENT
+BEGIN:VEVENT
+UID:c9219812b878eb51@kb8029.course.bioinfo.se
+DTSTAMP:20261009T091526Z
+DTSTART;TZID=Europe/Stockholm:20270309T090000
+DTEND;TZID=Europe/Stockholm:20270309T120000
+SUMMARY:KB8029 Lecture 8: Machine Learning Foundations & Practical PyTorch
+LOCATION:Air&Fire (Gamma 2)
+DESCRIPTION:Arne Elofsson\nTuesday\, not Wednesday
+URL:https://course.bioinfo.se/session08.html
+END:VEVENT
+BEGIN:VEVENT
+UID:9d97bc8419070185@kb8029.course.bioinfo.se
+DTSTAMP:20261009T091526Z
+DTSTART;TZID=Europe/Stockholm:20270309T130000
+DTEND;TZID=Europe/Stockholm:20270309T140000
+SUMMARY:KB8029 Capstone project: introduction
+LOCATION:To be booked
+DESCRIPTION:Arne Elofsson\nPreliminary: room not booked yet.
+URL:https://course.bioinfo.se/capstone.html
+END:VEVENT
+BEGIN:VEVENT
+UID:0d2c878a457cfcb0@kb8029.course.bioinfo.se
+DTSTAMP:20261009T091526Z
+DTSTART;TZID=Europe/Stockholm:20270310T100000
+DTEND;TZID=Europe/Stockholm:20270310T120000
+SUMMARY:KB8029 Questions and answers: Sessions 1-6
+LOCATION:To be booked
+DESCRIPTION:Petras Kundrotas\nPreliminary: room not booked yet.
+END:VEVENT
+BEGIN:VEVENT
+UID:3c6c791bdfc0352f@kb8029.course.bioinfo.se
+DTSTAMP:20261009T091526Z
+DTSTART;TZID=Europe/Stockholm:20270310T140000
+DTEND;TZID=Europe/Stockholm:20270310T164500
+SUMMARY:KB8029 Lab 8: Machine Learning Foundations & Practical PyTorch
+LOCATION:Lunch Room (Gamma 2)
+DESCRIPTION:Arne Elofsson\; TAs: Ines Cunha (responsible)
+URL:https://course.bioinfo.se/session08.html
+END:VEVENT
+BEGIN:VEVENT
+UID:f3456916e884cec8@kb8029.course.bioinfo.se
+DTSTAMP:20261009T091526Z
+DTSTART;TZID=Europe/Stockholm:20270311T235900
+DTEND;TZID=Europe/Stockholm:20270312T000000
+SUMMARY:KB8029 Lab 8 quiz due
+LOCATION:Canvas
+DESCRIPTION:Submit the lab quiz on Canvas.
+URL:https://canvas.su.se/
+END:VEVENT
+BEGIN:VEVENT
+UID:ae210e78c12570f7@kb8029.course.bioinfo.se
+DTSTAMP:20261009T091526Z
+DTSTART;TZID=Europe/Stockholm:20270312T090000
+DTEND;TZID=Europe/Stockholm:20270312T114500
+SUMMARY:KB8029 Lecture 9: How a Neural Network Learns\, and Why Training Fa
+ ils
+LOCATION:Milky Way and Andromeda (Alfa 2)
+DESCRIPTION:Arne Elofsson
+URL:https://course.bioinfo.se/session09.html
+END:VEVENT
+BEGIN:VEVENT
+UID:2782a67057df5dd1@kb8029.course.bioinfo.se
+DTSTAMP:20261009T091526Z
+DTSTART;TZID=Europe/Stockholm:20270312T140000
+DTEND;TZID=Europe/Stockholm:20270312T170000
+SUMMARY:KB8029 Lab 9: How a Neural Network Learns\, and Why Training Fails
+LOCATION:Lunch Room (Gamma 2)
+DESCRIPTION:Arne Elofsson\; TAs: Vsevolod Viliuga (responsible)
+URL:https://course.bioinfo.se/session09.html
+END:VEVENT
+BEGIN:VEVENT
+UID:7254ac28db7b2aba@kb8029.course.bioinfo.se
+DTSTAMP:20261009T091526Z
+DTSTART;TZID=Europe/Stockholm:20270314T235900
+DTEND;TZID=Europe/Stockholm:20270315T000000
+SUMMARY:KB8029 Lab 9 quiz due
+LOCATION:Canvas
+DESCRIPTION:Submit the lab quiz on Canvas.
+URL:https://canvas.su.se/
+END:VEVENT
+BEGIN:VEVENT
+UID:bd8d572eee761693@kb8029.course.bioinfo.se
+DTSTAMP:20261009T091526Z
+DTSTART;TZID=Europe/Stockholm:20270315T090000
+DTEND;TZID=Europe/Stockholm:20270315T120000
+SUMMARY:KB8029 Lecture 10: CNNs\, and How They Took Over Biology
+LOCATION:Air&Fire (Gamma 2)
+DESCRIPTION:Arne Elofsson
+URL:https://course.bioinfo.se/session10.html
+END:VEVENT
+BEGIN:VEVENT
+UID:fbdef9d74e05de7c@kb8029.course.bioinfo.se
+DTSTAMP:20261009T091526Z
+DTSTART;TZID=Europe/Stockholm:20270315T130000
+DTEND;TZID=Europe/Stockholm:20270315T160000
+SUMMARY:KB8029 Lab 10: CNNs\, and How They Took Over Biology
+LOCATION:Air&Fire (Gamma 2)
+DESCRIPTION:Arne Elofsson\; TAs: Ines Cunha (responsible)
+URL:https://course.bioinfo.se/session10.html
+END:VEVENT
+BEGIN:VEVENT
+UID:84e652fb39948114@kb8029.course.bioinfo.se
+DTSTAMP:20261009T091526Z
+DTSTART;TZID=Europe/Stockholm:20270315T235900
+DTEND;TZID=Europe/Stockholm:20270316T000000
+SUMMARY:KB8029 Lab 10 quiz due
+LOCATION:Canvas
+DESCRIPTION:Submit the lab quiz on Canvas.
+URL:https://canvas.su.se/
+END:VEVENT
+BEGIN:VEVENT
+UID:445278257cee0318@kb8029.course.bioinfo.se
+DTSTAMP:20261009T091526Z
+DTSTART;TZID=Europe/Stockholm:20270316T090000
+DTEND;TZID=Europe/Stockholm:20270316T120000
+SUMMARY:KB8029 Lecture 11: Sequences\, Language Models and SignalP
+LOCATION:Air&Fire (Gamma 2)
+DESCRIPTION:Arne Elofsson\nTuesday\, not Wednesday
+URL:https://course.bioinfo.se/session11.html
+END:VEVENT
+BEGIN:VEVENT
+UID:d480f6c55cfe422b@kb8029.course.bioinfo.se
+DTSTAMP:20261009T091526Z
+DTSTART;TZID=Europe/Stockholm:20270317T130000
+DTEND;TZID=Europe/Stockholm:20270317T160000
+SUMMARY:KB8029 Lab 11: Sequences\, Language Models and SignalP
+LOCATION:Air&Fire (Gamma 2)
+DESCRIPTION:Arne Elofsson\; TAs: Ines Cunha (responsible)\, Vsevolod Viliug
+ a
+URL:https://course.bioinfo.se/session11.html
+END:VEVENT
+BEGIN:VEVENT
+UID:f9aaaf9e8fc22de0@kb8029.course.bioinfo.se
+DTSTAMP:20261009T091526Z
+DTSTART;TZID=Europe/Stockholm:20270318T235900
+DTEND;TZID=Europe/Stockholm:20270319T000000
+SUMMARY:KB8029 Lab 11 quiz due
+LOCATION:Canvas
+DESCRIPTION:Submit the lab quiz on Canvas.
+URL:https://canvas.su.se/
+END:VEVENT
+BEGIN:VEVENT
+UID:6ed7ee6715db1ee3@kb8029.course.bioinfo.se
+DTSTAMP:20261009T091526Z
+DTSTART;TZID=Europe/Stockholm:20270318T130000
+DTEND;TZID=Europe/Stockholm:20270318T160000
+SUMMARY:KB8029 Capstone project: help
+LOCATION:To be booked
+DESCRIPTION:Arne Elofsson\nPreliminary: room not booked yet.
+URL:https://course.bioinfo.se/capstone.html
+END:VEVENT
+BEGIN:VEVENT
+UID:708397bd02333dfe@kb8029.course.bioinfo.se
+DTSTAMP:20261009T091526Z
+DTSTART;TZID=Europe/Stockholm:20270319T090000
+DTEND;TZID=Europe/Stockholm:20270319T114500
+SUMMARY:KB8029 Lecture 12: AlphaFold and Generative Models of Protein Struc
+ ture
+LOCATION:Air&Fire (Gamma 2)
+DESCRIPTION:Arne Elofsson
+URL:https://course.bioinfo.se/session12.html
+END:VEVENT
+BEGIN:VEVENT
+UID:5758c30b2c8ca5e7@kb8029.course.bioinfo.se
+DTSTAMP:20261009T091526Z
+DTSTART;TZID=Europe/Stockholm:20270319T130000
+DTEND;TZID=Europe/Stockholm:20270319T154500
+SUMMARY:KB8029 Lab 12: AlphaFold and Generative Models of Protein Structure
+LOCATION:Air&Fire (Gamma 2)
+DESCRIPTION:Arne Elofsson\; TAs: Matteo Tadiello (responsible)
+URL:https://course.bioinfo.se/session12.html
+END:VEVENT
+BEGIN:VEVENT
+UID:861afee32f09545b@kb8029.course.bioinfo.se
+DTSTAMP:20261009T091526Z
+DTSTART;TZID=Europe/Stockholm:20270321T235900
+DTEND;TZID=Europe/Stockholm:20270322T000000
+SUMMARY:KB8029 Lab 12 quiz due
+LOCATION:Canvas
+DESCRIPTION:Submit the lab quiz on Canvas.
+URL:https://canvas.su.se/
+END:VEVENT
+BEGIN:VEVENT
+UID:3028e1d3cd6a6f3a@kb8029.course.bioinfo.se
+DTSTAMP:20261009T091526Z
+DTSTART;TZID=Europe/Stockholm:20270319T160000
+DTEND;TZID=Europe/Stockholm:20270319T170000
+SUMMARY:KB8029 Questions and answers: Sessions 7-12
+LOCATION:To be booked
+DESCRIPTION:Arne Elofsson\nPreliminary: room not booked yet.
+END:VEVENT
+BEGIN:VEVENT
+UID:b535c25d1d99e214@kb8029.course.bioinfo.se
+DTSTAMP:20261009T091526Z
+DTSTART;TZID=Europe/Stockholm:20270322T083000
+DTEND;TZID=Europe/Stockholm:20270322T123000
+SUMMARY:KB8029 Exam
+LOCATION:Air&Fire (Gamma 2)
+END:VEVENT
+BEGIN:VEVENT
+UID:7766f4d2a88ac39b@kb8029.course.bioinfo.se
+DTSTAMP:20261009T091526Z
+DTSTART;TZID=Europe/Stockholm:20270323T083000
+DTEND;TZID=Europe/Stockholm:20270323T173000
+SUMMARY:KB8029 Capstone project: oral presentations of the code
+LOCATION:SciLifeLab
+URL:https://course.bioinfo.se/capstone.html
+END:VEVENT
+BEGIN:VEVENT
+UID:c7b1d469cad8acf2@kb8029.course.bioinfo.se
+DTSTAMP:20261009T091526Z
+DTSTART;TZID=Europe/Stockholm:20270325T235900
+DTEND;TZID=Europe/Stockholm:20270325T235900
+SUMMARY:KB8029 Deadline: Capstone project: code and report
+LOCATION:Online
+URL:https://course.bioinfo.se/capstone.html
+END:VEVENT
+END:VCALENDAR

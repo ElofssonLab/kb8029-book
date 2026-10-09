@@ -5,7 +5,7 @@
 # Session 2: Working like a computational biologist in Python
 
 ::: callout-important
-**Set up first.** This session's notebooks run on the course server through VS Code, or on Google Colab. If you have not done so yet, follow [Setup: VS Code, the course server and Colab](setup.qmd): create an SSH key, connect VS Code to `students.bioinfo.se`, and try Colab from VS Code.
+**Set up first.** This course runs its notebooks on Google Colab, either from VS Code with Google's Colab extension or in the browser. If you have not done so yet, follow [Setup](setup.qmd): install VS Code and the Colab extension, and check that you can run a notebook on a Colab machine.
 :::
 
 ::: {.callout-tip icon="false"}
@@ -31,12 +31,13 @@ By the end of this session you should be able to:
 - explore an unfamiliar table: its shape, columns, summaries, filters and plots, and notice what the summaries tell you about how the data were made;
 - plot first and test second, and pick a test that fits what the plot shows;
 - read biological records from a local file or from NCBI;
+- write a small class of your own, with `__init__`, attributes and methods, and recognise the same shape in a PyTorch model;
 - get unstuck: read an error message, inspect objects, use the documentation and an AI assistant, and verify the answer;
-- log in to the course server with `ssh`, and keep versions of your work with `git`.
+- keep versions of your work with `git`.
 
 ## Notebooks: what they are and why we use them
 
-Every notebook in this book runs either on the course server (through VS Code) or on Google Colab (for a GPU), as described in [Setup](setup.qmd). Before we use them, it is worth knowing what a notebook is and where its pitfalls lie.
+Every notebook in this book runs on Google Colab, from VS Code or in the browser, as described in [Setup](setup.qmd). Before we use them, it is worth knowing what a notebook is and where its pitfalls lie.
 
 A **notebook** (a `.ipynb` file, the Jupyter format) mixes three things in one document. It holds **text** (explanations, like this page), **code cells**, and the **output** of each cell (numbers, tables, plots, error messages), shown directly underneath it. You run one cell at a time, in whatever order you choose.
 
@@ -203,7 +204,76 @@ hbb.reverse_complement()   # AGACTTCTCCTCAGGAGTCAGATGCACCAT
 hbb.translate()            # MVHLTPEEKS
 ```
 
-A **`SeqRecord`** wraps a `Seq` together with what a database knows about it: `record.id`, `record.description`, and `record.features`, the annotated regions such as the coding sequence (CDS). Here `record.seq` and `record.features` are **attributes**, and `record.seq.translate()` is a **method**. A `SeqRecord` is thus an **object**, built from a **class** that Biopython defines, and it bundles data with the functions that act on it. Session 8 has you write your own class, a PyTorch model, so for now it is enough to recognise the pattern.
+A **`SeqRecord`** wraps a `Seq` together with what a database knows about it: `record.id`, `record.description`, and `record.features`, the annotated regions such as the coding sequence (CDS). Here `record.seq` and `record.features` are **attributes**, and `record.seq.translate()` is a **method**. A `SeqRecord` is thus an **object**, built from a **class** that Biopython defines, and it bundles data with the functions that act on it. The next section shows how to write such a class yourself.
+
+## Your own objects: classes {#sec-s02-classes}
+
+Biopython's `SeqRecord` is one example of a pattern that runs through the whole scientific Python stack, and you will write such classes yourself. Every PyTorch model from Session 8 onwards is a class, so it is worth learning the pattern properly now, on a biological example, before it turns up in a neural network.
+
+A **class** is a blueprint, and each **object** made from it is one instance with its own data. The data are the object's **attributes**, and the functions that belong to the class and act on those data are its **methods**. A class for proteins could look like this:
+
+``` python
+from Bio.SeqUtils import molecular_weight
+
+class Protein:
+    """A protein: a name and an amino-acid sequence."""
+
+    def __init__(self, name, sequence):
+        self.name = name                # attributes: the data each object carries
+        self.sequence = sequence
+
+    def length(self):                   # a method: a function that uses the object's own data
+        return len(self.sequence)
+
+    def composition(self, residues):
+        """The fraction of the sequence made of the given residues."""
+        return sum(self.sequence.count(aa) for aa in residues) / self.length()
+
+    def weight(self):
+        return molecular_weight(self.sequence, seq_type="protein")
+
+beta = Protein("HBB", "MVHLTPEEKSAVTALWGK...")   # the full 147 residues of UniProt P68871
+beta.length()                     # 147
+beta.composition("AVLIMFWC")      # 0.442, the hydrophobic fraction
+beta.weight()                     # 15998 (daltons)
+```
+
+Two names need explaining. **`__init__`** is run once, automatically, when an object is created: `Protein("HBB", ...)` makes a new, empty object and passes it to `__init__` together with the two arguments, and `__init__` stores them as attributes. **`self`** is that object. Every method receives the object it was called on as its first argument, so `beta.length()` is really `Protein.length(beta)`, and inside the method `self.sequence` means *this* protein's sequence. A hundred `Protein` objects share the same methods but each has its own `name` and `sequence`.
+
+Methods whose names begin and end with two underscores are **special methods**, which Python calls for you. `__init__` is the first you meet. Defining `__len__` makes `len(beta)` work, `__repr__` decides what `print(beta)` shows, and `__call__` makes the object itself callable like a function. The notebook adds the first two to `Protein`.
+
+**Inheritance** lets a new class start from an existing one. An `Enzyme` is a `Protein` that also has an EC number, so it inherits everything `Protein` has and adds one attribute:
+
+``` python
+class Enzyme(Protein):
+    def __init__(self, name, sequence, ec_number):
+        super().__init__(name, sequence)   # let Protein set name and sequence
+        self.ec_number = ec_number
+
+lyz = Enzyme("LYZ", "KVFERCELARTLKRLG...", "3.2.1.17")   # human lysozyme, mature chain (130 aa)
+lyz.weight()                      # 14701: a method inherited from Protein
+```
+
+`super().__init__(...)` runs the parent class's `__init__`, so that the attributes it sets up exist in the new object too. Forgetting it is a common bug: the object is created without error, and fails later when a method looks for `self.sequence`.
+
+**Looking ahead: a PyTorch model is a class.** This is exactly the shape of every neural network in Sessions 8-12. A model inherits from `nn.Module`, calls `super().__init__()`, creates its layers as attributes in `__init__`, and describes the computation from input to output in a method called `forward`:
+
+``` python
+import torch.nn as nn
+
+class TinyNet(nn.Module):
+    def __init__(self):
+        super().__init__()               # nn.Module sets itself up first
+        self.layer = nn.Linear(3, 1)     # a layer is an attribute
+
+    def forward(self, x):
+        return self.layer(x)
+
+model = TinyNet()
+model(torch.ones(1, 3))                  # runs forward
+```
+
+Note that you call `model(x)`, not `model.forward(x)`. Calling an object runs its special method `__call__`, which `nn.Module` defines to do some bookkeeping and then call your `forward`. You never need to know more about that bookkeeping than that it is there, but knowing the pattern makes a PyTorch model readable: the attributes are what the model *has*, its layers and their weights, and `forward` is what it *does*. Because the layers are attributes, `nn.Module` can find all their weights for you, which is what training them in Session 9 relies on.
 
 ## Data coming from somewhere {#sec-s02-remote}
 
@@ -250,7 +320,10 @@ renderQuiz("session02-quiz-2", [
   {"question": "You translate the whole HBB mRNA (628 nt) from its first base. The result does not start with M and contains 7 stop codons (*). Why?", "choices": ["The mRNA begins with a 50-nt untranslated region, so translation from base 1 is in the wrong frame; the protein starts at the CDS (base 51)", "The mRNA is corrupted", "Biopython cannot translate human sequences", "Haemoglobin has seven separate proteins"], "correctIndex": 0, "explanation": "Only the coding sequence is translated. Use the record's CDS feature, cds.extract(record.seq).translate(to_stop=True), to get the 147-residue protein."},
   {"question": "Why open files with 'with open(path) as handle:' rather than handle = open(path)?", "choices": ["The file is closed automatically when the block ends, even if an error happens inside it", "It reads the file faster", "It is the only way to read FASTA files", "It decompresses the file automatically"], "correctIndex": 0, "explanation": "The same pattern works for gzip.open and for Entrez.efetch handles."},
   {"question": "What does gzip.open('reads.fasta.gz', 'rt') give you?", "choices": ["A text file handle that SeqIO.parse can read directly, with no separate unpacking", "An unpacked copy of the file on disk", "A list of sequences", "An error, because FASTA files cannot be compressed"], "correctIndex": 0, "explanation": "'rt' means read as text. The decompression happens as you read."},
-  {"question": "You need 50 records from NCBI. What is the best way to fetch them?", "choices": ["One Entrez.efetch request with all 50 accessions, separated by commas", "50 requests in a fast loop", "50 requests, each in a new notebook", "Copy them from the NCBI web page by hand"], "correctIndex": 0, "explanation": "NCBI allows about three requests per second without an API key; one request for many records is faster and polite."}
+  {"question": "You need 50 records from NCBI. What is the best way to fetch them?", "choices": ["One Entrez.efetch request with all 50 accessions, separated by commas", "50 requests in a fast loop", "50 requests, each in a new notebook", "Copy them from the NCBI web page by hand"], "correctIndex": 0, "explanation": "NCBI allows about three requests per second without an API key; one request for many records is faster and polite."},
+  {"question": "In the Protein class, what is self inside the method length(self)?", "choices": ["The particular Protein object the method was called on, so beta.length() uses beta's own sequence", "The Protein class itself", "A copy of the sequence", "A keyword that Python fills in with None"], "correctIndex": 0, "explanation": "beta.length() is the same call as Protein.length(beta). Every method gets the object as its first argument, named self by convention."},
+  {"question": "Enzyme(Protein) defines its own __init__ but forgets super().__init__(name, sequence). Enzyme('LYZ', seq, '3.2.1.17') is created without error. What happens when you call lyz.weight()?", "choices": ["An AttributeError: the object has no attribute 'sequence', because Protein's __init__ never ran", "It works, because Enzyme inherits weight()", "The weight is computed from the EC number", "Python raises the error when the object is created"], "correctIndex": 0, "explanation": "The method is inherited, but the attributes are only set by the parent's __init__. The bug shows up later, far from its cause."},
+  {"question": "A PyTorch model is a class with __init__ and forward. Why do you write model(x) and not model.forward(x)?", "choices": ["Calling an object runs its __call__ method, which nn.Module defines to do some bookkeeping and then call forward", "forward is private and cannot be called", "model(x) trains the model, while forward only predicts", "There is no difference in Python between a class and a function"], "correctIndex": 0, "explanation": "Both give the same output here, but model(x) also runs nn.Module's bookkeeping (hooks), so it is the call to use."}
 ]);
 </script>
 ```
@@ -289,7 +362,7 @@ On a DataFrame, a `KeyError` means "no column with that name".
 - `df.head()`: what does it actually look like?
 - `help(x)` or `x?` in a notebook: what can it do?
 
-**Read the documentation.** Every library on this page has a user guide and an API reference, and the documentation is the authority on what a function does in *your* version. Old tutorials, for example, still write `from Bio.SeqUtils import GC`, which fails in current Biopython (1.86 on the course server):
+**Read the documentation.** Every library on this page has a user guide and an API reference, and the documentation is the authority on what a function does in *your* version. Old tutorials, for example, still write `from Bio.SeqUtils import GC`, which fails in current Biopython (1.86 when this page was written):
 
 ```         
 ImportError: cannot import name 'GC' from 'Bio.SeqUtils'
@@ -330,8 +403,13 @@ assert len(record.seq) == 628, "HBB mRNA should be 628 nt"
 
 **The notebook trap: stale state.** A notebook's variables live in memory, independently of where the cells sit on the page. If you run cell 3, then cell 7, and then edit cell 3 without re-running it, cell 7 still uses the *old* value. The page then says one thing while the memory holds another. When a result surprises you, use **Restart Kernel → Run All**. It clears the memory and runs every cell from top to bottom, and it is the only way to be sure that the output matches the code (see the box at the start of the page).
 
-## Two tools outside Python: ssh and git
+## A tool outside Python: git
 
+<!-- The ssh part of this section is hidden while the course runs on Colab only.
+     It is kept here, unchanged, for when the shared course server returns:
+     remove the content-hidden fence (and restore the heading "Two tools outside Python: ssh and git"). -->
+
+::: {.content-hidden}
 Two tools outside Python are part of everyday work. **ssh** logs you in to another computer, such as the course server, over an encrypted connection. It uses a key pair. The *private* key (`~/.ssh/id_ed25519`) never leaves your laptop, and the *public* key (`id_ed25519.pub`) is the one you give to the server. The [Setup](setup.qmd) page creates both, together with the `kb8029-server` shortcut used below.
 
 ``` bash
@@ -342,7 +420,9 @@ scp kb8029-server:~/data/genes.csv .   # ... and a file back to the current fold
 
 VS Code's Remote-SSH uses the same connection. Never share or copy your private key.
 
-**git** keeps the history of a folder (a *repository*) as a series of snapshots (*commits*). You can therefore see what changed, go back to a version that worked, and share work through GitHub.
+:::
+
+One tool outside Python is part of everyday work. **git** keeps the history of a folder (a *repository*) as a series of snapshots (*commits*). You can therefore see what changed, go back to a version that worked, and share work through GitHub. In this course you run git on your own laptop, in VS Code's terminal: clone the course repository there, open its notebooks in VS Code, and run them on a Colab machine. Keep in mind that the files you commit are the ones on your laptop, while anything a notebook writes while it runs ends up on the Colab machine (see [Setup](setup.qmd)).
 
 ``` bash
 git clone https://github.com/ElofssonLab/kb8029-book.git   # a copy of the course notebooks
@@ -398,13 +478,13 @@ renderQuiz("session02-quiz-3", [
 
 ## The course notebook
 
-`notebooks/session02-working-in-python.ipynb` follows this page section by section and runs everything above. It covers the objects, the exploration and plots of the Becares data, the tests, Biopython, reading local, compressed and remote data, a debugging walk-through, and the solution to the mini challenge. Open it in [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session02-working-in-python.ipynb) or on the course server.
+`notebooks/session02-working-in-python.ipynb` follows this page section by section and runs everything above. It covers the objects, the exploration and plots of the Becares data, the tests, Biopython, the `Protein` and `Enzyme` classes and a first PyTorch model, reading local, compressed and remote data, a debugging walk-through, and the solution to the mini challenge. Open it in [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session02-working-in-python.ipynb), or download it and run it on a Colab machine from VS Code.
 
 ## The lab
 
 The lab notebook, [`notebooks/session02-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session02-lab.ipynb), continues from the mini challenge, with less help at each step. Lines to complete are marked with `todo(...)`, which stops the cell with a message saying what is missing. The lab has three parts:
 
-1.  **Fill in:** complete the marked lines in working code. You explore the same RNA-seq table with other columns and thresholds, plot first and test second, run `Seq` operations on a mystery fragment, and fetch its record from NCBI into a local file and back.
+1.  **Fill in:** complete the marked lines in working code. You explore the same RNA-seq table with other columns and thresholds, plot first and test second, run `Seq` operations on a mystery fragment, fetch its record from NCBI into a local file and back, and finish a small `Transcript` class for that record.
 
 2.  **Adapt:** change working code to answer new questions. You find the most strongly down-regulated gene, fix a cell with three realistic bugs (one of which runs without an error), and apply the mini challenge's function to six more globin genes.
 
@@ -440,4 +520,4 @@ The animations in the 3Blue1Brown videos used throughout this course are made wi
 
 ## What's next
 
-Session 3 uses Biopython's database access at full scale, to retrieve and cross-reference real sequences across biological databases. Tensors and autograd return in Session 7's gradient-descent lab, and in Session 8 you write your first class, a PyTorch model.
+Session 3 uses Biopython's database access at full scale, to retrieve and cross-reference real sequences across biological databases. Tensors and autograd return in Session 7's gradient-descent lab, and in Session 8 the classes of @sec-s02-classes return as PyTorch models.

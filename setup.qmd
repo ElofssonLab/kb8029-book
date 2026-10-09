@@ -1,5 +1,80 @@
-# Setup: VS Code, the course server and Colab {.unnumbered}
+# Setup: VS Code and Google Colab {.unnumbered}
 
+All the notebooks and labs in this course run on **Google Colab**, Google's free service for running Python notebooks on its machines, some of which have a GPU. You open the notebooks in **VS Code** on your own laptop and let them run on a Colab machine, or, if you prefer, you open them in Colab in the browser. Either way, nothing has to be installed on your laptop apart from VS Code, and every student works in the same environment.
+
+| What you need | Why |
+|------------------------|------------------------|
+| A **Google account** (a free one is enough) | Colab runs your code on Google's machines |
+| **VS Code** on your laptop, with the extensions **Jupyter**, **Python** and **Google Colab** | To open, edit and run the notebooks |
+| **git** (optional) | To clone the book's notebooks in one go, and to keep your own work under version control (Session 2) |
+
+Every notebook in this book has an "Open in Colab" badge and fetches its data from the course's GitHub repository, so it runs the same way from VS Code and from the browser. Do Part 1 before the first lab in Session 2, and check that a notebook runs, so that the lab time is spent on the lab.
+
+## Part 1: Install VS Code and the extensions
+
+1.  Install [VS Code](https://code.visualstudio.com/) if you do not already have it.
+2.  In VS Code, open the Extensions view (Ctrl+Shift+X, or Cmd+Shift+X on a Mac) and install **Python** and **Jupyter** (both by Microsoft) and **Google Colab** (by Google).
+3.  Check that you can sign in to Google in a browser with the account you want to use for the course.
+
+## Part 2: Run a course notebook on Colab from VS Code
+
+Google's **Colab** extension for VS Code (released November 2025) lets a notebook that is open in VS Code run on a Colab machine:
+
+1.  Get the notebooks. Either download a notebook from its page in this book, or clone the repository on your laptop:
+
+    ``` sh
+    git clone https://github.com/ElofssonLab/kb8029-book.git
+    ```
+
+2.  Open a notebook (`.ipynb`) in VS Code.
+
+3.  Click **Select Kernel** (top right) → **Colab** → **Auto Connect** (or choose a runtime with a GPU), and sign in with your Google account when asked.
+
+4.  Run the first cells. Most notebooks start with an install cell, which installs the few packages that Colab does not already have (for example Biopython); this takes a few seconds each time you connect to a new machine.
+
+5.  When you need a GPU (mainly Sessions 9-12), check that you got one:
+
+    ``` python
+    import torch
+    print(torch.cuda.is_available(), torch.cuda.get_device_name(0) if torch.cuda.is_available() else "")
+    ```
+
+Things to know:
+
+- **The code runs on Google's machine.** It cannot see files on your laptop, even though the notebook file is open in VS Code. The course notebooks download what they need from the course's GitHub repository, so they work anyway. For your own files, upload them, or mount Google Drive (Command Palette → **Colab: Mount Google Drive to Server...**).
+- **Colab machines are temporary.** Everything on them, including installed packages and files the notebook wrote, disappears when the session ends. Your notebook itself, with its code and output, is saved on your laptop by VS Code. Save other results you want to keep (download them, or write them to Drive).
+- **The free GPU is limited.** A session is closed after a period of inactivity or when your quota is used up, and a GPU is not always available. Ask for a GPU only when the notebook needs one, and when you are done, release the machine with **Colab: Remove Server**.
+- **No terminal tools.** Everything in the labs is done from Python: the sequence searches and alignments in Sessions 4 and 5 call EMBL-EBI's web services (HMMER, Clustal Omega, InterPro), and in Session 6 PyMOL runs inside the notebook and structure searches go to the Foldseek web service.
+
+## Part 3: Colab in the browser
+
+Click the **Open in Colab** badge at the top of any notebook in this book. In Colab, choose **Runtime → Change runtime type → T4 GPU** if the notebook needs a GPU, then run the cells. This works from any computer, also one where you cannot install VS Code. **File → Save a copy in Drive** keeps your own copy with your changes; without it, your edits are lost when you close the tab.
+
+## Troubleshooting {#troubleshooting}
+
+**VS Code does not offer Colab under Select Kernel.** Check that the Google Colab extension is installed and enabled in a *local* VS Code window, and reload the window (Command Palette → **Developer: Reload Window**).
+
+**`ModuleNotFoundError`.** The runtime is new and the install cell has not been run in it. Run the notebook from the top.
+
+**`FileNotFoundError` for a file you can see on your laptop.** The code runs on Colab, not on your laptop: upload the file, or read it from Drive.
+
+**No GPU, or `torch.cuda.is_available()` is `False`.** You were given a machine without a GPU, or the free GPU quota is used up for now. Choose a GPU runtime explicitly, try again later, or run the notebook on the CPU: the course notebooks are small enough for that, only slower.
+
+**The connection drops in the middle of a long cell.** Colab closes idle and long-running free sessions. Reconnect, run the notebook from the top, and save intermediate results to Drive if a step takes long.
+
+## Further reading
+
+- Google Developers Blog, [Google Colab is coming to VS Code](https://developers.googleblog.com/google-colab-is-coming-to-vs-code/) (2025)
+- Google, [Colab FAQ](https://research.google.com/colaboratory/faq.html)
+
+<!--
+The course server (students.bioinfo.se), reached over SSH from VS Code, is not used this year: everything runs on Colab
+(decided at the TA meeting, 2026-10-09). The instructions are kept below, hidden from the rendered page, for a year
+when the server is used again. To show them, remove the `.content-hidden` wrapper (and restore the server rows in the
+table at the top).
+-->
+
+::: {.content-hidden}
 ::: callout-warning
 **Draft.** A few details are still to be confirmed and are marked **\[to be confirmed\]**: how you receive your username, where the course data live on the server, and the name of the course's conda environment (called `kb8029` below).
 :::
@@ -14,7 +89,6 @@ You will write and run code in three places during this course:
 
 We do not yet have GPUs for every student on the server, so anything that needs a GPU runs on Colab. Every notebook in this book has an "Open in Colab" badge, and fetches its data from the course's GitHub repository, so it runs the same way on all three.
 
-This page assumes you have used VS Code on your own computer. It covers the parts that are probably new: connecting VS Code to a remote machine over SSH, and running a notebook on Colab from VS Code. Do Part 1 well before the first lab, because the teachers need your public key in advance.
 
 ## Part 1: An SSH key
 
@@ -137,43 +211,12 @@ git clone https://github.com/ElofssonLab/kb8029-book.git
 
 The course data are on the server in **`/data/kb8029/`**. Read them from there; don't copy large files into your home folder as the hard drive space on the machine is limited. For convenience we put all the notebooks there.
 
-## Part 3: GPUs on Google Colab
 
-For GPU work you need a (free) Google account. There are two ways to use Colab.
-
-### Using the PDC cluster.
+### The PDC cluster
 
 A limited number of GPU machines (gpuX.bioinfo.se) will be made available during the course. These can be used. However, the GPU can (in general) only be used by one student at a time, and we only have a limited set of such machines, Therefore, they might not always be available.
 
-### In the browser
-
-Click the **Open in Colab** badge at the top of any notebook in this book. In Colab, choose **Runtime → Change runtime type → T4 GPU**, then run the cells. This is the simplest way, and it works from any computer.
-
-### From VS Code
-
-Google's **Colab** extension for VS Code (released November 2025) lets a notebook open in VS Code run on a Colab machine:
-
-1.  In a **local** VS Code window (not the one connected to the server), install the extension **Google Colab** (publisher Google). It also installs the Jupyter extension if needed.
-
-2.  Open the notebook. Download it from the book, or clone the repository on your laptop: `git clone https://github.com/ElofssonLab/kb8029-book.git`.
-
-3.  Click **Select Kernel** → **Colab** → **Auto Connect** (or choose a runtime with a GPU), and sign in with your Google account when asked.
-
-4.  Check that you got a GPU:
-
-    ``` python
-    import torch
-    print(torch.cuda.is_available(), torch.cuda.get_device_name(0) if torch.cuda.is_available() else "")
-    ```
-
-Things to know:
-
-- **The code runs on Google's machine.** It cannot see files on your laptop or on the course server, even though the notebook file is open in VS Code. The course notebooks download what they need from the course's GitHub repository, so they work anyway. For your own files, upload them, or mount Google Drive (Command Palette → **Colab: Mount Google Drive to Server...**).
-- **Colab machines are temporary.** Everything on them disappears when the session ends. Save results you want to keep (download them, or write them to Drive).
-- **The free GPU is limited.** A session is closed after a period of inactivity or when your quota is used up, and a GPU is not always available. When you are done, release it with **Colab: Remove Server**.
-- Use the Colab extension from a local VS Code window. We have not tested it inside a window connected to the course server, and it would not see the server's files anyway.
-
-## Troubleshooting {#troubleshooting}
+## Troubleshooting the server connection {#troubleshooting-ssh}
 
 **`Permission denied (publickey)`.** The server did not accept any key you offered. Either your key has not been added yet, or SSH offered a different key from the one you sent. Run the connection with verbose output and look for the lines `Offering public key:` and `Server accepts key:`:
 
@@ -197,8 +240,6 @@ VS Code uses Windows' OpenSSH (`C:\Windows\System32\OpenSSH\ssh.exe`) unless the
 
 **`conda: command not found`.** Your shell on the server has not been set up for conda. Run `conda init` once , then open a new terminal.
 
-## Further reading
-
 - VS Code documentation, [Remote development using SSH](https://code.visualstudio.com/docs/remote/ssh) and [Remote development tips and tricks](https://code.visualstudio.com/docs/remote/troubleshooting) (including SSH keys on Windows)
-- Google Developers Blog, [Google Colab is coming to VS Code](https://developers.googleblog.com/google-colab-is-coming-to-vs-code/) (2025)
 - Microsoft, [Get started with OpenSSH for Windows](https://learn.microsoft.com/en-us/windows-server/administration/openssh/openssh_install_firstuse)
+:::

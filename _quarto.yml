@@ -4,6 +4,7 @@ project:
   resources:
     - js/quiz-widget.js
     - exams/*
+    - kb8029.ics
 
 # The website's chapter list lives in _quarto-web.yml (the default profile);
 # the single-PDF version uses _quarto-pdf.yml (quarto render --profile pdf).

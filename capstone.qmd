@@ -106,12 +106,21 @@ plagiarism software.
 | Documentation | 20% | Comments throughout, functions/methods explained |
 | Explanation of the code | 50% | You walk through your own code live and answer follow-up questions about it — tests understanding, not just working code |
 
-::: {.callout-important}
-**Dates.** The source assignment this page is adapted from named specific
-2025 dates (presentation reservations, deadlines). Those are **not**
-carried over here — set real dates for this run of the course before
-publishing this page to students.
-:::
+## Timeline
+
+The project has three scheduled sessions; the dates and rooms are in the
+schedule on Canvas.
+
+1. **Introduction**, in the week of Sessions 7-9, once you have seen
+   secondary-structure prediction (Session 7) and how to evaluate a
+   classifier (Session 8). We go through the task, the data and the
+   grading, and you can start right away.
+2. **Help with the project**, in the last week of teaching. Bring your
+   notebook and your questions: the teachers and teaching assistants are
+   there to help you get unstuck.
+3. **Oral presentations of the code**, after the exam. Each of you
+   presents to a teaching assistant, as described under Deliverables.
+   The notebook and the report are due a few days later.
 
 ## Resources
 

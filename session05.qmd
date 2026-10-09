@@ -702,24 +702,22 @@ so this one no longer needs to cover alignment as well.) You first
 identify a real, unknown gene from a raw sequence through a real NCBI
 BLAST search. It turns out to be a sixth real human globin-family gene,
 continuing this course's running thread. Three code exercises follow: a
-real ClustalW alignment and PSSM on five globin-family proteins, a real
-PSI-BLAST search that compares its first iteration with its third
-against a real local copy of the PDB, and a live Pfam domain search for
-HIV-1's Gag-Pol polyprotein via the same InterPro API that this page's
-HBB worked example uses.
+real Clustal Omega alignment and PSSM on five globin-family proteins, a
+real iterated profile search (jackhmmer, the profile-HMM counterpart of
+PSI-BLAST) that compares its first round with its third against every
+sequence in the PDB, and a live Pfam domain search for HIV-1's Gag-Pol
+polyprotein via the same InterPro API that this page's HBB worked
+example uses.
 
-**We recommend running this lab on the shared course server**, not only
-in Colab, because the bioinformatics tools it uses (`clustalw`,
-`psiblast`) are real command-line programs. On Colab the lab notebook
-installs them first, while on the course server they are already
-installed. Running them over an SSH connection (see Session 2's
-"Connecting to the shared course server") is also a transferable skill
-in its own right. Once you are connected via VS Code, either open
+Every search in
 [`notebooks/session05-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session05-lab.ipynb)
-there directly (VS Code's Jupyter support runs it on the server, not on
-your laptop), or open a terminal alongside it and run the same commands
-by hand. Colab still works if you do not have server access set up yet,
-since it is the same lab notebook either way.
+runs on a server at EMBL-EBI, reached through its **web API**: the
+notebook sends the sequences, the server runs the program, and the
+notebook reads the result back. There is nothing to install, so the lab
+runs on Colab, in the browser or from VS Code. The same pattern (submit
+a job, wait for it, fetch the result) works for most large
+bioinformatics services, and it is how you will usually run big searches
+from your own code.
 
 ### Submitting this lab
 

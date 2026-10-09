@@ -626,9 +626,10 @@ The lab has four steps, all reached through
    fragments that are not used anywhere else on this page. The lab notebook
    checks your work one row at a time rather than computing it for you.
 2. **In code**: see how the score and the alignment from Step 1 change
-   with different gap penalties and substitution matrices. A real local
-   `blastp` search against a small real database then shows the same
-   kind of sensitivity in a genuine E-value.
+   with different gap penalties and substitution matrices. A real search
+   of the Swiss-Prot database, sent to EMBL-EBI's HMMER server through
+   its web API, then shows the same kind of sensitivity in a genuine
+   E-value. With the wrong matrix, real relatives are not found at all.
 3. **In code**: build and visualise a small, real multiple sequence
    alignment. This makes the progressive strategy from the section above
    concrete, on three short real windows from proteins used throughout

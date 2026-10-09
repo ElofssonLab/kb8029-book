@@ -4,7 +4,7 @@
 
 # Session 1: Math Prerequisites
 
-This session is not "all the mathematics you might need". It is the mathematical vocabulary we use in this course, worked through with real numbers, and each idea comes with a pointer to where it shows up later. This session has no programming exercises and no lab; programming starts in Session 2, whose lab is the first of the course. The notebook linked at the bottom nevertheless lets you check this session's answers in code. You set up the connection to the course server ([Setup](setup.qmd)) before Session 2, whose lab is the first to use it.
+This session is not "all the mathematics you might need". It is the mathematical vocabulary we use in this course, worked through with real numbers, and each idea comes with a pointer to where it shows up later. This session has no programming exercises and no lab; programming starts in Session 2, whose lab is the first of the course. The notebook linked at the bottom nevertheless lets you check this session's answers in code. You set up VS Code and Colab ([Setup](setup.qmd)) before Session 2, whose lab is the first to use it.
 
 The session has three parts:
 

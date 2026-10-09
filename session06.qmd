@@ -215,9 +215,12 @@ directly from the PDB and shows it as **cartoon** (secondary structure
 as ribbons and arrows, as in the figures above), as **sticks** (every
 bond, useful for a side chain or ligand) or as **spheres** (every atom,
 useful for packing). It also measures distances and angles directly from
-the coordinates. This session's lab uses PyMOL hands-on, and the notebook
-drives the same program from Python, without a window, so that its
-figures and measurements are reproducible.
+the coordinates. This session's lab uses PyMOL hands-on, but you do not
+need to install the program: open-source PyMOL is also a Python library,
+which the lab notebook installs on Colab. You type the same commands as
+in PyMOL's own command line, and the notebook draws the picture. The
+course notebook drives PyMOL the same way, so that its figures and
+measurements are reproducible.
 
 ### Further reading
 
@@ -640,14 +643,16 @@ renderQuiz("session06-quiz", [
 
 ## The lab
 
-**The full lab starts with PyMOL** and uses three structures beyond
-haemoglobin. An HIV envelope glycoprotein trimer with an antibody
-(`7LXM`) is used for representations, chains and structural alignment
-(`cealign`). A chitinase with
-bound metal ions and an inhibitor (`8C6Z`) is used for ligands and
-charged residues. Human neuroglobin (`1OJ6`) is used for the central
-comparison, which you run with Foldseek in
-[`notebooks/session06-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session06-lab.ipynb):
+The whole lab runs in
+[`notebooks/session06-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session06-lab.ipynb)
+on Colab, in the browser or from VS Code; nothing is installed on your
+own computer. **It starts with PyMOL**, run as a Python library inside
+the notebook, on three structures beyond haemoglobin. An HIV envelope
+glycoprotein trimer with an antibody (`7LXM`) is used for
+representations, chains and structural alignment (`cealign`). A
+chitinase with bound metal ions and an inhibitor (`8C6Z`) is used for
+ligands and charged residues. Human neuroglobin (`1OJ6`) is used for the
+central comparison, which you run with TM-align:
 
 ```
 same protein, experimental vs. AlphaFold prediction  → nearly identical
@@ -657,9 +662,10 @@ GFP                                                   → unrelated fold
 
 Here AlphaFold DB simply supplies a structure to inspect, and Session
 12 asks how that prediction is produced and how to decide which parts of
-it to trust. The lab ends with a structural domain lookup in CATH. An
-optional tip shows how to view structures directly in VS Code (the
-Protein Viewer extension, which is handy on the course server).
+it to trust. You then search the whole PDB with neuroglobin through the
+Foldseek web server's API, and the lab ends with a structural domain
+lookup in CATH. An optional tip shows how to view structures directly in
+VS Code with the Protein Viewer extension.
 
 ### Submitting this lab
 

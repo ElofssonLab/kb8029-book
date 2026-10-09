@@ -306,7 +306,7 @@ In PyTorch, a classifier's last layer outputs raw logits. The loss function (`nn
 
 ### Practical PyTorch: writing a model as a class
 
-A PyTorch model is a class that inherits from `nn.Module`. Its layers are attributes created in `__init__`, and a `forward()` method describes how an input tensor becomes an output tensor. This is the first real use in the course of the `class` syntax from Session 2, and every later model follows the same pattern.
+A PyTorch model is a class that inherits from `nn.Module`. Its layers are attributes created in `__init__`, and a `forward()` method describes how an input tensor becomes an output tensor. This is the pattern of Session 2's `Protein` class, with `super().__init__()` and attributes set in `__init__`, now used for a model, and every later model follows it.
 
 The whole 3×3 classifier is a single `nn.Linear(9, 5)` layer, with 50 parameters (5 × 9 weights + 5 biases). When the notebook copies the trained perceptron weights into it, the layer makes exactly the same predictions as the NumPy code, because a perceptron layer and `nn.Linear` do the same computation.
 

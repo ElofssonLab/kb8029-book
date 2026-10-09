@@ -50,7 +50,7 @@ Read the page before the lecture: the lectures assume you have seen the material
 | All course pages as one PDF | [KB8029-course-notes.pdf](/KB8029-course-notes.pdf) |
 | Schedule, rooms, deadlines, announcements, lab quizzes, discussion forum | [Canvas](https://canvas.su.se/) (the course appears there once you are admitted) |
 | Live quizzes during lectures | [quiz.bioinfo.se](https://quiz.bioinfo.se) |
-| Setting up your computer, the course server and Colab | [Setup](setup.qmd) |
+| Setting up VS Code and Colab | [Setup](setup.qmd) |
 | The session-by-session plan | [Course Schedule](schedule.qmd) |
 | Exam, grading, labs, plagiarism, AI tools, weekly schedule, student office | [Course Information & Logistics](course-info.qmd) |
 | The capstone project | [Capstone project](capstone.qmd) |
@@ -77,19 +77,19 @@ The lectures and labs are at SciLifeLab in Solna. You need a SciLifeLab access c
 
 ## Computers
 
-You can do almost everything on your own laptop. Some labs use the course server, which you reach with an **SSH key**, and the heavier computations use **Google Colab**, which gives free access to a GPU. The [Setup](setup.qmd) page takes you through all of it: creating and sending your SSH key, connecting VS Code to the server, and running notebooks on Colab. Session 6's lab uses **PyMOL** to look at protein structures.
+All notebooks and labs run on **Google Colab**, which gives free access to a GPU. You open them in **VS Code** on your laptop and let them run on a Colab machine, or open them in Colab in the browser, so the only things you need are a laptop with VS Code and a Google account. The [Setup](setup.qmd) page takes you through it. Even the structure viewing in Session 6 is done with PyMOL inside a notebook, so nothing else has to be installed.
 
 If you do not have a laptop that can do this, tell us now, not on the day of a lab.
 
 ## Before Session 1
 
-1.  Accept the course invitation on [Canvas](https://canvas.su.se/), and check the schedule there.
+1.  Accept the course invitation on [Canvas](https://canvas.su.se/), and check the schedule there. To get the lectures, labs and lab deadlines in your own calendar, subscribe to <https://course.bioinfo.se/kb8029.ics> (Google Calendar: Other calendars → From URL; Outlook: Add calendar → Subscribe from web); it updates itself when the schedule changes.
 2.  Open [quiz.bioinfo.se](https://quiz.bioinfo.se) on your phone and check that you can log in.
 3.  Read the [Session 1](session01.qmd) page, the mathematics refresher, and try its practice problems.
 
 ## Before Session 2
 
-Session 2 has the first lab, and it runs on the course server or on Colab. Before it, work through the [Setup](setup.qmd) page: create an SSH key and send the public key, connect VS Code to the server, and make sure you can open a notebook in Colab. Setting up takes about an hour and a half, and it is easier to sort out problems before the lab than during it.
+Session 2 has the first lab, and it runs on Colab. Before it, work through the [Setup](setup.qmd) page: install VS Code and its Google Colab extension, and make sure you can run a course notebook on Colab. Setting up takes about half an hour, and it is easier to sort out problems before the lab than during it.
 
 ## What's next
 

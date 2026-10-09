@@ -263,7 +263,7 @@ commercial use. Every page names which of them it used.
 - UniProtKB entry P68871 (HBB_HUMAN). <https://www.uniprot.org/uniprotkb/P68871/entry> *Cited in:* [Session 3](session03.qmd), [Session 5](session05.qmd).
 - Varadi M, Bertoni D, Magana P et al. (2024). AlphaFold Protein Structure Database in 2024: providing structure coverage for over 214 million protein sequences. Nucleic Acids Res 52:D368-D375. [doi:10.1093/nar/gkad1011](https://doi.org/10.1093/nar/gkad1011). PMID:37933859. *Cited in:* [Session 12](session12.qmd).
 - Virtanen P, Gommers R, Oliphant TE, et al. (2020). SciPy 1.0: fundamental algorithms for scientific computing in Python. Nature Methods 17:261-272. [doi:10.1038/s41592-019-0686-2](https://doi.org/10.1038/s41592-019-0686-2). PMID:32015543. *Cited in:* [Session 2](session02.qmd).
-- Visual Studio Code, with the Remote - SSH extension. Microsoft. <https://code.visualstudio.com/> *Cited in:* [Setup](setup.qmd).
+- Visual Studio Code, with the Google Colab extension. Microsoft and Google. <https://code.visualstudio.com/> *Cited in:* [Setup](setup.qmd).
 - VolcaNoseR web app (Goedhart & Luijsterburg). <https://huygens.science.uva.nl/VolcaNoseR/> *Cited in:* [Session 2](session02.qmd).
 - Waskom ML (2021). seaborn: statistical data visualization. Journal of Open Source Software 6(60):3021. [doi:10.21105/joss.03021](https://doi.org/10.21105/joss.03021). *Cited in:* [Session 2](session02.qmd).
 - Wellcome Sanger Institute. COSMIC. <https://cancer.sanger.ac.uk/cosmic> *Cited in:* [Session 3](session03.qmd).

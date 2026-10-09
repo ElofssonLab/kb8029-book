@@ -20,14 +20,14 @@ The final grade is 70% from the exam and 30% from the project, and you need 50% 
 |---|---|---|---|---|---|---|---|
 | Total score | ≥ 90% | ≥ 80% | ≥ 70% | ≥ 60% | ≥ 50% | ≥ 45% | < 45% |
 
-The 5 extra points for finishing all labs before the exam count only on the main exam, not on a re-exam, and only once. If you fail the exam, a re-exam is normally offered a few weeks after the course; if you have already passed (grade E or higher), there is no retake to improve the grade. Past exams are on the [Schedule](schedule.qmd#exam-preparation) page.
+The 5 extra points for finishing all labs before the exam count only on the main exam, not on a re-exam, and only once. If you fail the exam, a re-exam is normally offered a few weeks after the course; if you have already passed (grade E or higher), there is no retake to improve the grade. Past exams are on the [Schedule](schedule.qmd#exam-preparation) page. Two question-and-answer sessions, one after Session 6 and one after Session 12, are there to ask about anything in the course before the exam; bring your questions.
 
 ## Labs {#labs}
 
 Most sessions have a lab (see the [Course Schedule](schedule.qmd)): a notebook in this book, with a short online quiz on Canvas.
 
 - **Mandatory.** Every lab quiz must be passed, with at least 50% correct.
-- **One deadline** for all labs in a given run of the course; check Canvas for the date.
+- **Due before the next lecture.** Each lab quiz is due at 23:59 the evening before the next lecture (the last one the evening before the exam), so that you come to each lecture with the previous lab done; the dates are on Canvas.
 - **Available as soon as published.** You do not have to wait for the lecture.
 - **One redo chance** if you fail, normally only the next time the course runs, and the lab may have changed by then.
 
@@ -42,8 +42,8 @@ Each session takes about 5–7.5 hours of your own time, besides the three-hour 
 |---|---|---|---|
 | 0 Introduction | 0.5 h | – | 0.5 h |
 | 1 Mathematics | 7.5 h | no lab | 7.5 h |
-| Setup, before Session 2 | – | 1.5 h | 1.5 h |
-| 2 Python | 4 h | 2.5 h | 6.5 h |
+| Setup, before Session 2 | – | 0.5 h | 0.5 h |
+| 2 Python | 4.5 h | 2.5 h | 7 h |
 | 3 Biological databases | 2.5 h | 2 h | 4.5 h |
 | 4 Sequence alignment | 3 h | 2.5 h | 5.5 h |
 | 5 Database search and profiles | 3 h | 2.5 h | 5.5 h |
@@ -54,9 +54,9 @@ Each session takes about 5–7.5 hours of your own time, besides the three-hour 
 | 10 CNNs | 3.5 h | 2.5 h | 6 h |
 | 11 Sequences and language models | 4.5 h | 2.5 h | 7 h |
 | 12 AlphaFold | 5 h | 2.5 h | 7.5 h |
-| **Sum** | **49.5 h** | **26.5 h** | **76 h** |
+| **Sum** | **50 h** | **25.5 h** | **75.5 h** |
 
-These numbers are estimates from the amount of material, not measurements, and they depend a lot on your background. If you already know Python well, Session 2 goes quickly, and if the mathematics is new to you, Session 1 takes longer. In total, the sessions take about 76 hours, which comes on top of the lectures, the [capstone project](capstone.qmd) and preparing for the exam.
+These numbers are estimates from the amount of material, not measurements, and they depend a lot on your background. If you already know Python well, Session 2 goes quickly, and if the mathematics is new to you, Session 1 takes longer. In total, the sessions take about 75 hours, which comes on top of the lectures, the [capstone project](capstone.qmd) and preparing for the exam.
 
 ## Plagiarism
 
