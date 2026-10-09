@@ -329,7 +329,7 @@ The first part of the notebook trains a small CNN six times for 100 epochs, so u
 
 ## The lab
 
-**Full lab, on blood-cell images** (BloodMNIST, as in the Session 8 and 9 labs). The lab is adapted from the previous course's "Neural Networks" lab. Work through [`notebooks/session10-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session10-lab.ipynb), replacing every `todo(...)` call with your own code:
+**Full lab, on blood-cell images** (BloodMNIST, as in the Session 8 and 9 labs). The lab is adapted from the previous course's "Neural Networks" lab. Work through [`notebooks/session10-lab.ipynb`](https://course.bioinfo.se/open.html?nb=session10-lab.ipynb), replacing every `todo(...)` call with your own code:
 
 1.  count the weights of a dense and a convolutional layer, then of whole models, and see why adding a convolutional layer can make the whole model *smaller* (the next dense layer receives a smaller feature map);
 2.  train four models side by side, two dense networks of 23,000 and 302,000 weights, a one-layer convolutional network and a small CNN, and see that the CNN, with 17,640 weights, beats them all;

@@ -1,43 +1,45 @@
 # Setup: VS Code and Google Colab {.unnumbered}
 
-All the notebooks and labs in this course run on **Google Colab**, Google's free service for running Python notebooks on its machines, some of which have a GPU. You open the notebooks in **VS Code** on your own laptop and let them run on a Colab machine, or, if you prefer, you open them in Colab in the browser. Either way, nothing has to be installed on your laptop apart from VS Code, and every student works in the same environment.
+All the notebooks and labs in this course run on **Google Colab**, Google's free service for running Python notebooks on its machines, some of which have a GPU. The **labs** are done in **VS Code** on your own laptop, with the notebook running on a Colab machine through Google's Colab extension: this is how notebooks are used in research, and the labs are where you get used to it. The **course notebooks** that go with each session page can also be opened directly in Colab in the browser. Either way, nothing has to be installed on your laptop apart from VS Code and git, and every student works in the same environment.
 
 | What you need | Why |
 |------------------------|------------------------|
 | A **Google account** (a free one is enough) | Colab runs your code on Google's machines |
-| **VS Code** on your laptop, with the extensions **Jupyter**, **Python** and **Google Colab** | To open, edit and run the notebooks |
-| **git** (optional) | To clone the book's notebooks in one go, and to keep your own work under version control (Session 2) |
+| **VS Code** on your laptop, with the extensions **Jupyter**, **Python** and **Google Colab** | To open, edit and run the lab notebooks |
+| **git** | To get all the course notebooks in one go and keep them up to date, and to keep your own work under version control (Session 2) |
 
-Every notebook in this book has an "Open in Colab" badge and fetches its data from the course's GitHub repository, so it runs the same way from VS Code and from the browser. Do Part 1 before the first lab in Session 2, and check that a notebook runs, so that the lab time is spent on the lab.
+Every lab notebook has an **Open in VS Code** link (on the session page, in Canvas and in the lab quiz), and every course notebook an **Open in Colab** badge. All notebooks fetch their data from the course's GitHub repository, so they run the same way everywhere. Do Parts 1 and 2 before the first lab in Session 2, and check that a notebook runs, so that the lab time is spent on the lab.
 
-## Part 1: Install VS Code and the extensions
+## Part 1: Install VS Code, git and the extensions
 
-1.  Install [VS Code](https://code.visualstudio.com/) if you do not already have it.
+1.  Install [VS Code](https://code.visualstudio.com/) and [git](https://git-scm.com/downloads) if you do not already have them.
 2.  In VS Code, open the Extensions view (Ctrl+Shift+X, or Cmd+Shift+X on a Mac) and install **Python** and **Jupyter** (both by Microsoft) and **Google Colab** (by Google).
 3.  Check that you can sign in to Google in a browser with the account you want to use for the course.
 
-## Part 2: Run a course notebook on Colab from VS Code
+## Part 2: Get the course notebooks into VS Code (once)
+
+1.  Click **[Clone the course notebooks into VS Code](vscode://vscode.git/clone?url=https%3A%2F%2Fgithub.com%2FElofssonLab%2Fkb8029-book.git)**. Your browser asks whether to open VS Code: allow it. (Or, in VS Code: Command Palette, Ctrl+Shift+P or Cmd+Shift+P → **Git: Clone** → `https://github.com/ElofssonLab/kb8029-book.git`.)
+2.  Choose where to save the folder `kb8029-book` (about 100 MB), and open it when VS Code offers to. The notebooks are in its `notebooks` folder.
+3.  Before each lab, get the latest version: Command Palette → **Git: Pull**. The teachers sometimes fix a lab shortly before it is used.
+
+## Part 3: Run a lab notebook on Colab from VS Code {#open-in-vscode}
 
 Google's **Colab** extension for VS Code (released November 2025) lets a notebook that is open in VS Code run on a Colab machine:
 
-1.  Get the notebooks. Either download a notebook from its page in this book, or clone the repository on your laptop:
+1.  Click the lab's **Open in VS Code** link. The first time, the page that opens asks for the full path of your `kb8029-book` folder (for example `C:\Users\you\kb8029-book` or `/Users/you/kb8029-book`) and remembers it; after that, its button opens the notebook straight in VS Code. You can also open it yourself: in VS Code press Ctrl+P (Cmd+P on a Mac) and type the notebook's name, for example `session04-lab.ipynb`.
 
-    ``` sh
-    git clone https://github.com/ElofssonLab/kb8029-book.git
-    ```
+2.  Click **Select Kernel** (top right) → **Colab** → **Auto Connect** (or choose a runtime with a GPU), and sign in with your Google account when asked.
 
-2.  Open a notebook (`.ipynb`) in VS Code.
+3.  Run the first cells. Most notebooks start with an install cell, which installs the few packages that Colab does not already have (for example Biopython); this takes a few seconds each time you connect to a new machine.
 
-3.  Click **Select Kernel** (top right) → **Colab** → **Auto Connect** (or choose a runtime with a GPU), and sign in with your Google account when asked.
-
-4.  Run the first cells. Most notebooks start with an install cell, which installs the few packages that Colab does not already have (for example Biopython); this takes a few seconds each time you connect to a new machine.
-
-5.  When you need a GPU (mainly Sessions 9-12), check that you got one:
+4.  When you need a GPU (mainly Sessions 9-12), check that you got one:
 
     ``` python
     import torch
     print(torch.cuda.is_available(), torch.cuda.get_device_name(0) if torch.cuda.is_available() else "")
     ```
+
+Your changes are saved in your own copy of the notebook in `kb8029-book`. If **Git: Pull** complains that a file you changed would be overwritten, keep your version under another name (for example `session04-lab-mine.ipynb`) and pull again.
 
 Things to know:
 
@@ -46,11 +48,13 @@ Things to know:
 - **The free GPU is limited.** A session is closed after a period of inactivity or when your quota is used up, and a GPU is not always available. Ask for a GPU only when the notebook needs one, and when you are done, release the machine with **Colab: Remove Server**.
 - **No terminal tools.** Everything in the labs is done from Python: the sequence searches and alignments in Sessions 4 and 5 call EMBL-EBI's web services (HMMER, Clustal Omega, InterPro), and in Session 6 PyMOL runs inside the notebook and structure searches go to the Foldseek web service.
 
-## Part 3: Colab in the browser
+## Part 4: Course notebooks in the browser
 
-Click the **Open in Colab** badge at the top of any notebook in this book. In Colab, choose **Runtime → Change runtime type → T4 GPU** if the notebook needs a GPU, then run the cells. This works from any computer, also one where you cannot install VS Code. **File → Save a copy in Drive** keeps your own copy with your changes; without it, your edits are lost when you close the tab.
+The course notebooks that go with each session page have an **Open in Colab** badge. Click it, choose **Runtime → Change runtime type → T4 GPU** if the notebook needs a GPU, and run the cells. This works from any computer. **File → Save a copy in Drive** keeps your own copy with your changes; without it, your edits are lost when you close the tab. You can also open a course notebook from your `kb8029-book` folder in VS Code, exactly as a lab.
 
 ## Troubleshooting {#troubleshooting}
+
+**The Open in VS Code button does nothing, or VS Code says the file does not exist.** Check the folder path on the page (it must be the `kb8029-book` folder itself), and that the clone in Part 2 worked. Opening the notebook by name with Ctrl+P always works.
 
 **VS Code does not offer Colab under Select Kernel.** Check that the Google Colab extension is installed and enabled in a *local* VS Code window, and reload the window (Command Palette → **Developer: Reload Window**).
 

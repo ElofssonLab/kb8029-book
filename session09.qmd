@@ -440,7 +440,7 @@ Open it in [Google Colab](https://colab.research.google.com/github/ElofssonLab/k
 
 ## The lab
 
-**Full lab, on blood-cell images** (BloodMNIST, as in the Session 8 lab). The lab is adapted from the previous course's "Neural Networks" lab and rebuilt in PyTorch, and this time you **write the training loop yourself**. Work through [`notebooks/session09-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session09-lab.ipynb), replacing every `todo(...)` call with your own code:
+**Full lab, on blood-cell images** (BloodMNIST, as in the Session 8 lab). The lab is adapted from the previous course's "Neural Networks" lab and rebuilt in PyTorch, and this time you **write the training loop yourself**. Work through [`notebooks/session09-lab.ipynb`](https://course.bioinfo.se/open.html?nb=session09-lab.ipynb), replacing every `todo(...)` call with your own code:
 
 1.  write the four-step mini-batch training loop;
 2.  compare cross-entropy with mean squared and mean absolute error as the loss for a classifier;

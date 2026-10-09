@@ -710,7 +710,7 @@ polyprotein via the same InterPro API that this page's HBB worked
 example uses.
 
 Every search in
-[`notebooks/session05-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session05-lab.ipynb)
+[`notebooks/session05-lab.ipynb`](https://course.bioinfo.se/open.html?nb=session05-lab.ipynb)
 runs on a server at EMBL-EBI, reached through its **web API**: the
 notebook sends the sequences, the server runs the program, and the
 notebook reads the result back. There is nothing to install, so the lab

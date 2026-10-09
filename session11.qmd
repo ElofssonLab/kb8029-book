@@ -411,7 +411,7 @@ The dataset is loaded from the course repository. On Colab, run `!pip install fa
 
 ## The lab
 
-**Full lab:** the lab is adapted from the previous course's "Neural Networks" labs and rebuilt in PyTorch on biological data. Work through [`notebooks/session11-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session11-lab.ipynb), replacing every `todo(...)` call with your own code:
+**Full lab:** the lab is adapted from the previous course's "Neural Networks" labs and rebuilt in PyTorch on biological data. Work through [`notebooks/session11-lab.ipynb`](https://course.bioinfo.se/open.html?nb=session11-lab.ipynb), replacing every `todo(...)` call with your own code:
 
 1.  label signal-peptide residues with a feed-forward sliding window of 1, 11 and 41 residues, and see how the window size matters;
 2.  build a forward and a bidirectional LSTM tagger for the same task, and explain why reading the sequence in both directions helps;

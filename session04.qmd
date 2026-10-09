@@ -617,7 +617,7 @@ renderQuiz("session04-quiz", [
 ## The lab
 
 The lab has four steps, all reached through
-[`notebooks/session04-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session04-lab.ipynb):
+[`notebooks/session04-lab.ipynb`](https://course.bioinfo.se/open.html?nb=session04-lab.ipynb):
 
 1. **By hand**: fill in a small Needleman-Wunsch dynamic-programming
    matrix and trace back the optimal alignment yourself, on paper. This

@@ -5,7 +5,7 @@
 # Session 2: Working like a computational biologist in Python
 
 ::: callout-important
-**Set up first.** This course runs its notebooks on Google Colab, either from VS Code with Google's Colab extension or in the browser. If you have not done so yet, follow [Setup](setup.qmd): install VS Code and the Colab extension, and check that you can run a notebook on a Colab machine.
+**Set up first.** This course runs its notebooks on Google Colab. The lab is done in VS Code, with the notebook running on a Colab machine through Google's Colab extension; the course notebook can also be opened in Colab in the browser. If you have not done so yet, follow [Setup](setup.qmd): install VS Code, git and the Colab extension, clone the course notebooks, and check that you can run a notebook on a Colab machine.
 :::
 
 ::: {.callout-tip icon="false"}
@@ -37,7 +37,7 @@ By the end of this session you should be able to:
 
 ## Notebooks: what they are and why we use them
 
-Every notebook in this book runs on Google Colab, from VS Code or in the browser, as described in [Setup](setup.qmd). Before we use them, it is worth knowing what a notebook is and where its pitfalls lie.
+Every notebook in this book runs on Google Colab: the labs from VS Code, the course notebooks also in the browser, as described in [Setup](setup.qmd). Before we use them, it is worth knowing what a notebook is and where its pitfalls lie.
 
 A **notebook** (a `.ipynb` file, the Jupyter format) mixes three things in one document. It holds **text** (explanations, like this page), **code cells**, and the **output** of each cell (numbers, tables, plots, error messages), shown directly underneath it. You run one cell at a time, in whatever order you choose.
 
@@ -482,7 +482,7 @@ renderQuiz("session02-quiz-3", [
 
 ## The lab
 
-The lab notebook, [`notebooks/session02-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session02-lab.ipynb), continues from the mini challenge, with less help at each step. Lines to complete are marked with `todo(...)`, which stops the cell with a message saying what is missing. The lab has three parts:
+The lab notebook, [`notebooks/session02-lab.ipynb`](https://course.bioinfo.se/open.html?nb=session02-lab.ipynb), continues from the mini challenge, with less help at each step. Lines to complete are marked with `todo(...)`, which stops the cell with a message saying what is missing. The lab has three parts:
 
 1.  **Fill in:** complete the marked lines in working code. You explore the same RNA-seq table with other columns and thresholds, plot first and test second, run `Seq` operations on a mystery fragment, fetch its record from NCBI into a local file and back, and finish a small `Transcript` class for that record.
 

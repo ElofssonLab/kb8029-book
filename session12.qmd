@@ -521,7 +521,7 @@ It runs on a CPU in a few minutes. Open the notebook in [Google Colab](https://c
 - Region III: antibody : antigen (8TQ7);
 - Region IV: p53 peptide : MDM2 (1YCR).
 
-Work through [`notebooks/session12-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session12-lab.ipynb), replacing every `todo(...)` call with your own code:
+Work through [`notebooks/session12-lab.ipynb`](https://course.bioinfo.se/open.html?nb=session12-lab.ipynb), replacing every `todo(...)` call with your own code:
 
 1.  fetch your target's chain sequences from the PDB and submit them to the AlphaFold Server (20 jobs per day and account);
 2.  read AlphaFold DB models: pLDDT, the PAE matrix, which models are disordered, and how closely a model matches its crystal structure;

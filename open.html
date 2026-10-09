@@ -1,0 +1,87 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Open in VS Code · KB8029</title>
+<!--
+  Every "Open in VS Code" link in the book, the notebooks, the slides and Canvas points here:
+  https://course.bioinfo.se/open.html?nb=session04-lab.ipynb
+  First time: clone the book's repository into VS Code (vscode://vscode.git/clone). After that: open the notebook
+  in that clone (vscode://file/<folder>/notebooks/<nb>). The folder is remembered in this browser only.
+-->
+<style>
+  :root { --bg: #ffffff; --fg: #1f2933; --muted: #52606d; --card: #f4f6f9; --accent: #007acc; --border: #d9e2ec; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #14181d; --fg: #e4e7eb; --muted: #9aa5b1; --card: #1f252c; --accent: #3ba7ff; --border: #323f4b; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 680px; margin: 0 auto; padding: 28px 16px 48px; }
+  h1 { font-size: 1.5rem; margin: 0 0 4px; }
+  .file { font-family: ui-monospace, Menlo, Consolas, monospace; color: var(--muted); word-break: break-all; }
+  section { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; margin: 18px 0; }
+  h2 { font-size: 1.05rem; margin: 0 0 8px; }
+  a.button, button { display: inline-block; background: var(--accent); color: #fff; border: 0; border-radius: 6px;
+    padding: 10px 16px; font: inherit; font-weight: 600; text-decoration: none; cursor: pointer; }
+  a.button.disabled { opacity: 0.4; pointer-events: none; }
+  input { width: 100%; padding: 8px 10px; font: 15px ui-monospace, Menlo, Consolas, monospace; border: 1px solid var(--border);
+    border-radius: 6px; background: var(--bg); color: var(--fg); margin: 6px 0 10px; }
+  ol { padding-left: 1.3em; margin: 6px 0; }
+  code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.92em; }
+  .muted { color: var(--muted); font-size: 0.92rem; }
+  .err { color: #c53030; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Open in VS Code</h1>
+  <div class="file" id="file"></div>
+
+  <section>
+    <h2>Every time: open the notebook</h2>
+    <label for="folder">The folder you cloned the course notebooks into (<code>kb8029-book</code>):</label>
+    <input id="folder" placeholder="C:\Users\you\kb8029-book   or   /Users/you/kb8029-book" spellcheck="false" autocomplete="off">
+    <a class="button disabled" id="open" href="#">Open the notebook in VS Code</a>
+    <p class="muted">Then click <b>Select Kernel → Colab</b> (top right) and run the cells; see the
+      <a href="setup.html">Setup</a> page. Before you start, get the latest version of the notebooks:
+      in VS Code, Command Palette (Ctrl+Shift+P or Cmd+Shift+P) → <b>Git: Pull</b>.
+      Or open the file yourself: in VS Code, press Ctrl+P (Cmd+P on a Mac) and type <code id="name"></code>.</p>
+  </section>
+
+  <section>
+    <h2>The first time only: get the course notebooks</h2>
+    <ol>
+      <li>Install <a href="https://code.visualstudio.com/">VS Code</a>, <a href="https://git-scm.com/downloads">git</a>,
+        and in VS Code the extensions <b>Python</b>, <b>Jupyter</b> and <b>Google Colab</b>.</li>
+      <li><a class="button" href="vscode://vscode.git/clone?url=https%3A%2F%2Fgithub.com%2FElofssonLab%2Fkb8029-book.git">Clone the course notebooks into VS Code</a>
+        <br><span class="muted">VS Code asks where to save them (about 100 MB) and then offers to open the folder.</span></li>
+      <li>Copy the folder's full path into the box above. This browser remembers it.</li>
+    </ol>
+  </section>
+
+  <p class="muted">Not on your laptop? A phone cannot run the notebooks: open this page on your laptop, or open the notebook
+    there in VS Code by name (Ctrl+P). <a href="https://course.bioinfo.se/">course.bioinfo.se</a></p>
+</main>
+<script>
+  const params = new URLSearchParams(location.search);
+  const nb = (params.get("nb") || "").replace(/[^A-Za-z0-9._-]/g, "");
+  const fileEl = document.getElementById("file"), nameEl = document.getElementById("name");
+  const folder = document.getElementById("folder"), open = document.getElementById("open");
+  fileEl.textContent = nb ? "notebooks/" + nb : "No notebook given.";
+  nameEl.textContent = nb || "the notebook's name";
+  if (!nb) fileEl.classList.add("err");
+  try { folder.value = localStorage.getItem("kb8029-folder") || ""; } catch (e) {}
+  function update() {
+    let f = folder.value.trim().replace(/^["']|["']$/g, "").replace(/\\/g, "/").replace(/\/+$/, "");
+    try { localStorage.setItem("kb8029-folder", folder.value.trim()); } catch (e) {}
+    if (!f || !nb) { open.classList.add("disabled"); open.href = "#"; return; }
+    if (!f.startsWith("/")) f = "/" + f;          // Windows: C:/Users/... becomes /C:/Users/...
+    open.href = "vscode://file" + encodeURI(f + "/notebooks/" + nb);
+    open.classList.remove("disabled");
+  }
+  folder.addEventListener("input", update);
+  update();
+</script>
+</body>
+</html>

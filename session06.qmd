@@ -644,7 +644,7 @@ renderQuiz("session06-quiz", [
 ## The lab
 
 The whole lab runs in
-[`notebooks/session06-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session06-lab.ipynb)
+[`notebooks/session06-lab.ipynb`](https://course.bioinfo.se/open.html?nb=session06-lab.ipynb)
 on Colab, in the browser or from VS Code; nothing is installed on your
 own computer. **It starts with PyMOL**, run as a Python library inside
 the notebook, on three structures beyond haemoglobin. An HIV envelope
