@@ -33,30 +33,34 @@ Most sessions have a lab (see the [Course Schedule](schedule.qmd)): a notebook i
 
 ## Expected workload {#workload}
 
-Each session takes about 5–7.5 hours of your own time, besides the three-hour lecture. The table below gives our estimate, split into reading the material and doing the lab.
+The course is full time for four weeks and two days: about 176 hours of work, at eight hours a day. The table below gives our estimate of where that time goes: each session has its lecture (three hours; Sessions 0 and 1 share one), reading the material and doing the lab, and then come the capstone project and the exam.
 
 - **Reading and understanding** means studying the session page carefully, with its worked examples, practice problems, quiz and main videos, and working through the course notebook. Optional videos and boxes are not included.
 - **Lab** is the total time for the lab, including its quiz on Canvas. Every lab is designed to fit into the scheduled three-hour lab afternoon, and most students need about two to two and a half hours. Optional extras in the lab notebooks are not included.
 
-| Session | Reading and understanding | Lab | Total |
-|---|---|---|---|
-| 0 Introduction | 0.5 h | – | 0.5 h |
-| 1 Mathematics | 7.5 h | no lab | 7.5 h |
-| Setup, before Session 2 | – | 0.5 h | 0.5 h |
-| 2 Python | 4.5 h | 2.5 h | 7 h |
-| 3 Biological databases | 2.5 h | 2 h | 4.5 h |
-| 4 Sequence alignment | 3 h | 2.5 h | 5.5 h |
-| 5 Database search and profiles | 3 h | 2.5 h | 5.5 h |
-| 6 Protein structure | 2.5 h | 2.5 h | 5 h |
-| 7 Linear models and XOR | 4.5 h | 1.5 h | 6 h |
-| 8 Machine-learning foundations | 4.5 h | 2 h | 6.5 h |
-| 9 Training neural networks | 4.5 h | 2 h | 6.5 h |
-| 10 CNNs | 3.5 h | 2.5 h | 6 h |
-| 11 Sequences and language models | 4.5 h | 2.5 h | 7 h |
-| 12 AlphaFold | 5 h | 2.5 h | 7.5 h |
-| **Sum** | **50 h** | **25.5 h** | **75.5 h** |
+| Part of the course | Lecture | Reading and understanding | Lab | Total |
+|---|---|---|---|---|
+| 0 Introduction | 1 h | 0.5 h | – | 1.5 h |
+| 1 Mathematics | 2 h | 7.5 h | no lab | 9.5 h |
+| Setup, before Session 2 | – | – | 0.5 h | 0.5 h |
+| 2 Python | 3 h | 4.5 h | 2.5 h | 10 h |
+| 3 Biological databases | 3 h | 2.5 h | 2 h | 7.5 h |
+| 4 Sequence alignment | 3 h | 3 h | 2.5 h | 8.5 h |
+| 5 Database search and profiles | 3 h | 3 h | 2.5 h | 8.5 h |
+| 6 Protein structure | 3 h | 2.5 h | 2.5 h | 8 h |
+| 7 Linear models and XOR | 3 h | 4.5 h | 1.5 h | 9 h |
+| 8 Machine-learning foundations | 3 h | 4.5 h | 2 h | 9.5 h |
+| 9 Training neural networks | 3 h | 4.5 h | 2 h | 9.5 h |
+| 10 CNNs | 3 h | 3.5 h | 2.5 h | 9 h |
+| 11 Sequences and language models | 3 h | 4.5 h | 2.5 h | 10 h |
+| 12 AlphaFold | 3 h | 5 h | 2.5 h | 10.5 h |
+| **All sessions** | **36 h** | **50 h** | **25.5 h** | **111.5 h** |
+| Capstone project: introduction, help session, your own work, report and oral presentation | | | | 40 h |
+| Exam preparation, including the Q&A sessions | | | | 20 h |
+| Written exam | | | | 4 h |
+| **Whole course** | | | | **175.5 h** |
 
-These numbers are estimates from the amount of material, not measurements, and they depend a lot on your background. If you already know Python well, Session 2 goes quickly, and if the mathematics is new to you, Session 1 takes longer. In total, the sessions take about 75 hours, which comes on top of the lectures, the [capstone project](capstone.qmd) and preparing for the exam.
+These numbers are estimates from the amount of material, not measurements, and they depend a lot on your background. If you already know Python well, Session 2 goes quickly, and if the mathematics is new to you, Session 1 takes longer. The sessions take about 110 hours with the lectures, and the [capstone project](capstone.qmd) and the exam about 65 hours together.
 
 ## Plagiarism
 
