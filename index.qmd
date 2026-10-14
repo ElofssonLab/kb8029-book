@@ -22,7 +22,7 @@ Every page names which source(s) it draws on, and because of the CC BY-SA licens
 
 **New to the course?** Start with [Session 0: Introduction to the Course](session00.qmd): what the course covers, how a session works, and what to do before Session 1. The rules (exam, grading, labs, plagiarism, AI tools) and the contact details of the student office are on [Course Information & Logistics](course-info.qmd).
 
-**Found an error, or something unclear?** The course is new and open access, and we know it is not perfect, so we appreciate all feedback. Students can use the [feedback form](https://bioinfo.se/internal/kb8029-feedback/) (university login, anonymous if you like); everyone else is welcome to email <arne@bioinfo.se> with the subject "KB8029 feedback". See [Help us improve the course](session00.qmd#help-us-improve-the-course).
+**Found an error, or something unclear?** The course is new and open access, and we know it is not perfect, so we appreciate all feedback. Students can use the [feedback form](https://bioinfo.se/internal/kb8029-feedback/) (university login, anonymous if you like); with a GitHub account you can open an [issue](https://github.com/ElofssonLab/kb8029-book/issues) (public); and everyone is welcome to email <arne@bioinfo.se> with the subject "KB8029 feedback". See [Help us improve the course](session00.qmd#help-us-improve-the-course).
 
 ## How to use this alongside the course
 

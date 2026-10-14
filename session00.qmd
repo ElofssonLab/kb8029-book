@@ -68,7 +68,8 @@ Ask questions in the Canvas discussion forum, where everyone can see the answers
 Everything in this course, the pages, the notebooks, the labs and the slides, is open access: written from scratch and free for anyone to read and reuse. This is also the first year of this version of the course. We have written it with care, but it is not perfect. You will find errors, explanations that do not work for you, and notebooks that break when a library changes. You are the first readers, so you are the ones who find them, and we really appreciate it when you tell us. Every message is read by the teachers, and each one makes the course better, for you and for the students after you.
 
 - **With a university account:** use the [feedback form](https://bioinfo.se/internal/kb8029-feedback/) and log in with your university account. You can choose the session, say where the problem is, and send it anonymously if you like. The form is also linked at the bottom of every page.
-- **Without one:** email <arne@bioinfo.se> with the subject "KB8029 feedback".
+- **With a GitHub account:** open an [issue on the course's GitHub page](https://github.com/ElofssonLab/kb8029-book/issues). Issues are public, so everyone can see the problem, the discussion and the fix; they are not anonymous. This works well for errors in the text and for notebooks that do not run.
+- **Without either:** email <arne@bioinfo.se> with the subject "KB8029 feedback".
 
 Feedback never affects your grades. The form is for improving the material; questions about the content belong in the Canvas discussion forum, where everyone sees the answer. The official course evaluation at the end of the course is separate, so please fill that in as well.
 
