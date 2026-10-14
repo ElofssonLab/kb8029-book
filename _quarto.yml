@@ -16,6 +16,8 @@ book:
   title: "Bioinformatics & Deep Learning — Course Notes"
   subtitle: "An open-access companion for the redesigned KB8029 course"
   author: "Arne Elofsson"
+  page-footer:
+    center: 'Found an error or something unclear? <a href="https://bioinfo.se/internal/kb8029-feedback/">Send feedback</a> (university login), or email arne@bioinfo.se with the subject "KB8029 feedback". The course is open access, and your feedback improves it.'
   date: today
 
 format:

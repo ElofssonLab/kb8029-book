@@ -63,6 +63,15 @@ The course has two teachers, one for machine learning and one for bioinformatics
 
 Ask questions in the Canvas discussion forum, where everyone can see the answers. The teaching assistants help during the scheduled lab hours; do not expect immediate help at other times.
 
+## Help us improve the course
+
+Everything in this course, the pages, the notebooks, the labs and the slides, is open access: written from scratch and free for anyone to read and reuse. This is also the first year of this version of the course. We have written it with care, but it is not perfect. You will find errors, explanations that do not work for you, and notebooks that break when a library changes. You are the first readers, so you are the ones who find them, and we really appreciate it when you tell us. Every message is read by the teachers, and each one makes the course better, for you and for the students after you.
+
+- **With a university account:** use the [feedback form](https://bioinfo.se/internal/kb8029-feedback/) and log in with your university account. You can choose the session, say where the problem is, and send it anonymously if you like. The form is also linked at the bottom of every page.
+- **Without one:** email <arne@bioinfo.se> with the subject "KB8029 feedback".
+
+Feedback never affects your grades. The form is for improving the material; questions about the content belong in the Canvas discussion forum, where everyone sees the answer. The official course evaluation at the end of the course is separate, so please fill that in as well.
+
 ## The rules, in brief
 
 To pass, you need to pass all the **labs**, the **capstone project** (a secondary-structure predictor of your own: a Colab notebook, a short report, and an oral presentation of your code to a teaching assistant) and the **exam**. Your work must be your own, and AI tools may help you understand but must not write your labs or report. The grading, the grade scale, and the rules on plagiarism and AI tools are on the [Course Information & Logistics](course-info.qmd) page.
