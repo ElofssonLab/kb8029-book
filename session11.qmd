@@ -51,6 +51,8 @@ Carrying context through many steps has a cost during training. Training an RNN 
 
 The **Long Short-Term Memory** network (Hochreiter & Schmidhuber, 1997, [*Neural Computation* 9:1735](https://doi.org/10.1162/neco.1997.9.8.1735)) was designed to solve this problem. It adds a separate memory, the **cell state**, which is updated by *adding* to it rather than by recomputing it. Small sigmoid **gates** decide what to keep, what to add and what to expose. Because the memory is carried forward by addition, the error signal can flow back over many steps without shrinking at every one. LSTMs therefore make much longer dependencies trainable than a simple RNN can, although how long in practice depends on the task. The notebook writes the gate equations out and checks them against PyTorch's `nn.LSTMCell`. A **GRU** is a later, simpler gated recurrent network, with fewer gates and no separate cell state.
 
+![One LSTM cell and one GRU cell. Blue boxes are sigmoid gates, with outputs between 0 and 1; green boxes compute a new candidate value with tanh; × and + act element by element. In the LSTM (left), the cell state $c$ (orange) is changed only by the forget gate's multiplication and the addition of new content, which is the additive memory path. The GRU (right) has no separate cell state: its update gate $z$ mixes the old hidden state with a new candidate, and its reset gate $r$ decides how much of the old state the candidate sees.](figs/session11-lstm-gru.png){#fig-session11-lstm-gru width="100%"}
+
 An LSTM that reads from left to right still knows only what came *before* each position. A **bidirectional LSTM** (Schuster & Paliwal, 1997) removes this limitation. It runs one LSTM from left to right and another from right to left, and it combines them at every position, so each position also sees what comes *after* it.
 
 ### Case study: which residues belong to a signal peptide?
@@ -60,6 +62,10 @@ A good test case for these models is the signal peptide. **Signal peptides** are
 - 1,936 proteins with an **experimentally supported** signal peptide (ECO:0000269). Many UniProt signal peptides are predicted by SignalP itself, and training on those would teach a model to imitate SignalP.
 - 1,988 cytoplasmic or nuclear proteins.
 - 986 transmembrane proteins. These are *hard* negatives, because a transmembrane helix is also a hydrophobic stretch.
+
+The regions show up when the experimentally supported signal peptides are aligned on their cleavage site:
+
+![Sequence logos of the experimentally supported signal peptides in our dataset, aligned on the cleavage site (dashed line). Each stack shows how conserved a position is (in bits); letters are coloured by property: hydrophobic dark grey, small (A, G, S) green, positive blue, negative red, other polar purple. Leucines dominate the hydrophobic h-region, and small residues at −3 and −1 mark the cleavage site (the "−3, −1 rule"). The positively charged n-region (K, R) is clearest in bacteria, where the signal peptides are longer. The two logos have different y-scales.](figs/session11-sp-logo.png){#fig-session11-sp-logo width="100%"}
 
 The split is homology-aware (Session 8). The proteins fall into 3,205 MMseqs2 clusters at 30% identity, which are divided into 3,432 training, 737 validation and 741 test proteins. Each of the first 70 residues is labelled as signal peptide or not:
 
@@ -93,6 +99,8 @@ A **language model** learns the regularities of sequences by predicting missing 
 
 - **autoregressive** (GPT-style) models predict the *next* token from the previous ones;
 - **masked** (BERT-style) models, including protein models such as ESM-2, hide some tokens and predict them from the context on *both* sides.
+
+![The two kinds of language model, here reading the start of a signal peptide. An autoregressive model (left) sees only the tokens to the left and predicts the next one; a masked model (right) predicts hidden tokens from both sides. The output is a probability for every amino acid; the numbers shown are illustrative.](figs/session11-lm.png){#fig-session11-lm width="100%"}
 
 To predict well, a model must learn what tends to go with what. These learned regularities are stored in its internal vectors (**embeddings**), and they turn out to be useful for many other tasks.
 

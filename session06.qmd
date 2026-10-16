@@ -480,7 +480,7 @@ strategies each build on something you have already met:
   is reliable when a template exists, but useless for a new fold. The
   table above shows why it works: related sequences share their
   structure.
-- **Evolutionary restraints** use the fact that residues that touch tend
+- **Contact prediction** uses the fact that residues that touch tend
   to mutate together. Large alignments (Session 5) therefore reveal
   which pairs are in contact and fill in a contact map like the one
   above.
