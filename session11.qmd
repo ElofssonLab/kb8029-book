@@ -186,7 +186,7 @@ These pieces arrived in a particular order. Language models started by counting 
 
 The same recipe works for proteins. There are hundreds of millions of unlabelled sequences, and a model that learns to fill in missing residues has to learn something about structure, function and evolution. Protein language models developed in three steps:
 
-- **An early precursor.** SignalP's authors note that the network program their group used before SignalP could erase the central residue of a window and predict it. This was "presumably … the first machine learning language model" in biological sequence analysis (Nielsen et al. 2024).
+- **An early precursor.** SignalP's authors note that the network program their group used before SignalP could erase the central residue of a window and predict it. This was "presumably … the first machine learning language model" in biological sequence analysis (Nielsen et al. 2024, [*Methods Mol. Biol.* 2836:331](https://doi.org/10.1007/978-1-0716-4007-4_17)).
 - **Recurrent protein language models** (2019), such as UniRep and SeqVec, learned embeddings from tens of millions of unlabelled sequences.
 - **Transformer protein language models** (2021 onwards) then took over. They include **ProtBERT** (Elnaggar et al. 2022, [*IEEE TPAMI* 44:7112](https://pubmed.ncbi.nlm.nih.gov/34232869/)), the model inside SignalP 6.0, and the **ESM** family. This session uses **ESM-2** (Lin et al. 2023, [*Science* 379:1123](https://pubmed.ncbi.nlm.nih.gov/36927031/); 8 million to 15 billion weights, masked language modelling). The attention maps of these models turned out to contain information about residue contacts, although they were never trained on structures (Rao et al. 2021, [ICLR](https://openreview.net/forum?id=fylclEqgvgd)). The largest ESM-2 models even predict 3D structure from a single sequence (ESMFold), which is the bridge to Session 12.
 
@@ -231,7 +231,7 @@ SignalP has been online since 1995, is one of the most used tools in bioinformat
 
 : SignalP versions and the models behind them. {#tbl-s11-signalp}
 
-(Nielsen et al., [*Protein Eng* 10:1](https://pubmed.ncbi.nlm.nih.gov/9051728/); Almagro Armenteros et al., [*Nat Biotechnol* 37:420](https://pubmed.ncbi.nlm.nih.gov/30778233/); Teufel et al., [*Nat Biotechnol* 40:1023](https://pubmed.ncbi.nlm.nih.gov/34980915/); history by the authors themselves in Nielsen et al. 2024.)
+(Nielsen et al., [*Protein Eng* 10:1](https://pubmed.ncbi.nlm.nih.gov/9051728/); Almagro Armenteros et al., [*Nat Biotechnol* 37:420](https://pubmed.ncbi.nlm.nih.gov/30778233/); Teufel et al., [*Nat Biotechnol* 40:1023](https://pubmed.ncbi.nlm.nih.gov/34980915/); history by the authors themselves in Nielsen et al. 2024, [*Methods Mol. Biol.* 2836:331](https://doi.org/10.1007/978-1-0716-4007-4_17).)
 
 **What changed when a representation pretrained on huge unlabelled protein collections became available?** The SignalP 6.0 paper reports four changes:
 

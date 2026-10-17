@@ -463,6 +463,46 @@ therefore point to the residues a protein cannot do without. It also
 shows how the same globin fold is kept even though most pairs of
 sequences in this alignment share fewer than 20% of their residues.
 
+**A motif without a family: signal peptides.** Logos are not only for
+families of homologs. Many proteins that are secreted, or that end up in
+a membrane or in an organelle of the secretory pathway, begin with a
+**signal peptide**. This short N-terminal sequence, typically 15-30
+residues long, sends the new chain into the secretory pathway, and it is
+cut off once it has done its job. The signal peptides of unrelated
+proteins share no ancestor and cannot be aligned residue by residue, but
+they share a design. The first collections, of a few dozen sequences
+around 1980, already showed a positively charged N-terminus, then a
+hydrophobic stretch, then a more polar end. The three parts are now
+called the **n-region**, the **h-region** and the **c-region**. We can
+draw the design as a logo if we line the signal peptides up on the one
+position they all have, the **cleavage site**, instead of aligning them
+by homology:
+
+![Sequence logos of experimentally supported signal peptides from UniProt (the Session 11 dataset), aligned on the cleavage site (dashed line). Positions −25 to −1 are the end of the signal peptide, +1 to +3 the start of the mature protein. Letters are coloured by property: hydrophobic dark grey, small (A, G, S) green, positive blue, negative red, other polar purple. The two logos have different y-scales.](figs/session11-sp-logo.png){#fig-session04-sp-logo width=100%}
+
+The logo shows two kinds of signal. In the h-region no column is
+conserved, but every column leans the same way, towards hydrophobic
+residues and above all leucine. What matters there is a property of a
+whole stretch, not a residue at a given position. Near the cut, in
+contrast, two single positions stand out. Positions −3 and −1 carry
+small, uncharged residues (mostly alanine, also glycine and serine),
+while position −2, between them, is free. This is the **(−3, −1)
+rule**, found in 1983 in a collection of 78 signal peptides (von Heijne,
+[*Eur. J. Biochem.* 133:17](https://doi.org/10.1111/j.1432-1033.1983.tb07424.x)).
+The enzyme that cuts, signal peptidase, needs small side chains at these
+two positions. The positively charged n-region is blurred in the logo,
+because signal peptides differ in length, so the left-hand columns mix
+residues from different regions. It is clearest in bacteria (K and R).
+
+Like a family's logo, this description can be turned into a score
+(Session 5's PSSM). In 1986, von Heijne built a position weight matrix
+for positions −13 to +2 around the cleavage site
+([*Nucleic Acids Res.* 14:4683](https://doi.org/10.1093/nar/14.11.4683)).
+The signal peptide comes back several times in the course. Session 7
+compares this weight matrix with a neural network, Session 8 uses the
+hydrophobicity of the h-region as a feature, and Session 11 lets
+recurrent networks find the regions by themselves.
+
 Two practical notes apply to logos. With few sequences, the frequencies
 are noisy and a column can look conserved by chance, so logo programs
 often apply a small-sample correction. Closely related sequences are
@@ -476,6 +516,7 @@ distributions into position-specific scores.
 ### Further reading
 
 - Wikipedia, [Multiple sequence alignment](https://en.wikipedia.org/wiki/Multiple_sequence_alignment) — additional methods and applications, e.g. profile HMMs, which Session 5 picks up in full
+- von Heijne (1990), [The signal peptide](https://doi.org/10.1007/BF01868635), *J. Membr. Biol.* 115:195, a short review of the signal-peptide design
 - Wikipedia, [Sequence logo](https://en.wikipedia.org/wiki/Sequence_logo); Schneider & Stephens (1990), "Sequence logos: a new way to display consensus sequences," *Nucleic Acids Research* 18:6097-6100
 
 ## The course notebook

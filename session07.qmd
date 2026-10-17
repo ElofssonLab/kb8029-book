@@ -302,6 +302,16 @@ Bulyk et al.'s zinc-finger microarrays make the XOR-shaped limitation concrete o
 **Before neural networks.** The first methods, Chou & Fasman (1974) and GOR (1978), predate neural networks by decades. Both build each residue's score mostly by adding up contributions from single residues, and they reached roughly 50-65% three-state accuracy. The optional box below explains how they work and is useful background for the capstone project. The rest of this section explains why adding up residues from a single sequence is not enough.
 
 ::: {.callout-note collapse="true"}
+### Signal peptides: a weight matrix, then a network
+
+Session 4 described the sequence motif of signal peptides: a positively charged n-region, a hydrophobic h-region, and small residues at positions −3 and −1 of the cleavage site. The history of predicting them runs through this session's two pictures (Nielsen, Tsirigos, Brunak & von Heijne 2019, [*Protein J.* 38:200](https://doi.org/10.1007/s10930-019-09838-3), told by four of the people who made it).
+
+**Picture one: a weight matrix.** Von Heijne's 1986 method ([*Nucleic Acids Res.* 14:4683](https://doi.org/10.1093/nar/14.11.4683)) is a position weight matrix with a log-odds weight for every amino acid at positions −13 to +2 around the cleavage site. It slides along the first 40 residues of a protein, adds up one weight per position, and puts the cleavage site where the sum is highest. The highest sum also served to tell signal peptides from other sequences. This is one weighted sum, the top picture, and like every profile score it treats each position independently.
+
+**Picture two: networks with a hidden layer.** SignalP 1.0 (Nielsen et al. 1997, [*Protein Eng.* 10:1](https://doi.org/10.1093/protein/10.1.1)) replaced the matrix with feed-forward networks on sliding windows, as PHD does for secondary structure (above). One network scores whether each position lies inside a signal peptide (the S-score), a second recognises the cleavage site itself (the C-score), and the two are combined to place the cut. With a hidden layer, a network can learn combinations, for example that a good cleavage site needs a hydrophobic stretch upstream of it. A sum of independent position scores cannot represent such a combination.
+
+The same history also holds a warning. A network can learn combinations that are not real. The first networks for signal peptides were trained on a few dozen sequences, and one of them was built to classify every training protein correctly. It then did poorly on new proteins. Session 8 is about this problem, overfitting.
+
 ## Optional: Chou-Fasman, GOR and the accuracy curve
 
 *This is useful background for the [capstone project](capstone.qmd), where you build your own secondary-structure predictor. Chou-Fasman and GOR are simple baselines to compare it with.*
