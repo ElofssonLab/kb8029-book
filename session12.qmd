@@ -216,6 +216,19 @@ A predicted structure is only useful if we know how far to trust it. AlphaFold2'
 
 ![p53 (P04637) in the AlphaFold DB. Left: pLDDT per residue, with the DNA-binding domain shaded. Right: predicted aligned error. Only the DNA-binding domain forms a confident block.](figs/session12-p53-plddt-pae.png){#fig-session12-p53-plddt-pae width="100%"}
 
+**Play: Protein Fighter.** Sergey Ovchinnikov's lab at MIT has made the two scores into a fighting game, [*Protein Fighter*](https://proteinfighter.solab.org/). The fighters are protein chains folded into figures. Every hit unfolds residues near the impact, and the health bar is the pLDDT. The game computes the health as the real lDDT against the undamaged pose and colours the chain with AlphaFold's confidence palette. A knocked-out fighter has pLDDT just under 50, AlphaFold's line for disorder. The small map under each health bar is the PAE, and it grows wherever two parts of the body no longer sit where they did relative to each other. Two details are worth noticing while you play:
+
+- A fighter that walks or jumps keeps its pLDDT, because lDDT compares distances between neighbouring residues and needs no superposition. Only a structure that has come apart locally loses its score.
+- A limb that has been knocked loose can stay folded (high pLDDT) and still light up the PAE map against the rest of the body. This is the two-domain case above: each part is right, but their relative position is not.
+
+You can also fight as your own protein by typing a PDB id or a UniProt accession. A model from the AlphaFold DB keeps its own pLDDT, so its low-confidence stretches start out loose and swing when the body moves. The game needs a keyboard (arrow keys) or a touch screen. It works best [in its own window](https://proteinfighter.solab.org/), but here it is embedded (click it first to give it the keyboard):
+
+```{=html}
+<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
+<iframe src="https://proteinfighter.solab.org/" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allow="fullscreen" allowfullscreen title="Protein Fighter, Ovchinnikov lab"></iframe>
+</div>
+```
+
 **Scale and tools.** AlphaFold predicted almost the entire human proteome (Tunyasuvunakool et al. 2021, [*Nature* 596:590](https://doi.org/10.1038/s41586-021-03828-1)), and the AlphaFold Database made predicted structures available for essentially every protein in UniProt (Varadi et al. 2024, [*NAR* 52:D368](https://doi.org/10.1093/nar/gkad1011)). **ColabFold** (Mirdita et al. 2022, [*Nat Methods* 19:679](https://doi.org/10.1038/s41592-022-01488-1)) replaced the slow alignment search with MMseqs2 and put AlphaFold in a Colab notebook. **ESMFold** predicts from a single sequence, using the ESM-2 language model (Session 11) instead of an alignment. In the notebook it predicts Ephrin-A5 in seconds, with TM-score 0.941 against the crystal structure (1SHW). In 2024, Demis Hassabis and John Jumper shared half of the [Nobel Prize in Chemistry](https://www.nobelprize.org/prizes/chemistry/2024/summary/) "for protein structure prediction", and the other half went to David Baker "for computational protein design".
 
 **Known limits** (lecture). AlphaFold cannot tell whether a sequence folds at all, or how a mutation changes the structure. It may or may not find alternative conformational states. The arrangement of domains in large flexible or repeated proteins is often arbitrary. It "does not know what a membrane is". In a protein-DNA complex it can place another protein where the DNA should be.
