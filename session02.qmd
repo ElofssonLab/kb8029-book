@@ -492,6 +492,8 @@ The lab notebook, [`notebooks/session02-lab.ipynb`](https://course.bioinfo.se/op
 
 Three more challenges follow as **optional extras**, which are not part of the quiz. In the first you download a gene (human leptin) with Entrez and Biopython and plot GC content along its mRNA. The second explores the RNA-seq table with seaborn, and the third is a statistical analysis, plot first and test second, of whether up-regulated genes are expressed at a different level than down-regulated ones.
 
+**If time is short, take the core path first:** Part A and B2 (fix three bugs). They are the core of the session (a data table, plots, sequences, NCBI, your own class, and debugging), and their questions are worth more than half the quiz points. Then do B1, B3 and Part C, which build on them, and the optional extras last.
+
 Answer the Session 2 lab quiz on Canvas with your notebook's own output.
 
 ### Submitting this lab
