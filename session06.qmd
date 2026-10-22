@@ -276,7 +276,12 @@ To compare structures, we need a number for how similar they are.
 the root-mean-square distance between corresponding atoms after the two
 structures have been optimally superimposed. RMSD is simple, but it
 grows with protein length, and one badly placed loop can inflate it even
-when the rest of the fold matches. The **TM-score** avoids these
+when the rest of the fold matches. RMSD also depends on *which* atoms
+are compared. A superposition can be restricted to the residues that fit
+well, and a very low RMSD over a short fragment says nothing about the
+rest of the proteins. An RMSD should therefore always be given together
+with the number of aligned residues, for example "1.5 Å over 140
+residues". The **TM-score** avoids these
 problems. It weights each residue pair by how close it is, so that small
 deviations count fully and large ones hardly at all, and it normalises
 by protein length. It runs from 0 to 1 (identical). Unrelated proteins

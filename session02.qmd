@@ -110,7 +110,7 @@ df.head()           # the first five rows
 df.describe()       # count, mean, spread and range of every numeric column
 ```
 
-**Summaries tell you how the data were made.** `describe()` shows that the largest p-value in the file is 0.12, and the largest adjusted p-value 0.50. A genome-wide experiment has p-values all the way up to 1, so this file cannot contain all genes. It is a pre-filtered list of the 3,001 genes with $p < 0.12$, and any conclusion about "all genes" drawn from it would be wrong. Always look at the summaries before you look at a result.
+**Summaries tell you how the data were made.** `describe()` shows that the largest p-value in the file is 0.12, and the largest adjusted p-value 0.50. Under the null hypothesis raw p-values are spread evenly between 0 and 1, so a genome-wide table would reach close to 1, and this file almost certainly does not contain all genes. It is most likely a pre-filtered list of the 3,001 genes with $p < 0.12$, and any conclusion about "all genes" drawn from it would be wrong. Always look at the summaries before you look at a result.
 
 **Selecting and filtering** use conditions on columns:
 

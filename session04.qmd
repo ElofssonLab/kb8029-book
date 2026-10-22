@@ -357,7 +357,18 @@ necessarily a phylogenetic tree. It is usually built by a quick method
 (UPGMA) that assumes all lineages evolve at the same rate, so a
 fast-evolving sequence can end up in the wrong place. The third
 discussion problem shows such a case. To infer how the sequences are
-actually related, we need a method built for phylogeny.
+actually related, we need a method built for phylogeny. The two kinds
+of tree look alike but answer different questions:
+
+|  | Guide tree | Phylogenetic tree |
+|------------------|------------------------|------------------------|
+| Question | In which order should the sequences be aligned? | How are the sequences related by descent? |
+| Built from | Quick pairwise distances, often before any alignment | A multiple alignment, with an evolutionary model |
+| Typical method | UPGMA (equal rates assumed) | Neighbour joining, maximum likelihood |
+| What it is | A computational shortcut | A hypothesis about evolution |
+| Branch lengths | Not meant to be read | The amount of change |
+
+: A guide tree and a phylogenetic tree. {#tbl-session04-guide-vs-phylo}
 
 ## From alignment to tree
 

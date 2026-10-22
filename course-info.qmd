@@ -20,7 +20,7 @@ The final grade is 70% from the exam and 30% from the project, and you need 50% 
 |---|---|---|---|---|---|---|---|
 | Total score | ≥ 90% | ≥ 80% | ≥ 70% | ≥ 60% | ≥ 50% | ≥ 45% | < 45% |
 
-### Bonus points on the exam (preliminary) {#bonus}
+### Bonus points on the exam {#bonus}
 
 Up to 8 points are added to your score on the main exam (0-100):
 
