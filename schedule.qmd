@@ -23,7 +23,6 @@ Three phases: bioinformatics foundations build up to profiles and protein struct
 | 12 | [**AlphaFold & generative models of protein structure**](session12.qmd) | Primary papers (AlphaFold 1-3, ColabFold, RFdiffusion, ProteinMPNN) | From coevolution to AlphaFold; complexes (pDockQ, ipTM, ipSAE); AlphaFold3 and diffusion; the four regions of interaction prediction; protein design | **Full** (AlphaFold Server, AlphaFold DB) |
 | — | [**Capstone Project: Secondary Structure Prediction**](capstone.qmd) | — | Closes the loop opened at Session 6 | The project itself |
 
-
 ## Exam preparation {#exam-preparation}
 
 Past exams, kept as a study resource (not because this course repeats questions from them):
