@@ -25,10 +25,23 @@ The final grade is 70% from the exam and 30% from the project, and you need 50% 
 Up to 9 points are added to your score on the main exam (0-100), 3 for each of three things. For each, doing all of it gives 3 points, and every one you miss or do late takes away one point.
 
 - **Questions before the lecture: up to 3 points.** Before each lecture from Session 2 on, send in on Canvas what you want explained: a question, or a topic you want more time on. One line is enough. The Canvas survey "Questions before the lecture" closes at 18:00 the day before the lecture, so that the teacher can read your questions and answer the most common ones at the start of the lecture.
-- **Being at the lectures: up to 3 points.** Every lecture has a short live quiz on [quiz.bioinfo.se](https://quiz.bioinfo.se), which you answer on your phone after logging in with your university account. Answering it counts as being present (at least three quarters of its questions); whether your answers are right or wrong is never used in grading. Sessions 0 and 1 are one lecture, so there are 12 lectures.
+- **Being at the lectures: up to 3 points.** Every lecture has a short live quiz on [quiz.bioinfo.se](https://quiz.bioinfo.se), which you answer on your phone after logging in with your university account. Answering it counts as being present (at least three quarters of its questions); whether your answers are right or wrong is never used in grading. Sessions 0 and 1 are one lecture, so there are 12 lectures. Each of the two [Q&A sessions](#qa) you attend (by answering its check-in question when you arrive, logged in) makes up for one missed lecture.
 - **Labs on time: up to 3 points.** A lab is on time when you have passed its lab quiz and filled in its feedback survey by the due date (see [Labs](#labs)). A late lab still has to be passed to pass the course.
 
-The bonus points count only on the main exam, not on a re-exam, and only once. If you fail the exam, a re-exam is normally offered a few weeks after the course; if you have already passed (grade E or higher), there is no retake to improve the grade. Past exams are on the [Schedule](schedule.qmd#exam-preparation) page. Two question-and-answer sessions, one after Session 6 and one after Session 12, are there to ask about anything in the course before the exam; bring your questions.
+The bonus points count only on the main exam, not on a re-exam, and only once. If you fail the exam, a re-exam is normally offered a few weeks after the course; if you have already passed (grade E or higher), there is no retake to improve the grade. Past exams are on the [Schedule](schedule.qmd#exam-preparation) page. Two question-and-answer sessions, one after Session 6 and one after Session 12, prepare you for the exam.
+
+### The Q&A sessions {#qa}
+
+The Q&A sessions are not lectures. Rereading and listening to the same explanation again feel useful but do little for an exam; trying to recall what you know, and finding out what you cannot do yet, does much more. So each Q&A is a practice exam with immediate feedback:
+
+- **Recall (7 min):** with books closed, write down everything you remember about two or three central topics.
+- **Practice exam (37 min):** four exam-style questions, on paper, with the same aids as in the exam: bring your pages of notes.
+- **Break (15 min).**
+- **Marking in pairs (20 min):** you mark each other's answers with the marking guide, so you see what a full answer looks like. The teaching assistants help.
+- **What the room got wrong (30 min):** an anonymous poll shows which questions were hardest, and the teacher goes through those and your questions.
+- **What to study now (8 min):** you write down your two weakest topics.
+
+Nothing is handed in or graded, and the poll is anonymous. The only thing recorded is a logged-in check-in question when you arrive: attending a Q&A makes up for one missed lecture (see [Bonus points](#bonus)). You can post questions anonymously during the session, or ask them on the Canvas forum before it.
 
 ## Labs {#labs}
 
