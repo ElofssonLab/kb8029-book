@@ -1,6 +1,6 @@
 # Course Schedule {.unnumbered}
 
-The course has twelve sessions and a capstone project. The table below lists, for each session, its page, its main reading, its biological case study and the size of its lab. Dates, times and rooms are in the Canvas schedule and calendar, which can also be subscribed to as <https://course.bioinfo.se/kb8029.ics>. See [Course Information & Logistics](course-info.qmd) for grading, lab policy, and how the course actually runs.
+The course has twelve sessions and a capstone project. The table below lists, for each session, its page, its main reading, its biological case study and the size of its lab. Dates, times and rooms are in the Canvas schedule and calendar, which can also be subscribed to as <https://course.bioinfo.se/kb8029.ics>. How to get to SciLifeLab is on the [Session 0](session00.qmd#at-scilifelab) page. See [Course Information & Logistics](course-info.qmd) for grading, lab policy, and how the course actually runs.
 
 Three phases: bioinformatics foundations build up to profiles and protein structure (Sessions 3-6); a convergence zone (Sessions 7-9) where the classical material directly motivates and is resolved by neural networks; then a deep-learning arc (Sessions 10-12) that keeps extending the same secondary-structure-prediction thread.
 

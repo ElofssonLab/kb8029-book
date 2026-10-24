@@ -22,10 +22,11 @@ The final grade is 70% from the exam and 30% from the project, and you need 50% 
 
 ### Bonus points on the exam {#bonus}
 
-Up to 8 points are added to your score on the main exam (0-100):
+Up to 9 points are added to your score on the main exam (0-100), 3 for each of three things. For each, doing all of it gives 3 points, and every one you miss or do late takes away one point.
 
-- **Labs on time: up to 4 points.** You get 4 points if you pass every lab quiz by its due date (see [Labs](#labs)), 2 points if at most two of them are late, and none if three or more are late. A late lab still has to be passed to pass the course.
-- **Being at the lectures: up to 4 points.** Every lecture has a short live quiz on [quiz.bioinfo.se](https://quiz.bioinfo.se), which you answer on your phone after logging in with your university account. Answering it counts as being present (at least three quarters of its questions); whether your answers are right or wrong is never used in grading. Present at all 12 lectures (Sessions 0 and 1 are one lecture) gives 4 points, and every missed lecture takes away one point, so four or more missed lectures give none.
+- **Questions before the lecture: up to 3 points.** Before each lecture from Session 2 on, send in on Canvas what you want explained: a question, or a topic you want more time on. One line is enough. The Canvas survey "Questions before the lecture" closes at 18:00 the day before the lecture, so that the teacher can read your questions and answer the most common ones at the start of the lecture.
+- **Being at the lectures: up to 3 points.** Every lecture has a short live quiz on [quiz.bioinfo.se](https://quiz.bioinfo.se), which you answer on your phone after logging in with your university account. Answering it counts as being present (at least three quarters of its questions); whether your answers are right or wrong is never used in grading. Sessions 0 and 1 are one lecture, so there are 12 lectures.
+- **Labs on time: up to 3 points.** A lab is on time when you have passed its lab quiz and filled in its feedback survey by the due date (see [Labs](#labs)). A late lab still has to be passed to pass the course.
 
 The bonus points count only on the main exam, not on a re-exam, and only once. If you fail the exam, a re-exam is normally offered a few weeks after the course; if you have already passed (grade E or higher), there is no retake to improve the grade. Past exams are on the [Schedule](schedule.qmd#exam-preparation) page. Two question-and-answer sessions, one after Session 6 and one after Session 12, are there to ask about anything in the course before the exam; bring your questions.
 
@@ -36,6 +37,7 @@ Most sessions have a lab (see the [Course Schedule](schedule.qmd)): a notebook i
 - **Mandatory.** Every lab quiz must be passed, with at least 50% correct.
 - **Due before the next lecture.** Each lab quiz is due at 23:59 the evening before the next lecture (the last one the evening before the exam; when the next lecture is the morning after the lab, you get one more day), so that you come to each lecture with the previous lab done; the dates are on Canvas.
 - **Available as soon as published.** You do not have to wait for the lecture.
+- **Feedback after each lab.** The last part of every lab is a short feedback survey on Canvas, due with the lab quiz. It is anonymous: Canvas records that you filled it in, but nobody can see what you wrote. It asks for concrete suggestions on the lab and the session's material (what was too long, what background was missing, errors, unclear instructions), so that we can improve the course. Errors and suggestions can also be sent at any time with the [feedback form](https://bioinfo.se/internal/kb8029-feedback/).
 - **One redo chance** if you fail, normally only the next time the course runs, and the lab may have changed by then.
 
 ## Expected workload {#workload}

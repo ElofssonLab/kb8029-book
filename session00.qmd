@@ -79,7 +79,15 @@ To pass, you need to pass all the **labs**, the **capstone project** (a secondar
 
 ## At SciLifeLab
 
-The lectures and labs are at SciLifeLab in Solna. You need a SciLifeLab access card to enter and leave the building; when and where to collect it is announced by email or on Canvas.
+The lectures and labs are at SciLifeLab in Solna:
+
+- **Address:** Science for Life Laboratory (SciLifeLab), Tomtebodavägen 23A, 171 65 Solna ([map](https://www.google.com/maps/search/?api=1&query=Science+for+Life+Laboratory,+Tomtebodav%C3%A4gen+23A,+17165+Solna,+Sweden)).
+- **Public transport:** bus 3 (or others) to Tomteboda-Karolinska inst. (Solna).
+- **Rooms:** most lectures and labs are in Air&Fire (Gamma 2); a few events are in other rooms in Gamma 2, Gamma 7 or Alfa 2. The room of each lecture and lab is in the Canvas schedule.
+- **Teachers' offices:** Alfa, floor 6.
+- **Directions** from the research group's page: <https://bioinfo.se/contact/>.
+
+You need a SciLifeLab access card to enter and leave the building; when and where to collect it is announced by email or on Canvas.
 
 - Use your card **every time** you pass the speed gates, on the way in and on the way out.
 - The gates let **one person through at a time**. To let a visitor in, use your card twice, with a few seconds in between, or the alarm goes off.
