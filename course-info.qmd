@@ -101,7 +101,7 @@ You may use AI tools during the course, but not during the exam. The final repor
 
 ## Schedule
 
-The schedule is on Canvas. As far as possible, teaching is on Mondays, Wednesdays and Fridays, with lectures 09:00-12:00 and labs 13:00-16:00. What each session covers is on the [Course Schedule](schedule.qmd) page.
+The schedule is on Canvas. As far as possible, teaching is on Mondays, Wednesdays and Fridays, with lectures 09:00-12:00 and labs 13:00-16:00. The exceptions are on the Canvas schedule; note that the labs of Sessions 8 and 9 (Wednesday 10 and Friday 12 March) are in the Lunch Room (Gamma 2) and **start at 14:00**, an hour later. What each session covers is on the [Course Schedule](schedule.qmd) page.
 
 ## Administration
 
