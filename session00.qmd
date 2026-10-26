@@ -69,7 +69,7 @@ Everything in this course, the pages, the notebooks, the labs and the slides, is
 
 - **With a university account:** use the [feedback form](https://bioinfo.se/internal/kb8029-feedback/) and log in with your university account. You can choose the session, say where the problem is, and send it anonymously if you like. The form is also linked at the bottom of every page.
 - **With a GitHub account:** open an [issue on the course's GitHub page](https://github.com/ElofssonLab/kb8029-book/issues). Issues are public, so everyone can see the problem, the discussion and the fix; they are not anonymous. This works well for errors in the text and for notebooks that do not run.
-- **Without either:** email <arne@bioinfo.se> with the subject "KB8029 feedback".
+- **Without either:** email [arne\@bioinfo.se](mailto:arne@bioinfo.se){.email} with the subject "KB8029 feedback".
 
 Feedback never affects your grades. The form is for improving the material; questions about the content belong in the Canvas discussion forum, where everyone sees the answer. The official course evaluation at the end of the course is separate, so please fill that in as well.
 
