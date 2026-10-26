@@ -82,7 +82,7 @@ print(genes[genes["length"] > 600])        # a table with named columns and mixe
 | Biopython `Seq` / `SeqRecord` | a biological sequence / a sequence with its identifier, description and annotations | reverse complement, translate, GC content, parse and write FASTA or GenBank (@sec-s02-bioobjects) |
 | PyTorch `Tensor` | an array that can live on a GPU and remember how it was computed | everything an array does, plus automatic gradients (Session 7 onwards) |
 
-: Python objects for biological data, what they represent and what they are useful for. {#tbl-s02-objects}
+: Python objects for biological data, what they represent and what they are useful for.
 
 Choosing the right object therefore matters. On a list, `lengths * 2` silently does something you did not mean, whereas on an array it does the maths you expect and multiplies every number by 2.
 
@@ -156,13 +156,13 @@ sns.scatterplot(data=df, x="log2_FoldChange", y="minus_log10_pvalue",
 The code above uses two of the four plotting libraries you will meet in Python. You do not need all of them, but it helps to know what each is for:
 
 | Library | What it is for | The nearest thing in R |
-|---------|----------------|------------------------|
+|-----------------|----------------------|---------------------------------|
 | **matplotlib** | the foundation: full control of every line, label and axis; the others are built on it | base graphics (`plot`, `hist`, `par(mfrow = ...)`) |
 | **seaborn** | statistical plots straight from a DataFrame by column name: distributions, groups, fitted lines with confidence bands, small multiples | `ggplot2` in spirit (`hue=` is `colour =`, `col=` is `facet_wrap`) |
 | **plotnine** | the grammar of graphics, almost word for word `ggplot2`: `ggplot(df, aes(...)) + geom_point()` | `ggplot2` itself |
 | **plotly** | interactive plots: hover over a point to see which gene it is, zoom, hide a group | `plotly` (the same library) and `ggplotly()` |
 
-: Python's main plotting libraries and their nearest R equivalents. {#tbl-s02-plotting}
+: Python's main plotting libraries and their nearest R equivalents.
 
 If you learnt `ggplot2` in your R course, the habits carry over. Python's DataFrame plays the role of R's data frame, and seaborn or plotnine take column names as `ggplot2` does (as strings in Python). The main difference is matplotlib's: a figure (`fig`) and its panels (`ax`) are objects that you change by calling their methods, such as `ax.set_xscale("log")`, instead of adding layers with `+`.
 
@@ -478,7 +478,7 @@ The notebook has a worked solution, which finds the following:
 | *NGB*  | 1,778     | 0.62        | 151          | 1,322             |
 | *CYGB* | 1,962     | 0.62        | 190          | 1,389             |
 
-: The globin genes of the mini challenge, from the notebook's worked solution. {#tbl-s02-globins}
+: The globin genes of the mini challenge, from the notebook's worked solution.
 
 The proteins are all about the same size (142-190 amino acids, one globin fold each), but the mRNAs differ more than threefold in length. Almost all of the difference is untranslated sequence (UTRs), which ranges from 147 nt in *HBA2* to 1,389 nt in *CYGB*. A transcript's length therefore says little about its protein. With six genes, Pearson's correlation between mRNA and protein length is $r = 0.78$, but $p = 0.07$, so a strong-looking correlation from few points is only weak evidence (the second discussion problem).
 
