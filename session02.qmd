@@ -47,6 +47,8 @@ This makes notebooks well suited to exploring data, for three reasons:
 - **Results stay next to the code that made them**, so you, a teacher or a colleague can see what was done and what came out.
 - **Text explains the reasoning**, which a plain script does not.
 
+In short, the big advantage of notebooks is their **flexibility**. A common use is data analysis: you might have a large dataset that takes time to load and process, and later want to make new plots or run additional statistical tests on it. If you write a program and modify it for each new test, you have to wait for the dataset to load every time, whereas in a notebook you load it once and then explore the data for as long as you want.
+
 The price of this flexibility is **hidden state**. A notebook's variables live in the memory of a running Python process (the *kernel*), not on the page. Running cells out of order, re-running one cell several times, or editing a cell without re-running it all leave the memory different from what the page shows. The notebook has a small demonstration (@sec-s02-unknown), in which a cell that adds 1 to `counter` gives a new number every time you re-run it, although its code never changes. This is one of the most common sources of confusion for new notebook users, and the remedy is simple:
 
 ::: callout-important
@@ -80,7 +82,7 @@ print(genes[genes["length"] > 600])        # a table with named columns and mixe
 | Biopython `Seq` / `SeqRecord` | a biological sequence / a sequence with its identifier, description and annotations | reverse complement, translate, GC content, parse and write FASTA or GenBank (@sec-s02-bioobjects) |
 | PyTorch `Tensor` | an array that can live on a GPU and remember how it was computed | everything an array does, plus automatic gradients (Session 7 onwards) |
 
-: Python objects for biological data, what they represent and what they are useful for.
+: Python objects for biological data, what they represent and what they are useful for. {#tbl-s02-objects}
 
 Choosing the right object therefore matters. On a list, `lengths * 2` silently does something you did not mean, whereas on an array it does the maths you expect and multiplies every number by 2.
 
@@ -148,6 +150,25 @@ sns.scatterplot(data=df, x="log2_FoldChange", y="minus_log10_pvalue",
 - **seaborn** draws from a DataFrame by column name, and colours points by a third column (`hue=`) in one argument.
 - **Plots reveal how the data were made, too.** The empty band around zero in the left and middle panels is the pre-filtering from @sec-s02-explore seen again. Genes whose expression barely changed rarely reach $p < 0.12$, so they are not in the file. A complete experiment would have its tallest histogram bar at zero.
 - Label your axes with units, and use a **log scale** for data that span orders of magnitude, such as expression levels. On a linear axis, the middle panel would show 3,001 points squeezed against the left edge, plus a few outliers.
+
+### Plotting libraries, and what you know from R {#sec-s02-plotting}
+
+The code above uses two of the four plotting libraries you will meet in Python. You do not need all of them, but it helps to know what each is for:
+
+| Library | What it is for | The nearest thing in R |
+|---------|----------------|------------------------|
+| **matplotlib** | the foundation: full control of every line, label and axis; the others are built on it | base graphics (`plot`, `hist`, `par(mfrow = ...)`) |
+| **seaborn** | statistical plots straight from a DataFrame by column name: distributions, groups, fitted lines with confidence bands, small multiples | `ggplot2` in spirit (`hue=` is `colour =`, `col=` is `facet_wrap`) |
+| **plotnine** | the grammar of graphics, almost word for word `ggplot2`: `ggplot(df, aes(...)) + geom_point()` | `ggplot2` itself |
+| **plotly** | interactive plots: hover over a point to see which gene it is, zoom, hide a group | `plotly` (the same library) and `ggplotly()` |
+
+: Python's main plotting libraries and their nearest R equivalents. {#tbl-s02-plotting}
+
+If you learnt `ggplot2` in your R course, the habits carry over. Python's DataFrame plays the role of R's data frame, and seaborn or plotnine take column names as `ggplot2` does (as strings in Python). The main difference is matplotlib's: a figure (`fig`) and its panels (`ax`) are objects that you change by calling their methods, such as `ax.set_xscale("log")`, instead of adding layers with `+`.
+
+Notebooks make plotting **interactive** in two ways. First, you change a plot and re-run only its cell, with the data already in memory, and see the result at once (the same as running one chunk at a time in RStudio). Second, a running notebook can show plots you interact with: plotly's hover answers the first question you have about any outlier ("which gene is that?"), and a slider (from `ipywidgets`) can redraw a volcano plot as you move its p-value and fold-change thresholds. For a figure in a report or paper, use a static plot, label the axes with units, leave out the title (the caption says what the figure shows) and save it at a high resolution, for example `fig.savefig("volcano.png", dpi=300, bbox_inches="tight")`.
+
+The **optional** notebook [`notebooks/session02-plotting-gallery.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session02-plotting-gallery.ipynb) shows each library on this dataset, with the `ggplot2` code next to its plotnine version, plotly's hover and zoom, and a volcano plot with sliders. Run it on Colab, because the interactive parts need a running notebook. Nothing in the lab or the exam depends on it.
 
 ## Asking quantitative questions {#sec-s02-questions}
 
@@ -457,7 +478,7 @@ The notebook has a worked solution, which finds the following:
 | *NGB*  | 1,778     | 0.62        | 151          | 1,322             |
 | *CYGB* | 1,962     | 0.62        | 190          | 1,389             |
 
-: The globin genes of the mini challenge, from the notebook's worked solution.
+: The globin genes of the mini challenge, from the notebook's worked solution. {#tbl-s02-globins}
 
 The proteins are all about the same size (142-190 amino acids, one globin fold each), but the mRNAs differ more than threefold in length. Almost all of the difference is untranslated sequence (UTRs), which ranges from 147 nt in *HBA2* to 1,389 nt in *CYGB*. A transcript's length therefore says little about its protein. With six genes, Pearson's correlation between mRNA and protein length is $r = 0.78$, but $p = 0.07$, so a strong-looking correlation from few points is only weak evidence (the second discussion problem).
 
