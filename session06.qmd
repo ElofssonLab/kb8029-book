@@ -110,6 +110,7 @@ acids, which folds into a 3D shape. Structural biology describes the
 result at four levels, and in this course each level comes with its own
 computational problem:
 
+::: {#tbl-s06-levels}
 | Level | What it is | Computational task | Where in the course |
 |---|---|---|---|
 | **Primary** | the amino-acid sequence | alignment, BLAST, profiles | Sessions 3–5 |
@@ -117,7 +118,8 @@ computational problem:
 | **Tertiary** | the 3D fold of one chain | structure comparison, prediction | this session; Session 12 |
 | **Quaternary** | several chains packed together | interfaces, complexes | this session; Session 12 |
 
-: The four levels of protein structure and where they appear in the course. {#tbl-s06-levels}
+The four levels of protein structure and where they appear in the course.
+:::
 
 - An **α-helix** is a coil held together by hydrogen bonds between the
   backbone N-H and C=O groups of residues four apart. A **β-sheet** is
@@ -238,6 +240,7 @@ from the 3D coordinates, by asking which residues occupy the same
 position in the two folds. The notebook compares β-globin both ways with
 five proteins, ranging from a close paralog to an unrelated fold:
 
+::: {#tbl-s06-globins}
 | Compared with β-globin | Sequence identity\* | Sequence-only score (shuffled max) | Residue pairs agreeing | TM-score |
 |---|---|---|---|---|
 | α-globin (human, 2HHB) | 43% | 288 (43) | 95% | 0.88 |
@@ -246,7 +249,8 @@ five proteins, ranging from a close paralog to an unrelated fold:
 | truncated haemoglobin N (*M. tuberculosis*, 1IDR) | 16% | 28 (49) | 0% | 0.57 |
 | GFP (jellyfish, 1EMA) | 6% | 25 (50) | — | 0.33 |
 
-: Five proteins compared with β-globin, by sequence and by structure. {#tbl-s06-globins}
+Five proteins compared with β-globin, by sequence and by structure.
+:::
 
 \*Identity over the structurally aligned residues. "Sequence-only score"
 is the best Smith–Waterman alignment with BLOSUM62, and the number in
@@ -318,12 +322,14 @@ Session 5 ended with MMseqs2, which searches billions of sequences.
 **Foldseek** (van Kempen, Steinegger et al., 2024), from the same group,
 does the same for structures:
 
+::: {#tbl-s06-search}
 | | Search tool | Searches with |
 |---|---|---|
 | Sequence (Session 5) | BLAST, MMseqs2 | the amino-acid sequence |
 | Structure (this session) | Foldseek | a "structural sequence" |
 
-: Searching by sequence and by structure. {#tbl-s06-search}
+Searching by sequence and by structure.
+:::
 
 The key idea of Foldseek is a change of representation. For each
 residue, Foldseek looks at the local 3D environment (the geometry

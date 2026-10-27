@@ -320,6 +320,7 @@ A derivative tells you how much a function's output changes for a small change i
 
 The table below lists the derivatives that come up constantly in this course. They are worth memorising rather than re-deriving every time:
 
+::: {#tbl-s01-derivatives}
 | $f(x)$                     | $f'(x)$                    |
 |----------------------------|----------------------------|
 | constant $c$               | $0$                        |
@@ -330,7 +331,8 @@ The table below lists the derivatives that come up constantly in this course. Th
 | $\cos(x)$                  | $-\sin(x)$                 |
 | $\sigma(z) = 1/(1+e^{-z})$ | $\sigma(z)\,(1-\sigma(z))$ |
 
-: Derivatives used throughout the course.
+Derivatives used throughout the course.
+:::
 
 The last row deserves special attention. It is the derivative that Session 9's backpropagation needs for every sigmoid-activated unit in a network. It is usually written in terms of $\sigma(z)$ itself, rather than expanded in $e^{-z}$, because $\sigma(z)$ has already been computed on the forward pass, so the derivative costs nothing extra.
 
@@ -370,6 +372,7 @@ $$
 
 where $\eta$ (eta) is a small positive **learning rate** that controls the step size. We can watch this converge, one step at a time, for the one-variable function $f(x) = (x - 3)^2$, whose derivative is $f'(x) = 2(x-3)$, starting from $x_0 = 0$ with $\eta = 0.3$:
 
+::: {#tbl-s01-gradient-descent}
 | $n$ | $x_n$ | $f(x_n)$ | $f'(x_n)$ | $x_{n+1} = x_n - 0.3 f'(x_n)$ |
 |-----|-------|----------|-----------|-------------------------------|
 | 0   | 0.000 | 9.00     | -6.00     | 1.800                         |
@@ -377,7 +380,8 @@ where $\eta$ (eta) is a small positive **learning rate** that controls the step 
 | 2   | 2.520 | 0.23     | -0.96     | 2.808                         |
 | 3   | 2.808 | 0.037    | -0.384    | 2.923                         |
 
-: Gradient descent on $f(x) = (x-3)^2$, starting from $x_0 = 0$ with $\eta = 0.3$.
+Gradient descent on $f(x) = (x-3)^2$, starting from $x_0 = 0$ with $\eta = 0.3$.
+:::
 
 ![The same four steps drawn on the curve $f(x) = (x-3)^2$. Each arrow is one update $x_{n+1} = x_n - 0.3\,f'(x_n)$: the steps are long where the curve is steep and short near the minimum at $x = 3$ (star), although $\eta$ stays the same.](figs/session01-gradient-descent.png){#fig-session01-gradient-descent width="75%"}
 
@@ -607,6 +611,7 @@ $$
 
 Entropy therefore measures how unpredictable, or how *variable*, the outcomes are:
 
+::: {#tbl-s01-entropy}
 | Distribution | Entropy |
 |------------------------------------|------------------------------------|
 | one base always (a fully conserved alignment column) | 0 bits |
@@ -615,7 +620,8 @@ Entropy therefore measures how unpredictable, or how *variable*, the outcomes ar
 | all four bases equally likely | 2 bits, the maximum for DNA |
 | all 20 amino acids equally likely | $\log_2 20 \approx 4.32$ bits, the maximum for proteins |
 
-: The entropy of some distributions of bases and amino acids.
+The entropy of some distributions of bases and amino acids.
+:::
 
 The difference from the maximum, for example $2 - H$ for a DNA column, is the column's **information content**. It says how much knowing the family tells you about that position, and it is what the height of a stack in a sequence logo shows (Session 4).
 

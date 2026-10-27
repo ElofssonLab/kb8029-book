@@ -169,6 +169,7 @@ is small enough to do completely by hand. We align $x =
 \texttt{GCAT}$ against $y = \texttt{GAC}$, with match $= +1$, mismatch
 $= -1$ and gap $= -1$:
 
+::: {#tbl-s04-gcat-gac}
 |       |   | G  | A  | C  |
 |---|---|---|---|---|
 |       | **0** | -1 | -2 | -3 |
@@ -177,7 +178,8 @@ $= -1$ and gap $= -1$:
 | **A** | -3 | -1 | **1** | 0 |
 | **T** | -4 | -2 | 0 | **0** |
 
-: The dynamic-programming matrix for aligning $x = \texttt{GCAT}$ with $y = \texttt{GAC}$ (match $+1$, mismatch $-1$, gap $-1$). The traceback path of the optimal alignment is in bold. {#tbl-s04-gcat-gac}
+The dynamic-programming matrix for aligning $x = \texttt{GCAT}$ with $y = \texttt{GAC}$ (match $+1$, mismatch $-1$, gap $-1$). The traceback path of the optimal alignment is in bold.
+:::
 
 Tracing back from the bottom-right corner (score 0) along the cells in
 bold in @tbl-s04-gcat-gac gives the optimal global alignment:
@@ -360,6 +362,7 @@ discussion problem shows such a case. To infer how the sequences are
 actually related, we need a method built for phylogeny. The two kinds
 of tree look alike but answer different questions:
 
+::: {#tbl-session04-guide-vs-phylo}
 |  | Guide tree | Phylogenetic tree |
 |------------------|------------------------|------------------------|
 | Question | In which order should the sequences be aligned? | How are the sequences related by descent? |
@@ -368,7 +371,8 @@ of tree look alike but answer different questions:
 | What it is | A computational shortcut | A hypothesis about evolution |
 | Branch lengths | Not meant to be read | The amount of change |
 
-: A guide tree and a phylogenetic tree. {#tbl-session04-guide-vs-phylo}
+A guide tree and a phylogenetic tree.
+:::
 
 ## From alignment to tree
 

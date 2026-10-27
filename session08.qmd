@@ -44,6 +44,7 @@ Within supervised learning, the kind of problem is decided by the *label*:
 - in **regression**, the label is a **number**;
 - in **classification**, the label is one of a fixed set of **categories**.
 
+::: {#tbl-s08-problem-types}
 | Regression (predict a number) | Classification (predict a category) |
 |------------------------------------|------------------------------------|
 | Fraction of residues in helices (below) | Subcellular compartment: 5 classes (below) |
@@ -52,7 +53,8 @@ Within supervised learning, the kind of problem is decided by the *label*:
 | Binding affinity (pK~d~) of a drug to a target | Helix / strand / coil for each residue (Session 7, Session 9) |
 | Relative solvent accessibility of a residue (0-1) | Is this residue buried or exposed? |
 
-: Regression and classification problems in biology.
+Regression and classification problems in biology.
+:::
 
 The last row shows that the same biology can often be posed either way. Setting a threshold on a continuous quantity turns regression into classification, which makes the problem easier but throws information away.
 
@@ -84,13 +86,15 @@ The decision boundary ($\sigma(z) = 0.5$, i.e. $z = 0$) is still the perceptron'
 
 Once the problem type is chosen, three things downstream follow from it:
 
+::: {#tbl-s08-consequences}
 |   | Regression | Classification |
 |------------------------|------------------------|------------------------|
 | Output unit | linear (no activation) | sigmoid (2 classes) / softmax ($K$ classes) |
 | Loss minimised in training (Session 9) | mean squared error | cross-entropy (Session 1) |
 | Evaluation metrics (@sec-s08-evaluation) | RMSE, Pearson $r$, $R^2$ | confusion matrix, precision, recall, F1, MCC, AUROC |
 
-: What follows from the choice between regression and classification.
+What follows from the choice between regression and classification.
+:::
 
 ### A running toy example: 3×3 pixel patterns
 

@@ -153,6 +153,7 @@ Adam is a good default, not a universal winner. In the figure, tuned momentum en
 
 We train the models with early stopping on 20,000 variants, with 5,000 for validation and 20,000 for testing:
 
+::: {#tbl-s09-gb1}
 | Model                       | Weights | Train MAE | Val MAE | Test MAE | **Test** $R^2$ |
 |------------|------------|------------|------------|------------|------------|
 | Linear (additive)           | 81      | 0.379     | 0.371   | 0.385    | **0.496**      |
@@ -161,7 +162,8 @@ We train the models with early stopping on 20,000 variants, with 5,000 for valid
 | 64/64 + dropout 0.2         | 9,409   | 0.220     | 0.242   | 0.247    | 0.798          |
 | 256/256                     | 86,785  | 0.193     | 0.252   | 0.259    | 0.779          |
 
-: Models trained on the GB1 fitness data. {#tbl-s09-gb1}
+Models trained on the GB1 fitness data.
+:::
 
 ![Training (dashed) and validation (solid) MAE per epoch, for the additive model and the 64/64 network.](figs/session09-gb1-curves.png){#fig-session09-gb1-curves width="70%"}
 
@@ -183,6 +185,7 @@ Training accuracy reaches **1.000**, so the network memorises every training pro
 
 Moreover, the simple baseline wins, as the test set (used once) shows:
 
+::: {#tbl-s09-localisation}
 | Metric | Untrained network (Session 8, val) | Trained network (test) | Logistic regression (test) |
 |------------------|------------------|------------------|------------------|
 | Accuracy | 0.181 | 0.514 | **0.569** |
@@ -190,7 +193,8 @@ Moreover, the simple baseline wins, as the test set (used once) shows:
 | MCC | −0.027 | 0.394 | **0.461** |
 | Macro AUROC | 0.474 | 0.831 | **0.849** |
 
-: The localisation classifier: the untrained network of Session 8, the trained network and logistic regression. {#tbl-s09-localisation}
+The localisation classifier: the untrained network of Session 8, the trained network and logistic regression.
+:::
 
 Training works, since every number is far above chance, but **the linear model is better**. Before believing that a bigger model is better, always compare it against a simple baseline.
 
@@ -248,13 +252,15 @@ On GB1, dropout 0.2 raises the training error a little (MAE 0.212 → 0.220) and
 
 Session 8's rules apply to every comparison in this session. Choices (epochs, sizes, regularisation) are made on the validation set, the test set is used once, and every model is compared with a simple baseline. The table puts the three datasets side by side:
 
+::: {#tbl-s09-datasets}
 | Dataset | Training examples | Network weights | Examples per weight | Network vs. linear |
 |---------------|---------------|---------------|---------------|---------------|
 | Breast cancer | 398 | 513 | 0.78 | tie (CV accuracy 0.979 vs. 0.979) |
 | GB1 fitness | 20,000 | 9,409 | 2.1 | **network** (test $R^2$ 0.787 vs. 0.496) |
 | Protein localisation | 486 | 192,389 | 0.003 | **linear** (test accuracy 0.514 vs. 0.569) |
 
-: The three datasets of this session side by side. {#tbl-s09-datasets}
+The three datasets of this session side by side.
+:::
 
 - **Breast cancer:** the network trains well, but a linear model is just as good, because the problem is nearly additive.
 - **GB1 fitness:** the network clearly wins, because the relationship is non-additive (epistasis) and there are enough data to learn it.

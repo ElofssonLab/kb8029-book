@@ -104,6 +104,7 @@ words besides the query word `LWG` itself clear a typical threshold of
 $T=12$. The notebook computes them directly from BLOSUM62, and 49 words
 clear the threshold in total. The top ones are:
 
+::: {#tbl-s05-neighbours}
 | Neighbour word | Score vs. `LWG` |
 |---|---|
 | `LWG` | 21 |
@@ -117,7 +118,8 @@ clear the threshold in total. The top ones are:
 | `YWG` | 16 |
 | `KWG` | 15 |
 
-: The highest-scoring neighbour words of the query word `LWG`. {#tbl-s05-neighbours}
+The highest-scoring neighbour words of the query word `LWG`.
+:::
 
 These query words and their high-scoring neighbours go into a **lookup
 table**, which is built once per query and records, for every 3-letter
@@ -223,6 +225,7 @@ significance, read the E-value.
 (beta-globin, `P68871`) against its five closest human globin relatives
 gives the following hits:
 
+::: {#tbl-s05-hbb-hits}
 | Hit | % identity | E-value | Bit score |
 |---|---|---|---|
 | Delta-globin (`HBD`) | 93.2% | 9.3×10⁻¹⁰⁵ | 284 |
@@ -231,7 +234,8 @@ gives the following hits:
 | Zeta-globin (`HBAZ`) | 35.9% | 3.8×10⁻³² | 100 |
 | Myoglobin (`MYG`) | 16.0% | 63 | 10.8 |
 
-: A local BLASTP search of *HBB* against its five closest human globin relatives. {#tbl-s05-hbb-hits}
+A local BLASTP search of *HBB* against its five closest human globin relatives.
+:::
 
 The first four are all confident, high-quality hits, with high percent
 identity, astronomically small E-values and comfortably high bit scores.

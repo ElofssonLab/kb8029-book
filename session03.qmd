@@ -38,6 +38,7 @@ The field's answer is the **International Nucleotide Sequence Database Collabora
 
 The most useful skill of this session is to know what kind of identifier you are holding, because one gene has many. For *HBB* alone, the table lists seven:
 
+::: {#tbl-s03-identifiers}
 | Identifier | Kind | What it means |
 |------------------|------------------|------------------------------------|
 | `HBB` | approved gene symbol | assigned by the HGNC (HUGO Gene Nomenclature Committee) for human genes, and widely used across databases (which may also list synonyms) |
@@ -48,7 +49,8 @@ The most useful skill of this session is to know what kind of identifier you are
 | `HBB_HUMAN` | UniProt entry name | a readable label for the same entry, which can change |
 | `2HHB` | PDB ID | one experimental structure; *HBB* appears in hundreds of them |
 
-: Seven identifiers for the human *HBB* gene and its products. {#tbl-s03-identifiers}
+Seven identifiers for the human *HBB* gene and its products.
+:::
 
 An accession is unique only within its own database. The same gene has different accessions in RefSeq, Ensembl, UniProt and the PDB, and the records are tied together by explicit **cross-references**. The RefSeq protein record `NP_000509.1`, for example, states that it was translated from `NM_000518.5`, and the UniProt entry `P68871` lists both. One biological entity thus has many linked records.
 
@@ -56,6 +58,7 @@ Two habits follow from this. First, to move between records, follow an explicit 
 
 RefSeq accessions also encode the kind of record in their prefix:
 
+::: {#tbl-s03-refseq}
 | Prefix | Record | Example |
 |------------------------|------------------------|------------------------|
 | `NC_` | genomic: a complete chromosome | `NC_000011.10` |
@@ -64,7 +67,8 @@ RefSeq accessions also encode the kind of record in their prefix:
 | `NR_` | non-coding RNA, not predicted | — |
 | `XM_` / `XP_` | mRNA / protein **predicted** by NCBI's genome-annotation pipeline | `XP_011536997.1` |
 
-: RefSeq accession prefixes and the kind of record they denote. {#tbl-s03-refseq}
+RefSeq accession prefixes and the kind of record they denote.
+:::
 
 ### Where does a record's information come from?
 
@@ -113,6 +117,7 @@ A third UniProt component, **UniParc**, stores every unique protein sequence onc
 
 A family or domain database tells you which group a sequence belongs to, which is often the fastest way to learn something about a new or poorly characterised protein. **InterPro** (EMBL-EBI) integrates protein family, domain and site signatures from over a dozen member databases. One of them is **Pfam**, whose own website was retired in 2023 and merged into InterPro. `P68871` matches five InterPro entries, nested from broad to specific:
 
+::: {#tbl-s03-interpro}
 | InterPro accession | Name                                       |
 |--------------------|--------------------------------------------|
 | IPR009050          | Globin-like superfamily                    |
@@ -121,7 +126,8 @@ A family or domain database tells you which group a sequence belongs to, which i
 | IPR050056          | Hemoglobin and related oxygen transporters |
 | IPR002337          | Hemoglobin, beta-type                      |
 
-: The five InterPro entries that match β-globin (`P68871`), from broad to specific. {#tbl-s03-interpro}
+The five InterPro entries that match β-globin (`P68871`), from broad to specific.
+:::
 
 Most of these signatures are profile hidden Markov models, the method that Session 5 explains. For non-coding RNA, **Rfam** plays the same role. It uses covariance models, which score the conserved base-pairing pattern together with the sequence, because an RNA's function depends on its fold. *HBB* is protein-coding and has no Rfam entry; Rfam's tRNA family, for comparison, is RF00005.
 
@@ -146,6 +152,7 @@ Interaction databases, too, differ in the kind of evidence they hold. They are l
 
 Put together, the answers to the five questions form a short **database dossier** for *HBB*. Each row is a different database's record of the same biology, and each is reached from the previous one by a cross-reference:
 
+::: {#tbl-s03-questions}
 | Question | Database | Record | Main evidence for the claim |
 |------------------|------------------|------------------|------------------|
 | Where is the sequence? | NCBI Gene; RefSeq | `3043`; `NC_000011.10` → `NM_000518.5` → `NP_000509.1` | curated (RefSeq) |
@@ -155,7 +162,8 @@ Put together, the answers to the five questions form a short **database dossier*
 | What does it interact with? | IntAct; Complex Portal | HBB-HBZ; `CPX-2158` (HbA) | experimental; curated |
 | Where is it described? | PubMed | PMID 6726807 (Fermi et al. 1984, *J Mol Biol* 175:159), the paper behind 2HHB | literature |
 
-: The databases that answer each question about β-globin, and the main evidence behind each answer. {#tbl-s03-questions}
+The databases that answer each question about β-globin, and the main evidence behind each answer.
+:::
 
 The notebook fetches every one of these records live, and the lab ends with a dossier of your own, for human myoglobin.
 
@@ -172,6 +180,7 @@ The same applies to the literature. **PubMed**, built by NCBI on the NLM's MEDLI
 
 A good habit for every database is to **predict what a query will return, run it, and check whether the result makes sense.** PubMed's Boolean operators make this easy, because they behave like operations on sets:
 
+::: {#tbl-s03-pubmed}
 | Query | Result count | Prediction |
 |------------------------|------------------------|------------------------|
 | `hemoglobin` | 288,577 | — |
@@ -180,7 +189,8 @@ A good habit for every database is to **predict what a query will return, run it
 | `hemoglobin OR malaria` | 409,561 | 288,577 + 125,442 − 4,458 (union) |
 | `hemoglobin NOT malaria` | 284,119 | 288,577 − 4,458 (difference) |
 
-: PubMed queries combined with Boolean operators. {#tbl-s03-pubmed}
+PubMed queries combined with Boolean operators.
+:::
 
 **Quotation marks** are the second tool. The query `hemoglobin beta` is read as `hemoglobin AND beta`, that is, both words anywhere, in any order. The query `"hemoglobin beta"` requires the exact phrase, and it usually returns far fewer records. The third discussion problem asks you to predict the counts for a new pair of terms before running the searches.
 

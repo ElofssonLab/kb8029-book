@@ -69,6 +69,7 @@ The regions show up when the experimentally supported signal peptides are aligne
 
 The split is homology-aware (Session 8). The proteins fall into 3,205 MMseqs2 clusters at 30% identity, which are divided into 3,432 training, 737 validation and 741 test proteins. Each of the first 70 residues is labelled as signal peptide or not:
 
+::: {#tbl-s11-models}
 | Model (per-residue labelling, test set) | Weights | MCC | AUPR |
 |----|----|----|----|
 | Sliding window (15 residues) + linear classifier | — | 0.539 | 0.681 |
@@ -76,7 +77,8 @@ The split is homology-aware (Session 8). The proteins fall into 3,205 MMseqs2 cl
 | LSTM | 14,761 | 0.631 | 0.767 |
 | **Bidirectional LSTM** | 29,017 | **0.820** | **0.920** |
 
-: Per-residue signal-peptide labelling on the test set. {#tbl-s11-models}
+Per-residue signal-peptide labelling on the test set.
+:::
 
 ![Residue-level comparison of the four models on the homology-aware test set: summary metrics (left) and precision-recall curves (right).](figs/session11-model-comparison.png){#fig-session11-model-comparison width="100%"}
 
@@ -223,13 +225,15 @@ You have met this recipe three times: DINOv2 on histology tiles (Session 10), ES
 
 SignalP has been online since 1995, is one of the most used tools in bioinformatics, and runs through this whole course. Its history shows each of the model types we have met:
 
+::: {#tbl-s11-signalp}
 | Versions | Model |
 |------------------------------------|------------------------------------|
 | SignalP 1-4 (1997-2011) | feed-forward networks on sliding windows (Session 7), combined with hidden Markov models (Session 5) in versions 2-3 |
 | SignalP 5.0 (2019) | a deep recurrent network: bidirectional LSTM + CRF (above) |
 | SignalP 6.0 (2022) | the pretrained protein language model **ProtBERT** + CRF |
 
-: SignalP versions and the models behind them. {#tbl-s11-signalp}
+SignalP versions and the models behind them.
+:::
 
 (Nielsen et al., [*Protein Eng* 10:1](https://pubmed.ncbi.nlm.nih.gov/9051728/); Almagro Armenteros et al., [*Nat Biotechnol* 37:420](https://pubmed.ncbi.nlm.nih.gov/30778233/); Teufel et al., [*Nat Biotechnol* 40:1023](https://pubmed.ncbi.nlm.nih.gov/34980915/); history by the authors themselves in Nielsen et al. 2024, [*Methods Mol. Biol.* 2836:331](https://doi.org/10.1007/978-1-0716-4007-4_17).)
 
@@ -250,13 +254,15 @@ Can we see the same effects ourselves? We use a simpler task, *does this protein
 
 **On the homology-aware test set** (741 proteins, used once):
 
+::: {#tbl-s11-classifiers}
 | Classifier                                | MCC       | Accuracy  |
 |-------------------------------------------|-----------|-----------|
 | one-hot + logistic regression             | 0.745     | 0.879     |
 | one-hot + 1D CNN                          | 0.825     | 0.916     |
 | **ESM-2 embedding + logistic regression** | **0.955** | **0.978** |
 
-: Classifiers on the homology-aware test set (741 proteins). {#tbl-s11-classifiers}
+Classifiers on the homology-aware test set (741 proteins).
+:::
 
 **Few-shot.** To mimic scarce labels, we train on random subsets of the training proteins:
 

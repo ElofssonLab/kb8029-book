@@ -34,12 +34,14 @@ Every model so far gives every input position its own weight. For the 150-residu
 
 A **convolutional layer** instead slides a small **kernel** (say 3 × 3 pixels, or 7 residues) across every position, using *the same weights* everywhere. Its number of weights therefore does not depend on the input length. The table compares one layer of each kind on the localisation data (150 residues × 20 amino acids):
 
+::: {#tbl-s10-weights}
 | Layer | Weights | Count |
 |------------------------|------------------------|------------------------|
 | Dense, 3,000 inputs → 64 units | inputs × outputs + biases | 3,000 × 64 + 64 = **192,064** |
 | Convolution, 20 channels → 32 filters, kernel 7 | kernel × input channels × filters + biases | 7 × 20 × 32 + 32 = **4,512** |
 
-: The number of weights in one dense and one convolutional layer on the localisation data. {#tbl-s10-weights}
+The number of weights in one dense and one convolutional layer on the localisation data.
+:::
 
 The convolution has 40 times fewer weights, and it keeps that number for a protein of any length. (Whole networks are less simple. In the lab, *adding* a convolutional layer makes the network smaller, because the following dense layer receives a smaller feature map.)
 
@@ -115,6 +117,7 @@ Biology rarely has 1.2 million labelled images. Kather et al. (2019, [*PLoS Med*
 
 To imitate a small dataset, the notebook pretends that we have only **40 labelled tiles per class** for training and 40 for validation, all from the same 86 slides. It tests on 100 tiles per class from **50 other patients**:
 
+::: {#tbl-s10-transfer}
 | Approach | Validation accuracy | Test accuracy (new patients) |
 |------------------------|------------------------|------------------------|
 | Small CNN from scratch (242,697 weights) | 0.861 | 0.745 (three seeds: 0.721-0.786) |
@@ -122,7 +125,8 @@ To imitate a small dataset, the notebook pretends that we have only **40 labelle
 | Transfer: frozen ImageNet ResNet-18 + new last layer | 0.856 | 0.780 |
 | Transfer: frozen DINOv2 + new last layer | 0.917 | **0.832** |
 
-: Colorectal-cancer tissue classification from few labelled tiles: training from scratch and transfer learning. {#tbl-s10-transfer}
+Colorectal-cancer tissue classification from few labelled tiles: training from scratch and transfer learning.
+:::
 
 - **From scratch**, the CNN memorises its 360 training tiles. With so little data, the random seed alone moves its test accuracy by more than 6 percentage points.
 - **Data augmentation** (below) helps on average, though not in every seed.
@@ -166,6 +170,7 @@ The spread was as fast in biomedical imaging. **U-Net** (Ronneberger et al. 2015
 
 The same idea works on protein sequences. The localisation network of Sessions 8-9 becomes a 1D CNN with two convolutional layers of 7-residue filters, followed by global average pooling and a linear layer to the five classes. It is trained and evaluated exactly as in Session 9, on the same homology-aware split:
 
+::: {#tbl-s10-localisation}
 | Metric | Session 9: flat network | Session 9: logistic regression | Session 10: 1D CNN |
 |------------------|------------------|------------------|------------------|
 | Weights | 192,389 | 15,005 | **19,237** |
@@ -174,7 +179,8 @@ The same idea works on protein sequences. The localisation network of Sessions 8
 | MCC | 0.394 | 0.461 | **0.484** |
 | Macro AUROC | 0.831 | 0.849 | **0.869** |
 
-: The CNN compared with the models of Session 9 on the localisation data. {#tbl-s10-localisation}
+The CNN compared with the models of Session 9 on the localisation data.
+:::
 
 The CNN beats the flat network on every metric with a tenth of the weights. It does so because it builds in an assumption instead of learning 192,389 free weights from 486 proteins: the same local pattern can be detected with the same weights wherever it occurs. Its margin over logistic regression, in contrast, is within the noise of a 109-protein test set (retraining from other random initial weights gave 0.569-0.587). The robust finding is therefore the gap to the flat network.
 

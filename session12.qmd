@@ -23,6 +23,7 @@ By the end of this session you should be able to:
 
 In Session 6 we treated structure as the answer, and we learned to inspect and compare it. Now we ask how that answer can be predicted from sequence. This session closes the course, and nearly every earlier session contributes a piece to it:
 
+::: {#tbl-s12-ideas}
 | From | Idea used in modern structure prediction |
 |------------------------------------|------------------------------------|
 | Sessions 4-5 | alignments and profiles: the evolutionary record of a family |
@@ -33,7 +34,8 @@ In Session 6 we treated structure as the answer, and we learned to inspect and c
 | Session 10 | pairwise maps treated as images, residual networks, invariance |
 | Session 11 | attention and protein language models |
 
-: Where the ideas of modern structure prediction come from in this course. {#tbl-s12-ideas}
+Where the ideas of modern structure prediction come from in this course.
+:::
 
 The session starts from one question: **what information is missing if we try to predict a residue's structure from its local sequence alone?** The answer is the contacts and interactions with residues far away in the sequence. The rest of the session is therefore about where this long-range information comes from, how AlphaFold2 learned to use it, and what we can trust in the result.
 
@@ -248,6 +250,7 @@ The common thread is Session 8's lesson on a grand scale. Performance on example
 
 How, then, can we decide when to trust a complex prediction? The lecture sorts protein interactions into four regions. This is a heuristic for thinking about the question, not an established classification:
 
+::: {#tbl-s12-regions}
 | Region | Character | Example | Current methods |
 |------------------|------------------|------------------|------------------|
 | I, tractable | Stable interfaces, strong coevolution | Obligate heterodimers (Ephrin-A5:EphB2) | Work well |
@@ -255,7 +258,8 @@ How, then, can we decide when to trust a complex prediction? The lecture sorts p
 | III, missing coevolution | No joint selective pressure | Antibody-antigen, host-pathogen | AlphaFold3-class models help, partly through memorisation |
 | IV, missing context or dynamics | Transient, conditional, disordered | p53 transactivation domain binding MDM2 | Static structure prediction is the wrong tool |
 
-: Four regions of protein-protein interactions, by how well current methods handle them (a heuristic). {#tbl-s12-regions}
+Four regions of protein-protein interactions, by how well current methods handle them (a heuristic).
+:::
 
 The lab tests this heuristic. Each group makes one AlphaFold3 Server prediction per region and checks whether the model's confidence tracks how hard each problem really is.
 
