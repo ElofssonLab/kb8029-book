@@ -40,7 +40,7 @@ Each of the twelve sessions has the same parts:
 
 How much time each session takes, split into reading and lab, is in the table [Expected workload](course-info.qmd#workload).
 
-Read the page before the lecture: the lectures assume you have seen the material once, and use the time for the parts that are hard to learn alone. **Lectures are not recorded.**
+Read the page before the lecture: the lectures assume you have seen the material once, and use the time for the parts that are hard to learn alone. The exception is this first morning, which covers Sessions 0 and 1 together, so its reading is sent out before the course starts (below). **Lectures are not recorded.**
 
 ## Where to find everything
 
@@ -99,11 +99,13 @@ All notebooks and labs run on **Google Colab**, which gives free access to a GPU
 
 If you do not have a laptop that can do this, tell us now, not on the day of a lab.
 
-## Before Session 1
+## Before the first lecture
+
+Sessions 0 and 1 are the same morning, so this list has to be done **before the course starts**. It is sent to you by email a week before, and it is the only preparation that cannot wait until the day.
 
 1.  Accept the course invitation on [Canvas](https://canvas.su.se/), and check the schedule there. To get the lectures, labs and lab deadlines in your own calendar, subscribe to <https://course.bioinfo.se/kb8029.ics> (Google Calendar: Other calendars → From URL; Outlook: Add calendar → Subscribe from web); it updates itself when the schedule changes.
 2.  Open [quiz.bioinfo.se](https://quiz.bioinfo.se) on your phone and check that you can log in.
-3.  Read the [Session 1](session01.qmd) page, the mathematics refresher, and try its practice problems.
+3.  Read the [Session 1](session01.qmd) page, the mathematics refresher, and try its practice problems. It is the longest reading in the course, so start early. If you do not manage all of it, read the parts on vectors and derivatives: the lecture builds on those. Nothing else has to be read in advance.
 
 ## Before Session 2
 
