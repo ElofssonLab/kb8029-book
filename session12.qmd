@@ -14,6 +14,7 @@
 
 By the end of this session you should be able to:
 
+- explain why a protein folds, why its structure is worth predicting, and how a predicted model is scored against an experimental structure (RMSD, TM-score, lDDT);
 - explain why long-range information is essential for structure prediction, and how evolutionary covariation provided it;
 - describe what AlphaFold2 represents internally (an MSA representation and a residue-pair representation that update each other, and a geometry-aware structure module) and why attention and pair representations suit proteins;
 - interpret pLDDT and PAE correctly, and explain why confidence is not the same as correctness;
@@ -39,15 +40,71 @@ Where the ideas of modern structure prediction come from in this course.
 
 The session starts from one question: **what information is missing if we try to predict a residue's structure from its local sequence alone?** The answer is the contacts and interactions with residues far away in the sequence. The rest of the session is therefore about where this long-range information comes from, how AlphaFold2 learned to use it, and what we can trust in the result.
 
+## The starting point: from sequence to structure {#sec-s12-start}
+
+This section brings everyone to the same starting point: what a protein structure is, why a protein folds, why we want to predict structures, how a prediction is judged, and how it was done before deep learning. Session 6 introduced protein structure; here we add what is needed for prediction.
+
+### A protein is a chain that folds
+
+A protein is a chain of amino acids joined by peptide bonds. Every residue contributes the same repeating **backbone** (N, Cα, C), and one of 20 different **side chains**, which are small or large, charged, polar or hydrophobic. Session 6 described a structure at four levels: the **primary** structure is the sequence; the **secondary** structure is the local shape of the backbone, mainly α-helices and β-strands; the **tertiary** structure is the 3D fold of the whole chain; and the **quaternary** structure is how several chains pack together, as in the four chains of haemoglobin.
+
+The task of this session is the step from the first level to the third, from a line of letters to a 3D object (@fig-session12-sequence-to-structure):
+
+![The structure-prediction problem for human β-globin (PDB 4HHB, chain B). Left: the sequence, with the hydrophobic residues in orange. Right: the structure, coloured from the N-terminus (blue) to the C-terminus (red), with the hydrophobic side chains as orange sticks. Most of them point into the core of the protein, away from the water. The sequences of proteins are easy to measure, their structures are not.](figs/session12-sequence-to-structure.png){#fig-session12-sequence-to-structure width="100%"}
+
+### Why a protein folds
+
+A chain of amino acids in water does not stay a floppy string. Three effects drive it into a compact fold:
+
+- **The hydrophobic effect.** Hydrophobic side chains (such as leucine, valine and phenylalanine) disrupt the hydrogen bonds between the water molecules around them. The chain therefore collapses so that most of them are buried in a **core**, while polar and charged side chains stay on the surface. This is the main driving force of folding, and it is visible in @fig-session12-sequence-to-structure.
+- **Hydrogen bonds in the backbone.** The backbone's NH and C=O groups form regular hydrogen bonds with each other: between residues $i$ and $i + 4$ in an α-helix, and between neighbouring strands in a β-sheet. That is why secondary structure exists at all.
+- **Tight packing.** In the core, side chains fit together like a three-dimensional puzzle, so which residues can sit next to each other is constrained.
+
+The folded state, the **native structure**, is only slightly more stable than the unfolded chain, because the gains from burying hydrophobic groups and forming hydrogen bonds are almost cancelled by the loss of the chain's freedom. Small changes, such as one mutation, can therefore unfold a protein or change its shape.
+
+### Two classic observations: Anfinsen and Levinthal
+
+**Anfinsen: the sequence determines the structure.** In the 1950s and 1960s, Christian Anfinsen unfolded the enzyme ribonuclease in the test tube with urea, which breaks the non-covalent interactions, and a reducing agent, which breaks its four disulphide bonds. When he removed the chemicals slowly, the enzyme refolded into its active shape on its own, with the right disulphide bonds out of 105 possible pairings (Anfinsen 1973, [*Science* 181:223](https://doi.org/10.1126/science.181.4096.223); Nobel Prize 1972). No cell and no template were needed: **for many small proteins the sequence alone determines the native structure**. This is what makes structure prediction possible in principle. It is not a law for every protein: some need chaperones or a binding partner to fold, some switch between states, and intrinsically disordered regions have no single fold.
+
+**Levinthal: folding is not a random search.** Cyrus Levinthal pointed out in 1969 that a protein cannot find its structure by trying every conformation. Suppose each residue of a 100-residue protein can take only three backbone conformations. That gives $3^{100} \approx 5 \times 10^{47}$ conformations of the chain. Even at $10^{13}$ conformations per second, trying them all would take about $5 \times 10^{34}$ seconds, far longer than the age of the universe (about $4 \times 10^{17}$ seconds). Yet real proteins fold in microseconds to seconds. This is **Levinthal's paradox**. Its resolution is that folding is not a random search: local structure, such as a helix, forms quickly, and every step that buries more hydrophobic groups lowers the free energy, so the chain is guided downhill towards the native state, as on the slopes of a funnel. For prediction, the paradox has a practical lesson: a computer cannot find the structure by trying every conformation either, so every method needs a smarter way to search.
+
+### Why predict structures?
+
+A protein's structure explains its function. In β-globin, residue 6 is a glutamate on the surface. In sickle-cell disease, it is replaced by a valine, a hydrophobic residue on the surface that makes haemoglobin molecules stick to each other. Structures show where a drug can bind, which mutations will damage a protein, and how proteins fit together in complexes.
+
+Structures are, however, slow and expensive to determine experimentally, by X-ray crystallography, nuclear magnetic resonance (NMR) or cryo-electron microscopy (cryo-EM): a single structure can take months or years. The PDB holds about **260,000** experimental structures, against about **150 million** protein sequences in UniProt (Session 3), so fewer than one in 500 known proteins has an experimental structure. Predicting structures from sequence fills that gap.
+
+### What a prediction is, and how it is judged
+
+A structure predictor takes a sequence, often together with an alignment of its relatives (Sessions 4-5), and returns 3D coordinates for its atoms: a **model**. The model is judged by comparing it with an experimental structure that the predictor has not seen:
+
+- **RMSD** (Session 6) is the average distance between corresponding atoms after superposition, in Å. It is easy to understand, but one misplaced loop or domain can make it large.
+- **TM-score** (Session 6) runs from 0 to 1 and is dominated by the well-placed part of the model. Above about 0.5 the fold is usually right.
+- **lDDT** (local distance difference test) checks, for every residue, how many of the distances to its neighbours within 15 Å are reproduced in the model, within tolerances of 0.5 to 4 Å. It needs no superposition, so a domain that has rotated as a whole does not spoil the score of the residues within it. AlphaFold's confidence score, **pLDDT** (@sec-s12-af2), is its own prediction of this score.
+
+Since 1994 the **CASP** experiments (Critical Assessment of Structure Prediction; Moult et al. 1995, [*Proteins* 23:ii](https://doi.org/10.1002/prot.340230303)) have run this comparison as a blind test every two years: groups predict structures that have been solved but not yet released, and independent assessors score the models (lDDT: Mariani et al. 2013, [*Bioinformatics* 29:2722](https://doi.org/10.1093/bioinformatics/btt473)).
+
+### How structures were predicted before deep learning
+
+Four classical approaches dominated structure prediction until about 2018. Each is still in use, and each contributed an idea that AlphaFold builds on.
+
+**Homology (comparative) modelling: copy a relative.** If a related protein of known structure exists, a **template**, the sequence is aligned to it (Sessions 4-5), the template's backbone is copied for the aligned residues, and the loops and side chains are rebuilt (for example with MODELLER; Šali & Blundell 1993, [*J. Mol. Biol.* 234:779](https://doi.org/10.1006/jmbi.1993.1626)). This works because structure is far more conserved than sequence: proteins with more than about 30% sequence identity almost always share the same fold (Chothia & Lesk 1986, [*EMBO J.* 5:823](https://doi.org/10.1002/j.1460-2075.1986.tb04288.x)). The model is only as good as the alignment, and it gets worse as the identity falls. Without a template, the method has nothing to copy.
+
+**Threading (fold recognition): find a fold that fits.** Many proteins have a fold that is already known even when no relative can be found by sequence. Threading places ("threads") the sequence onto each known fold in turn and scores how well it fits, for example whether hydrophobic residues end up buried and which residue pairs come into contact (Jones, Taylor & Thornton 1992, [*Nature* 358:86](https://doi.org/10.1038/358086a0)). It finds templates that sequence search misses, and the profile-profile methods of Session 5 later took over the same role.
+
+**Fragment assembly: build from pieces of known structures.** For a new fold there is no template, but local sequence still biases local structure (Session 7). Rosetta (Simons et al. 1997, [*J. Mol. Biol.* 268:209](https://doi.org/10.1006/jmbi.1997.0959)) therefore cuts the sequence into overlapping windows of 3 and 9 residues, and for each window collects fragments of known structures with a similar local sequence. It then assembles the chain by **Monte Carlo** search: it repeatedly replaces one fragment by another and keeps the change if the energy goes down (and occasionally even if it goes up, so that the search does not get stuck). The energy is **knowledge-based**: it rewards what is common in known structures, such as buried hydrophobic residues and paired β-strands. Thousands of such models, called decoys, are built, and the best-scoring ones are kept. Rosetta gave the first convincing predictions of new folds in CASP, but mainly for small proteins of up to about 100 residues. It grew into the main tool for protein *design*, for which David Baker shared the 2024 Nobel Prize in Chemistry (@sec-s12-af3).
+
+**Molecular dynamics: simulate the physics.** The most direct approach computes the forces on every atom of the protein and the surrounding water, and moves the atoms according to Newton's laws, in time steps of about $2 \times 10^{-15}$ seconds. Folding takes microseconds to seconds, so a simulation needs $10^{9}$ to $10^{15}$ steps. With Anton, a computer built for this purpose, Lindorff-Larsen et al. (2011, [*Science* 334:517](https://doi.org/10.1126/science.1208351)) folded twelve small, fast-folding proteins of 10 to 80 residues to their native structures. Molecular dynamics shows *how* a protein moves and folds, but it is far too slow to predict the structures of ordinary proteins, and its force fields are approximations.
+
+What these methods had in common was the difficulty of getting the **long-range** contacts right, between residues far apart in the sequence. Templates supply them when they exist; fragment assembly and physics have to find them by search. The next section is about where long-range information came from instead.
+
 ## Where does long-range structural information come from? {#sec-s12-af1}
 
-### The folding problem
-
-For many proteins, the sequence determines the structure (Anfinsen, 1973, [*Science* 181:223](https://doi.org/10.1126/science.181.4096.223)). A protein cannot, however, find that structure by trying every conformation. With even a few states per residue, a random search would take longer than the age of the universe, while real proteins fold in milliseconds to seconds (**Levinthal's paradox**, 1969). Dill & MacCallum ([*Science* 338:1042](https://doi.org/10.1126/science.1219021), 2012) summarised fifty years of work as three questions, the last of which is "can we devise a computer algorithm to predict protein structures from their sequences?"
+Dill & MacCallum ([*Science* 338:1042](https://doi.org/10.1126/science.1219021), 2012) summarised fifty years of work on protein folding as three questions, the last of which is "can we devise a computer algorithm to predict protein structures from their sequences?" Three generations of methods have answered it.
 
 ### Three generations of structure prediction
 
-1.  **Physics and templates (1970s onwards).** The first approaches either simulated the atoms or borrowed from known structures. Molecular dynamics simulates the atoms, which is possible only for small, fast-folding proteins, even on special-purpose computers. **Homology modelling** copies the structure of a relative, and **threading** finds the known fold that a sequence fits best (Session 5's profile idea applied to structures). **Rosetta** assembles the chain from short fragments of known proteins with a knowledge-based energy function. Blind tests held every two years since 1994, the **CASP** experiments (Moult et al. 1995, [*Proteins* 23:ii](https://doi.org/10.1002/prot.340230303)), showed steady progress for proteins with templates, and little for the rest.
+1.  **Physics and templates (1970s onwards).** Homology modelling, threading, fragment assembly and molecular dynamics (@sec-s12-start). CASP showed steady progress for proteins with templates, and little for the rest.
 2.  **Contact prediction (2011-2019).** Coevolution in large protein families gave long-range contacts, then distances, cleaned up by deep networks (below).
 3.  **End-to-end learned geometry (2020).** AlphaFold2 learned the whole path from alignments to atoms.
 
