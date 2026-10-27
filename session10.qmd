@@ -52,13 +52,24 @@ The convolution has 40 times fewer weights, and it keeps that number for a prote
 - **stride**: how far the kernel moves between steps (1 = every position);
 - **pooling**: replacing small regions by their maximum or mean, which shrinks the feature map.
 
-### Equivariance is not invariance
+### Equivariance and invariance: what happens when the input moves?
 
-If the input shifts, a shared kernel sees the same pattern somewhere else, so its output shifts by the same amount. This **translation equivariance** comes from weight sharing itself, and it holds even for a random, untrained kernel:
+Two words from mathematics describe how a model's output responds when its input is changed in a systematic way, for example **shifted** (in mathematics, *translated*: this is the joke at the top of the page), rotated or mirrored. Take a motif detector that slides along a DNA sequence, and move its motif, a TATA box, eight positions further along (@fig-session10-equi-inv):
+
+- An output is **equivariant** if it *changes in the same way as the input*. The detector's score at every position is equivariant: when the motif moves eight positions, the peak in the scores moves eight positions too. An equivariant output answers the question *where?*
+- An output is **invariant** if it *does not change at all*. The single answer "does this sequence contain a TATA box?" is invariant: it is "yes" wherever the motif sits. An invariant output answers the question *whether?* or *what?*
+
+![A motif detector on a DNA sequence (top) and on the same sequence with the motif moved eight positions (bottom). Its score at every position, a feature map, moves with the motif: it is equivariant to shifts. Taking the maximum over all positions (global max pooling) gives one answer for the whole sequence, which does not change: it is invariant to shifts.](figs/session10-equi-inv.png){#fig-session10-equi-inv width="100%"}
+
+In symbols, with $T$ the shift and $f$ the model: equivariance means $f(T x) = T f(x)$, so shifting the input shifts the output, and invariance means $f(T x) = f(x)$, so shifting the input changes nothing.
+
+Which of the two we want depends on the question. Per-residue labels, such as whether each residue belongs to a signal peptide (Session 11) or the secondary structure of each residue (Sessions 7 and 9), should be equivariant: if the sequence is shifted, the labels should shift with it. A label for the whole input, such as the cell type in a blood-cell image or the compartment of a protein (the localisation CNN in @sec-s10-biology), should be invariant: a lymphocyte is a lymphocyte wherever it sits in the image.
+
+**Convolution is equivariant.** If the input shifts, a shared kernel sees the same pattern somewhere else, so its output shifts by the same amount. This **translation equivariance** comes from weight sharing itself, and it holds even for a random, untrained kernel:
 
 ![A random, untrained 1D convolution applied to a signal and to the same signal shifted by 10 positions. The shifted input's output (green) matches the original output shifted by 10 (orange dashed).](figs/session10-conv-equivariance.png){#fig-session10-conv-equivariance width="85%"}
 
-Equivariance is not invariance, however. The feature is found, but *where* it is found still differs, and what happens to that position depends on the rest of the network:
+**But equivariance is not invariance.** The feature is found wherever it is, but *where* it is found still differs, and whether a classifier's answer changes depends on what the rest of the network does with that position:
 
 ![Where position information goes. (1) Convolution: the feature map shifts with the input. (2) Local max pooling: a small shift may stay within one pooling window, which gives some tolerance, not invariance. (3) Flatten + Linear: every position gets its own weight again. (4) Global average pooling: one number per filter, whatever the position.](figs/session10-position.png){#fig-session10-position width="100%"}
 
@@ -88,20 +99,35 @@ With kernel size *k* and stride 1, every layer adds *k* − 1 positions, and poo
 
 ### What actually happened: from LeNet to ResNet
 
-**LeNet** (LeCun et al. 1989, [*Neural Computation* 1:541-551](https://doi.org/10.1162/neco.1989.1.4.541)) already read handwritten zip codes. The breakthrough for natural images, however, came in the 2012 **ImageNet** challenge (1.2 million photos, 1,000 classes):
+The idea behind CNNs is more than 60 years old, but it took until 2012 for it to win. The story shows what a good idea needs before it works.
+
+**From the cat's visual cortex to the Neocognitron.** In the late 1950s, David Hubel and Torsten Wiesel recorded single neurons in the visual cortex of cats while showing them simple patterns (Hubel & Wiesel 1962, [*J. Physiol.* 160:106-154](https://doi.org/10.1113/jphysiol.1962.sp006837); Nobel Prize 1981). Each neuron responded only to a small part of the visual field, its *receptive field*, and only to one feature there, such as an edge at a particular angle. "Simple cells" responded to an edge at one exact position. "Complex cells" responded to the same edge anywhere within a somewhat larger region. These are the two operations of a CNN: a local feature detector, and a pooling step that tolerates small shifts. In 1980 Kunihiko Fukushima built them into a layered network, the **Neocognitron**, whose title promised pattern recognition "unaffected by shift in position" (Fukushima 1980, [*Biol. Cybern.* 36:193-202](https://doi.org/10.1007/BF00344251)). What it lacked was a good way to learn its weights.
+
+**LeNet: backpropagation meets convolution.** Yann LeCun and colleagues at Bell Labs supplied it. They trained a convolutional network with backpropagation (Session 9) to read handwritten zip codes on US mail (LeCun et al. 1989, [*Neural Computation* 1:541-551](https://doi.org/10.1162/neco.1989.1.4.541)). Its successor, **LeNet-5** (LeCun et al. 1998, [*Proc. IEEE* 86:2278-2324](https://doi.org/10.1109/5.726791)), was used by banks to read the amounts on cheques, and by the late 1990s it read a large share of the cheques written in the United States.
+
+**The quiet decade.** Yet CNNs did not take over. Through the 2000s, computer vision was dominated by **hand-crafted features**, carefully designed descriptors of edges and corners, fed to support vector machines. Neural networks were widely considered hard to train and not worth the trouble, and the datasets of the time, with thousands of images, were too small for a network to beat a well-designed feature. Two ingredients were missing: data and compute.
+
+**ImageNet: the data.** In 2009 Fei-Fei Li's group published **ImageNet** (Deng et al. 2009, [CVPR](https://doi.org/10.1109/CVPR.2009.5206848)), millions of photos labelled by thousands of crowd-workers paid per image. From 2010 an annual challenge asked programs to sort 1.2 million training photos into 1,000 classes, scored by the *top-5 error*, the fraction of test photos whose true class is not among the program's five best guesses. The first two winners used hand-crafted features and reached errors of 28% and 26% (@fig-session10-imagenet-history).
 
 ![Top-5 error of the winning ImageNet entry each year (Russakovsky et al. 2015; He et al. 2016). The first two winners used hand-crafted features; from 2012 every winner was a CNN.](figs/session10-imagenet-history.png){#fig-session10-imagenet-history width="80%"}
 
-- **AlexNet** (Krizhevsky, Sutskever & Hinton 2012, [NIPS 25](https://papers.nips.cc/paper/2012/hash/c399862d3b9d6b76c8436e924a68c45b-Abstract.html)) cut the error by about 10 percentage points by combining convolution with ReLU, dropout (Session 9), data augmentation and GPUs.
-- **VGG** (2014) used deep stacks of small 3 × 3 convolutions, which give large receptive fields from small kernels.
-- **ResNet** (He et al., [CVPR 2016](https://arxiv.org/abs/1512.03385)) introduced **residual connections**. Each block learns a correction to its input and returns $x + F(x)$, so the gradient has a short path back and 100+ layers become trainable. In the lab, a three-block ResNet beats a three-block VGG network (0.771 against 0.722).
+**2012: AlexNet.** Alex Krizhevsky, a PhD student of Geoffrey Hinton in Toronto, with Ilya Sutskever, entered a CNN with 60 million weights (Krizhevsky, Sutskever & Hinton 2012, [NIPS 25](https://papers.nips.cc/paper/2012/hash/c399862d3b9d6b76c8436e924a68c45b-Abstract.html)). He trained it for about a week on two gaming graphics cards (GPUs), which do the many multiplications of a convolution in parallel. Its top-5 error was 15.3%, against 26.2% for the runner-up, the largest jump the challenge ever saw. Little in AlexNet was new on its own: convolution came from LeNet, and the rest was the tools of Session 9 and of this session, ReLU instead of sigmoid, dropout, and data augmentation. What was new was the scale, with ImageNet's data and the GPUs' compute. Within two years almost every entry was a CNN, and the deep-learning boom of the following decade started here. (Hinton shared the 2024 Nobel Prize in Physics, with John Hopfield, for the foundations of neural networks.)
 
-The lesson is architectural: **convolution + depth + data + GPUs**, with residual connections making the depth trainable.
+**Deeper and deeper.** The following winners mainly went deeper:
+
+- **VGG** (Simonyan & Zisserman 2014, [arXiv](https://arxiv.org/abs/1409.1556)) used stacks of up to 19 layers of small 3 × 3 convolutions. Two stacked 3 × 3 layers see a 5 × 5 region with fewer weights than one 5 × 5 layer (the receptive field above). GoogLeNet (Szegedy et al. 2014, [arXiv](https://arxiv.org/abs/1409.4842)) won that year with 22 layers.
+- But simply adding layers then stopped working. Deeper plain networks had a *higher* training error than shallower ones. This was not overfitting, since the training error itself was worse, but a failure of optimisation: the gradient no longer reached the first layers (Session 9, vanishing gradients).
+- **ResNet** (He et al., [CVPR 2016](https://arxiv.org/abs/1512.03385)) solved it with **residual connections**. Each block learns a correction to its input and returns $x + F(x)$. If a block has nothing useful to add, it can learn $F(x) \approx 0$ and pass its input on unchanged, and the gradient has a short path back through the "+ x". With 152 layers, ResNet reached a top-5 error of 3.6% in 2015, below the roughly 5% measured for a trained human annotator on the same task. In the lab, a three-block ResNet beats a three-block VGG network (0.771 against 0.722).
+
+The challenge ended in 2017, because the task was considered solved. The networks it produced did not disappear: pretrained on ImageNet, they are the starting point for transfer learning in biology (@sec-s10-assumptions), and residual connections are in nearly every deep network since, including the Transformers of Session 11 and AlphaFold (Session 12).
+
+The lesson is that an architecture with the right built-in assumptions (local, shared, stacked detectors) needed **data and compute** before it could beat hand-crafted features, and **residual connections** before its depth became trainable.
 
 #### Further reading
 
 - d2l.ai, [Modern Convolutional Neural Networks](https://d2l.ai/chapter_convolutional-modern/index.html) (AlexNet, VGG, ResNet in detail)
-- Russakovsky et al. (2015), [ImageNet Large Scale Visual Recognition Challenge](https://arxiv.org/abs/1409.0575)
+- Russakovsky et al. (2015), [ImageNet Large Scale Visual Recognition Challenge](https://arxiv.org/abs/1409.0575) (including the comparison with human annotators)
+- LeCun, Bengio & Hinton (2015), [Deep learning](https://doi.org/10.1038/nature14539), *Nature* 521:436-444: a review by three of the people in this story
 
 ## What assumptions does a CNN build in? {#sec-s10-assumptions}
 
