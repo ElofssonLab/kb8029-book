@@ -328,6 +328,9 @@ Session 4 described the sequence motif of signal peptides: a positively charged 
 
 The same history also holds a warning. A network can learn combinations that are not real. The first networks for signal peptides were trained on a few dozen sequences, and one of them was built to classify every training protein correctly. It then did poorly on new proteins. Session 8 is about this problem, overfitting.
 
+:::
+
+::: {.callout-note collapse="true"}
 ## Optional: Chou-Fasman, GOR and the accuracy curve
 
 *This is useful background for the [capstone project](capstone.qmd), where you build your own secondary-structure predictor. Chou-Fasman and GOR are simple baselines to compare it with.*
