@@ -303,14 +303,26 @@ For the breast-cancer biopsies the validation loss levels off after about 50 epo
 
 ### Penalising large weights: L2 and L1 {#sec-s09-l1l2}
 
-A network that fits noise usually does it with some very large weights, because a big weight makes the output jump when one input changes a little. Regularisation therefore adds a penalty for large weights to the loss, with a strength $\lambda$ that we choose on the validation set:
+**Why large weights are a warning sign.** A network that fits noise usually does it with some very large weights. A big weight makes the output jump when its input changes a little, so the network can bend its decision boundary around single training examples, including mislabelled or unusual ones. A network with small weights cannot bend that sharply: its output changes smoothly with the input, which is what we expect of most biological relationships. Regularisation therefore makes large weights expensive, by adding a penalty for them to the loss:
 
 $$
-\text{loss} = \text{cross-entropy} + \lambda \sum_j w_j^2 \quad\text{(L2)} \qquad\text{or}\qquad \text{cross-entropy} + \lambda \sum_j |w_j| \quad\text{(L1)}
+\text{loss} = \underbrace{\text{cross-entropy}}_{\text{fit the training data}} + \underbrace{\lambda \sum_j w_j^2}_{\text{L2 penalty}}
+\qquad\text{or}\qquad
+\text{loss} = \text{cross-entropy} + \underbrace{\lambda \sum_j |w_j|}_{\text{L1 penalty}}
 $$
 
-- **L2** pulls every weight towards zero in proportion to its size (the gradient of $\lambda w^2$ is $2\lambda w$). Every step therefore shrinks every weight by the same *fraction*, which is why it is called **weight decay** and why PyTorch implements it as the optimiser's `weight_decay` argument. Weights become small, but almost never exactly zero.
-- **L1** pulls with the same force, $\lambda$, however small a weight already is. Weights that help little are pushed all the way to **exactly zero**, so the model *selects features*.
+The two terms pull in opposite directions. The cross-entropy wants whatever weights fit the training data best; the penalty wants all weights to be zero. Training finds a compromise, and the **strength** $\lambda$ sets it. With $\lambda = 0$ there is no penalty and the network can overfit. With a very large $\lambda$ every weight is pushed to zero and the network underfits. Like the learning rate, $\lambda$ is chosen on the validation set, usually by trying powers of ten (for example $10^{-5}$ to $10^{-1}$). Strictly, only the weights need a penalty: the biases shift a unit's output but do not make it more sensitive to its inputs. (PyTorch's `weight_decay` penalises the biases too, which rarely matters.)
+
+**L2 and L1 differ in how hard they pull on a small weight.** Gradient descent sees each penalty through its slope (@fig-session09-penalties a and b):
+
+- **L2** adds $2\lambda w$ to each weight's gradient: a pull towards zero *in proportion to the weight's size*. At every step each weight therefore loses the same *fraction* of its value, which is why L2 is also called **weight decay**. A weight of 2 is pulled 20 times harder than a weight of 0.1, so large weights shrink quickly, while small ones are hardly pulled at all. Weights become small, but almost never exactly zero.
+- **L1** adds $\lambda$ (with the sign of $w$) to each weight's gradient: the *same* pull whatever the weight's size. A weight of 0.1 is pulled as hard as a weight of 2. A weight that does little for the fit cannot resist this constant pull and ends up at **exactly zero**, which removes its input from the model. L1 therefore *selects features*.
+
+@fig-session09-penalties c shows the same difference with two weights. Each contour is a set of weights with the same cross-entropy, and the star is the best fit without a penalty. A penalty is equivalent to a budget for the weights: L2 allows any point inside the circle, L1 any point inside the diamond. The best point within the budget is where the lowest contour touches the boundary. For the circle, that is usually a point where both weights are non-zero. For the diamond, it is often a corner, where one weight is exactly zero.
+
+![The L2 and L1 penalties. (a) The penalty for one weight: L2 grows with the square, L1 linearly. (b) The slope of the penalty, the pull towards zero that gradient descent feels: for L2 it fades as the weight shrinks, for L1 it stays the same down to zero. (c) Two weights, with the loss as contours around its minimum (star). Within the same penalty budget, the best L2 point (circle) shrinks both weights, while the best L1 point (diamond) sits on a corner, with $w_2 = 0$.](figs/session09-penalties.png){#fig-session09-penalties width="100%"}
+
+**In practice.** In PyTorch, L2 is the optimiser's `weight_decay` argument, as in the GB1 table above (`weight_decay=1e-3`). With Adam, this L2 penalty is weakened for weights with large gradients, and `torch.optim.AdamW` applies the decay directly to the weights instead (@tbl-s09-optimisers). L1 has no such argument in PyTorch: you add `lam * sum(p.abs().sum() for p in model.parameters())` to the loss yourself. scikit-learn's logistic regression, which the notebook uses below, offers both (`penalty="l2"`, the default, or `penalty="l1"`), with the strength set by `C`, which is $1/\lambda$: a *small* `C` means a *strong* penalty. (Combining the two penalties is also common, and is called the elastic net.)
 
 For linear regression the two have their own names, **ridge** (L2) and **lasso** (L1). The notebook fits both to the 30 features of the breast-cancer biopsies of @sec-s09-trained. It uses logistic regression, so that every feature has exactly one weight:
 
