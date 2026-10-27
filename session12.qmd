@@ -361,6 +361,18 @@ AlphaFold3 (Abramson et al. 2024, [*Nature* 630:493](https://doi.org/10.1038/s41
 
 Diffusion brings sampling into structure prediction, and this has two consequences. First, many seeds can be tried, which brings back the ranking problem above. Second, the model can **hallucinate** plausible-looking structure in regions that should be disordered, which the authors had to counter in training. At CASP16, "AlphaFold3 performs slightly better for protein complexes. However, when massive sampling is applied to AlphaFold2, the difference disappears" (Elofsson 2026, [*Proteins* 94:154](https://doi.org/10.1002/prot.70044)).
 
+### One structure, or many? Predicting ensembles
+
+Every predictor so far returns **one** structure for a sequence. A protein in a cell is not one structure: it breathes, its loops move, its domains swing, and many proteins switch between distinct states, as haemoglobin switches between T and R (Session 6). This is the limit noted above: AlphaFold may or may not find an alternative state, and nothing in its output says which state it has given you, or how likely that state is. Molecular dynamics (@sec-s12-start) simulates the motion honestly but is far too slow for routine use, so a line of work tries instead to make a predictor produce an **ensemble**, a set of structures with roughly the right proportions.
+
+Three examples show the range of approaches:
+
+- **AFsample** (Wallner 2023, [*Bioinformatics* 39:btad573](https://doi.org/10.1093/bioinformatics/btad573)) changes nothing in the network and simply samples it hard: dropout (Session 9) is left switched **on** during prediction, which makes each run differ, and about 6,000 models are generated per target instead of the default 25. It was the top-ranked method in the protein-assembly category of CASP15, and the same diversity helps in finding alternative conformations.
+- **AlphaFlow** (Jing et al. 2024, [arXiv:2402.04845](https://arxiv.org/abs/2402.04845)) retrains AlphaFold itself as a generative model, using flow matching (the diffusion relative mentioned above), so that running it repeatedly draws different structures from a distribution rather than returning the same answer.
+- **BioEmu** (Lewis et al. 2025, [*Science* 389:eadv9817](https://doi.org/10.1126/science.adv9817)) aims directly at the physics. It is trained on more than 200 milliseconds of molecular-dynamics simulation together with structures and measured protein stabilities, and it generates thousands of independent structures per hour on one GPU, reproducing relative free energies to about 1 kcal/mol. It is, in effect, a learned shortcut for molecular dynamics.
+
+The same caution applies as everywhere in this session, and more strongly. A set of models is only an ensemble if the *proportions* are right, and that is much harder to check than a single structure: a predictor can produce variety without producing the right variety.
+
 #### Where the field is in 2026 (optional, and will age quickly)
 
 AlphaFold3 was released without training code, so **open reproductions** followed quickly:
@@ -447,6 +459,7 @@ A warning that belongs to the whole section: all three methods optimise against 
 - Watson et al. (2023), [De novo design of protein structure and function with RFdiffusion](https://doi.org/10.1038/s41586-023-06415-8)
 - Dauparas et al. (2022), [Robust deep learning-based protein sequence design using ProteinMPNN](https://doi.org/10.1126/science.add2187)
 - Pacesa et al. (2025), [One-shot design of functional protein binders with BindCraft](https://doi.org/10.1038/s41586-025-09429-6)
+- Lewis et al. (2025), [Scalable emulation of protein equilibrium ensembles with generative deep learning](https://doi.org/10.1126/science.adv9817) (BioEmu); Wallner (2023), [AFsample](https://doi.org/10.1093/bioinformatics/btad573); Jing et al. (2024), [AlphaFlow](https://arxiv.org/abs/2402.04845)
 - Elofsson & Ben-Tal (2026), [What will be the future of computational biology for macromolecules in the era of AI?](https://doi.org/10.1371/journal.pcbi.1014467)
 
 #### Further watching
