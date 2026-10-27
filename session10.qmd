@@ -105,7 +105,7 @@ The idea behind CNNs is more than 60 years old, but it took until 2012 for it to
 
 **LeNet: backpropagation meets convolution.** Yann LeCun and colleagues at Bell Labs supplied it. They trained a convolutional network with backpropagation (Session 9) to read handwritten zip codes on US mail (LeCun et al. 1989, [*Neural Computation* 1:541-551](https://doi.org/10.1162/neco.1989.1.4.541)). Its successor, **LeNet-5** (LeCun et al. 1998, [*Proc. IEEE* 86:2278-2324](https://doi.org/10.1109/5.726791)), was used by banks to read the amounts on cheques, and by the late 1990s it read a large share of the cheques written in the United States.
 
-**The quiet decade.** Yet CNNs did not take over. Through the 2000s, computer vision was dominated by **hand-crafted features**, carefully designed descriptors of edges and corners, fed to support vector machines. Neural networks were widely considered hard to train and not worth the trouble, and the datasets of the time, with thousands of images, were too small for a network to beat a well-designed feature. Two ingredients were missing: data and compute.
+**The quiet decade.** Yet CNNs did not take over. Through the 2000s, computer vision was dominated by **hand-crafted features**, carefully designed descriptors of edges and corners, fed to **support vector machines**: classifiers that, like the perceptron of Session 7, separate the classes with a boundary, but choose the one that leaves the widest margin between them. Neural networks were widely considered hard to train and not worth the trouble, and the datasets of the time, with thousands of images, were too small for a network to beat a well-designed feature. Two ingredients were missing: data and compute.
 
 **ImageNet: the data.** In 2009 Fei-Fei Li's group published **ImageNet** (Deng et al. 2009, [CVPR](https://doi.org/10.1109/CVPR.2009.5206848)), millions of photos labelled by thousands of crowd-workers paid per image. From 2010 an annual challenge asked programs to sort 1.2 million training photos into 1,000 classes, scored by the *top-5 error*, the fraction of test photos whose true class is not among the program's five best guesses. The first two winners used hand-crafted features and reached errors of 28% and 26% (@fig-session10-imagenet-history).
 
@@ -200,9 +200,9 @@ The same idea works on protein sequences. The localisation network of Sessions 8
 |------------------|------------------|------------------|------------------|
 | Weights | 192,389 | 15,005 | **19,237** |
 | Test accuracy | 0.514 | 0.569 | **0.587** |
-| Macro F1 | 0.493 | — | **0.586** |
+| F1 | 0.493 | — | **0.586** |
 | MCC | 0.394 | 0.461 | **0.484** |
-| Macro AUROC | 0.831 | 0.849 | **0.869** |
+| AUROC | 0.831 | 0.849 | **0.869** |
 
 The CNN compared with the models of Session 9 on the localisation data.
 :::

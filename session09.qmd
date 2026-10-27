@@ -271,9 +271,9 @@ Moreover, the simple baseline wins, as the test set (used once) shows:
 | Metric | Untrained network (Session 8, val) | Trained network (test) | Logistic regression (test) |
 |------------------|------------------|------------------|------------------|
 | Accuracy | 0.181 | 0.514 | **0.569** |
-| Macro F1 | 0.124 | 0.493 | — |
+| F1 | 0.124 | 0.493 | — |
 | MCC | −0.027 | 0.394 | **0.461** |
-| Macro AUROC | 0.474 | 0.831 | **0.849** |
+| AUROC | 0.474 | 0.831 | **0.849** |
 
 The localisation classifier: the untrained network of Session 8, the trained network and logistic regression.
 :::

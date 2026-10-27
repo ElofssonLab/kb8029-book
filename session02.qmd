@@ -14,7 +14,7 @@
 > **Why do bioinformaticians prefer using Unix?** Because they can't live without grep.
 :::
 
-You already know Python from the prerequisite course, so this session is not about new syntax. Instead, it is about the four things a computational biologist does with Python every day, using the libraries you already know:
+This session is largely a repetition of the Python course you have just finished, so it is not about new syntax. Instead, it is about the four things a computational biologist does with Python every day, using the libraries you have already met. If some of it is familiar, read it as a refresher and spend your time on the parts that are not:
 
 1.  **Represent data** with the right object: arrays, DataFrames, biological sequence objects and, later, tensors.
 2.  **Explore data** with summaries, filtering and plots, before trusting any number.

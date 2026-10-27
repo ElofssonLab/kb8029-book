@@ -167,6 +167,19 @@ $$
 - **Precision** asks: of the proteins I called positive, how many really are?
 - **Recall** (sensitivity) asks: of the true positives, how many did I find?
 
+The same four counts give two more measures, which the ROC curve below needs. The **true-positive rate** is recall under another name,
+
+$$
+\text{TPR} = \frac{TP}{TP+FN} = \text{recall} \qquad
+\text{FPR} = \frac{FP}{FP+TN}
+$$
+
+and the **false-positive rate** is its mirror image on the other row: of the proteins that really are negative, how many did I wrongly call positive? What separates these measures is simply which total you divide by. Precision divides by what the model *called* positive, so it is read down a column of the confusion matrix, while recall and FPR divide by what the truth says, so they are read across a row.
+
+![The four counts, and the three measures read from them. Rows are the truth and columns the prediction, as in the confusion matrices used throughout the course. Recall and the true-positive rate are the same number.](figs/session08-four-counts.png){#fig-session08-four-counts width="100%"}
+
+Wikipedia's [Precision and recall](https://en.wikipedia.org/wiki/Precision_and_recall) lists every measure that can be built from these four counts, with the other names each one goes by in medicine and in machine learning. You do not need them all, but you will meet them in papers.
+
 For "vertical" on the 3×3 test set, recall is 0.95 but precision only 0.76, because many crosses were called vertical. For "cross", recall drops to 0.75. There is always a trade-off between precision and recall, and the application decides which matters more. In a screening application, such as flagging potentially pathogenic variants for follow-up, you would favour *recall*. When each positive call triggers an expensive experiment, you would favour *precision*.
 
 Two measures combine these counts into a single number. $F_1$ balances precision and recall:
@@ -181,11 +194,11 @@ $$
 \text{MCC} = \frac{TP\cdot TN - FP\cdot FN}{\sqrt{(TP+FP)(TP+FN)(TN+FP)(TN+FN)}}
 $$
 
-MCC runs from $-1$ (perfect disagreement: every prediction inverted) through $0$ (no better than chance) to $+1$ (perfect), and it stays honest when the classes are unbalanced (see below). The formula above is for two classes. For problems with more classes, software such as scikit-learn uses a generalisation that works on the whole confusion matrix. Over all five 3×3 classes, that multi-class MCC is 0.871.
+MCC runs from $-1$ (perfect disagreement: every prediction inverted) through $0$ (no better than chance) to $+1$ (perfect), and it stays honest when the classes are unbalanced (see below). The formula above is for two classes. For problems with more classes, software such as scikit-learn uses a generalisation that works on the whole confusion matrix. Over all five 3×3 classes, that multi-class MCC is 0.871. $F_1$ and AUROC have no such generalisation, so with several classes we compute each one separately, taking one class as positive and the rest as negative, and then average over the classes. That is what $F_1$ and AUROC mean in every results table from here on.
 
 #### ROC curves
 
-Most classifiers output a *score*, and a threshold turns it into a yes/no call. Lowering the threshold finds more true positives but also lets through more false positives, and raising it does the opposite. Choosing one cutoff is somewhat arbitrary, so it is often better to look at all thresholds at once. The **ROC curve** does this by plotting the true-positive rate against the false-positive rate as the threshold sweeps across all values. To turn the curve into a single number, we use the area under it, **AUROC**. This is the probability that a random positive gets a higher score than a random negative, so it is 0.5 for guessing and 1.0 for a perfect ranking. For the "cross" perceptron above, AUROC is 0.938. The same reasoning lies behind Session 5's choice of an E-value cutoff, where you also pick a point on this trade-off.
+Most classifiers output a *score*, and a threshold turns it into a yes/no call. Lowering the threshold finds more true positives but also lets through more false positives, and raising it does the opposite. Choosing one cutoff is somewhat arbitrary, so it is often better to look at all thresholds at once. The **ROC curve** does this by plotting the true-positive rate against the false-positive rate, both defined above, as the threshold sweeps across all values. To turn the curve into a single number, we use the area under it, **AUROC**. This is the probability that a random positive gets a higher score than a random negative, so it is 0.5 for guessing and 1.0 for a perfect ranking. For the "cross" perceptron above, AUROC is 0.938. The same reasoning lies behind Session 5's choice of an E-value cutoff, where you also pick a point on this trade-off.
 
 ### Evaluating a regression model
 
@@ -322,7 +335,7 @@ A PyTorch model is a class that inherits from `nn.Module`. Its layers are attrib
 
 The whole 3×3 classifier is a single `nn.Linear(9, 5)` layer, with 50 parameters (5 × 9 weights + 5 biases). When the notebook copies the trained perceptron weights into it, the layer makes exactly the same predictions as the NumPy code, because a perceptron layer and `nn.Linear` do the same computation.
 
-The localisation network is the same pattern at a larger scale: 3000 inputs, a hidden layer of 64 ReLU units, and 5 output logits, for **192,389 parameters**. One forward pass on the homology-aware validation set confirms the shapes (105 × 3000 in, 105 × 5 out). With random weights it scores what chance looks like: accuracy 0.181, MCC −0.027 and macro AUROC 0.474. The network is **not trained** in this session. Session 9 adds backpropagation and the training loop, and reports the same metrics on this split.
+The localisation network is the same pattern at a larger scale: 3000 inputs, a hidden layer of 64 ReLU units, and 5 output logits, for **192,389 parameters**. One forward pass on the homology-aware validation set confirms the shapes (105 × 3000 in, 105 × 5 out). With random weights it scores what chance looks like: accuracy 0.181, MCC −0.027 and AUROC 0.474. The network is **not trained** in this session. Session 9 adds backpropagation and the training loop, and reports the same metrics on this split.
 
 ## Check your understanding
 
