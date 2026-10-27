@@ -118,12 +118,11 @@ Biology rarely has 1.2 million labelled images. Kather et al. (2019, [*PLoS Med*
 To imitate a small dataset, the notebook pretends that we have only **40 labelled tiles per class** for training and 40 for validation, all from the same 86 slides. It tests on 100 tiles per class from **50 other patients**:
 
 ::: {#tbl-s10-transfer}
-| Approach | Validation accuracy | Test accuracy (new patients) |
-|------------------------|------------------------|------------------------|
-| Small CNN from scratch (242,697 weights) | 0.861 | 0.745 (three seeds: 0.721-0.786) |
-| Same CNN + data augmentation | 0.855 | 0.792 (three seeds: 0.769-0.821) |
-| Transfer: frozen ImageNet ResNet-18 + new last layer | 0.856 | 0.780 |
-| Transfer: frozen DINOv2 + new last layer | 0.917 | **0.832** |
+| | Small CNN from scratch (242,697 weights) | Same CNN + data augmentation | Transfer: frozen ImageNet ResNet-18 + new last layer | Transfer: frozen DINOv2 + new last layer |
+|----------------|----------|----------|----------|----------|
+| Validation accuracy | 0.861 | 0.855 | 0.856 | 0.917 |
+| Test accuracy (new patients) | 0.745 | 0.792 | 0.780 | **0.832** |
+| Test accuracy, range over three seeds | 0.721-0.786 | 0.769-0.821 | — | — |
 
 Colorectal-cancer tissue classification from few labelled tiles: training from scratch and transfer learning.
 :::
