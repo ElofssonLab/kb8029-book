@@ -236,13 +236,13 @@ Adam is a good default, not a universal winner. In the figure, tuned momentum en
 We train the models with early stopping on 20,000 variants, with 5,000 for validation and 20,000 for testing:
 
 ::: {#tbl-s09-gb1}
-| Model                       | Weights | Train MAE | Val MAE | Test MAE | **Test** $R^2$ |
-|------------|------------|------------|------------|------------|------------|
-| Linear (additive)           | 81      | 0.379     | 0.371   | 0.385    | **0.496**      |
-| 64/64                       | 9,409   | 0.212     | 0.250   | 0.254    | **0.787**      |
-| 64/64 + weight decay (10⁻³) | 9,409   | 0.215     | 0.241   | 0.249    | 0.795          |
-| 64/64 + dropout 0.2         | 9,409   | 0.220     | 0.242   | 0.247    | 0.798          |
-| 256/256                     | 86,785  | 0.193     | 0.252   | 0.259    | 0.779          |
+| | Linear (additive) | 64/64 | 64/64 + weight decay (10⁻³) | 64/64 + dropout 0.2 | 256/256 |
+|----------------|----------|----------|----------|----------|----------|
+| Weights | 81 | 9,409 | 9,409 | 9,409 | 86,785 |
+| Train MAE | 0.379 | 0.212 | 0.215 | 0.220 | 0.193 |
+| Validation MAE | 0.371 | 0.250 | 0.241 | 0.242 | 0.252 |
+| Test MAE | 0.385 | 0.254 | 0.249 | 0.247 | 0.259 |
+| **Test $R^2$** | **0.496** | **0.787** | 0.795 | 0.798 | 0.779 |
 
 Models trained on the GB1 fitness data.
 :::

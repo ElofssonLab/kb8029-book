@@ -70,12 +70,11 @@ The regions show up when the experimentally supported signal peptides are aligne
 The split is homology-aware (Session 8). The proteins fall into 3,205 MMseqs2 clusters at 30% identity, which are divided into 3,432 training, 737 validation and 741 test proteins. Each of the first 70 residues is labelled as signal peptide or not:
 
 ::: {#tbl-s11-models}
-| Model (per-residue labelling, test set) | Weights | MCC | AUPR |
-|----|----|----|----|
-| Sliding window (15 residues) + linear classifier | — | 0.539 | 0.681 |
-| Simple RNN | 4,105 | 0.620 | 0.770 |
-| LSTM | 14,761 | 0.631 | 0.767 |
-| **Bidirectional LSTM** | 29,017 | **0.820** | **0.920** |
+| | Sliding window (15 residues) + linear classifier | Simple RNN | LSTM | **Bidirectional LSTM** |
+|----------------|----------|----------|----------|----------|
+| Weights | — | 4,105 | 14,761 | 29,017 |
+| MCC | 0.539 | 0.620 | 0.631 | **0.820** |
+| AUPR | 0.681 | 0.770 | 0.767 | **0.920** |
 
 Per-residue signal-peptide labelling on the test set.
 :::
@@ -255,11 +254,10 @@ Can we see the same effects ourselves? We use a simpler task, *does this protein
 **On the homology-aware test set** (741 proteins, used once):
 
 ::: {#tbl-s11-classifiers}
-| Classifier                                | MCC       | Accuracy  |
-|-------------------------------------------|-----------|-----------|
-| one-hot + logistic regression             | 0.745     | 0.879     |
-| one-hot + 1D CNN                          | 0.825     | 0.916     |
-| **ESM-2 embedding + logistic regression** | **0.955** | **0.978** |
+| | One-hot + logistic regression | One-hot + 1D CNN | **ESM-2 embedding + logistic regression** |
+|----------------|----------|----------|----------|
+| MCC | 0.745 | 0.825 | **0.955** |
+| Accuracy | 0.879 | 0.916 | **0.978** |
 
 Classifiers on the homology-aware test set (741 proteins).
 :::
