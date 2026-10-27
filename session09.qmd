@@ -129,6 +129,22 @@ Cross-entropy is built from the relative entropy (Kullback-Leibler divergence) o
 
 The training loop always runs, but it does not always learn. This section shows three common failures. Each is produced by changing one thing in a network that predicts the fitness of protein variants, using the GB1 data of @sec-s09-epistasis (20,000 training variants, each described by the one-hot encoding of four residues). We measure the validation error as the mean absolute error (MAE) of the predicted $\log_{10}$ fitness. As reference points, predicting the training mean for every variant gives an MAE of 0.488, and a working 64/64 network reaches 0.250 within 20 epochs.
 
+::: {.callout-note}
+## The GB1 data in brief
+
+The full story is in @sec-s09-epistasis; this is what you need for this section.
+
+| | |
+|---------------------|------------------------------------------------------|
+| Protein | GB1, a small antibody-binding (IgG) domain of the bacterial protein G |
+| Variants | all 20⁴ = 160,000 combinations of amino acids at four positions (V39, D40, G41, V54); 149,361 have a measured value (Wu et al., 2016) |
+| Label (regression) | how well the variant binds IgG, relative to the wild type VDGV (= 1), as $\log_{10}(\text{fitness} + 0.001)$ |
+| Input | the one-hot encoding of the four residues (Session 7): 4 × 20 = 80 numbers |
+| Split | 20,000 variants for training, 5,000 for validation, 20,000 for testing |
+| Network | "64/64": two hidden layers of 64 units each and one output, 9,409 weights |
+| Reference points (validation MAE) | 0.488 predicting the training mean; 0.371 the additive (linear) model; 0.250 the working 64/64 network |
+:::
+
 ![Four experiments. (1) Gradient size per layer in a freshly initialised network with six hidden layers: with sigmoid, the first layer receives about ten million times less gradient than the last. (2) Starting every weight at the same value. (3) Six hidden layers with sigmoid, tanh or ReLU, trained with plain gradient descent (SGD), and sigmoid trained with Adam. (4) Optimiser and learning rate. The dotted line is the error of predicting the mean.](figs/session09-training-failures.png){#fig-session09-training-failures width="100%"}
 
 ### Failure 1: every weight starts the same
