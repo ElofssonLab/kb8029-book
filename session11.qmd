@@ -70,8 +70,8 @@ The regions show up when the experimentally supported signal peptides are aligne
 The split is homology-aware (Session 8). The proteins fall into 3,205 MMseqs2 clusters at 30% identity, which are divided into 3,432 training, 737 validation and 741 test proteins. Each of the first 70 residues is labelled as signal peptide or not:
 
 ::: {#tbl-s11-models}
-| | Sliding window (15 residues) + linear classifier | Simple RNN | LSTM | **Bidirectional LSTM** |
-|----------------|----------|----------|----------|----------|
+|   | Sliding window (15 residues) + linear classifier | Simple RNN | LSTM | **Bidirectional LSTM** |
+|-----------------|--------------|--------------|--------------|--------------|
 | Weights | — | 4,105 | 14,761 | 29,017 |
 | MCC | 0.539 | 0.620 | 0.631 | **0.820** |
 | AUPR | 0.681 | 0.770 | 0.767 | **0.920** |
@@ -96,16 +96,39 @@ So far every model has needed labels, such as residues marked as signal peptide 
 
 ### What a language model is
 
-A **language model** learns the regularities of sequences by predicting missing or future tokens, without any biological labels, so the sequences provide their own training signal. There are two kinds:
+You have almost certainly used a language model already: the word suggestions on a phone keyboard, and **ChatGPT**. Both rest on one simple task, **given the text so far, predict what comes next**. After "The mitochondrion is the powerhouse of the", a good model puts most of its probability on "cell", a little on "eukaryotic", and almost none on "bicycle".
+
+A **language model** is a model that does this: for any sequence of **tokens** (words, pieces of words, or for proteins amino acids), it gives a probability for every token that could come next. It is called a language model because it models which sequences are likely in a language, and which are not.
+
+**How ChatGPT writes.** GPT stands for **Generative Pre-trained Transformer**: *generative* because it can produce text, *pre-trained* because it first learns from a huge amount of unlabelled text, and *Transformer* after the architecture explained below (@sec-s11-transformer). To write an answer, the model predicts a probability for every possible next token, picks one of the likely ones, adds it to the text, and repeats, one token at a time. Everything ChatGPT writes is produced this way. ChatGPT itself (OpenAI, November 2022) is a GPT model that, after pretraining on text from the internet and books, was further trained on example conversations and on human ratings of its answers, so that it follows instructions and answers like an assistant instead of simply continuing the text. Its predecessor GPT-3 (2020) already had 175 billion weights, trained on about 300 billion tokens.
+
+**Why predicting the next token teaches so much.** The task sounds trivial, but to do it well a model has to learn a great deal. To continue "The capital of Sweden is", it must know a fact. To continue a sentence in correct grammar, it must know the grammar. To continue an argument, it must follow the argument. None of this is taught directly: it is whatever helps the prediction. The same holds for proteins. To predict a hidden residue in a signal peptide, a model has to learn that the middle of a signal peptide is hydrophobic; to predict a residue in the core of a fold, it has to learn which residues pack against each other.
+
+**No labels needed.** The training data provide their own answers, because the next token is simply the next token in the text. Training of this kind is called **self-supervised**: the training signal is a prediction task, as in supervised learning (Session 8), but the labels come from the sequences themselves, so any amount of unlabelled text, or any number of protein sequences, can be used.
+
+Language models come in two kinds:
 
 - **autoregressive** (GPT-style) models predict the *next* token from the previous ones;
 - **masked** (BERT-style) models, including protein models such as ESM-2, hide some tokens and predict them from the context on *both* sides.
 
 ![The two kinds of language model, here reading the start of a signal peptide. An autoregressive model (left) sees only the tokens to the left and predicts the next one; a masked model (right) predicts hidden tokens from both sides. The output is a probability for every amino acid; the numbers shown are illustrative.](figs/session11-lm.png){#fig-session11-lm width="100%"}
 
-To predict well, a model must learn what tends to go with what. These learned regularities are stored in its internal vectors (**embeddings**), and they turn out to be useful for many other tasks.
+To predict well, a model must learn what tends to go with what. These learned regularities are stored in its internal vectors (**embeddings**), and they turn out to be useful for many other tasks. The rest of this session uses that idea on proteins (@tbl-s11-text-protein).
 
-**A tiny one, in the notebook.** An LSTM trained to predict the next residue reaches 4.071 bits per residue on the test proteins. This is only a little better than knowing the amino-acid composition (4.164 bits). Large models get much further, with far more data and a better architecture.
+::: {#tbl-s11-text-protein}
+| | Language models of text | Protein language models |
+|---------------------|----------------------------------|----------------------------------|
+| Token | a word or piece of a word | an amino acid |
+| Vocabulary | tens of thousands of tokens | 20 amino acids (and a few special tokens) |
+| Training data | text from the internet and books | protein sequences from UniProt (Session 3) |
+| Training task | GPT: the next token; BERT: masked tokens | mostly masked residues (ESM-2, ProtBERT) |
+| What it learns without being told | grammar, facts, style | biochemistry, structure, evolutionary constraints |
+| Example | GPT, ChatGPT, BERT | ESM-2, ProtBERT (used by SignalP 6.0) |
+
+Language models of text and of proteins.
+:::
+
+**A tiny one, in the notebook.** How good a language model is can be measured in bits per token, the surprise of Session 1 averaged over test data. Guessing uniformly among 20 amino acids costs $\log_2 20 = 4.32$ bits per residue. Knowing only how common each amino acid is brings this down to 4.164 bits. An LSTM trained to predict the next residue reaches 4.071 bits on the test proteins, only a little better. Large models get much further, with far more data and a better architecture.
 
 #### Further watching
 
@@ -148,7 +171,7 @@ Unlike an RNN, attention connects any two positions in one step, however far apa
 
 Going further: [*How might LLMs store facts*](https://www.youtube.com/watch?v=9-Jl0dxWQs8) (3Blue1Brown, Deep Learning ch. 7), about the feed-forward layers inside a Transformer.
 
-### The Transformer: attention plus four tricks
+### The Transformer: attention plus four tricks {#sec-s11-transformer}
 
 Attention alone is not yet a complete model. A **Transformer** (Vaswani et al. 2017) is a stack of identical **blocks**. Each block takes one vector per token and returns one vector per token of the same size, so blocks can be stacked as deep as the budget allows.
 
@@ -254,8 +277,8 @@ Can we see the same effects ourselves? We use a simpler task, *does this protein
 **On the homology-aware test set** (741 proteins, used once):
 
 ::: {#tbl-s11-classifiers}
-| | One-hot + logistic regression | One-hot + 1D CNN | **ESM-2 embedding + logistic regression** |
-|----------------|----------|----------|----------|
+|   | One-hot + logistic regression | One-hot + 1D CNN | **ESM-2 embedding + logistic regression** |
+|-----------------------|-----------------|-----------------|-----------------|
 | MCC | 0.745 | 0.825 | **0.955** |
 | Accuracy | 0.879 | 0.916 | **0.978** |
 
