@@ -121,7 +121,9 @@ The second generation found this long-range information in evolution. If two res
     **The idea had been shown a decade earlier, and was barely noticed.** Alan Lapedes and colleagues at Los Alamos identified both problems, phylogeny and indirect couplings, in 1999, and showed on model protein sequences how indirect correlations arise and how a global model separates them from direct ones (Lapedes, Giraud, Liu & Stormo 1999, [*IMS Lecture Notes* 33:236](https://doi.org/10.1214/lnms/1215455556)). The paper appeared in a statistics lecture-note series that few biologists read. In a 2002 manuscript they fitted the same maximum-entropy model to real protein alignments and showed that it predicts contacts better than simple correlation, and also the effects of combined mutations. That manuscript was not published in a journal and appeared only on arXiv in 2012 (Lapedes, Giraud & Jarzynski, [arXiv:1207.2484](https://arxiv.org/abs/1207.2484)), after DCA had made the idea famous. What changed between 1999 and 2011 was mostly the second development below: there were finally enough sequences for the model to work.
 
     Because these pairwise couplings capture epistasis, the same kind of model also predicts mutation effects better than an independent profile (EVmutation; Hopf et al. 2017, [*Nat. Biotechnol.* 35:128](https://doi.org/10.1038/nbt.3769)). These are the interactions Session 9 measured in GB1, now learned from an alignment.
+
 2.  **Bigger families.** Sequence databases grew far faster than structure databases, so families became large enough for the statistics (hundreds to thousands of effective sequences).
+
 3.  **Machine learning on top.** Contacts are not independent pixels. Helices give bands, and strand pairs give lines along or across the diagonal, so a network that looks at a whole neighbourhood of the map (Session 10's convolution) can clean up the noisy coevolution signal. In the notebook, 3 × 3 windows centred on real contacts show only 146 of the 256 possible patterns. When the centre pair is in contact, a neighbouring pair is in contact 23-42% of the time, against a base rate of 3.0%. The first discussion problem asks you to read these patterns, which are exactly what a learned **pair representation** exploits.
 
 The figure shows this progress on one protein, the bacterial response regulator CheY, using an alignment of 11,084 homologs. For each method, the 128 highest-scoring residue pairs (L = 128, the length of the protein) are plotted over the true contacts. Precision rises from 0.49 (mutual information) to 0.73 (DCA), 0.89 (a deep-learning contact predictor) and 0.99 (the contacts in the AlphaFold2 model):
@@ -416,10 +418,35 @@ The same generative machinery can also run in reverse, from a desired structure 
 3.  **AlphaFold2 or ESMFold** refolds the designed sequence, to check that it folds into the intended structure;
 4.  **experiments** test whether it does, and whether it works. Refolding is only a computational consistency check, not experimental validation. Hundreds of RFdiffusion designs were characterised in the lab, including an influenza-haemagglutinin binder whose cryo-EM structure was "nearly identical to the design model".
 
+
+**ProteinMPNN: a sequence for a given backbone.** This is **inverse folding**, the opposite of the prediction problem: the structure is given and the sequence is the unknown. ProteinMPNN treats the backbone as a graph in which each residue is linked to its nearest neighbours in space. An **encoder** lets every residue gather information from its neighbours, and a **decoder** then chooses the amino acids one position at a time, each conditioned on those already chosen, as a language model writes text (Session 11). On natural backbones it recovers 52.4% of the native sequence, against 32.9% for the physics-based Rosetta, and it rescued designs that had previously failed in the laboratory.
+
+![ProteinMPNN. The backbone enters as a graph of neighbouring residues; the encoder lets each residue read its surroundings, and the decoder writes a sequence for it, one amino acid at a time.](figs/session12-design-mpnn.png){#fig-session12-design-mpnn width="100%"}
+
+::: {.callout-note collapse="true"}
+#### Optional: autoencoders and variational autoencoders
+
+An **autoencoder** is a pair of networks: an encoder compresses an input into a small vector, the *latent* representation, and a decoder reconstructs the input from it. Training minimises the reconstruction error, so the latent vector has to keep whatever matters. A **variational autoencoder** (VAE) adds one idea: the encoder outputs a *distribution* rather than a point, and training pushes those distributions towards a standard Gaussian. Sampling a random vector from that Gaussian and decoding it then produces a *new* example, which is why a VAE is a generative model, like the diffusion models of @sec-s12-af3.
+
+ProteinMPNN is an encoder-decoder of this family, but not a VAE: it has no latent Gaussian to sample from. Its randomness comes from the decoder, which samples each amino acid from the probabilities it predicts, so running it again on the same backbone gives a different sequence. A *sampling temperature* controls how varied those sequences are, exactly as for a language model.
+:::
+
+**RFdiffusion: a new backbone out of noise.** Where does the backbone in step 1 come from? RFdiffusion applies the diffusion idea of @sec-s12-af3 to protein coordinates. It starts from a cloud of randomly placed residues and removes the noise step by step, using a version of the RoseTTAFold structure predictor fine-tuned for the purpose, until a plausible backbone is left. Parts of the problem can be held fixed while the rest is generated around them: a target protein's surface, so that the new backbone binds it, or a functional motif such as a binding site, so that the new protein presents it on a stable scaffold. Hundreds of its designs have been made and tested, including an influenza-haemagglutinin binder whose experimental cryo-EM structure was "nearly identical to the design model".
+
+![RFdiffusion. A new backbone appears out of random noise through repeated denoising. The picture is schematic: a real model is three-dimensional and the chain is built from many more steps.](figs/session12-design-rfd.png){#fig-session12-design-rfd width="100%"}
+
+**BindCraft: designing with the gradient of a structure predictor.** A third approach uses no design network at all. AlphaFold2 is differentiable, like every network in this course, so we can ask it the question of Session 9 in reverse. In training, the gradient tells us how to change the *weights* to lower the loss, with the input fixed. Here the weights are **frozen** and the *input* is optimised instead: the binder's sequence starts undecided, as a weight for every amino acid at every position, AlphaFold2 predicts the complex with the target, a score measures how confident it is that the two bind, and backpropagation changes the sequence to raise that score. Repeating this gives a sequence that AlphaFold is as confident about as it can be made to be. The idea began as **hallucination** (Anishchenko et al. 2021, [*Nature* 600:547](https://doi.org/10.1038/s41586-021-04184-w)), which optimised a sequence until a predictor was confident that it folded into *something*. BindCraft (Pacesa et al. 2025, [*Nature* 646:483](https://doi.org/10.1038/s41586-025-09429-6)) turned it into a pipeline for binders, with experimental success rates of 10-100% and no high-throughput screening, against targets including cell-surface receptors, allergens and Cas9.
+
+![BindCraft. AlphaFold2's weights are frozen and the binder's sequence is the thing being optimised: backpropagation changes the sequence until AlphaFold is confident that it binds the target.](figs/session12-design-bind.png){#fig-session12-design-bind width="100%"}
+
+A warning that belongs to the whole section: all three methods optimise against a *predictor*. A design that a network is confident about is a hypothesis, which is why every paper above ends in the laboratory.
+
 #### Further reading
 
 - Abramson et al. (2024), [Accurate structure prediction of biomolecular interactions with AlphaFold 3](https://doi.org/10.1038/s41586-024-07487-w)
 - Watson et al. (2023), [De novo design of protein structure and function with RFdiffusion](https://doi.org/10.1038/s41586-023-06415-8)
+- Dauparas et al. (2022), [Robust deep learning-based protein sequence design using ProteinMPNN](https://doi.org/10.1126/science.add2187)
+- Pacesa et al. (2025), [One-shot design of functional protein binders with BindCraft](https://doi.org/10.1038/s41586-025-09429-6)
 - Elofsson & Ben-Tal (2026), [What will be the future of computational biology for macromolecules in the era of AI?](https://doi.org/10.1371/journal.pcbi.1014467)
 
 #### Further watching
