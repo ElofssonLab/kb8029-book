@@ -27,7 +27,27 @@ The starting point is concrete. In Session 8 we built a network, but its weights
 
 ## From an untrained network to a trained network {#sec-s09-trained}
 
-We start with a problem on which training works well. The **Wisconsin breast-cancer** dataset has 569 fine-needle biopsies, each described by 30 features measured on microscope images of the cell nuclei (radius, texture, perimeter, smoothness, concavity and so on). Each biopsy is labelled malignant (212) or benign (357). We split the data into 398 training, 85 validation and 86 test biopsies, and standardise the features with statistics from the training set only (Session 8). The network has one hidden layer of 16 ReLU units and one output, 513 weights in all.
+We start with a problem on which training works well. The **Wisconsin breast-cancer** dataset has 569 fine-needle biopsies, each described by 30 features measured on microscope images of the cell nuclei (radius, texture, perimeter, smoothness, concavity and so on). Each biopsy is labelled malignant (212) or benign (357). We split the data into 398 training, 85 validation and 86 test biopsies, and standardise the features with statistics from the training set only (Session 8). @tbl-s09-bc-data summarises the data.
+
+::: {#tbl-s09-bc-data}
+| | |
+|---------------------|------------------------------------------------------|
+| Examples | 569 fine-needle biopsies of breast lumps |
+| Label | malignant (212) or benign (357) |
+| Features | 30: ten measurements of the cell nuclei in the image (radius, texture, perimeter, area, smoothness, compactness, concavity, concave points, symmetry, fractal dimension), each given as the mean, the standard error and the worst (largest) value over the nuclei |
+| Split | training 398 (148 malignant), validation 85 (32), test 86 (32); stratified, so each set has the same share of malignant biopsies |
+| Preprocessing | each feature standardised to mean 0 and standard deviation 1, with the mean and standard deviation of the training set |
+
+The breast-cancer data.
+:::
+
+Some features separate the two classes well on their own, others hardly at all (@fig-session09-bc-data):
+
+![Four of the 30 features (the mean value over the nuclei), benign against malignant biopsies, with each feature's AUROC on its own (Session 8). Malignant nuclei are larger and have more concave points; texture helps a little, and fractal dimension not at all (an AUROC of 0.5 is guessing).](figs/session09-bc-data.png){#fig-session09-bc-data width="100%"}
+
+The network reads all 30 standardised features at once. It has one hidden layer of 16 ReLU units and one output unit, whose sigmoid gives the probability that the biopsy is malignant (@fig-session09-bc-network). Counting the biases, it has 513 weights to learn.
+
+![The breast-cancer network. Every input feature is connected to every hidden unit, and every hidden unit to the output (only some of the 30 inputs and 16 hidden units are drawn). The output is a logit; the sigmoid turns it into P(malignant), and the loss function `BCEWithLogitsLoss` applies the sigmoid itself.](figs/session09-bc-network.png){#fig-session09-bc-network width="90%"}
 
 Training the network means repeating one cycle over and over:
 
@@ -120,10 +140,29 @@ The training loop always runs, but it does not always learn. This section shows 
 ### Failure 2: deep sigmoid networks, and vanishing gradients
 
 - **Observation.** A network with six hidden layers of sigmoid units, trained with plain SGD, does not learn at all. Its validation MAE stays around 0.48, the error of predicting the mean. The same network with tanh (0.321) or ReLU (0.312) does learn.
-- **Why?** Backpropagation multiplies one activation *derivative* per layer, and the derivative of the sigmoid is at most 0.25. Even in the best case, six layers therefore multiply the gradient by $0.25^6 \approx 0.00024$. Measured in the freshly initialised network, the first layer's gradient is about **ten million times smaller** than the last layer's (for tanh and ReLU, a few hundred to two thousand times). The first layers barely move.
-- **Fix.** Change what the gradient has to pass through. The options are ReLU-like activations, initialisation scaled to each layer's size, standardised inputs, normalisation layers such as batch normalisation (Ioffe & Szegedy, 2015), and, in later sessions, residual connections. Adam (below) gets the sigmoid network to 0.291 by enlarging the tiny steps, but that is a workaround, not a cure, because the gradients still vanish.
+- **Why?** The answer lies in the activation functions and the chain rule, explained below.
 
-![Derivatives of sigmoid, tanh and ReLU. Sigmoid's is at most 0.25 (at $z = 0$) and below 0.01 by $|z| = 6$. Tanh's peaks at 1 but also vanishes in both tails. ReLU's is exactly 0 or exactly 1.](figs/session09-activation-derivatives.png){#fig-session09-activation-derivatives width="65%"}
+**The chain rule, one layer at a time.** In @sec-s09-backprop, the gradient for a weight was a product of local slopes along the path from the loss back to that weight. In a deep network, this path passes through every later layer. To see what happens, take the simplest deep network: one unit per layer, six hidden layers. Unit $k$ computes $z_k = w_k h_{k-1}$ and passes on $h_k = f(z_k)$, where $f$ is the activation function and $h_0 = x$ is the input. The gradient for the first weight is then
+
+$$
+\frac{\partial L}{\partial w_1} = \frac{\partial L}{\partial h_6}\;
+\underbrace{f'(z_6)\,w_6}_{\text{layer 6}}\;
+\underbrace{f'(z_5)\,w_5}_{\text{layer 5}}\;\cdots\;
+\underbrace{f'(z_2)\,w_2}_{\text{layer 2}}\;
+f'(z_1)\,x .
+$$
+
+Each layer that the gradient passes on its way back contributes two factors: its weight $w_k$ and the **slope of its activation function** at that unit's weighted sum, $f'(z_k)$. In a real network each layer has many units and the gradient is a sum over many such paths, but every path is a product of this kind. A product of many numbers smaller than 1 shrinks exponentially with its length. So how large the slopes are decides whether a gradient survives the trip back (@fig-session09-activations):
+
+- **Sigmoid.** Its slope is at most 0.25, at $z = 0$, and falls quickly on both sides (about 0.20 at $|z| = 1$ and below 0.01 at $|z| = 6$). Even in the best case, six layers therefore multiply the gradient by $0.25^6 \approx 0.00024$; with units away from $z = 0$, it shrinks even faster.
+- **Tanh.** Its slope is 1 at $z = 0$, four times larger than sigmoid's, so the gradient shrinks more slowly. But it still falls in both tails (0.42 at $|z| = 1$), so units that are far from zero still block the gradient.
+- **ReLU.** Its slope is exactly 1 for every unit that is active ($z > 0$), so the activation does not shrink the gradient at all along active paths. For inactive units it is exactly 0, and those paths carry no gradient.
+
+The weights $w_k$ in the product matter as well. Large weights can make the gradient explode instead, which is why initialisation scales them to each layer's size. Measured in the freshly initialised network, the first layer's gradient is about **ten million times smaller** than the last layer's with sigmoid, against a few hundred to two thousand times smaller with tanh and ReLU (panel 1 of @fig-session09-training-failures). With sigmoid, the first layers barely move, so the network cannot learn.
+
+![Top: sigmoid, tanh and ReLU (solid) and their slopes, the derivatives (dashed, shaded), as in Session 8. Bottom: backpropagation multiplies one slope per layer, so the gradient that reaches a weight $n$ layers back from the output is scaled by the product of $n$ slopes (the weights, which also enter the product, are left out here). With sigmoid, even the best case leaves 0.00024 after six layers. With tanh, how much is lost depends on how far units are from $z = 0$, while ReLU passes the whole gradient through active units.](figs/session09-activations.png){#fig-session09-activations width="100%"}
+
+- **Fix.** Change what the gradient has to pass through. The options are ReLU-like activations, initialisation scaled to each layer's size, standardised inputs, normalisation layers such as batch normalisation (Ioffe & Szegedy, 2015), and, in later sessions, residual connections. Adam (below) gets the sigmoid network to 0.291 by enlarging the tiny steps, but that is a workaround, not a cure, because the gradients still vanish.
 
 ReLU (Session 8) never shrinks the gradient for positive inputs, which is why it is the default for hidden layers. Its flat side, however, can leave a unit with no gradient at all ("dying ReLU", the first discussion problem). Vanishing gradients come back in very deep CNNs (Session 10), recurrent networks and Transformers (Session 11), and each of those sessions shows the architectural fix.
 
