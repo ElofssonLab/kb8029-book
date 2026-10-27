@@ -155,7 +155,7 @@ The full story is in @sec-s09-epistasis; this is what you need for this section.
 
 ### Failure 2: deep sigmoid networks, and vanishing gradients
 
-- **Observation.** A network with six hidden layers of sigmoid units, trained with plain SGD, does not learn at all. Its validation MAE stays around 0.48, the error of predicting the mean. The same network with tanh (0.321) or ReLU (0.312) does learn.
+- **Observation.** A network with six hidden layers of sigmoid units, trained with plain stochastic gradient descent (SGD), does not learn at all. Its validation MAE stays around 0.48, the error of predicting the mean. The same network with tanh (0.321) or ReLU (0.312) does learn.
 - **Why?** The answer lies in the activation functions and the chain rule, explained below.
 
 **The chain rule, one layer at a time.** In @sec-s09-backprop, the gradient for a weight was a product of local slopes along the path from the loss back to that weight. In a deep network, this path passes through every later layer. To see what happens, take the simplest deep network: one unit per layer, six hidden layers. Unit $k$ computes $z_k = w_k h_{k-1}$ and passes on $h_k = f(z_k)$, where $f$ is the activation function and $h_0 = x$ is the input. The gradient for the first weight is then
@@ -188,15 +188,42 @@ ReLU (Session 8) never shrinks the gradient for positive inputs, which is why it
 - **Why?** The learning rate sets the step size of gradient descent (Session 1). A rate that is too small is slow, and one that is too large overshoots the minimum. Plain SGD also uses the same step size for every weight, which Adam does not (next subsection).
 - **Fix.** Start with Adam and a learning rate around $10^{-3}$, and always watch the validation curve.
 
-### Momentum and Adam: why an optimiser can beat plain SGD {#sec-s09-adam}
+### Momentum and Adam: why an optimiser can beat plain stochastic gradient descent {#sec-s09-adam}
 
 Plain SGD takes each step straight down the gradient of the current mini-batch. This becomes a problem in a long, narrow valley of the loss, which is common because some weights affect the loss far more than others. In such a valley the gradient points mostly *across* the valley. A learning rate large enough to make progress *along* the valley makes SGD zigzag from wall to wall, while a safe one only crawls. The three optimisers differ in how they deal with this:
 
-- **SGD** follows the current gradient.
+- **Stochastic gradient descent (SGD)** follows the current gradient.
 - **Momentum** follows an average of the recent gradients, like a heavy ball rolling downhill. Directions that agree from step to step add up, and the zigzag across the valley cancels out.
 - **Adam** (Kingma & Ba, 2015) combines momentum with a separate step size for every weight, scaled to the size of that weight's recent gradients. Its default learning rate of $10^{-3}$ works for many networks.
 
 ![Three optimisers, 60 steps each, on a valley 100 times steeper across ($w_2$) than along ($w_1$). SGD zigzags and then crawls (loss 0.09 after 60 steps); momentum (0.0004) and Adam (0.006) reach the minimum.](figs/session09-optimizers.png){#fig-session09-optimizers width="100%"}
+
+**How Adam sets a step for each weight.** For every weight, Adam keeps two running averages over the recent mini-batches: $m$, the average gradient $g$ (the momentum), and $v$, the average *squared* gradient. After each mini-batch it updates them and then the weight:
+
+$$
+m \leftarrow \beta_1 m + (1-\beta_1)\,g, \qquad
+v \leftarrow \beta_2 v + (1-\beta_2)\,g^2, \qquad
+w \leftarrow w - \eta\,\frac{m}{\sqrt{v} + \epsilon}.
+$$
+
+The defaults are $\beta_1 = 0.9$, which averages over roughly the last 10 steps, $\beta_2 = 0.999$, roughly the last 1,000 steps, and a tiny $\epsilon$ that prevents division by zero. Dividing by $\sqrt{v}$ is the key step. If a weight's gradient keeps the same sign, $m/\sqrt{v}$ is close to 1, so the weight moves by about $\eta$ per step, *whatever the size of its gradient*. A weight with tiny gradients, like those in the first layers of the deep sigmoid network of Failure 2, therefore takes steps as large as a weight with large gradients. If a weight's gradient keeps changing sign, as across the valley in @fig-session09-optimizers, the positive and negative gradients cancel in $m$ and the weight barely moves. (Adam also corrects $m$ and $v$ for starting at zero, which matters only in the first steps.)
+
+**A short history.** Adam is the latest step in a long line of ideas (@tbl-s09-optimisers). Gradient descent itself is almost two centuries old. The two ideas that Adam combines, momentum and a separate step size for each weight, were developed separately, and Adam's contribution was to put them together with sensible defaults.
+
+::: {#tbl-s09-optimisers}
+| Year | Method | The idea |
+|------|------------------------|--------------------------------------------------------------|
+| 1847 | Gradient descent (Cauchy) | Step downhill along the gradient; proposed for solving systems of equations in astronomy |
+| 1951 | Stochastic approximation (Robbins & Monro) | Steps based on noisy estimates of the gradient still reach the minimum if the step size shrinks over time: the theory behind SGD |
+| 1964 | Momentum, the "heavy ball" (Polyak) | Follow an average of the recent gradients, so that consistent directions build up speed |
+| 1986 | Backpropagation (Rumelhart, Hinton & Williams) | Gradients for every weight of a multi-layer network, trained with gradient descent plus momentum |
+| 2011 | AdaGrad (Duchi, Hazan & Singer) | A separate step size for each weight: divide by the square root of the *sum* of all its past squared gradients. Rare features get large steps, but all steps shrink towards zero over time |
+| 2012 | RMSProp (Hinton, in a lecture course; never published as a paper) | Replace AdaGrad's sum by a running average, so that the steps no longer die out |
+| 2015 | Adam (Kingma & Ba) | RMSProp's step sizes plus momentum, with a correction for the start; it became the default, and the paper is one of the most cited in all of science |
+| 2019 | AdamW (Loshchilov & Hutter) | Apply weight decay (@sec-s09-l1l2) directly to the weights instead of through the gradient, where Adam's division by $\sqrt{v}$ would weaken it; the usual choice for training Transformers (Session 11) |
+
+Optimisers for gradient descent, from Cauchy to AdamW.
+:::
 
 Adam is a good default, not a universal winner. In the figure, tuned momentum ends even lower, and which optimiser wins depends on the learning rate and the training time. The lab repeats all three failures on blood-cell images, including this comparison, with one rule: *change one thing, see what happens, explain why*.
 
@@ -337,6 +364,8 @@ Rost & Sander's PHD (1993, Session 7) is the recipe of Sessions 5-9 at the scale
 - d2l.ai, [Multilayer Perceptrons](https://d2l.ai/chapter_multilayer-perceptrons/index.html)
 - Ioffe & Szegedy (2015), [Batch Normalization](https://arxiv.org/abs/1502.03167)
 - Kingma & Ba (2015), [Adam: A Method for Stochastic Optimization](https://arxiv.org/abs/1412.6980); d2l.ai, [Optimization Algorithms](https://d2l.ai/chapter_optimization/index.html) (momentum, Adam and others, with interactive examples)
+- Ruder (2016), [An overview of gradient descent optimization algorithms](https://arxiv.org/abs/1609.04747): momentum, AdaGrad, RMSProp, Adam and their relatives side by side
+- Robbins & Monro (1951), [A stochastic approximation method](https://doi.org/10.1214/aoms/1177729586), *Ann. Math. Stat.* 22:400-407; Polyak (1964), [Some methods of speeding up the convergence of iteration methods](https://doi.org/10.1016/0041-5553(64)90137-5), *USSR Comput. Math. Math. Phys.* 4:1-17; Duchi, Hazan & Singer (2011), [AdaGrad](https://jmlr.org/papers/v12/duchi11a.html), *JMLR* 12:2121-2159; Loshchilov & Hutter (2019), [Decoupled Weight Decay Regularization](https://arxiv.org/abs/1711.05101) (AdamW)
 - Rost & Sander (1993), [Prediction of protein secondary structure at better than 70% accuracy](https://doi.org/10.1006/jmbi.1993.1413), *J. Mol. Biol.* 232:584-599
 - UCI Machine Learning Repository, [Breast Cancer Wisconsin (Diagnostic)](https://archive.ics.uci.edu/dataset/17/breast+cancer+wisconsin+diagnostic)
 
