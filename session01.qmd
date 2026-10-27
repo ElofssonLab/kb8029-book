@@ -51,7 +51,7 @@ $$
 \lVert \mathbf{v} \rVert = \sqrt{3^2 + 4^2} = \sqrt{25} = 5
 $$
 
-![5 is literally the hypotenuse of a 3-4-5 right triangle.](figs/session01-triangle.png){#fig-session01-triangle width="10%"}
+![5 is literally the hypotenuse of a 3-4-5 right triangle.](figs/session01-triangle.png){#fig-session01-triangle width="30%"}
 
 ### Dimensions and shapes
 
@@ -364,7 +364,7 @@ Geometrically, the gradient at a point tells you two things at once: the *direct
 
 ### Gradient descent
 
-Stepping against the gradient is the whole idea behind **gradient descent**, which Session 7 uses to train the perceptron introduced above. Suppose we have a function that measures how wrong a model's predictions are (a *loss function*). If we repeatedly take a sufficiently small step in the direction opposite to its gradient, the loss decreases, at least locally. Concretely, the update rule is
+Stepping against the gradient is the whole idea behind **gradient descent**, which Session 7 uses to train the perceptron mentioned above. Suppose we have a function that measures how wrong a model's predictions are (a *loss function*). If we repeatedly take a sufficiently small step in the direction opposite to its gradient, the loss decreases, at least locally. Concretely, the update rule is
 
 $$
 x_{n+1} = x_n - \eta \, f'(x_n)
@@ -661,7 +661,7 @@ A **volcano plot** shows both quantities at once, with the $\log_2$ fold change 
 
 ![Volcano plot of the 2000 simulated genes: $\log_2$ fold change against $-\log_{10}(p\text{-value})$.](figs/session01-volcano-plot.png){#fig-session01-volcano-plot width="85%"}
 
-With only the naive threshold $p<0.05$ (Welch's t-test for each gene), 135 genes in this simulated data are flagged as "significant". Of those, 85 are false positives among the 1950 genes with no real effect, close to the \~97.5 expected by chance. With the Benjamini-Hochberg procedure at an FDR of 5% instead, 44 genes are flagged, and all 44 are among the 50 genes that are really differentially expressed. In this particular test there are no false positives, so the procedure recovers the large majority of the true effects while it stops the flood of false positives that the naive threshold let through. Note, however, that an FDR threshold of 5% does **not** guarantee zero false discoveries. That none of the 44 discoveries is false here is a property of this particular simulation.
+With only the naive threshold $p<0.05$ (Welch's t-test for each gene), 135 genes in this simulated data are flagged as "significant". Of those, 85 are false positives among the 1950 genes with no real effect, close to the \~97.5 expected by chance. With the Benjamini-Hochberg procedure at an FDR of 5% instead, 44 genes are flagged, and all 44 are among the 50 genes that are really differentially expressed. In this particular run there are no false positives, so the procedure recovers the large majority of the true effects while it stops the flood of false positives that the naive threshold let through. Note, however, that an FDR threshold of 5% does **not** guarantee zero false discoveries. That none of the 44 discoveries is false here is a property of this particular simulation.
 
 **Practice problems.**
 

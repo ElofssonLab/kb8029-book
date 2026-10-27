@@ -364,7 +364,7 @@ Everyone's code fails, all the time, so the useful question is how to notice and
 ::: {.callout-tip icon="false"}
 ## Remember
 
-> > **Code running without an error does not mean the analysis is correct.**
+> **Code running without an error does not mean the analysis is correct.**
 :::
 
 AI assistants are very good at removing mistakes of the first kind. They do much less to stop the second and third kinds, which you catch only by asking whether the result answers your question and whether it is biologically plausible. For the first kind, experienced programmers follow a routine for getting unstuck:
@@ -486,7 +486,7 @@ The notebook has a worked solution, which finds the following:
 The globin genes of the mini challenge, from the notebook's worked solution.
 :::
 
-The proteins are all about the same size (142-190 amino acids, one globin fold each), but the mRNAs differ more than threefold in length. Almost all of the difference is untranslated sequence (UTRs), which ranges from 147 nt in *HBA2* to 1,389 nt in *CYGB*. A transcript's length therefore says little about its protein. With six genes, Pearson's correlation between mRNA and protein length is $r = 0.78$, but $p = 0.07$, so a strong-looking correlation from few points is only weak evidence (the second discussion problem).
+The proteins are all about the same size (142-190 amino acids, one globin fold each), but the mRNAs differ more than threefold in length. Almost all of the difference is untranslated sequence (UTRs), which ranges from 147 nt in *HBA2* to 1,389 nt in *CYGB*. A transcript's length therefore says little about its protein. With six genes, Pearson's correlation between mRNA and protein length is $r = 0.78$, but $p = 0.07$, so a strong-looking correlation from few points is only weak evidence.
 
 **Check your understanding:**
 

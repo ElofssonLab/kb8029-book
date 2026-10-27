@@ -128,7 +128,7 @@ To predict well, a model must learn what tends to go with what. These learned re
 Language models of text and of proteins.
 :::
 
-**A tiny one, in the notebook.** How good a language model is can be measured in bits per token, the surprise of Session 1 averaged over test data. Guessing uniformly among 20 amino acids costs $\log_2 20 = 4.32$ bits per residue. Knowing only how common each amino acid is brings this down to 4.164 bits. An LSTM trained to predict the next residue reaches 4.071 bits on the test proteins, only a little better. Large models get much further, with far more data and a better architecture.
+**A tiny one, in the notebook.** How good a language model is can be measured in bits per token, the surprise of Session 1 averaged over test data. Guessing uniformly among 20 amino acids costs $\log_2 20 = 4.322$ bits per residue. Knowing only how common each amino acid is brings this down to 4.164 bits. An LSTM trained to predict the next residue reaches 4.071 bits on the test proteins, only a little better. Large models get much further, with far more data and a better architecture.
 
 #### Further watching
 
@@ -218,7 +218,7 @@ The same recipe works for proteins. There are hundreds of millions of unlabelled
 
 ### Same residue, different context: contextual embeddings
 
-In a one-hot encoding (Sessions 7-10), every leucine is the same vector, wherever it occurs. (You have met one learned representation before: in Session 6, Foldseek turned the 3D environment of each residue into a letter of a learned 3Di alphabet.) A protein language model instead computes the vector of each residue from the whole sequence around it. This is a **contextual embedding**, and with it a leucine in a signal peptide and a leucine in a cytoplasmic enzyme get different vectors. To see this, the notebook collects the ESM-2 vectors of 2,924 leucines from the first 70 residues of 450 proteins:
+In a one-hot encoding (Sessions 7-10), every leucine is the same vector, wherever it occurs. (You have met one learned representation before: in Session 6, Foldseek turned the 3D environment of each residue into a letter of a learned 3Di alphabet.) A protein language model instead computes the vector of each residue from the whole sequence around it. This is a **contextual embedding**, and with it a leucine in a signal peptide and a leucine in a cytoplasmic enzyme get different vectors. To see this, the notebook collects the ESM-2 vectors of 2,924 leucines from the first 70 residues of 450 proteins, counting only the leucines inside the signal peptide in the secreted group:
 
 ![PCA of the ESM-2 vectors of leucines in signal peptides (orange), in cytoplasmic or nuclear proteins (blue) and in transmembrane proteins (green). In a one-hot encoding all of them would be a single point.](figs/session11-contextual-leucine.png){#fig-session11-contextual-leucine width="65%"}
 
@@ -238,7 +238,7 @@ You have met this recipe three times: DINOv2 on histology tiles (Session 10), ES
 
 - d2l.ai, [Attention Mechanisms and Transformers](https://d2l.ai/chapter_attention-mechanisms-and-transformers/index.html)
 - Vaswani et al. (2017), [Attention Is All You Need](https://arxiv.org/abs/1706.03762)
-- Devlin et al. (2019), [BERT](https://arxiv.org/abs/1810.04805)
+- Devlin et al. (2018), [BERT](https://arxiv.org/abs/1810.04805)
 - Lin et al. (2023), [Evolutionary-scale prediction of atomic-level protein structure with a language model](https://pubmed.ncbi.nlm.nih.gov/36927031/)
 
 ## Pretraining changes biological prediction {#sec-s11-signalp}
