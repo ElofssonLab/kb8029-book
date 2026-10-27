@@ -227,9 +227,17 @@ The real tool, DeepLoc (Almagro Armenteros et al. 2017, [*Bioinformatics* 33:338
 
 ## Beyond sequences: a contact map is an image {#sec-s10-structure}
 
-Convolution is not limited to sequences and photographs. A **contact map** is an $L \times L$ grid with one pixel per residue pair, set to 1 if the two residues are close in the structure (Cβ atoms within 8 Å). You first saw this representation in Session 6. For the β chain of haemoglobin (PDB 4HHB) it looks like this:
+Convolution is not limited to sequences and photographs. It also works on the **contact map** of a protein, which you met in Session 6 (section "A structure as a matrix: distance and contact maps").
 
-![Contact map of β-globin (4HHB chain B, 146 residues). The band along the diagonal is each helix contacting itself; the off-diagonal blocks are pairs of helices packed against each other. Red bars: the eight α-helices annotated in the PDB file.](figs/session10-hbb-contact-map.png){#fig-session10-hbb-contact-map width="60%"}
+**What a contact map is.** A structure is a list of coordinates in 3D. A contact map turns it into a 2D picture that only says *which residues touch*. For a protein of $L$ residues it is an $L \times L$ grid: the pixel in row $i$ and column $j$ is black (1) if residues $i$ and $j$ are close in space, and white (0) if not. "Close" needs a definition, and the usual one is that the two residues' Cβ atoms (Cα for glycine, which has no Cβ) are within 8 Å, about the distance at which side chains can touch. Three things follow from this definition:
+
+- The map is **symmetric**: if $i$ touches $j$, then $j$ touches $i$, so every contact appears twice, mirrored in the diagonal.
+- The **diagonal** is always black, since every residue is close to itself and to its neighbours in the chain. Contacts near the diagonal are *local*: the two residues are near each other in the sequence as well as in space.
+- Contacts **far from the diagonal** are the interesting ones. They join residues that are far apart in the sequence but brought together by the fold, and they are what makes a protein's 3D structure what it is.
+
+Like the distance map it is made from, a contact map does not change when the protein is rotated or moved (Session 6): it is invariant to those transformations, in the sense of @sec-s10-convolution. @fig-session10-hbb-contacts-3d shows how pairs of residues in the structure of the β chain of haemoglobin (PDB 4HHB) become pixels of its contact map:
+
+![Left: β-globin (4HHB chain B, 146 residues) rendered with PyMOL, with four pairs of residues in contact (Cβ atoms as spheres, joined by dashed lines). Right: its contact map, with the same four pairs circled; each pair appears twice, mirrored in the diagonal. The pair within helix E (green) lies next to the diagonal: helices give a thick diagonal band because residues $i$ and $i + 3$ or $i + 4$ sit on neighbouring turns. The three pairs on different helices (blue, orange, purple) lie far from the diagonal, in the short stripes where two helices pack against each other.](figs/session10-hbb-contacts-3d.png){#fig-session10-hbb-contacts-3d width="100%"}
 
 Contacts form local patterns, as helices give bands and strand pairs give lines along or across the diagonal. Once a protein is an $L \times L$ map, 2D convolutions are therefore a natural way to predict it. From 2016, deep residual CNNs that predict contact and distance maps transformed structure prediction, and Session 12 tells that story. The third discussion problem asks you to read fold classes from contact maps.
 
