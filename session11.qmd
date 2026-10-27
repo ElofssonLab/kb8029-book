@@ -71,7 +71,7 @@ The split is homology-aware (Session 8). The proteins fall into 3,205 MMseqs2 cl
 
 ::: {#tbl-s11-models}
 |   | Sliding window (15 residues) + linear classifier | Simple RNN | LSTM | **Bidirectional LSTM** |
-|-----------------|--------------|--------------|--------------|--------------|
+|---------------|---------------|---------------|---------------|---------------|
 | Weights | — | 4,105 | 14,761 | 29,017 |
 | MCC | 0.539 | 0.620 | 0.631 | **0.820** |
 | AUPR | 0.681 | 0.770 | 0.767 | **0.920** |
@@ -116,8 +116,8 @@ Language models come in two kinds:
 To predict well, a model must learn what tends to go with what. These learned regularities are stored in its internal vectors (**embeddings**), and they turn out to be useful for many other tasks. The rest of this session uses that idea on proteins (@tbl-s11-text-protein).
 
 ::: {#tbl-s11-text-protein}
-| | Language models of text | Protein language models |
-|---------------------|----------------------------------|----------------------------------|
+|   | Language models of text | Protein language models |
+|------------------|---------------------------|---------------------------|
 | Token | a word or piece of a word | an amino acid |
 | Vocabulary | tens of thousands of tokens | 20 amino acids (and a few special tokens) |
 | Training data | text from the internet and books | protein sequences from UniProt (Session 3) |
@@ -278,7 +278,7 @@ Can we see the same effects ourselves? We use a simpler task, *does this protein
 
 ::: {#tbl-s11-classifiers}
 |   | One-hot + logistic regression | One-hot + 1D CNN | **ESM-2 embedding + logistic regression** |
-|-----------------------|-----------------|-----------------|-----------------|
+|---------------------|-----------------|-----------------|-----------------|
 | MCC | 0.745 | 0.825 | **0.955** |
 | Accuracy | 0.879 | 0.916 | **0.978** |
 
