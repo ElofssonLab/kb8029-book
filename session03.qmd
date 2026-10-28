@@ -181,13 +181,13 @@ The same applies to the literature. **PubMed**, built by NCBI on the NLM's MEDLI
 A good habit for every database is to **predict what a query will return, run it, and check whether the result makes sense.** PubMed's Boolean operators make this easy, because they behave like operations on sets:
 
 ::: {#tbl-s03-pubmed}
-| Query | Result count | Prediction |
+| Query                    | Result count | Prediction                        |
 |------------------------|------------------------|------------------------|
-| `hemoglobin` | 288,577 | — |
-| `malaria` | 125,442 | — |
-| `hemoglobin AND malaria` | 4,458 | both terms present |
-| `hemoglobin OR malaria` | 409,561 | 288,577 + 125,442 − 4,458 (union) |
-| `hemoglobin NOT malaria` | 284,119 | 288,577 − 4,458 (difference) |
+| `hemoglobin`             | 288,577      | —                                 |
+| `malaria`                | 125,442      | —                                 |
+| `hemoglobin AND malaria` | 4,458        | both terms present                |
+| `hemoglobin OR malaria`  | 409,561      | 288,577 + 125,442 − 4,458 (union) |
+| `hemoglobin NOT malaria` | 284,119      | 288,577 − 4,458 (difference)      |
 
 PubMed queries combined with Boolean operators.
 :::
