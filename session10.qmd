@@ -372,8 +372,9 @@ The first part of the notebook trains a small CNN six times for 100 epochs, so u
 
 1.  count the weights of a dense and a convolutional layer, then of whole models, and see why adding a convolutional layer can make the whole model *smaller* (the next dense layer receives a smaller feature map);
 2.  train four models side by side, two dense networks of 23,000 and 302,000 weights, a one-layer convolutional network and a small CNN, and see that the CNN, with 17,640 weights, beats them all;
-3.  find out how many unpadded 5×5 convolutions fit on a 28×28 image;
-4.  build a VGG block, and test it on cells placed at positions it never saw during training, before and after training on randomly placed cells, to see that equivariance is not invariance.
+3.  choose the number of filters yourself, by trying a few values and watching the validation accuracy, and then measure the model you chose once on the test set, which has been untouched since the start;
+4.  find out how many unpadded 5×5 convolutions fit on a 28×28 image;
+5.  build a VGG block, and test it on cells placed at positions it never saw during training, before and after training on randomly placed cells, to see that equivariance is not invariance.
 
 Two optional extras, which are not part of the quiz, follow if you have time. In the first you build a ResNet block with a skip connection and compare it with VGG. In the second you rotate and mirror the cells and measure what augmentation buys you.
 
