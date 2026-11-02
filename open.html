@@ -3,10 +3,13 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Open in VS Code · KB8029</title>
+<title>Open the notebook · KB8029</title>
 <!--
-  Every "Open in VS Code" link in the book, the notebooks, the slides and Canvas points here:
-  https://course.bioinfo.se/open.html?nb=session04-lab.ipynb
+  The laptop route, for a student who wants the notebooks on their own machine. Since 2026-11-02 the default is
+  Colab in the browser: every lab notebook's own badge, the book pages and the Canvas quizzes link straight to
+  https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/<nb>, with no clone and no
+  intermediate page. This page stays because older links and Canvas copies point at it, and because cloning is
+  still the better way to work if you want every notebook and the data locally.
   First time: clone the book's repository into VS Code (vscode://vscode.git/clone). After that: open the notebook
   in that clone (vscode://file/<folder>/notebooks/<nb>). The folder is remembered in this browser only.
 -->
@@ -35,11 +38,20 @@
 </head>
 <body>
 <main>
-  <h1>Open in VS Code</h1>
+  <h1>Open the notebook</h1>
   <div class="file" id="file"></div>
 
   <section>
-    <h2>Every time: open the notebook</h2>
+    <h2>The quick way: run it in your browser</h2>
+    <p>Nothing to install. Sign in with a Google account, then <b>File &rarr; Save a copy in Drive</b> to keep your
+      work &mdash; a Colab tab you simply close keeps nothing.</p>
+    <a class="button" id="colab" href="#">Open the notebook in Colab</a>
+  </section>
+
+  <section>
+    <h2>On your laptop instead: VS Code</h2>
+    <p class="muted">Worth the setup if you want all the notebooks and their data locally, and the editor you would
+      use in research. It needs the one-time clone below.</p>
     <label for="folder">The folder you cloned the course notebooks into (<code>kb8029-book</code>):</label>
     <input id="folder" placeholder="C:\Users\you\kb8029-book   or   /Users/you/kb8029-book" spellcheck="false" autocomplete="off">
     <a class="button disabled" id="open" href="#">Open the notebook in VS Code</a>
@@ -50,7 +62,7 @@
   </section>
 
   <section>
-    <h2>The first time only: get the course notebooks</h2>
+    <h2>The first time only (VS Code route): get the course notebooks</h2>
     <ol>
       <li>Install <a href="https://code.visualstudio.com/">VS Code</a>, <a href="https://git-scm.com/downloads">git</a>,
         and in VS Code the extensions <b>Python</b>, <b>Jupyter</b> and <b>Google Colab</b>.</li>
@@ -68,6 +80,12 @@
   const nb = (params.get("nb") || "").replace(/[^A-Za-z0-9._-]/g, "");
   const fileEl = document.getElementById("file"), nameEl = document.getElementById("name");
   const folder = document.getElementById("folder"), open = document.getElementById("open");
+  const colab = document.getElementById("colab");
+  if (nb) {
+    colab.href = "https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/" + nb;
+  } else {
+    colab.classList.add("disabled");
+  }
   fileEl.textContent = nb ? "notebooks/" + nb : "No notebook given.";
   nameEl.textContent = nb || "the notebook's name";
   if (!nb) fileEl.classList.add("err");

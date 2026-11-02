@@ -1,32 +1,50 @@
-# Setup: VS Code and Google Colab {.unnumbered}
+# Setup: Google Colab, and VS Code if you want it {.unnumbered}
 
-All the notebooks and labs in this course run on **Google Colab**, Google's free service for running Python notebooks on its machines, some of which have a GPU. The **labs** are done in **VS Code** on your own laptop, with the notebook running on a Colab machine through Google's Colab extension: this is how notebooks are used in research, and the labs are where you get used to it. The **course notebooks** that go with each session page can also be opened directly in Colab in the browser. Either way, nothing has to be installed on your laptop apart from VS Code and git, and every student works in the same environment.
+All the notebooks and labs in this course run on **Google Colab**, Google's free service for running Python notebooks on its machines, some of which have a GPU. **Every notebook, lab or not, opens with one click in your browser**: click its **Open in Google Colab** badge, sign in with a Google account, and run the cells. Nothing is installed, and every student works in the same environment. Each notebook downloads the data it needs from the course's GitHub repository, so nothing has to be fetched beforehand.
+
+The one thing Colab does not do for you is keep your work: a tab you close keeps nothing. **File → Save a copy in Drive** as soon as you start a lab, and keep working in that copy.
+
+If you would rather have the notebooks on your own laptop, Part 3 sets up **VS Code**, with the notebook still running on a Colab machine through Google's Colab extension. That is how notebooks are used in research, and it is worth learning, but it is optional and you can come to it later in the course.
 
 | What you need | Why |
 |------------------------|------------------------|
-| A **Google account** (a free one is enough) | Colab runs your code on Google's machines |
-| **VS Code** on your laptop, with the extensions **Jupyter**, **Python** and **Google Colab** | To open, edit and run the lab notebooks |
-| **git** | To get all the course notebooks in one go and keep them up to date, and to keep your own work under version control (Session 2) |
+| A **Google account** (a free one is enough) | Colab runs your code on Google's machines. This is all you need for every lab. |
+| *Optional:* **VS Code** on your laptop, with the extensions **Jupyter**, **Python** and **Google Colab** | To edit the notebooks on your own machine, still running them on Colab |
+| *Optional:* **git** | To get all the course notebooks in one go and keep them up to date, and to keep your own work under version control (Session 2) |
 
-Every lab notebook has an **Open in VS Code** link (on the session page, in Canvas and in the lab quiz), and every course notebook an **Open in Colab** badge. All notebooks fetch their data from the course's GitHub repository, so they run the same way everywhere. Do Parts 1 and 2 before the first lab in Session 2, and check that a notebook runs, so that the lab time is spent on the lab.
+Every notebook in the course carries an **Open in Google Colab** badge, on the session page, in Canvas and in the lab quiz. All notebooks fetch their data from the course's GitHub repository, so they run the same way everywhere. **Before the first lab in Session 2**, open any notebook in Colab and check that its first cells run, so that the lab time is spent on the lab. Parts 2 to 4 below are only for the laptop route.
 
-## Part 1: Install VS Code, git and the extensions
+## Part 1: Run a lab in Colab {#open-in-colab}
+
+This is all you need for every lab in the course.
+
+1.  Click the lab's **Open in Google Colab** badge, on the session page, in Canvas, or at the top of the notebook itself. The notebook opens in a tab.
+
+2.  Sign in with your Google account when asked, and click **Connect** (top right). For the labs that train a network (mainly Sessions 9-12), take a GPU first: **Runtime → Change runtime type → T4 GPU**.
+
+3.  **File → Save a copy in Drive**, straight away. You are now working in your own copy; the original stays as it was, and your work survives closing the tab. Everything else — a package the notebook installs, a file it writes — disappears when the machine is recycled, so download anything you want to keep.
+
+4.  Run the cells from the top. Most notebooks start with an install cell for the few packages Colab does not already have (for example Biopython); it takes a few seconds on each new machine. The data is downloaded by the notebook itself.
+
+To hand a lab in, follow the instructions in its Canvas quiz: the quiz asks for the numbers your notebook produced, not for the notebook file.
+
+## Part 2 (optional): Install VS Code, git and the extensions
 
 1.  Install [VS Code](https://code.visualstudio.com/) and [git](https://git-scm.com/downloads) if you do not already have them.
 2.  In VS Code, open the Extensions view (Ctrl+Shift+X, or Cmd+Shift+X on a Mac) and install **Python** and **Jupyter** (both by Microsoft) and **Google Colab** (by Google).
 3.  Check that you can sign in to Google in a browser with the account you want to use for the course.
 
-## Part 2: Get the course notebooks into VS Code (once)
+## Part 3 (optional): Get the course notebooks into VS Code (once)
 
 1.  Click **[Clone the course notebooks into VS Code](vscode://vscode.git/clone?url=https%3A%2F%2Fgithub.com%2FElofssonLab%2Fkb8029-book.git)**. Your browser asks whether to open VS Code: allow it. (Or, in VS Code: Command Palette, Ctrl+Shift+P or Cmd+Shift+P → **Git: Clone** → `https://github.com/ElofssonLab/kb8029-book.git`.)
 2.  Choose where to save the folder `kb8029-book` (about 100 MB), and open it when VS Code offers to. The notebooks are in its `notebooks` folder.
 3.  Before each lab, get the latest version: Command Palette → **Git: Pull**. The teachers sometimes fix a lab shortly before it is used.
 
-## Part 3: Run a lab notebook on Colab from VS Code {#open-in-vscode}
+## Part 4 (optional): Run a lab notebook on Colab from VS Code {#open-in-vscode}
 
 Google's **Colab** extension for VS Code (released November 2025) lets a notebook that is open in VS Code run on a Colab machine:
 
-1.  Click the lab's **Open in VS Code** link. The first time, the page that opens asks for the full path of your `kb8029-book` folder (for example `C:\Users\you\kb8029-book` or `/Users/you/kb8029-book`) and remembers it; after that, its button opens the notebook straight in VS Code. You can also open it yourself: in VS Code press Ctrl+P (Cmd+P on a Mac) and type the notebook's name, for example `session04-lab.ipynb`.
+1.  Click the small **or on your laptop, in VS Code** link next to a lab's Colab badge. The first time, the page that opens asks for the full path of your `kb8029-book` folder (for example `C:\Users\you\kb8029-book` or `/Users/you/kb8029-book`) and remembers it; after that, its button opens the notebook straight in VS Code. You can also open it yourself: in VS Code press Ctrl+P (Cmd+P on a Mac) and type the notebook's name, for example `session04-lab.ipynb`.
 
 2.  Click **Select Kernel** (top right) → **Colab** → **Auto Connect** (or choose a runtime with a GPU), and sign in with your Google account when asked.
 
@@ -48,13 +66,15 @@ Things to know:
 - **The free GPU is limited.** A session is closed after a period of inactivity or when your quota is used up, and a GPU is not always available. Ask for a GPU only when the notebook needs one, and when you are done, release the machine with **Colab: Remove Server**.
 - **No terminal tools.** Everything in the labs is done from Python: the sequence searches and alignments in Sessions 4 and 5 call EMBL-EBI's web services (HMMER, Clustal Omega, InterPro), and in Session 6 PyMOL runs inside the notebook and structure searches go to the Foldseek web service.
 
-## Part 4: Course notebooks in the browser
-
-The course notebooks that go with each session page have an **Open in Colab** badge. Click it, choose **Runtime → Change runtime type → T4 GPU** if the notebook needs a GPU, and run the cells. This works from any computer. **File → Save a copy in Drive** keeps your own copy with your changes; without it, your edits are lost when you close the tab. You can also open a course notebook from your `kb8029-book` folder in VS Code, exactly as a lab.
+The course notebooks that go with each session page work exactly the same way as a lab (Part 1), and can equally be opened from your `kb8029-book` folder in VS Code.
 
 ## Troubleshooting {#troubleshooting}
 
-**The Open in VS Code button does nothing, or VS Code says the file does not exist.** Check the folder path on the page (it must be the `kb8029-book` folder itself), and that the clone in Part 2 worked. Opening the notebook by name with Ctrl+P always works.
+**The Colab badge opens a page saying the notebook cannot be found.** Check that you are signed in to Google, and reload. If it persists, open <https://colab.research.google.com/github/ElofssonLab/kb8029-book> and pick the notebook from the list.
+
+**My work disappeared.** A Colab tab keeps nothing unless you used **File → Save a copy in Drive**. Do that first thing, every time; the copy is then in your own Drive, under *Colab Notebooks*.
+
+**The Open in VS Code button does nothing, or VS Code says the file does not exist.** Check the folder path on the page (it must be the `kb8029-book` folder itself), and that the clone in Part 3 worked. Opening the notebook by name with Ctrl+P always works.
 
 **VS Code does not offer Colab under Select Kernel.** Check that the Google Colab extension is installed and enabled in a *local* VS Code window, and reload the window (Command Palette → **Developer: Reload Window**).
 

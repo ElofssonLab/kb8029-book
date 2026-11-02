@@ -510,7 +510,7 @@ renderQuiz("session02-quiz-3", [
 
 ## The lab
 
-The lab notebook, [`notebooks/session02-lab.ipynb`](https://course.bioinfo.se/open.html?nb=session02-lab.ipynb), continues from the mini challenge, with less help at each step. Lines to complete are marked with `todo(...)`, which stops the cell with a message saying what is missing. The lab has three parts:
+The lab notebook, [`notebooks/session02-lab.ipynb`](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session02-lab.ipynb), continues from the mini challenge, with less help at each step. Lines to complete are marked with `todo(...)`, which stops the cell with a message saying what is missing. The lab has three parts:
 
 1.  **Fill in:** complete the marked lines in working code. You explore the same RNA-seq table with other columns and thresholds, plot first and test second, run `Seq` operations on a mystery fragment, fetch its record from NCBI into a local file and back, and finish a small `Transcript` class for that record.
 
