@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Lecture video · KB8029</title>
+<!--
+  Plays a recorded lecture with its captions:
+  https://course.bioinfo.se/watch.html?v=session10-video-part1
+
+  A browser's <track> element only understands WebVTT, never SRT, which is why
+  make_video.py writes both: the .srt for a desktop player, the .vtt for this page. The
+  media files are in media/ beside this page. This page is deliberately NOT under teachers/:
+  Canvas links to it, so students see the URL, and the teachers area holds answer keys.
+-->
+<style>
+  :root { --bg: #ffffff; --fg: #1f2933; --muted: #52606d; --card: #f4f6f9; --accent: #007acc; --border: #d9e2ec; }
+  @media (prefers-color-scheme: dark) {
+    :root { --bg: #14181d; --fg: #e4e7eb; --muted: #9aa5b1; --card: #1f252c; --accent: #3ba7ff; --border: #323f4b; }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg);
+         font: 16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 1100px; margin: 0 auto; padding: 20px 16px 48px; }
+  h1 { font-size: 1.3rem; margin: 0 0 2px; }
+  .sub { color: var(--muted); font-size: 0.95rem; margin: 0 0 14px; }
+  video { width: 100%; background: #000; border-radius: 8px; }
+  nav { margin: 14px 0; display: flex; flex-wrap: wrap; gap: 8px; }
+  nav a { display: inline-block; padding: 7px 13px; border: 1px solid var(--border); border-radius: 6px;
+          text-decoration: none; color: var(--fg); background: var(--card); font-size: 0.95rem; }
+  nav a.on { background: var(--accent); color: #fff; border-color: var(--accent); font-weight: 600; }
+  .files { color: var(--muted); font-size: 0.9rem; margin-top: 14px; }
+  .files a { color: var(--accent); }
+  .err { color: #c53030; }
+  code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.92em; }
+</style>
+</head>
+<body>
+<main>
+  <h1 id="title">Lecture video</h1>
+  <p class="sub" id="sub"></p>
+  <video id="player" controls preload="metadata" playsinline crossorigin="anonymous"></video>
+  <nav id="parts"></nav>
+  <p class="files" id="files"></p>
+  <p class="files">Captions are on by default; turn them off with the player's subtitle button.
+    Not shown to students yet &mdash; see <a href="https://course.bioinfo.se/">course.bioinfo.se</a>.</p>
+</main>
+<script>
+  // sessionNN-video-partN, and nothing else: this page only ever points into media/.
+  const SESSIONS = {
+    "07": "Session 7 — Linear Models, Gradient Descent, XOR & Secondary Structure Prediction",
+    "08": "Session 8 — Machine Learning Foundations & Practical PyTorch",
+    "09": "Session 9 — How a Neural Network Learns, and Why Training Fails",
+    "10": "Session 10 — CNNs, and How They Took Over Biology",
+    "11": "Session 11 — Sequences, Language Models and SignalP",
+    "12": "Session 12 — AlphaFold and Generative Models of Protein Structure"
+  };
+  const BLOCKS = ["Block 1", "Block 2", "Block 3"];
+
+  const want = (new URLSearchParams(location.search).get("v") || "session10-video-part1");
+  const m = /^session(\d\d)-video-part([123])$/.exec(want);
+  const titleEl = document.getElementById("title"), subEl = document.getElementById("sub");
+  const player = document.getElementById("player"), partsEl = document.getElementById("parts");
+  const filesEl = document.getElementById("files");
+
+  if (!m) {
+    titleEl.textContent = "No such video";
+    titleEl.classList.add("err");
+    subEl.textContent = "Expected ?v=sessionNN-video-partN, for example session10-video-part1.";
+  } else {
+    const [, n, part] = m;
+    document.title = (SESSIONS[n] || ("Session " + n)) + " · " + BLOCKS[part - 1];
+    titleEl.textContent = SESSIONS[n] || ("Session " + n);
+    subEl.textContent = BLOCKS[part - 1] + " of 3";
+
+    player.src = "media/" + want + ".mp4";
+    const track = document.createElement("track");
+    track.kind = "subtitles";
+    track.label = "English";
+    track.srclang = "en";
+    track.src = "media/" + want + ".vtt";
+    track.default = true;
+    player.appendChild(track);
+    // Safari sometimes ignores the default attribute until the track has loaded.
+    player.addEventListener("loadedmetadata", function () {
+      if (player.textTracks.length) player.textTracks[0].mode = "showing";
+    });
+
+    for (let p = 1; p <= 3; p++) {
+      const a = document.createElement("a");
+      a.textContent = BLOCKS[p - 1];
+      a.href = "watch.html?v=session" + n + "-video-part" + p;
+      if (String(p) === part) a.className = "on";
+      partsEl.appendChild(a);
+    }
+    filesEl.innerHTML = 'Files: <a href="media/' + want + '.mp4" download>' + want + '.mp4</a> &middot; ' +
+                        '<a href="media/' + want + '.vtt" download>captions (.vtt)</a> &middot; ' +
+                        '<a href="media/' + want + '.srt" download>captions (.srt)</a>';
+  }
+</script>
+</body>
+</html>
