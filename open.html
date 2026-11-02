@@ -3,15 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Open the notebook · KB8029</title>
+<title>Get the notebook · KB8029</title>
 <!--
-  The laptop route, for a student who wants the notebooks on their own machine. Since 2026-11-02 the default is
-  Colab in the browser: every lab notebook's own badge, the book pages and the Canvas quizzes link straight to
-  https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/<nb>, with no clone and no
-  intermediate page. This page stays because older links and Canvas copies point at it, and because cloning is
-  still the better way to work if you want every notebook and the data locally.
-  First time: clone the book's repository into VS Code (vscode://vscode.git/clone). After that: open the notebook
-  in that clone (vscode://file/<folder>/notebooks/<nb>). The folder is remembered in this browser only.
+  Older links -- in Canvas, in earlier versions of the book and the slides -- point here:
+  https://course.bioinfo.se/open.html?nb=session04-lab.ipynb
+  Since 2026-11-02 a lab is simply downloaded: the session page, the Canvas quiz and this page all link to
+  https://course.bioinfo.se/notebooks/<nb>, and the student opens the file in VS Code (or any editor that opens
+  .ipynb). There is no clone and no browser Colab. This page is kept only so that those older links still work,
+  and it does the same thing: it offers the download.
 -->
 <style>
   :root { --bg: #ffffff; --fg: #1f2933; --muted: #52606d; --card: #f4f6f9; --accent: #007acc; --border: #d9e2ec; }
@@ -25,11 +24,9 @@
   .file { font-family: ui-monospace, Menlo, Consolas, monospace; color: var(--muted); word-break: break-all; }
   section { background: var(--card); border: 1px solid var(--border); border-radius: 10px; padding: 16px 18px; margin: 18px 0; }
   h2 { font-size: 1.05rem; margin: 0 0 8px; }
-  a.button, button { display: inline-block; background: var(--accent); color: #fff; border: 0; border-radius: 6px;
-    padding: 10px 16px; font: inherit; font-weight: 600; text-decoration: none; cursor: pointer; }
+  a.button { display: inline-block; background: var(--accent); color: #fff; border: 0; border-radius: 6px;
+    padding: 10px 16px; font: inherit; font-weight: 600; text-decoration: none; }
   a.button.disabled { opacity: 0.4; pointer-events: none; }
-  input { width: 100%; padding: 8px 10px; font: 15px ui-monospace, Menlo, Consolas, monospace; border: 1px solid var(--border);
-    border-radius: 6px; background: var(--bg); color: var(--fg); margin: 6px 0 10px; }
   ol { padding-left: 1.3em; margin: 6px 0; }
   code { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.92em; }
   .muted { color: var(--muted); font-size: 0.92rem; }
@@ -38,68 +35,38 @@
 </head>
 <body>
 <main>
-  <h1>Open the notebook</h1>
+  <h1>Get the notebook</h1>
   <div class="file" id="file"></div>
 
   <section>
-    <h2>The quick way: run it in your browser</h2>
-    <p>Nothing to install. Sign in with a Google account, then <b>File &rarr; Save a copy in Drive</b> to keep your
-      work &mdash; a Colab tab you simply close keeps nothing.</p>
-    <a class="button" id="colab" href="#">Open the notebook in Colab</a>
+    <h2>Download it, then open it</h2>
+    <a class="button disabled" id="dl" href="#" download>Download the notebook</a>
+    <p class="muted">Open the downloaded file in <a href="https://code.visualstudio.com/">VS Code</a>, or any editor
+      that opens <code>.ipynb</code> files, and run the cells. The notebook downloads the data it needs by itself.</p>
   </section>
 
   <section>
-    <h2>On your laptop instead: VS Code</h2>
-    <p class="muted">Worth the setup if you want all the notebooks and their data locally, and the editor you would
-      use in research. It needs the one-time clone below.</p>
-    <label for="folder">The folder you cloned the course notebooks into (<code>kb8029-book</code>):</label>
-    <input id="folder" placeholder="C:\Users\you\kb8029-book   or   /Users/you/kb8029-book" spellcheck="false" autocomplete="off">
-    <a class="button disabled" id="open" href="#">Open the notebook in VS Code</a>
-    <p class="muted">Then click <b>Select Kernel → Colab</b> (top right) and run the cells; see the
-      <a href="setup.html">Setup</a> page. Before you start, get the latest version of the notebooks:
-      in VS Code, Command Palette (Ctrl+Shift+P or Cmd+Shift+P) → <b>Git: Pull</b>.
-      Or open the file yourself: in VS Code, press Ctrl+P (Cmd+P on a Mac) and type <code id="name"></code>.</p>
+    <h2>If the lab needs a GPU</h2>
+    <p>Mainly Sessions 9&ndash;12. With the notebook open in VS Code, click <b>Select Kernel</b> (top right) &rarr;
+      <b>Colab</b> &rarr; <b>Auto Connect</b>, or pick a runtime with a GPU, and sign in with a Google account. The
+      code then runs on a Colab machine while you keep working in your own editor. The
+      <a href="setup.html">Setup</a> page has the details, and it was shown in the first lecture.</p>
   </section>
 
-  <section>
-    <h2>The first time only (VS Code route): get the course notebooks</h2>
-    <ol>
-      <li>Install <a href="https://code.visualstudio.com/">VS Code</a>, <a href="https://git-scm.com/downloads">git</a>,
-        and in VS Code the extensions <b>Python</b>, <b>Jupyter</b> and <b>Google Colab</b>.</li>
-      <li><a class="button" href="vscode://vscode.git/clone?url=https%3A%2F%2Fgithub.com%2FElofssonLab%2Fkb8029-book.git">Clone the course notebooks into VS Code</a>
-        <br><span class="muted">VS Code asks where to save them (about 100 MB) and then offers to open the folder.</span></li>
-      <li>Copy the folder's full path into the box above. This browser remembers it.</li>
-    </ol>
-  </section>
-
-  <p class="muted">Not on your laptop? A phone cannot run the notebooks: open this page on your laptop, or open the notebook
-    there in VS Code by name (Ctrl+P). <a href="https://course.bioinfo.se/">course.bioinfo.se</a></p>
+  <p class="muted">A phone cannot run the notebooks: do this on your laptop.
+    <a href="https://course.bioinfo.se/">course.bioinfo.se</a></p>
 </main>
 <script>
   const params = new URLSearchParams(location.search);
   const nb = (params.get("nb") || "").replace(/[^A-Za-z0-9._-]/g, "");
-  const fileEl = document.getElementById("file"), nameEl = document.getElementById("name");
-  const folder = document.getElementById("folder"), open = document.getElementById("open");
-  const colab = document.getElementById("colab");
-  if (nb) {
-    colab.href = "https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/" + nb;
-  } else {
-    colab.classList.add("disabled");
+  const fileEl = document.getElementById("file"), dl = document.getElementById("dl");
+  fileEl.textContent = nb || "No notebook given.";
+  if (!nb) { fileEl.classList.add("err"); }
+  else {
+    dl.href = "https://course.bioinfo.se/notebooks/" + nb;
+    dl.setAttribute("download", nb);
+    dl.classList.remove("disabled");
   }
-  fileEl.textContent = nb ? "notebooks/" + nb : "No notebook given.";
-  nameEl.textContent = nb || "the notebook's name";
-  if (!nb) fileEl.classList.add("err");
-  try { folder.value = localStorage.getItem("kb8029-folder") || ""; } catch (e) {}
-  function update() {
-    let f = folder.value.trim().replace(/^["']|["']$/g, "").replace(/\\/g, "/").replace(/\/+$/, "");
-    try { localStorage.setItem("kb8029-folder", folder.value.trim()); } catch (e) {}
-    if (!f || !nb) { open.classList.add("disabled"); open.href = "#"; return; }
-    if (!f.startsWith("/")) f = "/" + f;          // Windows: C:/Users/... becomes /C:/Users/...
-    open.href = "vscode://file" + encodeURI(f + "/notebooks/" + nb);
-    open.classList.remove("disabled");
-  }
-  folder.addEventListener("input", update);
-  update();
 </script>
 </body>
 </html>
