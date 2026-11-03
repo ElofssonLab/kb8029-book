@@ -47,8 +47,12 @@
     Not shown to students yet &mdash; see <a href="https://course.bioinfo.se/">course.bioinfo.se</a>.</p>
 </main>
 <script>
-  // sessionNN-video-partN, and nothing else: this page only ever points into media/.
+  // sessionNN-video-partN, optionally -arne, and nothing else: this page only ever
+  // points into media/. The -arne files are the same lecture in a clone of Arne's voice,
+  // made for the comparison the TAs asked for; the plain files are the course's Kokoro voice.
   const SESSIONS = {
+    "01": "Session 1 — Math Prerequisites",
+    "02": "Session 2 — Working like a computational biologist in Python",
     "07": "Session 7 — Linear Models, Gradient Descent, XOR & Secondary Structure Prediction",
     "08": "Session 8 — Machine Learning Foundations & Practical PyTorch",
     "09": "Session 9 — How a Neural Network Learns, and Why Training Fails",
@@ -59,7 +63,7 @@
   const BLOCKS = ["Block 1", "Block 2", "Block 3"];
 
   const want = (new URLSearchParams(location.search).get("v") || "session10-video-part1");
-  const m = /^session(\d\d)-video-part([123])$/.exec(want);
+  const m = /^session(\d\d)-video-part([123])(-arne)?$/.exec(want);
   const titleEl = document.getElementById("title"), subEl = document.getElementById("sub");
   const player = document.getElementById("player"), partsEl = document.getElementById("parts");
   const filesEl = document.getElementById("files");
@@ -69,10 +73,11 @@
     titleEl.classList.add("err");
     subEl.textContent = "Expected ?v=sessionNN-video-partN, for example session10-video-part1.";
   } else {
-    const [, n, part] = m;
+    const [, n, part, voice] = m;
+    const spoken = voice ? " · Arne's voice (cloned)" : "";
     document.title = (SESSIONS[n] || ("Session " + n)) + " · " + BLOCKS[part - 1];
     titleEl.textContent = SESSIONS[n] || ("Session " + n);
-    subEl.textContent = BLOCKS[part - 1] + " of 3";
+    subEl.textContent = BLOCKS[part - 1] + " of 3" + spoken;
 
     player.src = "media/" + want + ".mp4";
     const track = document.createElement("track");
@@ -90,7 +95,7 @@
     for (let p = 1; p <= 3; p++) {
       const a = document.createElement("a");
       a.textContent = BLOCKS[p - 1];
-      a.href = "watch.html?v=session" + n + "-video-part" + p;
+      a.href = "watch.html?v=session" + n + "-video-part" + p + (voice || "");
       if (String(p) === part) a.className = "on";
       partsEl.appendChild(a);
     }
