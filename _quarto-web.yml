@@ -15,6 +15,8 @@ book:
     - session03.qmd
     - href: notebooks/session03-databases-in-code.ipynb
       text: "Session 3 — Notebook"
+      target: _blank
+      rel: noopener noreferrer
     - session04.qmd
     - href: notebooks/session04-alignment-in-code.ipynb
       text: "Session 4 — Notebook"
@@ -50,3 +52,14 @@ book:
       - icon: file-earmark-pdf
         href: /KB8029-course-notes.pdf
         text: "All course pages as one PDF"
+
+format:
+  html:
+    link-external-newwindow: true
+    css: session-titles.css
+    include-after-body:
+      - text: |
+          <script>
+          // Keep the browser tab title consistent with the displayed session title.
+          document.title = document.title.replace(/^\d+(?:\.\d+)*\s+(?=Session\s+\d+\b)/i, "");
+          </script>

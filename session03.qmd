@@ -1,5 +1,13 @@
+---
+format:
+  html:
+    css:
+      - session-titles.css
+      - session03.css
+---
+
 ::: callout-note
-**Sources for this page:** Petras Kundrotas's KB8029 lecture "Databases of Sequence Information" (Feb 2026) — this page covers its databases and worked examples, reorganized around five questions and adapted for this book, not copied verbatim; Wikipedia, [Biological database](https://en.wikipedia.org/wiki/Biological_database), [Sequence database](https://en.wikipedia.org/wiki/Sequence_database), [International Nucleotide Sequence Database Collaboration](https://en.wikipedia.org/wiki/International_Nucleotide_Sequence_Database_Collaboration), [GenBank](https://en.wikipedia.org/wiki/GenBank), [UniProt](https://en.wikipedia.org/wiki/UniProt), [RefSeq](https://en.wikipedia.org/wiki/RefSeq), [Accession number (bioinformatics)](https://en.wikipedia.org/wiki/Accession_number_(bioinformatics)), [Genome browser](https://en.wikipedia.org/wiki/Genome_browser), [UCSC Genome Browser](https://en.wikipedia.org/wiki/UCSC_Genome_Browser), [Ensembl genome database project](https://en.wikipedia.org/wiki/Ensembl_genome_database_project), [PubMed](https://en.wikipedia.org/wiki/PubMed), [PubMed Central](https://en.wikipedia.org/wiki/PubMed_Central), [MEDLINE](https://en.wikipedia.org/wiki/MEDLINE), [BioRxiv](https://en.wikipedia.org/wiki/BioRxiv), [Boolean search](https://en.wikipedia.org/wiki/Boolean_search) — CC BY-SA 4.0; NCBI, [GenBank overview](https://www.ncbi.nlm.nih.gov/genbank/), [About RefSeq](https://www.ncbi.nlm.nih.gov/refseq/about/), and [RefSeq FAQ](https://www.ncbi.nlm.nih.gov/books/NBK50679/) — public domain (US government work); EMBL-EBI Training, [What is ENA?](https://www.ebi.ac.uk/training/online/courses/ena-quick-tour/what-is-ena/) and [The UniProt databases](https://www.ebi.ac.uk/training/online/courses/uniprot-quick-tour/the-uniprot-databases/) — CC BY 4.0. Every accession number, record and search-result count quoted below was retrieved live from the NCBI, UniProt, InterPro, RCSB, AlphaFold DB and IntAct APIs (2026-10-04); the notebook contains the code that produced them. The UniProt protein-existence levels follow UniProt's [documentation](https://www.uniprot.org/help/protein_existence).
+**Sources for this page:** Petras Kundrotas's KB8029 teaching materials, "Databases of Sequence Information" (2026–2027) — this page covers its databases and worked examples, adapted for this book around linked records and biological questions, not copied verbatim; Wikipedia, [Biological database](https://en.wikipedia.org/wiki/Biological_database), [Sequence database](https://en.wikipedia.org/wiki/Sequence_database), [International Nucleotide Sequence Database Collaboration](https://en.wikipedia.org/wiki/International_Nucleotide_Sequence_Database_Collaboration), [GenBank](https://en.wikipedia.org/wiki/GenBank), [UniProt](https://en.wikipedia.org/wiki/UniProt), [RefSeq](https://en.wikipedia.org/wiki/RefSeq), [Accession number (bioinformatics)](https://en.wikipedia.org/wiki/Accession_number_(bioinformatics)), [Genome browser](https://en.wikipedia.org/wiki/Genome_browser), [UCSC Genome Browser](https://en.wikipedia.org/wiki/UCSC_Genome_Browser), [Ensembl genome database project](https://en.wikipedia.org/wiki/Ensembl_genome_database_project), [PubMed](https://en.wikipedia.org/wiki/PubMed), [PubMed Central](https://en.wikipedia.org/wiki/PubMed_Central), [MEDLINE](https://en.wikipedia.org/wiki/MEDLINE), [BioRxiv](https://en.wikipedia.org/wiki/BioRxiv), [Boolean search](https://en.wikipedia.org/wiki/Boolean_search) — CC BY-SA 4.0; NCBI, [GenBank overview](https://www.ncbi.nlm.nih.gov/genbank/), [How to submit data to GenBank](https://www.ncbi.nlm.nih.gov/genbank/submit/), [About RefSeq](https://www.ncbi.nlm.nih.gov/refseq/about/), [RefSeq FAQ](https://www.ncbi.nlm.nih.gov/books/NBK50679/), and the NLM [PubMed User Guide](https://pubmed.ncbi.nlm.nih.gov/help/) — public domain (US government work); EMBL-EBI Training, [The role of public databases](https://www.ebi.ac.uk/training/online/courses/bioinformatics-terrified/the-role-of-public-databases/), [Data sharing collaborations](https://www.ebi.ac.uk/training/online/courses/bioinformatics-terrified/the-role-of-public-databases/data-sharing-collaborations/), [What is ENA?](https://www.ebi.ac.uk/training/online/courses/ena-quick-tour/what-is-ena/), [The UniProt databases](https://www.ebi.ac.uk/training/online/courses/uniprot-quick-tour/the-uniprot-databases/), [UniProtKB](https://www.ebi.ac.uk/training/online/courses/uniprot-quick-tour/the-uniprot-databases/uniprotkb/) and [Export data from Ensembl](https://www.ebi.ac.uk/training/online/courses/ensembl-browsing-genomes/export-data/) — CC BY 4.0. The original worked records and search-result counts below were retrieved from the NCBI, UniProt, InterPro, RCSB, AlphaFold DB and IntAct APIs on 4 October 2026. The revised main notebook demonstrates selected retrieval, parsing and record checks. Building a complete database dossier belongs to the lab. The added INSDC comparison was verified on 2026-10-27, and the archive-history section cites the relevant provider notices. The UniProt protein-existence levels follow UniProt's [documentation](https://www.uniprot.org/help/protein_existence).
 :::
 
 # Session 3: Biological Databases
@@ -14,27 +22,257 @@
 
 By the end of this session you should be able to:
 
-- follow one gene or protein across databases, from its genomic and transcript records to its protein entry, family, structure, interactions and literature, using the cross-references between them;
-- tell apart a gene symbol, a database accession, an accession with its version, and a database-specific entry name, and explain why one biological entity has many linked records;
-- say where a particular claim in a record comes from: data **submitted** by the people who produced it, **curated** by database staff, **predicted** by a program, or **experimentally supported**, and recognise the signs of each (RefSeq NM/NP vs. XM/XP, Swiss-Prot vs. TrEMBL, UniProt's protein-existence level, an experimental structure vs. a predicted model);
-- build a PubMed query with Boolean operators and quotation marks, and predict its result before running it.
+1. choose appropriate DNA, RNA or protein databases for a biological question, connect records using identifiers, versions and cross-references, and trace individual claims to their sources and evaluate their supporting evidence;
+2. compare command-line or programmatic access, database-specific web pages and genome browsers, and use UCSC or Ensembl to retrieve genomic, transcript and protein sequences through one interface, recording the organism, assembly and versioned identifiers;
+3. find scientific literature through databases, scholarly search engines and AI-assisted tools; use PubMed as a worked example to construct and check queries, locate publications and available full text, and verify suggested references and claims against the original sources.
 
-Rather than listing databases one by one, the session follows one protein, human beta-globin (*HBB*), through five questions: **Where is the sequence? What is known about the protein? Which family does it belong to? Is there a structure? What does it interact with?** Each database then appears as the answer to one of these questions.
+Rather than listing databases one by one, the reading uses human beta-globin (*HBB*) to connect genomic DNA, RNA transcripts and protein information. Several databases may help answer the same biological question, offering complementary records, annotations and evidence. The aim is to recognise the information needed and check what supports it.
 
-## Why coordinated, worldwide databases
+## What is a biological database? {#what-is-a-biological-database}
 
-Sequencing produces far more data than any single lab, or any single country, can curate. UniProtKB's unreviewed section (TrEMBL) alone holds about 149 million protein entries. A private copy of "the" database would therefore go stale the moment anyone else submitted a sequence, so the databases have to be shared.
+A **biological database** is an organised collection of biological data that supports searching and retrieval. Its records may describe genes, transcripts, proteins or structures and contain sequences, annotations, identifiers and links to related information. These features help us find a record and connect it to other records.
 
-The field's answer is the **International Nucleotide Sequence Database Collaboration (INSDC)**, which joins GenBank (NCBI, USA), the European Nucleotide Archive (ENA, EMBL-EBI, Europe) and DDBJ (Japan). The three exchange all new data every day and follow shared annotation standards. A sequence submitted to any one of them can therefore be found through all three, under the same accession. Each presents it in its own way, though; GenBank and ENA, for example, use different flat-file formats and different web pages. Access has been free and unrestricted from the start, and since the 1990s most journals have required new sequences to be deposited in an INSDC database before publication. This is why a sequence you look up today reflects essentially everything published on it.
+**Database management software** handles storage, updates and retrieval, while **computer hardware** provides storage and computing power. A **database website** gives users an interface for searching and viewing records in a web browser. The website is one way to access the underlying data. Depending on the resource, downloads and programmatic interfaces provide other routes, as discussed later in this session.
+
+**We still need to check the evidence.** Inspect the underlying data and their quality, how an annotation was obtained, and whether cited experiments support the claim. Inclusion in a trusted database does not by itself establish that every annotation is correct. Search the literature for additional findings, and record accessions, sequence versions and retrieval dates so that the data used in an analysis can be checked again. [Behind database records](#behind-database-records) explains how experiments, analysis and curation contribute to this information.
 
 ### Further reading
 
-- Wikipedia, [Biological database](https://en.wikipedia.org/wiki/Biological_database) and [International Nucleotide Sequence Database Collaboration](https://en.wikipedia.org/wiki/International_Nucleotide_Sequence_Database_Collaboration)
-- EMBL-EBI Training, [What is ENA?](https://www.ebi.ac.uk/training/online/courses/ena-quick-tour/what-is-ena/)
+- BBC Bitesize, [Information Systems](https://www.bbc.co.uk/bitesize/guides/zpdq7ty/revision/1){target="_blank" rel="noopener noreferrer"}, a short illustrated introduction to records and fields.
 
-## Two ideas you need for every database
+## Why coordinated, worldwide databases
 
-### Identifiers: names, accessions, versions and cross-references
+### When data outgrow the lab
+
+Downloading database releases for local searching has long been part of bioinformatics. Fixed local snapshots of external data remain useful for reproducible analysis. Some collections still fit on ordinary laboratory hardware. For example, the PDB Core archive, [about 1.5 TB as of 1 January 2026](https://www.rcsb.org/news/695ecade725cd43b223c4f37){target="_blank" rel="noopener noreferrer"}, would fit on a 4 TB hard drive. Other collections, such as the **Sequence Read Archive (SRA)**, with [more than 50 PB of unique data in April 2026](https://www.nlm.nih.gov/od/bor/SRA_NLM_BOR_Meeting_Summary_20260421.pdf){target="_blank" rel="noopener noreferrer"}, would require thousands of such hard drives, with a budget of tens of millions of Swedish kronor for the drives alone.[^s03-drive-budget]
+
+[^s03-drive-budget]: As an illustrative baseline, 50 PB is 50,000 TB, requiring 12,500 drives of 4 TB nominal capacity. A 4 TB Seagate Expansion drive was advertised at [SEK 2,198 including VAT](https://www.proshop.se/Haarddisk-extern/Seagate-Expansion-Extern-Haarddisk-4TB-Svart/2976621){target="_blank" rel="noopener noreferrer"} on 24 October 2026, giving SEK 27,475,000 for those drives. The reported SRA total exceeds 50 PB. This comparison excludes additional capacity for backups, servers and operating costs, and uses individual retail prices rather than a bulk-purchase quotation.
+
+Thus, keeping the entire archive locally is impractical for an ordinary research laboratory. Instead, public data centers maintain the full collections, while researchers retrieve the subsets of data needed for their particular questions or analyze entire datasets using shared computing infrastructure.
+
+For nucleotide sequences, such shared infrastructure is provided by the **International Nucleotide Sequence Database Collaboration (INSDC)**. It connects NCBI in Bethesda, USA; EMBL-EBI in Hinxton, near Cambridge, UK; and DDBJ at the National Institute of Genetics in Mishima, Japan. These partners operate resources with different scopes. For example, NCBI provides GenBank and the Sequence Read Archive, while ENA brings reads, assembled sequences and annotations together within one resource. The collaboration preserves the data while providing several ways to find and retrieve them.
+
+Researchers submit sequence data to one appropriate partner. Public records and updates are exchanged daily, and a shared archival sequence record keeps the same accession across the partner resources. As [NCBI's submission guide](https://www.ncbi.nlm.nih.gov/genbank/submit/){target="_blank" rel="noopener noreferrer"} explains, submitting the same data to all three is unnecessary. Finding that record through three websites provides alternative access to shared data, rather than three independent pieces of experimental evidence.
+
+The partners use [common annotation standards](https://www.insdc.org/submitting-standards/feature-table/){target="_blank" rel="noopener noreferrer"}, while their web interfaces, search tools and downloadable formats can differ. Newly released data and updates may reach individual websites and search indexes at different times. Choosing between the services is therefore a question of which interface or access method suits the task, while the accession identifies the shared record.
+
+Publicly released INSDC data are freely accessible, but a submission may remain confidential until its release date and controlled-access human data are excluded from the public exchange. An archived record preserves submitted data and annotations without necessarily collecting every later finding about that sequence.
+
+### Connected records from one investigation
+
+An investigation produces several kinds of information, so a database needs more than a sequence record. Project and sample records describe the context of the work, while read and assembled-sequence records preserve different stages of its results. Following the links between these records helps us establish what a dataset represents and where its evidence came from. The [ENA quick tour](https://www.ebi.ac.uk/training/online/courses/ena-quick-tour/what-is-ena/how-is-ena-structured/){target="_blank" rel="noopener noreferrer"} introduces this organisation.
+
+| Record type | Question it helps answer | Typical information |
+|------------------|------------------|------------------------------------|
+| Project or study, such as [BioProject](https://www.ncbi.nlm.nih.gov/bioproject/){target="_blank" rel="noopener noreferrer"} | What investigation produced these data? | The study's purpose and scope, submitting organisation, publications and links to datasets. |
+| Sample, such as [BioSample](https://www.ncbi.nlm.nih.gov/biosample/docs/){target="_blank" rel="noopener noreferrer"} | What biological material was examined? | The organism, source material and relevant collection information. |
+| Sequencing reads, held in a read archive | What individual sequencing observations are available? | DNA or RNA read sequences and quality information, linked to records describing the library, instrument and experiment. |
+| Assembled sequences and annotations | What longer sequence was reconstructed, and which features were identified? | Sequences reconstructed from reads and descriptions of features such as genes. |
+
+These are linked record types, not four separate databases with identical names at every partner. A project may contain several samples and sequencing runs, and an assembly may use data from several runs. Researchers reconstruct sequences before depositing an assembly, and the archive stores that result. Each related record has its own identifier, so following a cross-reference is different from viewing the same shared record through another partner's interface.
+
+The course notebook starts with a [small comparison of one submitted human HBB mRNA record through NCBI and ENA](notebooks/session03-databases-in-code.html#insdc-two-interfaces){target="_blank" rel="noopener noreferrer"}. It checks the accession and version, organism and sequence before selected examples of transcript-field parsing and UniProt record checks. This illustrates how to recognise shared data even when their descriptions or page layouts differ.
+
+### When archives and access routes change
+
+Archives develop as sequencing methods and computing needs change. Trace Archive was a specialised read archive, chiefly associated with capillary sequencing such as Sanger sequencing. It stored chromatograms, the instrument signals displayed as coloured peaks, together with DNA sequences inferred from those signals and estimates of confidence in the identified bases. Newer read archives developed to manage high-throughput sequencing and now also accept capillary data. Their roles therefore overlap, even though their names and original designs differ.
+
+An older publication may consequently point to a website that no longer works. Retain its record identifier and consult the provider's current retrieval instructions before concluding that the data have disappeared. NCBI's [Access Trace Data guide](https://www.ncbi.nlm.nih.gov/sra/docs/trace-data/){target="_blank" rel="noopener noreferrer"} shows how former Trace Archive data can be located through SRA. Check which files are available: access to read sequences and quality scores does not establish that every original signal recording remains downloadable.
+
+::: {.callout-note collapse="true"}
+### Optional example: the changing Trace Archive services
+
+- **EMBL-EBI:** ENA [brought together the nucleotide sequence collection, Trace Archive and SRA in May 2010](https://www.embl.org/files/wp-content/uploads/EMBL-EBI_Scientific_Report-2010.pdf){target="_blank" rel="noopener noreferrer"}. [Trace searches and viewing through its website ended in February 2017](https://www.ebi.ac.uk/about/news/updates-from-data-resources/changes-trace-archive-ena/){target="_blank" rel="noopener noreferrer"}, while direct file downloads remained available at that time. Integration of a collection and retirement of an interface were separate events.
+- **NCBI:** the separate [Trace Archive retired on 17 June 2022](https://ncbiinsights.ncbi.nlm.nih.gov/2021/12/17/trace-archive-retirement/){target="_blank" rel="noopener noreferrer"}. NCBI states that its former Trace Archive data were transferred to SRA.
+- **DDBJ:** DTA had closed by 12 April 2023, as documented in its [official website history](https://github.com/ddbj/www/commit/22ae1138cfda4e6010ddc287493c4ad82d43344f){target="_blank" rel="noopener noreferrer"}. This is a documented upper limit, not a verified shutdown day. [DDBJ's current guidance](https://www.ddbj.nig.ac.jp/dta/index-e.html){target="_blank" rel="noopener noreferrer"} directs historical trace-data retrieval to SRA and new capillary submissions to DRA. It does not describe DTA simply becoming DRA.
+
+A surviving example is [run SRR9451988](https://www.ebi.ac.uk/ena/browser/view/SRR9451988){target="_blank" rel="noopener noreferrer"}, linked to [experiment SRX6217698](https://www.ncbi.nlm.nih.gov/sra/SRX6217698){target="_blank" rel="noopener noreferrer"}. Its record describes a Trace conversion and a DNA library labelled HBB. The organism is olive baboon, *Papio anubis*, rather than the human HBB used in our main example. The label is a search clue, not proof that every read overlaps HBB. This optional example illustrates why checking the organism and available evidence remains necessary when the access route changes.
+:::
+
+### Further reading
+
+- EMBL-EBI Training, [The role of public databases](https://www.ebi.ac.uk/training/online/courses/bioinformatics-terrified/the-role-of-public-databases/){target="_blank" rel="noopener noreferrer"}, a short introduction to the centres that maintain and share biological data.
+- EMBL-EBI Training, [Data sharing collaborations](https://www.ebi.ac.uk/training/online/courses/bioinformatics-terrified/the-role-of-public-databases/data-sharing-collaborations/){target="_blank" rel="noopener noreferrer"}, connecting INSDC to collaborations for proteins, structures and other data.
+- EMBL-EBI Training, [What is ENA?](https://www.ebi.ac.uk/training/online/courses/ena-quick-tour/what-is-ena/){target="_blank" rel="noopener noreferrer"}, an optional example explaining raw reads, assemblies and sequence annotation.
+- EMBL-EBI Training, [How is ENA structured?](https://www.ebi.ac.uk/training/online/courses/ena-quick-tour/what-is-ena/how-is-ena-structured/){target="_blank" rel="noopener noreferrer"}, a short visual explanation of projects, samples, reads, assemblies and annotations.
+- NCBI, [Access Trace Data](https://www.ncbi.nlm.nih.gov/sra/docs/trace-data/){target="_blank" rel="noopener noreferrer"}, optional practical guidance for following historical records into a current service.
+
+## DNA, RNA and protein: connected records
+
+The **central dogma of molecular biology** provides a familiar framework for connecting DNA, RNA and protein information. For a protein-coding gene, transcription copies DNA sequence information into RNA, and translation uses an mRNA's coding region to produce a polypeptide. Many RNAs function without being translated. Databases record these related biological objects and connect them through cross-references. A link helps us move between records, while the evidence attached to an annotation tells us how that claim is supported. The resources below are examples, not an exhaustive list. Specialist databases focus on particular information, while broader resources combine several kinds.
+
+### DNA-level data: genome to gene
+
+DNA-level records describe genomic sequences and the features annotated along them. We can examine a **genome assembly**, a **chromosome**, a smaller **DNA region** or an individual **gene**, depending on what we want to learn.
+
+A **genome assembly** is a reconstructed representation of an organism's DNA sequence. Its completeness depends on the available data and assembly quality. A **chromosome** carries part of the genome, and different chromosome types contain different DNA sequences and sets of genes. Examining a chromosome helps us ask which genes it contains, how they are arranged and whether a large deletion or rearrangement affects several genes. We can then focus on a smaller **DNA region** or an individual **gene**, as @fig-s03-dna-scales shows. These are different scales of genomic information.
+
+```{mermaid}
+%%| label: fig-s03-dna-scales
+%%| fig-cap: "Four connected scales for exploring genomic DNA. Zooming changes the region and detail examined, while the genome assembly supplies the coordinate context."
+flowchart LR
+  A["Genome assembly"] --> B["Chromosome"]
+  B --> C["Selected DNA region"]
+  C --> D["Gene"]
+```
+
+How much DNA we examine depends on the biological question. To work out which amino acids are encoded by *HBB*, we examine its coding sequence. To investigate how *HBB* activity is controlled, we also need to examine surrounding DNA. HBB belongs to the beta-globin cluster on chromosome 11, where noncoding regulatory sequences help control gene activity. Looking only at the coding sequence would omit this context. Within HBB itself, the genomic sequence also contains introns and untranslated parts of exons.
+
+GenBank, ENA and Japan's DDBJ Annotated/Assembled Sequences preserve sequences deposited by researchers, from chromosome sequences to smaller DNA fragments. RefSeq maintains **reference sequences** that researchers use as common starting points for describing and comparing genomes, transcripts and proteins. A reference record contains the sequence, its identifier and annotations, such as the locations of genes or coding regions. Ensembl provides genome assemblies together with gene and transcript annotations. You may therefore find information about the same DNA region in several resources. Check what each record represents and how its annotations were obtained. Raw sequencing reads, an assembled sequence and an annotated reference are different kinds of data, even when they concern the same organism or gene.
+
+#### Further reading {.unnumbered .unlisted}
+
+- NHGRI, [Chromosome](https://www.genome.gov/genetics-glossary/Chromosome){target="_blank" rel="noopener noreferrer"}, a short introduction to chromosomes and how they carry genetic information.
+- NCBI, [Genome assembly glossary](https://www.ncbi.nlm.nih.gov/datasets/docs/v2/glossary/){target="_blank" rel="noopener noreferrer"}, explaining assemblies and their components.
+
+### RNA-level data: sequence, function and expression
+
+RNA-level resources describe the RNA products transcribed from DNA, including protein-coding and noncoding transcripts. They help us investigate both which RNA sequences exist and where those RNAs are detected or how abundant they are.
+
+[***Transcript sequences:***]{#transcript-sequences} A transcript record describes an RNA sequence and its relationship to a gene. RefSeq and Ensembl provide reference transcripts and annotations, while GenBank, ENA and DDBJ preserve submitted RNA sequences. The mature transcript of a spliced gene contains joined exons, including untranslated regions where present. Its sequence therefore differs from the genomic region containing introns.
+
+*Further reading*
+
+- NCBI, [About RefSeq](https://www.ncbi.nlm.nih.gov/refseq/about/){target="_blank" rel="noopener noreferrer"}, introducing reference sequences and their annotations.
+
+[***One gene, several transcripts:***]{#one-gene-several-transcripts} Different transcription starts, alternative splicing and alternative cleavage/polyadenylation can produce several RNA sequences from one gene. @fig-s03-transcript-routes illustrates these possibilities with a generic three-exon gene. Ordinary alternative splicing retains the genomic order of the selected exons. These mechanisms can occur together, and differences in untranslated regions can leave the encoded protein unchanged.
+
+```{mermaid}
+%%| label: fig-s03-transcript-routes
+%%| fig-cap: "Schematic transcript possibilities for a generic three-exon gene, not a set of demonstrated HBB transcripts. Numbers denote exon order. Shorter end segments illustrate different start or processing sites. Coding boundaries are not shown."
+flowchart TB
+  G["Gene: three exons separated by introns"]
+  G --> A["Baseline<br/>1 — 2 — 3"]
+  G --> B["Different start<br/>shorter 1 — 2 — 3"]
+  G --> C["Exon skipping<br/>1 — 3"]
+  G --> D["Different 3′ end<br/>1 — 2 — shorter 3"]
+```
+
+***Two transcripts, same gene?*** Follow their links to the gene record. Transcripts assigned to the same gene share a linked gene identifier within the same organism, database and annotation release. For example, several human Ensembl transcript identifiers beginning with `ENST` can link to one gene identifier beginning with `ENSG`. Keep the separate transcript identifiers and versions when selecting sequences. Across databases, follow cross-references and check their context rather than compare identifier text alone. The notebook provides a [supplied-transcript parsing example](notebooks/session03-databases-in-code.html#hbb-transcript-checks){target="_blank" rel="noopener noreferrer"}; the lab asks you to investigate the biological relationships.
+
+*Further reading*
+
+- Ensembl, [Stable identifiers and versions](https://www.ensembl.org/info/genome/stable_ids/index.html){target="_blank" rel="noopener noreferrer"}, explaining how gene and transcript records are identified.
+
+[***Noncoding RNA sequences and families:***]{#noncoding-rna-sequences-and-families} Noncoding RNAs are also transcripts, but function without encoding proteins. RNAcentral integrates noncoding RNA sequences from specialist resources. Rfam groups related structured RNAs and regulatory RNA elements into families using sequence and base-pairing information. A sequence record and a family record answer different questions. For example, Rfam's [RF00005](https://rfam.org/family/RF00005){target="_blank" rel="noopener noreferrer"} groups transfer RNAs (tRNAs). These help assemble proteins by delivering amino acids to ribosomes, including when HBB mRNA is translated into beta-globin. The connection to HBB is through protein synthesis: these tRNAs are not HBB transcripts.
+
+*Further reading*
+
+- [RNAcentral introduction](https://rnacentral.org/about-us){target="_blank" rel="noopener noreferrer"} and [Rfam introduction](https://docs.rfam.org/en/latest/about-rfam.html){target="_blank" rel="noopener noreferrer"}, distinguishing sequence integration from RNA families.
+- NHGRI, [Transfer RNA (tRNA)](https://www.genome.gov/genetics-glossary/Transfer-RNA-tRNA){target="_blank" rel="noopener noreferrer"}, explaining its role in protein synthesis.
+
+[***RNA expression:***]{#rna-expression} Expression data describe where RNA is detected and how abundant it is. A transcript sequence alone does not establish its abundance in a tissue. **GEO** (Gene Expression Omnibus at NCBI in the USA) and Japan's Genomic Expression Archive (**GEA**) preserve studies and their sample descriptions. For sequencing submissions to GEA, raw reads are deposited in DRA. Expression Atlas curates and analyses selected studies. Check whether measurements distinguish transcripts or report gene-level abundance, and compare samples, methods and units before interpreting differences.
+
+Gene expression produces RNA and, for protein-coding genes, protein. Expression measurements concern these products, such as the amount of RNA detected in a sample. DNA sequence, DNA copy number and regulatory features are examined separately because they describe the genetic instructions and their regulation. RNA and protein abundance can differ because translation and protein degradation affect how much protein accumulates.
+
+*Further reading*
+
+- [Expression Atlas introduction](https://www.ebi.ac.uk/gxa/about.html){target="_blank" rel="noopener noreferrer"} and [GEA sequencing submissions](https://www.ddbj.nig.ac.jp/gea/submit-sequence-e.html){target="_blank" rel="noopener noreferrer"}, explaining expression results and their underlying data.
+
+[***RNA written with DNA letters:***]{#rna-written-with-dna-letters} An RNA sequence can be written using U or represented with T, as in `AGCUUCGA` and `AGCTTCGA`. DDBJ explicitly uses the second convention for RNA records, including noncoding RNA. **Using T does not establish that a sequence is genomic DNA or that a physical cDNA copy was made.** Read the record's molecule type and annotations to identify what the sequence represents.
+
+*Further reading*
+
+- DDBJ, [Codes for nucleotide sequence](https://www.ddbj.nig.ac.jp/ddbj/sequence-e.html#code){target="_blank" rel="noopener noreferrer"}, the passage stating the T-for-U writing convention.
+
+### Protein-level data: sequence, structure and function {#protein-level-data}
+
+Protein-level records describe amino-acid sequences and connect them to structure, function and cellular context. Different resources specialise in these aspects, so we follow links between records and check the evidence for each annotation.
+
+[***Amino-acid sequence and annotation:***]{#what-is-known-about-the-protein} A protein sequence tells us which amino-acid chain we are examining. Sequence records can also describe variants and link to the DNA or RNA records from which the sequence was derived. **UniProtKB** (discussed in more detail later in this session) and **NCBI Protein** are examples of resources providing protein sequences with annotations and cross-references.
+
+For *HBB*, the reference transcript `NM_000518.5` links to protein `NP_000509.1` and UniProt entry `P68871`. A [small UniProt record check in the notebook](notebooks/session03-databases-in-code.html#uniprot-record-checks){target="_blank" rel="noopener noreferrer"} demonstrates how to inspect selected fields and cross-references in a structured response.
+
+[***Three-dimensional structure:***]{#is-there-a-structure} A protein structure record may contain a model derived from experimental measurements or a computational prediction.
+
+- **Experimental structures** are stored in the **Protein Data Bank (PDB)**. RCSB PDB, PDBe and Japan's PDBj provide different interfaces to this shared archive. Entry `2HHB` is human deoxyhaemoglobin, two alpha and two beta chains, determined by X-ray diffraction at **1.74 Å resolution** (Fermi et al. 1984). Resolution describes the experimental data: the smaller the number, the finer the detail the data could resolve.
+- **Predicted models** are available through resources such as the **AlphaFold Protein Structure Database**. Its models include a per-residue confidence score, **pLDDT** (0-100). Higher values indicate greater confidence in the local predicted structure, rather than experimental confirmation. Very low confidence can have several causes, including intrinsic disorder (Session 12). The model for `P68871` in our retrieved example has a mean pLDDT of 97.
+
+A resolution and a pLDDT are therefore not the same kind of number. Resolution describes experimental detail, whereas pLDDT estimates confidence in a prediction. Inspect the supporting data, methods and limitations even when two molecular pictures look similar. Session 6 examines protein structures, and Session 12 shows how AlphaFold predicts them.
+
+*Further reading*
+
+- [wwPDB archive access](https://www.wwpdb.org/ftp/pdb-ftp-sites){target="_blank" rel="noopener noreferrer"}, including RCSB PDB, PDBe and PDBj.
+- [AlphaFold DB](https://alphafold.ebi.ac.uk/){target="_blank" rel="noopener noreferrer"}, providing predicted structures and confidence information.
+
+[***Domains and families:***]{#which-family-does-it-belong-to} A protein domain is a compact part of a protein that can often fold into a stable structure on its own. Domains and their structural organisation are discussed further in [Session 6](session06.html#structural-domains). A protein family groups related proteins. **InterPro** (EMBL-EBI) combines domain, family and site annotations from specialist resources, including **Pfam**. Pfam's standalone website was retired in 2023, and its entries can be accessed through InterPro.
+
+For example, InterPro identifies a globin domain in HBB and assigns the protein to the beta-type haemoglobin family. These are complementary descriptions of the same protein, so several annotations do not necessarily indicate several domains.
+
+**SCOP (Structural Classification of Proteins)** classifies domains with known three-dimensional structures according to structural similarities and evolutionary relationships. Sequence-based domain matches and structural classifications provide related ways to investigate a protein.
+
+*Further reading*
+
+- [InterPro](https://www.ebi.ac.uk/interpro/){target="_blank" rel="noopener noreferrer"}, integrating protein family, domain and site signatures, including Pfam.
+- [SCOP](https://scop.mrc-lmb.cam.ac.uk/){target="_blank" rel="noopener noreferrer"}, a classification of known protein structures and their domains.
+
+[***Interactions and associations:***]{#what-does-it-interact-with} Interaction resources organise different kinds of evidence about relationships between proteins. They often present these relationships as networks, where **nodes** represent proteins and the lines between them, called **edges**, represent connections:
+
+- **IntAct** (EMBL-EBI, part of the IMEx consortium) curates individual physical interactions from published experiments, such as that of *HBB* with HBZ (hemoglobin subunit zeta).
+- **BioGRID** curates experimental physical and genetic interactions. Genetic interactions describe the effects of combined gene perturbations, rather than necessarily showing physical contact between proteins.
+- **STRING** combines curated interactions, co-expression, conserved gene neighbourhood, predictions and text mining into one score per protein pair. It answers a broader question, "which proteins are functionally associated?", with a mixture of experimental and predicted evidence.
+- **FunCoup** (Stockholm University, Sweden) combines several kinds of evidence to infer functional associations between genes and proteins.
+
+The meaning of a network connection depends on the resource and its evidence. Two proteins might bind directly, occur in the same complex without touching, or contribute to the same biological process. A STRING association can therefore support a functional relationship without establishing physical contact. Check the evidence behind a particular connection before describing the proteins as binding partners.
+
+*Further reading*
+
+- [IntAct](https://www.ebi.ac.uk/intact/){target="_blank" rel="noopener noreferrer"} and [BioGRID introduction](https://wiki.thebiogrid.org/doku.php/aboutus){target="_blank" rel="noopener noreferrer"}, for curated interaction evidence.
+- STRING, [What is a STRING network?](https://string-db.org/help/scores/){target="_blank" rel="noopener noreferrer"}, explaining the relationships represented by network connections.
+- [FunCoup](https://funcoup.org/){target="_blank" rel="noopener noreferrer"}, for functional gene and protein association networks.
+
+[***Abundance and location:***]{#protein-abundance-and-location} Knowing a protein sequence does not tell us how much protein is present or where it occurs. The **Human Protein Atlas** provides information about human proteins across tissues, cells and subcellular locations, including microscopy and abundance measurements. Microscopy can reveal which parts of a cell contain a protein. Comparing protein amounts requires suitable measurements and information about how the samples were analysed. RNA and protein measurements must also be distinguished because translation and protein degradation affect protein abundance.
+
+*Further reading*
+
+- [Human Protein Atlas introduction](https://www.proteinatlas.org/about){target="_blank" rel="noopener noreferrer"}, explaining its complementary resources and methods.
+
+## Behind database records {#behind-database-records}
+
+DNA, RNA and protein records describe different biological objects, but their information can come from several sources. Researchers submit experimental outputs and processed results, and databases may import information from other resources. An archival submission tells us who supplied the information. To understand a particular result or annotation, we also need to examine how it was obtained and what supports it.
+
+### Experiments generate raw data {#experiments-generate-raw-data}
+
+Experiments produce measurements and observations that provide a starting point for analysis. Here, **raw data** means the original experimental output retained for the analysis being discussed. Instruments and acquisition software may already have performed some processing, so the term does not necessarily mean completely untouched data.
+
+**Sequencing signals** may be changes in fluorescence or electrical current that software interprets as nucleotide letters. **Experimental images** can record cell appearance or fluorescent signals, while other instrument readings include absorbance measurements and mass spectra. **Phenotypic observations** describe observable characteristics, such as cell shape, growth or behaviour. These examples overlap because sequencing signals and images are also instrument outputs. They illustrate different forms in which experimental observations can be recorded.
+
+The observations need their experimental context. The organism, sample, conditions, methods and measurement units help us interpret what was recorded and compare it with other work. This is why archives connect data files to [project, sample and experiment information](#connected-records-from-one-investigation). Data and their context together make it possible to check and reanalyse an investigation.
+
+*Further reading*
+
+- NHGRI, [DNA sequencing](https://www.genome.gov/about-genomics/fact-sheets/DNA-Sequencing-Fact-Sheet){target="_blank" rel="noopener noreferrer"} and [Phenotype](https://www.genome.gov/genetics-glossary/Phenotype){target="_blank" rel="noopener noreferrer"}, introducing sequence measurements and observable characteristics.
+- EMBL-EBI Training, [How is ENA structured?](https://www.ebi.ac.uk/training/online/courses/ena-quick-tour/what-is-ena/how-is-ena-structured/){target="_blank" rel="noopener noreferrer"}, connecting sequencing data to their project and sample descriptions.
+
+### Analysis produces results and predictions {#analysis-produces-results-and-predictions}
+
+Analysis turns observations into interpretable results and can infer additional properties. Software can assemble sequence reads into longer sequences, calculate RNA-abundance estimates and translate a coding region into an amino-acid sequence. These are derived results. Computational translation establishes which amino-acid sequence the selected coding region encodes, but does not establish that the protein was detected experimentally.
+
+Other analyses assign domains from sequence information or produce three-dimensional structural models. Some structural models are fitted to experimental measurements, while others are computational predictions. Both involve analysis, but their supporting evidence differs. We therefore need to know the method and input data behind the result, rather than treating every derived result as the same kind of prediction.
+
+*Further reading*
+
+- RCSB PDB-101, [Methods for determining structure](https://pdb101.rcsb.org/learn/guide-to-understanding-pdb-data/methods-for-determining-structure){target="_blank" rel="noopener noreferrer"}, explaining how measurements contribute to atomic models.
+
+### Curation evaluates and connects information {#curation-evaluates-and-connects-information}
+
+Curation assesses experimental findings and computational results, then organises them into useful records. Curators examine whether the evidence supports particular **annotations**, the descriptions of features or biological properties attached to a record. They compare findings across studies and consider whether different methods or conditions explain apparent disagreements. They also link related records and create or update annotations, recording uncertainty where necessary.
+
+Curation is a process that can examine both experimental and computational information. A reviewed record can therefore contain experimentally supported findings alongside predictions or other interpretations. The review status tells us how the record has been assessed, while the evidence attached to an individual annotation tells us how that claim is supported.
+
+*Further reading*
+
+- EMBL-EBI Training, [Manual curation](https://www.ebi.ac.uk/training/online/courses/uniprot-exploring-protein-sequence-and-functional-info/where-does-the-data-come-from/functional-information/manual-curation/){target="_blank" rel="noopener noreferrer"} and [Data evidence](https://www.ebi.ac.uk/training/online/courses/uniprot-exploring-protein-sequence-and-functional-info/where-does-the-data-come-from/data-evidence/){target="_blank" rel="noopener noreferrer"}, explaining how experimental findings and computational analyses contribute to reviewed records.
+
+### HBB: results and supporting evidence {#hbb-results-and-evidence}
+
+Human *HBB* illustrates how related records can contain information obtained in different ways. The [HBB transcript checks in the notebook](notebooks/session03-databases-in-code.html#hbb-transcript-checks){target="_blank" rel="noopener noreferrer"} start with the assembled, annotated RefSeq mRNA record `NM_000518.5`. We extract its annotated coding region, calculate the beta-globin amino-acid sequence and compare it with the translation stored in that same record. Agreement is an internal consistency check. It does not independently demonstrate that the protein was detected experimentally.
+
+A globin-domain assignment provides another kind of information derived from sequence analysis. A three-dimensional model containing beta-globin may instead be fitted to experimental measurements or generated by structure prediction. These results can describe related biological molecules without originating from the same experiment. Their methods and supporting sources therefore need to be checked separately.
+
+Curation helps connect transcript and protein records, annotations and relevant publications. When using a statement about *HBB*, identify the particular claim and follow its supporting evidence. A cross-reference helps us find a related record, but does not establish that both records have the same experimental basis. We next need identifiers to specify these records precisely and follow their connections.
+
+## Identifiers: names, accessions, versions and cross-references
 
 The most useful skill of this session is to know what kind of identifier you are holding, because one gene has many. For *HBB* alone, the table lists seven:
 
@@ -43,7 +281,7 @@ The most useful skill of this session is to know what kind of identifier you are
 |------------------|------------------|------------------------------------|
 | `HBB` | approved gene symbol | assigned by the HGNC (HUGO Gene Nomenclature Committee) for human genes, and widely used across databases (which may also list synonyms) |
 | `3043` | NCBI Gene ID | NCBI's number for the gene record |
-| `NM_000518` | accession | one RefSeq transcript record; unique only within RefSeq |
+| `NM_000518` | accession | identifies a RefSeq transcript record, without specifying its sequence version |
 | `NM_000518.5` | accession.version | the fifth version of that record; the version changes whenever the sequence changes |
 | `P68871` | UniProt accession | the stable identifier of the UniProt entry |
 | `HBB_HUMAN` | UniProt entry name | a readable label for the same entry, which can change |
@@ -52,7 +290,7 @@ The most useful skill of this session is to know what kind of identifier you are
 Seven identifiers for the human *HBB* gene and its products.
 :::
 
-An accession is unique only within its own database. The same gene has different accessions in RefSeq, Ensembl, UniProt and the PDB, and the records are tied together by explicit **cross-references**. The RefSeq protein record `NP_000509.1`, for example, states that it was translated from `NM_000518.5`, and the UniProt entry `P68871` lists both. One biological entity thus has many linked records.
+An accession identifies a record, and we need to know which resource and record type it belongs to. Different resources can assign different identifiers to related records, while INSDC partners share accessions for exchanged archival records. For example, RefSeq transcript `NM_000518.5`, RefSeq protein `NP_000509.1` and UniProt entry `P68871` are different records connected by explicit **cross-references**. The protein record states which transcript it was translated from, and the UniProt entry lists both RefSeq records. One biological entity can therefore have many linked records, whereas one shared archival record can be viewed through several partner interfaces.
 
 Two habits follow from this. First, to move between records, follow an explicit cross-reference when one exists. Otherwise, search with a stable identifier or the approved symbol (and the organism), and check the organism and sequence of what you find. Second, when you report a sequence, give the accession *with* its version, because `NM_000518` alone does not say which revision you used. The same holds for genome coordinates, which only mean something together with the genome **build** (GRCh37/hg19 or GRCh38/hg38). The lab shows the same gene at different coordinates in the two builds.
 
@@ -62,50 +300,45 @@ RefSeq accessions also encode the kind of record in their prefix:
 | Prefix | Record | Example |
 |------------------------|------------------------|------------------------|
 | `NC_` | genomic: a complete chromosome | `NC_000011.10` |
-| `NM_` | mRNA, not predicted (many curated) | `NM_000518.5` |
-| `NP_` | protein, not predicted (many curated) | `NP_000509.1` |
-| `NR_` | non-coding RNA, not predicted | — |
-| `XM_` / `XP_` | mRNA / protein **predicted** by NCBI's genome-annotation pipeline | `XP_011536997.1` |
+| `NM_` | mRNA sequence | `NM_000518.5` |
+| `NP_` | protein sequence | `NP_000509.1` |
+| `NR_` | non-coding RNA sequence | — |
+| `XM_` / `XP_` | mRNA / protein **models** from computational annotation | `XP_011536997.1` |
 
 RefSeq accession prefixes and the kind of record they denote.
 :::
 
-### Where does a record's information come from?
+The prefix identifies the RefSeq record class, but does not establish whether every annotation has been manually reviewed or experimentally tested. RefSeq records can be generated through computation, manual curation or propagation from submitted annotated sequences. Check the record's status, source sequences and supporting evidence before drawing a biological conclusion.
 
-Databases differ less in *what* they store than in *who vouches for it*. A claim in a record can come from four sources, listed below from the least to the most checked. These sources describe where a particular piece of information comes from, not four separate kinds of record. One Swiss-Prot entry, for example, mixes curated, experimental and predicted annotation, and a PDB entry is both submitted and experimental.
+### Further reading {.unnumbered .unlisted}
 
-- **Submitted (archival).** INSDC stores sequences close to how the submitters deposited them, together with their annotation. Nobody else revises it, so the quality varies, and the same gene may appear in many overlapping records.
-- **Predicted.** A program inferred it. An `XM_`/`XP_` record says so itself: "MODEL REFSEQ: This record is predicted by automated computational analysis." Most TrEMBL entries are translations of predicted coding sequences, annotated automatically. An AlphaFold model is a predicted structure.
-- **Curated.** Database staff have read the evidence and merged the records into one reviewed entry. RefSeq is a non-redundant collection built from INSDC data (it is not itself part of INSDC). Its `NM_`/`NP_` records are the non-predicted class, many of them curated or supported by transcript and protein evidence. Its `XM_`/`XP_` records, which sit side by side with them, are computational models. Swiss-Prot entries are reviewed by UniProt curators.
-- **Experimentally supported.** Somebody measured it. A PDB entry holds coordinates fitted to experimental data, an IntAct interaction comes from a published experiment, and UniProt marks the proteins whose existence has been observed directly.
+- NCBI, [About RefSeq](https://www.ncbi.nlm.nih.gov/refseq/about/){target="_blank" rel="noopener noreferrer"} and [RefSeq FAQ](https://www.ncbi.nlm.nih.gov/books/NBK50679/){target="_blank" rel="noopener noreferrer"}, explaining reference records, prefixes and annotation status.
+- Wikipedia, [Accession number (bioinformatics)](https://en.wikipedia.org/wiki/Accession_number_(bioinformatics)){target="_blank" rel="noopener noreferrer"}, an overview of record identifiers and sequence versions.
 
-UniProtKB makes the distinction between curated and predicted explicit, because it has **two sections**. **Swiss-Prot** holds about 576,000 entries reviewed by curators, in which a person has checked the function, domains, modifications and literature, with one entry per protein. **TrEMBL** holds about 149 million unreviewed, automatically annotated entries. Swiss-Prot is not a subset of TrEMBL. The two are separate sections, and when curators review a TrEMBL entry, it is integrated into Swiss-Prot and leaves TrEMBL. Every entry also has a **protein-existence level**, graded from the strongest evidence to the weakest: 1, experimental evidence at protein level; 2, at transcript level; 3, inferred from homology; 4, predicted; 5, uncertain. *HBB* (`P68871`) is at level 1.
+## Searching: know your level, predict, then check
 
-The discussion problems practise both ideas. You name the level and kind of four RefSeq records from their prefixes, and then find a UniProt entry from an accession or from the gene symbol.
+A search across resources can return genome, gene, transcript and protein records for the same words. Choose the biological information you need before choosing the resource. Searching within a specific resource limits the kinds of records returned, but does not guarantee a short list or put the appropriate record first. Check the organism, record type and identifiers, and use filters or a more precise query where needed.
 
-### Further reading
+For a gene question about human *HBB*, start in NCBI Gene and check that the selected record describes the human haemoglobin subunit beta gene. The Gene ID `3043` identifies that record, while its cross-references lead to transcript and protein records. A question about the protein's function or annotation can instead start in a protein resource such as UniProt. When you need many records, or want a retrieval to be reproducible, use programmatic interfaces, such as NCBI E-utilities and the UniProt REST API demonstrated in the notebook.
 
-- Wikipedia, [Accession number (bioinformatics)](https://en.wikipedia.org/wiki/Accession_number_(bioinformatics)), [RefSeq](https://en.wikipedia.org/wiki/RefSeq) and [UniProt](https://en.wikipedia.org/wiki/UniProt)
-- NCBI, [About RefSeq](https://www.ncbi.nlm.nih.gov/refseq/about/) and [RefSeq FAQ](https://www.ncbi.nlm.nih.gov/books/NBK50679/), with the full prefix list
-- EMBL-EBI Training, [The UniProt databases](https://www.ebi.ac.uk/training/online/courses/uniprot-quick-tour/the-uniprot-databases/)
+### Searching protein information with UniProt {#searching-protein-information-with-uniprot}
 
-## Following one protein through five questions
+UniProt contains several datasets with different purposes. **UniProtKB**, the knowledgebase, is the starting point for finding protein sequences together with functional annotations and links to other resources. Its **Swiss-Prot** section contains reviewed entries, while **TrEMBL** contains automatically annotated entries awaiting full manual review. An entry moves into Swiss-Prot when that review is complete. Review status describes the annotation process, and reviewed entries can combine experimental findings with computational interpretations.
 
-### Where is the sequence?
+Other parts of UniProt organise sequences for different tasks. **UniParc** stores each unique protein sequence once under a stable identifier and records links to its source entries and their history. The same sequence can occur in more than one biological context, so inspect the source records when interpreting a match. **UniRef** groups sequences into clusters at defined sequence-identity thresholds, which is useful when working with many similar sequences. These datasets complement the annotated protein records in UniProtKB.
 
-The first question is where the sequence is, and the answer depends on the level. Databases are organised by the central dogma, so DNA, RNA and protein each have their own records. For *HBB*, NCBI Gene (`3043`) places the gene on chromosome 11 (11p15.4). The chromosome itself is `NC_000011.10`, the curated transcript is `NM_000518.5` and its protein is `NP_000509.1`. The raw submitted sequences behind them sit in INSDC, while RefSeq and **Ensembl** provide the annotated, non-redundant view of the genome, with the gene models marked out.
+For our example, look for human *HBB* in UniProtKB and check the accession `P68871`, entry name `HBB_HUMAN` and organism *Homo sapiens*. After confirming the identity, choose an annotation relevant to your question and inspect its evidence or linked publication. The [UniProt record check in the notebook](notebooks/session03-databases-in-code.html#uniprot-record-checks){target="_blank" rel="noopener noreferrer"} shows how to retrieve selected fields and cross-references programmatically.
 
-To see a gene in its genomic context, you use a **genome browser**. The UCSC Genome Browser and Ensembl show the sequence and its annotation as a function of position along a chromosome, for a chosen organism and genome build.
+UniProt's **protein-existence level** addresses evidence that a protein exists. The levels are 1, evidence at protein level; 2, evidence at transcript level; 3, inferred from homology; 4, predicted; and 5, uncertain. *HBB* (`P68871`) has level 1. This does not mean that every functional annotation or every residue in the displayed sequence has been experimentally confirmed. Check the evidence for the specific claim you intend to use.
 
-### What is known about the protein?
+#### Further reading {.unnumbered .unlisted}
 
-**UniProt** is the central protein resource. `P68871` (`HBB_HUMAN`) is a Swiss-Prot entry, so its function, the diseases its variants cause (such as sickle-cell anaemia), its modifications and its literature have been checked by curators. It also links to RefSeq, Ensembl, InterPro, the PDB, AlphaFold DB, IntAct and many more. In practice, the reviewed UniProt entry is therefore the best first stop for "what is known about this protein?".
+- EMBL-EBI Training, [The UniProt databases](https://www.ebi.ac.uk/training/online/courses/uniprot-quick-tour/the-uniprot-databases/){target="_blank" rel="noopener noreferrer"}, introducing the knowledgebase, archive and sequence clusters.
+- UniProt, [Protein existence](https://www.uniprot.org/help/protein_existence){target="_blank" rel="noopener noreferrer"}, distinguishing protein-existence evidence from the evidence for individual annotations.
 
-A third UniProt component, **UniParc**, stores every unique protein sequence once, whichever database it came from, under an identifier that is never reused. It is how you recognise that records in different databases hold the same sequence.
+#### Further watching {.unnumbered .unlisted}
 
-#### Further watching
-
-[*Welcome to UniProt*](https://www.youtube.com/watch?v=OwOJmKmc7VM) (UniProt's own introduction to the resource):
+[*Welcome to UniProt*](https://www.youtube.com/watch?v=OwOJmKmc7VM){target="_blank" rel="noopener noreferrer"} (UniProt's own introduction to the resource):
 
 ```{=html}
 <div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
@@ -113,70 +346,19 @@ A third UniProt component, **UniParc**, stores every unique protein sequence onc
 </div>
 ```
 
-### Which family does it belong to?
+### Genome browsers: connected views
 
-A family or domain database tells you which group a sequence belongs to, which is often the fastest way to learn something about a new or poorly characterised protein. **InterPro** (EMBL-EBI) integrates protein family, domain and site signatures from over a dozen member databases. One of them is **Pfam**, whose own website was retired in 2023 and merged into InterPro. `P68871` matches five InterPro entries, nested from broad to specific:
+A **genome browser**, such as UCSC or Ensembl, aligns sequences and annotation tracks to a chosen organism and genome assembly. **It also brings different biological levels together in one interface.** You can inspect genomic DNA, select a transcript and retrieve that transcript and its encoded protein without separately searching three database websites. Record the assembly, annotation source, genomic interval and orientation so that the selection can be reproduced.
 
-::: {#tbl-s03-interpro}
-| InterPro accession | Name                                       |
-|--------------------|--------------------------------------------|
-| IPR009050          | Globin-like superfamily                    |
-| IPR012292          | Globin/Protoglobin                         |
-| IPR000971          | Globin                                     |
-| IPR050056          | Hemoglobin and related oxygen transporters |
-| IPR002337          | Hemoglobin, beta-type                      |
+#### Further reading {.unnumbered}
 
-The five InterPro entries that match β-globin (`P68871`), from broad to specific.
-:::
+- EMBL-EBI Training, [Export data from Ensembl](https://www.ebi.ac.uk/training/online/courses/ensembl-browsing-genomes/export-data/){target="_blank" rel="noopener noreferrer"}, demonstrating genomic, transcript and protein sequence export.
 
-Most of these signatures are profile hidden Markov models, the method that Session 5 explains. For non-coding RNA, **Rfam** plays the same role. It uses covariance models, which score the conserved base-pairing pattern together with the sequence, because an RNA's function depends on its fold. *HBB* is protein-coding and has no Rfam entry; Rfam's tRNA family, for comparison, is RF00005.
+### Reading literature online
 
-### Is there a structure?
+Finding scientific literature starts with a biological question and a choice of search route. You can search a bibliographic database such as **PubMed**, use a scholarly search engine such as **Semantic Scholar**, or follow references and citing papers from a useful publication. These routes differ in coverage and how they rank results, so a search spanning several fields may benefit from more than one. AI tools offer another way to explore a question, as the short example below shows.
 
-The question of structure has two very different kinds of answer:
-
-- **Experimental structures** are stored in the **Protein Data Bank (PDB)**. Entry `2HHB` is human deoxyhaemoglobin, two alpha and two beta chains, determined by X-ray diffraction at **1.74 Å resolution** (Fermi et al. 1984). Resolution describes the experimental data: the smaller the number, the finer the detail the data could resolve.
-- **Predicted models** are stored in the **AlphaFold Protein Structure Database**, for essentially every protein in UniProt. Each residue carries a confidence score, **pLDDT** (0-100). Above 90, the model is expected to be accurate down to the side chains, and above 70 the backbone is usually right. Below 50, the model confidence is very low, and intrinsic disorder is one common reason (Session 12). The model for `P68871` has a mean pLDDT of 97.
-
-A resolution and a pLDDT are therefore not the same kind of number. Resolution measures how much detail the experiment could see in a real molecule, whereas pLDDT is the model's own estimate of how right its prediction is. For *HBB*, which has hundreds of experimental structures, the model adds little. AlphaFold DB matters most for the many proteins that have none. Session 6 treats these coordinates as data, aligning structures, measuring them and searching for structural relatives, and Session 12 shows how AlphaFold predicts them.
-
-### What does it interact with?
-
-Interaction databases, too, differ in the kind of evidence they hold. They are listed here from the most to the least direct evidence:
-
-- **IntAct** (EMBL-EBI, part of the IMEx consortium) curates individual physical interactions from published experiments, such as that of *HBB* with HBZ (hemoglobin subunit zeta).
-- **Complex Portal** (IntAct's sister resource) curates stable complexes with their composition. CPX-2158, "Hemoglobin HbA complex", consists of two HBA1, two HBB and four haem groups, the same object whose atoms 2HHB shows.
-- **STRING** combines curated interactions, co-expression, conserved gene neighbourhood, predictions and text mining into one score per protein pair. It answers a broader question, "which proteins are functionally associated?", with a mixture of experimental and predicted evidence. **FunCoup** (Stockholm University) builds a similar network in a different way, and a later course in this programme covers it.
-
-### The dossier
-
-Put together, the answers to the five questions form a short **database dossier** for *HBB*. Each row is a different database's record of the same biology, and each is reached from the previous one by a cross-reference:
-
-::: {#tbl-s03-questions}
-| Question | Database | Record | Main evidence for the claim |
-|------------------|------------------|------------------|------------------|
-| Where is the sequence? | NCBI Gene; RefSeq | `3043`; `NC_000011.10` → `NM_000518.5` → `NP_000509.1` | curated (RefSeq) |
-| What is known about the protein? | UniProt (Swiss-Prot) | `P68871` (`HBB_HUMAN`), protein existence level 1 | curated; existence experimental |
-| Which family? | InterPro | `IPR000971` (Globin) and four more | signatures built by curators, matches computed |
-| Is there a structure? | PDB; AlphaFold DB | `2HHB` (X-ray, 1.74 Å); `AF-P68871-F1` (mean pLDDT 97) | experimental; predicted |
-| What does it interact with? | IntAct; Complex Portal | HBB-HBZ; `CPX-2158` (HbA) | experimental; curated |
-| Where is it described? | PubMed | PMID 6726807 (Fermi et al. 1984, *J Mol Biol* 175:159), the paper behind 2HHB | literature |
-
-The databases that answer each question about β-globin, and the main evidence behind each answer.
-:::
-
-The notebook fetches every one of these records live, and the lab ends with a dossier of your own, for human myoglobin.
-
-### Further reading
-
-- EMBL-EBI, [InterPro](https://www.ebi.ac.uk/interpro/), [PDBe](https://www.ebi.ac.uk/pdbe/), [AlphaFold DB](https://alphafold.ebi.ac.uk/), [IntAct](https://www.ebi.ac.uk/intact/) and [Complex Portal](https://www.ebi.ac.uk/complexportal/)
-- Rfam, [RF00005 (tRNA)](https://rfam.org/family/RF00005); STRING, [string-db.org](https://string-db.org/); FunCoup, [funcoup.org](https://funcoup.org/)
-
-## Searching: know your level, predict, then check
-
-A search at the wrong level buries what you want. NCBI's or EBI's everything-at-once search for "hemoglobin beta" mixes genome, gene, transcript and protein records, whereas the same words in NCBI Gene or UniProt give a short list with the record you want near the top. Once you know the level, you should therefore use that database's own search. When you need many records, or want a search to be reproducible, use the programmatic interfaces instead (NCBI's E-utilities through Biopython's `Bio.Entrez`, and the UniProt and PDB REST APIs), as the notebook does.
-
-The same applies to the literature. **PubMed**, built by NCBI on the NLM's MEDLINE database (started 1971), indexes the biomedical literature, with just over **41 million** records. Its free full-text archive, **PubMed Central (PMC)**, holds about **12.6 million**, roughly a third. A PubMed hit is therefore not necessarily a free paper. When PMC has no copy, a preprint server such as **bioRxiv** often does.
+**PubMed is our worked example**, because it lets us practise constructing a query and checking how the search service interpreted it. PubMed provides citations and abstracts for biomedical publications. A citation identifies a paper, but access to its full text is a separate question. Follow links to **PubMed Central (PMC)** or the publisher, and check your university library's access if needed. A preprint or repository copy may also be available, but check which version you are reading.
 
 A good habit for every database is to **predict what a query will return, run it, and check whether the result makes sense.** PubMed's Boolean operators make this easy, because they behave like operations on sets:
 
@@ -192,7 +374,17 @@ A good habit for every database is to **predict what a query will return, run it
 PubMed queries combined with Boolean operators.
 :::
 
-**Quotation marks** are the second tool. The query `hemoglobin beta` is read as `hemoglobin AND beta`, that is, both words anywhere, in any order. The query `"hemoglobin beta"` requires the exact phrase, and it usually returns far fewer records. The third discussion problem asks you to predict the counts for a new pair of terms before running the searches.
+**Quotation marks** request a phrase search. PubMed can map unquoted terms to subject headings and other variants through *Automatic Term Mapping*, so `hemoglobin beta` need not mean a simple search for both words anywhere. The query `"hemoglobin beta"` requests that phrase, but PubMed may ignore the quotation marks if the phrase is absent from its phrase index and display a warning. Check **Search Details** in the Advanced search history to see the actual query, and compare relevant results as well as counts. The optional third discussion notebook asks you to predict the counts for a new pair of terms before running the searches.
+
+### AI-assisted literature discovery
+
+AI can help turn an unfamiliar question into search terms, suggest related papers or produce a preliminary summary. For example, **Semantic Scholar** includes AI-generated summaries and recommendations, while **Elicit** supports finding and exploring papers from a research question. A general AI assistant can also help plan a search. Start with a specific question and ask for traceable sources, for example:
+
+> Help me plan a literature search on the role of HBB variants in sickle-cell disease. Suggest synonyms and a database query. For any papers you suggest, provide a DOI or PMID and a source link. Distinguish the paper's reported findings from your interpretation, and mark references you cannot verify.
+
+Use the suggestions as leads to investigate. Run the proposed query in PubMed or another suitable scholarly search service, then check one suggested paper's title, authors, year and DOI or PMID against its publication record. Next, open the paper and find the passage or result supporting a claimed finding. **A real reference and a supported claim are two separate checks**: an AI response can name a real paper but describe its findings incorrectly. If only the abstract was available, state that limit when describing what you checked.
+
+Compare the AI suggestions with your database results, including dates and publication types, because the suggested list may miss relevant work. Record the search service, query and date, together with the AI tool and prompt if used. Apply these checks to one suggested reference and one claimed finding before using the result in your own work.
 
 ### Further watching
 
@@ -206,7 +398,9 @@ PubMed queries combined with Boolean operators.
 
 ### Further reading
 
+- NLM, [PubMed User Guide](https://pubmed.ncbi.nlm.nih.gov/help/), especially phrase searching, Search Details and full-text access
 - Wikipedia, [Genome browser](https://en.wikipedia.org/wiki/Genome_browser), [PubMed](https://en.wikipedia.org/wiki/PubMed), [PubMed Central](https://en.wikipedia.org/wiki/PubMed_Central) and [Boolean search](https://en.wikipedia.org/wiki/Boolean_search)
+- Tool providers' introductions: [Semantic Scholar](https://webflow.semanticscholar.org/product) and [Elicit](https://support.elicit.com/en/articles/14757543-getting-started-with-elicit-which-workflow-should-i-use). These are examples to explore. Their own introductions explain the available features and any account requirements.
 
 ::: {.callout-note collapse="true"}
 ## Other resources worth knowing
@@ -220,7 +414,23 @@ These resources are not needed for this course, but you will meet them:
 
 ## The course notebook
 
-`notebooks/session03-databases-in-code.ipynb` builds the *HBB* dossier with live code. It retrieves the gene, mRNA and protein records from NCBI through `Bio.Entrez`, the UniProt entry with its cross-references and protein-existence level, the InterPro matches, PDB entry 2HHB through two different APIs (with its primary citation) and the AlphaFold model, the IntAct and Complex Portal records, and STRING. It then counts the Swiss-Prot and TrEMBL entries and runs the Boolean PubMed searches above, checking the set arithmetic in code. Open it in [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session03-databases-in-code.ipynb) via the badge at the top of the notebook page.
+The [course notebook](notebooks/session03-databases-in-code.html){target="_blank" rel="noopener noreferrer"} demonstrates a small set of programmatic tasks starting from supplied accessions. You retrieve records, inspect returned fields, parse sequence information and check identifiers, molecule types and cross-references. Comparing an archival record through NCBI and ENA illustrates shared data behind different interfaces. These examples show how code can repeat and document a retrieval; they do not replace the biological investigation in the lab. Open it in [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session03-databases-in-code.ipynb){target="_blank" rel="noopener noreferrer"} via the badge at the top of the notebook page.
+
+::: {.callout-note collapse="true" #lab-practice}
+## Optional practice for the lab
+
+Use these ungraded HBB tasks to practise retrieving and checking database records. Work at your own pace and ask for help when needed. The assessed lab questions and submission requirements are provided separately in Canvas.
+
+**Identifiers and evidence.** Open the human HBB gene record (NCBI Gene `3043`), RefSeq transcript `NM_000518.5`, protein `NP_000509.1` and UniProt entry `P68871`. Make a four-row table stating what each record represents, its identifier and version where applicable, and a cross-reference connecting it to another record. Explain why the symbol `HBB` alone does not specify the exact transcript sequence used. Then choose one biological claim in the UniProt entry, follow its evidence or reference, and briefly describe what supports that particular claim.
+
+**Retrieval and record check.** Use either UCSC or Ensembl, with human GRCh38/hg38, and select one HBB protein-coding transcript. Retrieve three FASTA outputs through that resource:
+
+- The genomic sequence spanning your selected transcript, with no additional flanking bases.
+- The full spliced transcript/cDNA sequence, including its untranslated regions.
+- The protein encoded by the selected transcript.
+
+Keep a retrieval log with the resource and annotation source, organism, genome assembly, genomic interval and orientation, transcript/protein identifiers and versions, sequence types and lengths, and retrieval date. Use it to explain one difference between the genomic, transcript and protein outputs. Compare your log with another student's and check whether it contains enough information to reproduce the selections.
+:::
 
 ## Check your understanding
 
@@ -229,15 +439,48 @@ These resources are not needed for this course, but you will meet them:
 <script>
 renderQuiz("session03-quiz", [
   {
-    question: "GenBank, ENA and DDBJ exchange their data every day. What does that guarantee, and what does it not?",
+    question: "You find the same public INSDC sequence accession through NCBI, ENA and DDBJ. What does this tell you?",
     choices: [
-      "A sequence submitted to any of the three can be found through all three under the same accession, but each database displays it in its own format",
+      "The partner interfaces provide access to a shared archival record; this is not three independent experimental confirmations",
       "All three databases show every record in exactly the same file format",
       "Each database gives the same sequence a different accession number",
       "Only one of the three accepts new submissions"
     ],
     correctIndex: 0,
-    explanation: "INSDC shares the underlying data, the accessions and the annotation standards; the web pages and flat-file formats (GenBank vs. EMBL format, for example) differ."
+    explanation: "INSDC exchanges public records and updates daily, sharing accessions and annotation standards. Interfaces, downloadable formats and indexing times can differ. Viewing one shared record at three sites does not provide three independent pieces of experimental evidence."
+  },
+  {
+    question: "You want to know which biological material was sequenced. Which linked record should you inspect first?",
+    choices: [
+      "The sample record, such as BioSample",
+      "Only the assembled chromosome sequence",
+      "Only the project title",
+      "Only a protein structure record"
+    ],
+    correctIndex: 0,
+    explanation: "The sample record describes the biological material. The project describes the investigation, while read and assembly records hold different stages of its sequence results. Library and instrument details belong in linked experiment information."
+  },
+  {
+    question: "An older paper's Trace Archive link no longer works. What should you do first?",
+    choices: [
+      "Keep its identifier and consult the provider's current retrieval guidance",
+      "Conclude that the underlying data have been deleted",
+      "Submit the publication's data again as a new experiment",
+      "Treat any record with a similar gene name as the same dataset"
+    ],
+    correctIndex: 0,
+    explanation: "An archive or interface can close while records remain accessible through another service. Follow the identifier, then check the organism, record type and available files before reusing the evidence."
+  },
+  {
+    question: "A protein sequence was calculated by translating an HBB coding sequence. Does this show that the protein was experimentally detected?",
+    choices: [
+      "No. It gives the encoded amino-acid sequence; protein detection requires experimental evidence",
+      "Yes. Computational translation measures the protein directly",
+      "Yes, provided the sequence appears in a reviewed database record",
+      "Yes, provided a three-dimensional model can be predicted"
+    ],
+    correctIndex: 0,
+    explanation: "Translation of a coding sequence is a calculation. It derives an amino-acid sequence but does not measure a protein in a sample. Review status and a predicted structure do not replace experimental evidence of protein detection."
   },
   {
     question: "You need to report exactly which transcript sequence you used for human HBB. Which identifier should you give?",
@@ -253,24 +496,24 @@ renderQuiz("session03-quiz", [
   {
     question: "Why isn't an accession number like NM_000518.5 a good universal 'name' for a gene, the way the approved symbol HBB is?",
     choices: [
-      "It is unique only within RefSeq; the same gene has different accessions in Ensembl, UniProt and the PDB, linked by cross-references, while the HGNC-approved symbol is widely shared across databases",
+      "It identifies a particular transcript record and sequence version; gene, transcript, protein and structure records are different objects connected by cross-references",
       "Accession numbers are randomly reassigned to different genes every year",
       "Accession numbers can only refer to proteins",
       "Official symbols have no governing body"
     ],
     correctIndex: 0,
-    explanation: "HGNC symbols are shared by every database; accessions are each database's own bookkeeping, and cross-references tie the records together."
+    explanation: "A gene symbol names a gene in its organism context. An accession identifies a record, and a sequence version identifies a revision. Different related record types have different identifiers; exchanged INSDC archival records retain their accessions across partner interfaces."
   },
   {
     question: "A RefSeq record has the accession XP_011536997.1. What does the X tell you?",
     choices: [
-      "It is a model protein predicted by NCBI's genome-annotation pipeline, not a curated record",
+      "It is a model protein record generated by computational annotation",
       "It has been confirmed by mass spectrometry",
       "It is a non-coding RNA",
       "It is a raw sequencing read submitted to GenBank"
     ],
     correctIndex: 0,
-    explanation: "XM_/XP_ records state 'MODEL REFSEQ: This record is predicted by automated computational analysis'; NM_/NP_ records are curated."
+    explanation: "XM_/XP_ identify model RefSeq transcript/protein records. The prefix distinguishes the record class, but experimental support and curation must be checked separately. An NM_ or NP_ prefix alone does not establish that every annotation was manually reviewed or experimentally tested."
   },
   {
     question: "Which statement about UniProtKB's Swiss-Prot and TrEMBL is correct?",
@@ -281,7 +524,7 @@ renderQuiz("session03-quiz", [
       "Swiss-Prot contains only human proteins"
     ],
     correctIndex: 0,
-    explanation: "UniProtKB consists of a reviewed and an unreviewed section; curated entries are integrated into Swiss-Prot and leave TrEMBL."
+    explanation: "UniProtKB consists of a reviewed and an unreviewed section; reviewed entries are integrated into Swiss-Prot and leave TrEMBL. A reviewed entry can include both experimentally supported annotations and computational interpretations."
   },
   {
     question: "What provides the strongest evidence in UniProt that a protein has been experimentally observed?",
@@ -292,7 +535,7 @@ renderQuiz("session03-quiz", [
       "An AlphaFold model exists for it"
     ],
     correctIndex: 0,
-    explanation: "UniProt grades protein existence from 1 (evidence at protein level) through transcript level, inferred from homology and predicted, to 5 (uncertain)."
+    explanation: "Protein-existence level 1 records experimental evidence at protein level. The other levels describe evidence at transcript level, inference from homology, prediction or uncertain existence. This classification concerns whether the protein exists, rather than experimental confirmation of every annotation."
   },
   {
     question: "PDB entry 2HHB was solved at 1.74 Å resolution; the AlphaFold model of the same protein has a mean pLDDT of 97. What is the difference between the two numbers?",
@@ -323,15 +566,15 @@ renderQuiz("session03-quiz", [
     explanation: "288,577 + 125,442 &minus; 4,458 = 409,561: OR is the union of the two sets, and PubMed returns exactly that."
   },
   {
-    question: "What is the effect of searching PubMed for \"hemoglobin beta\" in quotation marks instead of hemoglobin beta?",
+    question: "After searching PubMed for a quoted phrase such as \"hemoglobin beta\", what should you check?",
     choices: [
-      "It requires the exact adjacent phrase, instead of both words anywhere in the record",
-      "It searches only the title",
-      "It is the same as using NOT",
-      "It has no effect"
+      "Search Details and any warnings, to see how PubMed interpreted the query",
+      "Only the result count, because quotation marks always guarantee an exact phrase search",
+      "Only the journal names, because quotation marks limit the search to journals",
+      "Only the titles, because quotation marks automatically search the title field"
     ],
     correctIndex: 0,
-    explanation: "Without quotes, two words are an AND of the two words anywhere; quotes require the literal phrase."
+    explanation: "Quotation marks request a phrase search. PubMed may ignore them if the phrase is absent from its phrase index, and unquoted terms may be expanded through Automatic Term Mapping. Check Search Details and any warnings to understand the search actually run."
   },
   {
     question: "Pfam's standalone website was retired in 2023. Where do you look up a Pfam family today?",
@@ -345,15 +588,15 @@ renderQuiz("session03-quiz", [
     explanation: "InterPro integrates Pfam and over a dozen other family and domain resources; Rfam is the separate RNA-family resource."
   },
   {
-    question: "Complex Portal's CPX-2158 (2x HBA1, 2x HBB, 4x haem) and PDB entry 2HHB describe the same haemoglobin tetramer. What does each record capture?",
+    question: "InterPro gives HBB both a globin-domain annotation and a beta-type haemoglobin-family annotation. What does this mean?",
     choices: [
-      "Complex Portal: the composition and stoichiometry; PDB: the atomic 3D geometry determined by experiment",
-      "They describe two unrelated molecules",
-      "Complex Portal holds only predicted complexes",
-      "The PDB stores only sequences"
+      "The annotations describe a region of the protein and the family it belongs to",
+      "HBB must contain two separate globin domains",
+      "The record must describe two different protein sequences",
+      "Each annotation proves a separate experimental finding"
     ],
     correctIndex: 0,
-    explanation: "Same biological object, two angles: who is in it and how many copies, versus where every atom sits."
+    explanation: "One protein can contain a recognisable domain and belong to a protein family. Several annotations can describe the same globin region, so the number of annotations is not a count of domains."
   }
 ]);
 </script>
@@ -370,3 +613,15 @@ This lab is administered through Canvas, not through this book. See the course's
 ## What's next
 
 Session 4 picks up where the cross-references leave off. Once you can retrieve two related sequences, the next question is how to line them up and score how similar they are, and that is sequence alignment.
+
+```{=html}
+<script>
+// Quarto's page-navigation links do not inherit chapter target attributes.
+document.addEventListener("DOMContentLoaded", function () {
+  document.querySelectorAll('a.pagination-link[href$="notebooks/session03-databases-in-code.html"]').forEach(function (link) {
+    link.target = "_blank";
+    link.rel = "noopener noreferrer";
+  });
+});
+</script>
+```

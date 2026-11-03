@@ -1,0 +1,7 @@
+/* The session titles already begin with "Session N", so Quarto's chapter
+   number is a duplicate in the page's own heading. Hide it there only: the
+   sidebar and the table of contents keep their numbers, which is what makes
+   them easy to navigate. */
+#title-block-header .chapter-number {
+  display: none;
+}

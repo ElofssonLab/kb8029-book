@@ -309,7 +309,7 @@ UID:bd8d572eee761693@kb8029.course.bioinfo.se
 DTSTAMP:20261029T161351Z
 DTSTART;TZID=Europe/Stockholm:20270315T090000
 DTEND;TZID=Europe/Stockholm:20270315T120000
-SUMMARY:KB8029 Lecture 10: CNNs\, and How They Took Over Biology
+SUMMARY:KB8029 Lecture 10: CNNs\, from ImageNet to Biology
 LOCATION:Air&Fire (Gamma 2)
 DESCRIPTION:Arne Elofsson\nCNNs in biology
 URL:https://course.bioinfo.se/session10.html
@@ -319,7 +319,7 @@ UID:fbdef9d74e05de7c@kb8029.course.bioinfo.se
 DTSTAMP:20261029T161351Z
 DTSTART;TZID=Europe/Stockholm:20270315T130000
 DTEND;TZID=Europe/Stockholm:20270315T160000
-SUMMARY:KB8029 Lab 10: CNNs\, and How They Took Over Biology
+SUMMARY:KB8029 Lab 10: CNNs\, from ImageNet to Biology
 LOCATION:Air&Fire (Gamma 2)
 DESCRIPTION:Arne Elofsson\; TAs: Ines Cunha (responsible)\, Sarah Narrowe D
  anielsson\nCNNs in biology

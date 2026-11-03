@@ -1,0 +1,5 @@
+/* Add breathing room to prose lists in Session 3 without changing navigation. */
+#quarto-document-content ul > li + li,
+#quarto-document-content ol > li + li {
+  margin-top: 0.65rem;
+}
