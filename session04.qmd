@@ -32,6 +32,10 @@ introduced by Schneider & Stephens (1990), *Nucleic Acids Research*
 
 # Session 4: Sequence Alignment
 
+::: {.callout-note appearance="simple"}
+**Notebook:** [Session 4 — Sequence Alignment in code](notebooks/session04-alignment-in-code.html){target="_blank"} — the code behind this page. [Download it](notebooks/session04-alignment-in-code.ipynb){download=''} to run it yourself.
+:::
+
 ::: {.callout-tip icon="false"}
 ## Homology
 

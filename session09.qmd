@@ -4,6 +4,10 @@
 
 # Session 9: How a Neural Network Learns, and Why Training Fails
 
+::: {.callout-note appearance="simple"}
+**Notebook:** [Session 9 — How a neural network learns, and why training fails, in code](notebooks/session09-backprop-training-regularization.html){target="_blank"} — the code behind this page. [Download it](notebooks/session09-backprop-training-regularization.ipynb){download=''} to run it yourself.
+:::
+
 ::: {.callout-tip icon="false"}
 ## Generalisation
 

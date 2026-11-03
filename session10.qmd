@@ -4,6 +4,10 @@
 
 # Session 10: CNNs, from ImageNet to Biology
 
+::: {.callout-note appearance="simple"}
+**Notebook:** [Session 10 — CNNs in code](notebooks/session10-cnns-in-code.html){target="_blank"} — the code behind this page. [Download it](notebooks/session10-cnns-in-code.ipynb){download=''} to run it yourself.
+:::
+
 ::: {.callout-tip icon="false"}
 ## Translation
 

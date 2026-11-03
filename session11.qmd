@@ -4,6 +4,10 @@
 
 # Session 11: Sequences, Language Models and SignalP
 
+::: {.callout-note appearance="simple"}
+**Notebook:** [Session 11 — Sequences, language models and SignalP, in code](notebooks/session11-rnns-lstm-gru-in-code.html){target="_blank"} — the code behind this page. [Download it](notebooks/session11-rnns-lstm-gru-in-code.ipynb){download=''} to run it yourself.
+:::
+
 ::: {.callout-tip icon="false"}
 ## Attention
 

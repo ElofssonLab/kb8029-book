@@ -4,6 +4,10 @@
 
 # Session 2: Working like a computational biologist in Python
 
+::: {.callout-note appearance="simple"}
+**Notebook:** [Session 2 — Working like a computational biologist in Python](notebooks/session02-working-in-python.html){target="_blank"} — the code behind this page. [Download it](notebooks/session02-working-in-python.ipynb){download=''} to run it yourself.
+:::
+
 ::: callout-important
 **Set up first.** This course runs its notebooks on Google Colab. The lab is done in VS Code, with the notebook running on a Colab machine through Google's Colab extension; the course notebook can also be opened in Colab in the browser. If you have not done so yet, follow [Setup](setup.qmd): install VS Code, git and the Colab extension, clone the course notebooks, and check that you can run a notebook on a Colab machine.
 :::

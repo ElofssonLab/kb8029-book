@@ -4,6 +4,10 @@
 
 # Session 7: Linear Models, Gradient Descent, the XOR Problem & Secondary Structure Prediction
 
+::: {.callout-note appearance="simple"}
+**Notebook:** [Session 7 — Linear models, gradient descent, and the XOR problem](notebooks/session07-gradient-descent-xor.html){target="_blank"} — the code behind this page. [Download it](notebooks/session07-gradient-descent-xor.ipynb){download=''} to run it yourself.
+:::
+
 ::: {.callout-tip icon="false"}
 ## A fast learner
 

@@ -4,6 +4,10 @@
 
 # Session 12: AlphaFold and Generative Models of Protein Structure
 
+::: {.callout-note appearance="simple"}
+**Notebook:** [Session 12 — AlphaFold and generative models of protein structure, in code](notebooks/session12-alphafold-and-generative-models-in-code.html){target="_blank"} — the code behind this page. [Download it](notebooks/session12-alphafold-and-generative-models-in-code.ipynb){download=''} to run it yourself.
+:::
+
 ::: {.callout-tip icon="false"}
 ## A solved problem
 

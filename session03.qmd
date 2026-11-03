@@ -12,6 +12,10 @@ format:
 
 # Session 3: Biological Databases
 
+::: {.callout-note appearance="simple"}
+**Notebook:** [Session 3 — Biological Databases in code](notebooks/session03-databases-in-code.html){target="_blank"} — the code behind this page. [Download it](notebooks/session03-databases-in-code.ipynb){download=''} to run it yourself.
+:::
+
 ::: {.callout-tip icon="false"}
 ## Naming things
 
@@ -614,14 +618,3 @@ This lab is administered through Canvas, not through this book. See the course's
 
 Session 4 picks up where the cross-references leave off. Once you can retrieve two related sequences, the next question is how to line them up and score how similar they are, and that is sequence alignment.
 
-```{=html}
-<script>
-// Quarto's page-navigation links do not inherit chapter target attributes.
-document.addEventListener("DOMContentLoaded", function () {
-  document.querySelectorAll('a.pagination-link[href$="notebooks/session03-databases-in-code.html"]').forEach(function (link) {
-    link.target = "_blank";
-    link.rel = "noopener noreferrer";
-  });
-});
-</script>
-```

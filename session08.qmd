@@ -4,6 +4,10 @@
 
 # Session 8: Machine Learning Foundations & Practical PyTorch
 
+::: {.callout-note appearance="simple"}
+**Notebook:** [Session 8 — Machine Learning Foundations & Practical PyTorch, in code](notebooks/session08-ml-foundations-and-pytorch.html){target="_blank"} — the code behind this page. [Download it](notebooks/session08-ml-foundations-and-pytorch.ipynb){download=''} to run it yourself.
+:::
+
 ::: {.callout-tip icon="false"}
 ## Overfitting
 

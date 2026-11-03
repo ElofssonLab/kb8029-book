@@ -63,6 +63,10 @@ classifications were fetched live from the PDBe and InterPro APIs.
 
 # Session 6: Protein Structure
 
+::: {.callout-note appearance="simple"}
+**Notebook:** [Session 6 — Protein Structure in code](notebooks/session06-protein-structure-in-code.html){target="_blank"} — the code behind this page. [Download it](notebooks/session06-protein-structure-in-code.ipynb){download=''} to run it yourself.
+:::
+
 ::: {.callout-tip icon="false"}
 ## Tense and relaxed
 
