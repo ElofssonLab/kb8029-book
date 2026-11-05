@@ -5,3 +5,11 @@
 #title-block-header .chapter-number {
   display: none;
 }
+
+/* Prose lists in the chapters are often several lines per item, and set tight
+   they read as a wall. This is book-wide on purpose: it arrived as a private
+   Session 3 stylesheet, which made that one page sit looser than the rest. */
+#quarto-document-content ul > li + li,
+#quarto-document-content ol > li + li {
+  margin-top: 0.65rem;
+}

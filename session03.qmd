@@ -1,22 +1,14 @@
----
-format:
-  html:
-    css:
-      - session-titles.css
-      - session03.css
----
 
 ::: callout-note
 **Sources for this page:** Petras Kundrotas's KB8029 teaching materials, "Databases of Sequence Information" (2026–2027) — this page covers its databases and worked examples, adapted for this book around linked records and biological questions, not copied verbatim; Wikipedia, [Biological database](https://en.wikipedia.org/wiki/Biological_database), [Sequence database](https://en.wikipedia.org/wiki/Sequence_database), [International Nucleotide Sequence Database Collaboration](https://en.wikipedia.org/wiki/International_Nucleotide_Sequence_Database_Collaboration), [GenBank](https://en.wikipedia.org/wiki/GenBank), [UniProt](https://en.wikipedia.org/wiki/UniProt), [RefSeq](https://en.wikipedia.org/wiki/RefSeq), [Accession number (bioinformatics)](https://en.wikipedia.org/wiki/Accession_number_(bioinformatics)), [Genome browser](https://en.wikipedia.org/wiki/Genome_browser), [UCSC Genome Browser](https://en.wikipedia.org/wiki/UCSC_Genome_Browser), [Ensembl genome database project](https://en.wikipedia.org/wiki/Ensembl_genome_database_project), [PubMed](https://en.wikipedia.org/wiki/PubMed), [PubMed Central](https://en.wikipedia.org/wiki/PubMed_Central), [MEDLINE](https://en.wikipedia.org/wiki/MEDLINE), [BioRxiv](https://en.wikipedia.org/wiki/BioRxiv), [Boolean search](https://en.wikipedia.org/wiki/Boolean_search) — CC BY-SA 4.0; NCBI, [GenBank overview](https://www.ncbi.nlm.nih.gov/genbank/), [How to submit data to GenBank](https://www.ncbi.nlm.nih.gov/genbank/submit/), [About RefSeq](https://www.ncbi.nlm.nih.gov/refseq/about/), [RefSeq FAQ](https://www.ncbi.nlm.nih.gov/books/NBK50679/), and the NLM [PubMed User Guide](https://pubmed.ncbi.nlm.nih.gov/help/) — public domain (US government work); EMBL-EBI Training, [The role of public databases](https://www.ebi.ac.uk/training/online/courses/bioinformatics-terrified/the-role-of-public-databases/), [Data sharing collaborations](https://www.ebi.ac.uk/training/online/courses/bioinformatics-terrified/the-role-of-public-databases/data-sharing-collaborations/), [What is ENA?](https://www.ebi.ac.uk/training/online/courses/ena-quick-tour/what-is-ena/), [The UniProt databases](https://www.ebi.ac.uk/training/online/courses/uniprot-quick-tour/the-uniprot-databases/), [UniProtKB](https://www.ebi.ac.uk/training/online/courses/uniprot-quick-tour/the-uniprot-databases/uniprotkb/) and [Export data from Ensembl](https://www.ebi.ac.uk/training/online/courses/ensembl-browsing-genomes/export-data/) — CC BY 4.0. The original worked records and search-result counts below were retrieved from the NCBI, UniProt, InterPro, RCSB, AlphaFold DB and IntAct APIs on 4 October 2026. The revised main notebook demonstrates selected retrieval, parsing and record checks. Building a complete database dossier belongs to the lab. The added INSDC comparison was verified on 2026-10-27, and the archive-history section cites the relevant provider notices. The UniProt protein-existence levels follow UniProt's [documentation](https://www.uniprot.org/help/protein_existence).
 
 Additional reference material for Section 3.6: NLM, [What are accession numbers at NCBI?](https://support.nlm.nih.gov/knowledgebase/article/KA-03434/en-us){target="_blank" rel="noopener noreferrer"}; HGNC, [Frequently asked questions](https://www.genenames.org/help/faq/){target="_blank" rel="noopener noreferrer"}; Ensembl, [Stable identifiers](https://www.ensembl.org/info/genome/stable_ids/index.html){target="_blank" rel="noopener noreferrer"}; and EMBL-EBI Training, [Explore gene and transcript specific information](https://www.ebi.ac.uk/training/online/courses/ensembl-data-platform/accessing-navigating-ensembl/explore-gene-and-transcript-specific-info/){target="_blank" rel="noopener noreferrer"}. The explanations are written for this course.
-
 :::
 
 # Session 3: Biological Databases
 
 ::: {.callout-note appearance="simple"}
-**Notebook:** [Session 3 — Biological Databases in code](notebooks/session03-databases-in-code.html){target="_blank"} — the code behind this page. [Download it](notebooks/session03-databases-in-code.ipynb){download=''} to run it yourself.
+**Notebook:** [Session 3 — Biological Databases in code](notebooks/session03-databases-in-code.html){target="_blank"} — the code behind this page. [Download it](notebooks/session03-databases-in-code.ipynb){download=""} to run it yourself.
 :::
 
 ::: {.callout-tip icon="false"}
@@ -29,9 +21,9 @@ Additional reference material for Section 3.6: NLM, [What are accession numbers 
 
 By the end of this session you should be able to:
 
-1. choose appropriate DNA, RNA or protein databases for a biological question, connect records using identifiers, versions and cross-references, and trace individual claims to their sources and evaluate their supporting evidence;
-2. compare command-line or programmatic access, database-specific web pages and genome browsers, and use UCSC or Ensembl to retrieve genomic, transcript and protein sequences through one interface, recording the organism, assembly and versioned identifiers;
-3. find scientific literature through databases, scholarly search engines and AI-assisted tools; use PubMed as a worked example to construct and check queries, locate publications and available full text, and verify suggested references and claims against the original sources.
+1.  choose appropriate DNA, RNA or protein databases for a biological question, connect records using identifiers, versions and cross-references, and trace individual claims to their sources and evaluate their supporting evidence;
+2.  compare command-line or programmatic access, database-specific web pages and genome browsers, and use UCSC or Ensembl to retrieve genomic, transcript and protein sequences through one interface, recording the organism, assembly and versioned identifiers;
+3.  find scientific literature through databases, scholarly search engines and AI-assisted tools; use PubMed as a worked example to construct and check queries, locate publications and available full text, and verify suggested references and claims against the original sources.
 
 Rather than listing databases one by one, the reading uses human beta-globin (*HBB*) to connect genomic DNA, RNA transcripts and protein information. Several databases may help answer the same biological question, offering complementary records, annotations and evidence. The aim is to recognise the information needed and check what supports it.
 
@@ -51,9 +43,9 @@ A **biological database** is an organised collection of biological data that sup
 
 ### When data outgrow the lab
 
-Downloading database releases for local searching has long been part of bioinformatics. Fixed local snapshots of external data remain useful for reproducible analysis. Some collections still fit on ordinary laboratory hardware. For example, the PDB Core archive, [about 1.5 TB as of 1 January 2026](https://www.rcsb.org/news/695ecade725cd43b223c4f37){target="_blank" rel="noopener noreferrer"}, would fit on a 4 TB hard drive. Other collections, such as the **Sequence Read Archive (SRA)**, with [more than 50 PB of unique data in April 2026](https://www.nlm.nih.gov/od/bor/SRA_NLM_BOR_Meeting_Summary_20260421.pdf){target="_blank" rel="noopener noreferrer"}, would require thousands of such hard drives, with a budget of tens of millions of Swedish kronor for the drives alone.[^s03-drive-budget]
+Downloading database releases for local searching has long been part of bioinformatics. Fixed local snapshots of external data remain useful for reproducible analysis. Some collections still fit on ordinary laboratory hardware. For example, the PDB Core archive, [about 1.5 TB as of 1 January 2026](https://www.rcsb.org/news/695ecade725cd43b223c4f37){target="_blank" rel="noopener noreferrer"}, would fit on a 4 TB hard drive. Other collections, such as the **Sequence Read Archive (SRA)**, with [more than 50 PB of unique data in April 2026](https://www.nlm.nih.gov/od/bor/SRA_NLM_BOR_Meeting_Summary_20260421.pdf){target="_blank" rel="noopener noreferrer"}, would require thousands of such hard drives, with a budget of tens of millions of Swedish kronor for the drives alone.[^session03-1]
 
-[^s03-drive-budget]: As an illustrative baseline, 50 PB is 50,000 TB, requiring 12,500 drives of 4 TB nominal capacity. A 4 TB Seagate Expansion drive was advertised at [SEK 2,198 including VAT](https://www.proshop.se/Haarddisk-extern/Seagate-Expansion-Extern-Haarddisk-4TB-Svart/2976621){target="_blank" rel="noopener noreferrer"} on 24 October 2026, giving SEK 27,475,000 for those drives. The reported SRA total exceeds 50 PB. This comparison excludes additional capacity for backups, servers and operating costs, and uses individual retail prices rather than a bulk-purchase quotation.
+[^session03-1]: As an illustrative baseline, 50 PB is 50,000 TB, requiring 12,500 drives of 4 TB nominal capacity. A 4 TB Seagate Expansion drive was advertised at [SEK 2,198 including VAT](https://www.proshop.se/Haarddisk-extern/Seagate-Expansion-Extern-Haarddisk-4TB-Svart/2976621){target="_blank" rel="noopener noreferrer"} on 24 October 2026, giving SEK 27,475,000 for those drives. The reported SRA total exceeds 50 PB. This comparison excludes additional capacity for backups, servers and operating costs, and uses individual retail prices rather than a bulk-purchase quotation.
 
 Thus, keeping the entire archive locally is impractical for an ordinary research laboratory. Instead, public data centers maintain the full collections, while researchers retrieve the subsets of data needed for their particular questions or analyze entire datasets using shared computing infrastructure.
 
@@ -65,7 +57,7 @@ The partners use [common annotation standards](https://www.insdc.org/submitting-
 
 Publicly released INSDC data are freely accessible, but a submission may remain confidential until its release date and controlled-access human data are excluded from the public exchange. An archived record preserves submitted data and annotations without necessarily collecting every later finding about that sequence.
 
-### Connected records from one investigation
+### Connected records from one investigation {#connected-records-from-one-investigation}
 
 An investigation produces several kinds of information, so a database needs more than a sequence record. Project and sample records describe the context of the work, while read and assembled-sequence records preserve different stages of its results. Following the links between these records helps us establish what a dataset represents and where its evidence came from. The [ENA quick tour](https://www.ebi.ac.uk/training/online/courses/ena-quick-tour/what-is-ena/how-is-ena-structured/){target="_blank" rel="noopener noreferrer"} introduces this organisation.
 
@@ -301,8 +293,6 @@ For a question about the human gene, **NCBI Gene** is a useful starting point. A
 
 Expression displays require an additional check. A graph represents particular samples, methods and conditions. Follow its study and publication links to understand where the measurements came from.
 
-<span id="searching-protein-information-with-uniprot"></span>
-
 For protein sequence and functional information, search **UniProtKB**. Organism filters help restrict results to *Homo sapiens*. A reviewed-entry filter selects entries that have undergone manual curation, but we must still check the protein name. Several human haemoglobin subunits can match a descriptive query.
 
 The human beta-globin entry is [`P68871`](https://www.uniprot.org/uniprotkb/P68871/entry){target="_blank" rel="noopener noreferrer"}. After confirming its identity, examine the annotation relevant to the question and follow its supporting evidence. Review status describes the assessment of the entry. Individual annotations may have different kinds of supporting evidence. [EMBL-EBI's UniProtKB introduction](https://www.ebi.ac.uk/training/online/courses/uniprot-quick-tour/the-uniprot-databases/uniprotkb/){target="_blank" rel="noopener noreferrer"} explains this distinction.
@@ -328,8 +318,6 @@ The [EMBL-EBI UniProt quick tour](https://www.ebi.ac.uk/training/online/courses/
 Biological names can have alternative spellings and synonyms. An approved gene symbol provides a standardised term that resources can share.
 
 For human genes, the **HUGO Gene Nomenclature Committee**, or **HGNC**, maintains approved symbols and descriptive names. The approved symbol for hemoglobin subunit beta is *HBB*, and its nomenclature record is `HGNC:4827`. An approved symbol supports communication and searching across resources. We should still specify the organism and check the selected record. [HGNC's explanation of approved nomenclature](https://www.genenames.org/help/faq/){target="_blank" rel="noopener noreferrer"} provides further background.
-
-<span id="tbl-s03-identifiers"></span>
 
 Searching for human *HBB* can lead to several identifiers:
 
@@ -407,9 +395,11 @@ EMBL-EBI's [**Explore gene and transcript specific information**](https://www.eb
 
 While watching, consider which identifier specifies the gene, which specifies a transcript, and where an external cross-reference leads. The video uses Ensembl's newer data platform, so its page layout may differ from other Ensembl interfaces.
 
-<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
-<iframe src="https://embl-ebi.cloud.panopto.eu/Panopto/Pages/Embed.aspx?autoplay=false&amp;captions=true&amp;id=36e2e908-ef4e-479d-90f1-b4ad00ab571d&amp;interactivity=all&amp;offerviewer=false&amp;showbrand=true&amp;showtitle=true" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allow="fullscreen" allowfullscreen loading="lazy" title="Ensembl gene and transcript identifiers and cross-references, EMBL-EBI"></iframe>
-</div>
+::: {style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;"}
+<iframe src="https://embl-ebi.cloud.panopto.eu/Panopto/Pages/Embed.aspx?autoplay=false&amp;captions=true&amp;id=36e2e908-ef4e-479d-90f1-b4ad00ab571d&amp;interactivity=all&amp;offerviewer=false&amp;showbrand=true&amp;showtitle=true" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allow="fullscreen" allowfullscreen loading="lazy" title="Ensembl gene and transcript identifiers and cross-references, EMBL-EBI">
+
+</iframe>
+:::
 
 For a demonstration closer to the protein-search example, [**How to search UniProtKB**](https://www.ebi.ac.uk/training/online/courses/proteomics-an-introduction/proteomics-resources-at-the-ebi/uniprotkb/){target="_blank" rel="noopener noreferrer"} is a suitable alternative.
 
@@ -493,7 +483,7 @@ These resources are not needed for this course, but you will meet them:
 
 The [course notebook](notebooks/session03-databases-in-code.html){target="_blank" rel="noopener noreferrer"} demonstrates a small set of programmatic tasks starting from supplied accessions. You retrieve records, inspect returned fields, parse sequence information and check identifiers, molecule types and cross-references. Comparing an archival record through NCBI and ENA illustrates shared data behind different interfaces. These examples show how code can repeat and document a retrieval; they do not replace the biological investigation in the lab. Open it in [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session03-databases-in-code.ipynb){target="_blank" rel="noopener noreferrer"} via the badge at the top of the notebook page.
 
-::: {.callout-note collapse="true" #lab-practice}
+::: {#lab-practice .callout-note collapse="true"}
 ## Optional practice for the lab
 
 Use these ungraded HBB tasks to practise retrieving and checking database records. Work at your own pace and ask for help when needed. The assessed lab questions and submission requirements are provided separately in Canvas.
@@ -690,4 +680,3 @@ This lab is administered through Canvas, not through this book. See the course's
 ## What's next
 
 Session 4 picks up where the cross-references leave off. Once you can retrieve two related sequences, the next question is how to line them up and score how similar they are, and that is sequence alignment.
-
