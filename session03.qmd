@@ -8,6 +8,9 @@ format:
 
 ::: callout-note
 **Sources for this page:** Petras Kundrotas's KB8029 teaching materials, "Databases of Sequence Information" (2026–2027) — this page covers its databases and worked examples, adapted for this book around linked records and biological questions, not copied verbatim; Wikipedia, [Biological database](https://en.wikipedia.org/wiki/Biological_database), [Sequence database](https://en.wikipedia.org/wiki/Sequence_database), [International Nucleotide Sequence Database Collaboration](https://en.wikipedia.org/wiki/International_Nucleotide_Sequence_Database_Collaboration), [GenBank](https://en.wikipedia.org/wiki/GenBank), [UniProt](https://en.wikipedia.org/wiki/UniProt), [RefSeq](https://en.wikipedia.org/wiki/RefSeq), [Accession number (bioinformatics)](https://en.wikipedia.org/wiki/Accession_number_(bioinformatics)), [Genome browser](https://en.wikipedia.org/wiki/Genome_browser), [UCSC Genome Browser](https://en.wikipedia.org/wiki/UCSC_Genome_Browser), [Ensembl genome database project](https://en.wikipedia.org/wiki/Ensembl_genome_database_project), [PubMed](https://en.wikipedia.org/wiki/PubMed), [PubMed Central](https://en.wikipedia.org/wiki/PubMed_Central), [MEDLINE](https://en.wikipedia.org/wiki/MEDLINE), [BioRxiv](https://en.wikipedia.org/wiki/BioRxiv), [Boolean search](https://en.wikipedia.org/wiki/Boolean_search) — CC BY-SA 4.0; NCBI, [GenBank overview](https://www.ncbi.nlm.nih.gov/genbank/), [How to submit data to GenBank](https://www.ncbi.nlm.nih.gov/genbank/submit/), [About RefSeq](https://www.ncbi.nlm.nih.gov/refseq/about/), [RefSeq FAQ](https://www.ncbi.nlm.nih.gov/books/NBK50679/), and the NLM [PubMed User Guide](https://pubmed.ncbi.nlm.nih.gov/help/) — public domain (US government work); EMBL-EBI Training, [The role of public databases](https://www.ebi.ac.uk/training/online/courses/bioinformatics-terrified/the-role-of-public-databases/), [Data sharing collaborations](https://www.ebi.ac.uk/training/online/courses/bioinformatics-terrified/the-role-of-public-databases/data-sharing-collaborations/), [What is ENA?](https://www.ebi.ac.uk/training/online/courses/ena-quick-tour/what-is-ena/), [The UniProt databases](https://www.ebi.ac.uk/training/online/courses/uniprot-quick-tour/the-uniprot-databases/), [UniProtKB](https://www.ebi.ac.uk/training/online/courses/uniprot-quick-tour/the-uniprot-databases/uniprotkb/) and [Export data from Ensembl](https://www.ebi.ac.uk/training/online/courses/ensembl-browsing-genomes/export-data/) — CC BY 4.0. The original worked records and search-result counts below were retrieved from the NCBI, UniProt, InterPro, RCSB, AlphaFold DB and IntAct APIs on 4 October 2026. The revised main notebook demonstrates selected retrieval, parsing and record checks. Building a complete database dossier belongs to the lab. The added INSDC comparison was verified on 2026-10-27, and the archive-history section cites the relevant provider notices. The UniProt protein-existence levels follow UniProt's [documentation](https://www.uniprot.org/help/protein_existence).
+
+Additional reference material for Section 3.6: NLM, [What are accession numbers at NCBI?](https://support.nlm.nih.gov/knowledgebase/article/KA-03434/en-us){target="_blank" rel="noopener noreferrer"}; HGNC, [Frequently asked questions](https://www.genenames.org/help/faq/){target="_blank" rel="noopener noreferrer"}; Ensembl, [Stable identifiers](https://www.ensembl.org/info/genome/stable_ids/index.html){target="_blank" rel="noopener noreferrer"}; and EMBL-EBI Training, [Explore gene and transcript specific information](https://www.ebi.ac.uk/training/online/courses/ensembl-data-platform/accessing-navigating-ensembl/explore-gene-and-transcript-specific-info/){target="_blank" rel="noopener noreferrer"}. The explanations are written for this course.
+
 :::
 
 # Session 3: Biological Databases
@@ -276,79 +279,149 @@ A globin-domain assignment provides another kind of information derived from seq
 
 Curation helps connect transcript and protein records, annotations and relevant publications. When using a statement about *HBB*, identify the particular claim and follow its supporting evidence. A cross-reference helps us find a related record, but does not establish that both records have the same experimental basis. We next need identifiers to specify these records precisely and follow their connections.
 
-## Identifiers: names, accessions, versions and cross-references
+## Finding records through names and identifiers {#identifiers-names-accessions-versions-and-cross-references}
 
-The most useful skill of this session is to know what kind of identifier you are holding, because one gene has many. For *HBB* alone, the table lists seven:
+To evaluate information in a database, we first need to find the relevant record. Biological names and symbols provide useful search terms. Record identifiers then allow us to specify what we selected, retrieve it again and follow its connections to other information.
 
-::: {#tbl-s03-identifiers}
-| Identifier | Kind | What it means |
-|------------------|------------------|------------------------------------|
-| `HBB` | approved gene symbol | assigned by the HGNC (HUGO Gene Nomenclature Committee) for human genes, and widely used across databases (which may also list synonyms) |
-| `3043` | NCBI Gene ID | NCBI's number for the gene record |
-| `NM_000518` | accession | identifies a RefSeq transcript record, without specifying its sequence version |
-| `NM_000518.5` | accession.version | the fifth version of that record; the version changes whenever the sequence changes |
-| `P68871` | UniProt accession | the stable identifier of the UniProt entry |
-| `HBB_HUMAN` | UniProt entry name | a readable label for the same entry, which can change |
-| `2HHB` | PDB ID | one experimental structure; *HBB* appears in hundreds of them |
+Human *HBB*, the gene encoding beta-globin, will illustrate these steps.
 
-Seven identifiers for the human *HBB* gene and its products.
+### Searching by name
+
+A descriptive query such as `human hemoglobin beta` provides a useful starting point. Searching across the collections indexed by NCBI or EMBL-EBI can return gene records, nucleotide sequences, protein entries, expression studies and publications.
+
+These results address different questions. A gene record can help us locate *HBB* in the genome. A protein entry can describe beta-globin's function. An expression study can provide measurements of RNA abundance under particular experimental conditions.
+
+Before choosing a result, identify the kind of information needed. Search categories help us select an appropriate collection. The number of matches depends on the search service's coverage and interpretation of the query, so counts from different services are not directly comparable.
+
+### Searching within a selected resource
+
+Once we know what information we need, we can search within a suitable resource.
+
+For a question about the human gene, **NCBI Gene** is a useful starting point. After searching, check the gene description and organism. The appropriate [human HBB gene record has Gene ID `3043`](https://www.ncbi.nlm.nih.gov/gene/3043){target="_blank" rel="noopener noreferrer"}. Its sections provide genomic context and links to transcripts, protein products and other information.
+
+Expression displays require an additional check. A graph represents particular samples, methods and conditions. Follow its study and publication links to understand where the measurements came from.
+
+<span id="searching-protein-information-with-uniprot"></span>
+
+For protein sequence and functional information, search **UniProtKB**. Organism filters help restrict results to *Homo sapiens*. A reviewed-entry filter selects entries that have undergone manual curation, but we must still check the protein name. Several human haemoglobin subunits can match a descriptive query.
+
+The human beta-globin entry is [`P68871`](https://www.uniprot.org/uniprotkb/P68871/entry){target="_blank" rel="noopener noreferrer"}. After confirming its identity, examine the annotation relevant to the question and follow its supporting evidence. Review status describes the assessment of the entry. Individual annotations may have different kinds of supporting evidence. [EMBL-EBI's UniProtKB introduction](https://www.ebi.ac.uk/training/online/courses/uniprot-quick-tour/the-uniprot-databases/uniprotkb/){target="_blank" rel="noopener noreferrer"} explains this distinction.
+
+UniProt's **protein-existence level** addresses evidence that a protein exists. The levels are 1, evidence at protein level; 2, evidence at transcript level; 3, inferred from homology; 4, predicted; and 5, uncertain. *HBB* (`P68871`) has level 1. This does not mean that every functional annotation or every residue in the displayed sequence has been experimentally confirmed. Check the evidence for the specific claim you intend to use. See [UniProt's explanation of protein existence](https://www.uniprot.org/help/protein_existence){target="_blank" rel="noopener noreferrer"}.
+
+::: {.callout-note collapse="true"}
+### Optional reading: how UniProt is organised
+
+UniProt provides several datasets for different purposes:
+
+- **UniProtKB** combines protein sequences with functional annotations and cross-references. **Swiss-Prot** contains reviewed entries, while **TrEMBL** contains computationally annotated, unreviewed entries.
+- **UniParc** archives distinct protein sequences and records their occurrence in source resources. It supports tracing sequence provenance and history.
+- **UniRef** groups related sequences into clusters. UniRef100, UniRef90 and UniRef50 provide different clustering resolutions for tasks involving large sequence collections.
+
+For the searches in this section, UniProtKB is the principal starting point. The archive and clustering datasets become useful when questions concern sequence history or collections of related sequences.
+
+The [EMBL-EBI UniProt quick tour](https://www.ebi.ac.uk/training/online/courses/uniprot-quick-tour/the-uniprot-databases/){target="_blank" rel="noopener noreferrer"} provides an illustrated overview and optional explanations of each dataset.
 :::
 
-An accession identifies a record, and we need to know which resource and record type it belongs to. Different resources can assign different identifiers to related records, while INSDC partners share accessions for exchanged archival records. For example, RefSeq transcript `NM_000518.5`, RefSeq protein `NP_000509.1` and UniProt entry `P68871` are different records connected by explicit **cross-references**. The protein record states which transcript it was translated from, and the UniProt entry lists both RefSeq records. One biological entity can therefore have many linked records, whereas one shared archival record can be viewed through several partner interfaces.
+### Searching by an official gene symbol
 
-Two habits follow from this. First, to move between records, follow an explicit cross-reference when one exists. Otherwise, search with a stable identifier or the approved symbol (and the organism), and check the organism and sequence of what you find. Second, when you report a sequence, give the accession *with* its version, because `NM_000518` alone does not say which revision you used. The same holds for genome coordinates, which only mean something together with the genome **build** (GRCh37/hg19 or GRCh38/hg38). The lab shows the same gene at different coordinates in the two builds.
+Biological names can have alternative spellings and synonyms. An approved gene symbol provides a standardised term that resources can share.
 
-RefSeq accessions also encode the kind of record in their prefix:
+For human genes, the **HUGO Gene Nomenclature Committee**, or **HGNC**, maintains approved symbols and descriptive names. The approved symbol for hemoglobin subunit beta is *HBB*, and its nomenclature record is `HGNC:4827`. An approved symbol supports communication and searching across resources. We should still specify the organism and check the selected record. [HGNC's explanation of approved nomenclature](https://www.genenames.org/help/faq/){target="_blank" rel="noopener noreferrer"} provides further background.
+
+<span id="tbl-s03-identifiers"></span>
+
+Searching for human *HBB* can lead to several identifiers:
+
+- **`HGNC:4827`** identifies its HGNC nomenclature record.
+- **`3043`** identifies its NCBI Gene record.
+- **`ENSG00000244734`** identifies its Ensembl gene record.
+
+These resources describe the same human gene from their respective perspectives.
+
+Other identifiers lead to related biological objects. RefSeq `NM_000518.5` identifies an mRNA sequence, while `NP_000509.1` identifies its protein product. The submitted mRNA accession `V00497.1` can be retrieved through the INSDC partner interfaces at NCBI, ENA and DDBJ.
+
+Thus, several identifiers may describe different records concerning the same gene, while other identifiers specify its transcripts, protein products or associated findings.
+
+### Reading prefixes and suffixes
+
+An identifier follows the conventions of the resource that issues it. Its first letters may indicate a record class, while characters at the end may identify a version or a protein isoform.
+
+The examples in @tbl-s03-refseq illustrate several conventions.
 
 ::: {#tbl-s03-refseq}
-| Prefix | Record | Example |
-|------------------------|------------------------|------------------------|
-| `NC_` | genomic: a complete chromosome | `NC_000011.10` |
-| `NM_` | mRNA sequence | `NM_000518.5` |
-| `NP_` | protein sequence | `NP_000509.1` |
-| `NR_` | non-coding RNA sequence | — |
-| `XM_` / `XP_` | mRNA / protein **models** from computational annotation | `XP_011536997.1` |
+| Resource | Pattern or example | What it tells us |
+|------------------|------------------|------------------------------------|
+| [RefSeq](https://www.ncbi.nlm.nih.gov/books/NBK50679/){target="_blank" rel="noopener noreferrer"} | `NM_000518.5`, `NP_000509.1` | `NM_` identifies mRNA and `NP_` protein. The number after the dot specifies the sequence version. |
+| [Ensembl](https://www.ensembl.org/info/genome/stable_ids/index.html){target="_blank" rel="noopener noreferrer"} | `ENSG...`, `ENST...`, `ENSP...` | For human records, these identify genes, transcripts and proteins. A dot suffix gives the version of that object. |
+| [INSDC read archives](https://www.ddbj.nig.ac.jp/news/en/2021-11-24-e.html){target="_blank" rel="noopener noreferrer"} | `SRR...`, `ERR...`, `DRR...` | Sequencing runs originating at NCBI, EMBL-EBI and DDBJ respectively. |
+| [GEO](https://www.ncbi.nlm.nih.gov/geo/info/geo_paccess.html){target="_blank" rel="noopener noreferrer"} | `GSE...`, `GSM...` | A Series groups related samples in a study. A Sample record describes an individual sample. |
+| [UniProtKB isoforms](https://www.uniprot.org/help/alternative_products){target="_blank" rel="noopener noreferrer"} | `P04150-2` | The suffix identifies a protein isoform. This example concerns the glucocorticoid receptor. |
+| [UniProtKB features](https://www.uniprot.org/help/sequence_annotation#annotation_id){target="_blank" rel="noopener noreferrer"} | `VAR_002863`, `PRO_0000052976` | Identifiers for a natural sequence variant and a processed protein chain within the HBB entry. |
+| [Rfam](https://rfam.org/family/RF00005){target="_blank" rel="noopener noreferrer"} / [Pfam](https://www.ebi.ac.uk/interpro/entry/pfam/PF00042/){target="_blank" rel="noopener noreferrer"} | `RF00005`, `PF00042` | An RNA family and a protein family or domain. These examples identify tRNAs and globins respectively. |
 
-RefSeq accession prefixes and the kind of record they denote.
+Selected identifier conventions across biological data resources.
 :::
 
-The prefix identifies the RefSeq record class, but does not establish whether every annotation has been manually reviewed or experimentally tested. RefSeq records can be generated through computation, manual curation or propagation from submitted annotated sequences. Check the record's status, source sequences and supporting evidence before drawing a biological conclusion.
+These conventions help us interpret unfamiliar records, but many identifiers contain little biological information. For example, NCBI Gene ID `3043` is useful because it specifies a record precisely.
+
+The table also contains different kinds of suffix. UniProt's `-2` specifies an **isoform**, while RefSeq's `.5` specifies a **sequence version**. In Ensembl, versioning rules depend on whether the identifier refers to a gene, transcript or protein.
+
+RefSeq also uses `NC_` for complete genomic molecules, `NR_` for noncoding RNA, and `XM_` / `XP_` for transcript / protein models generated by computational annotation. A prefix identifies the record class. Check the record's status and supporting evidence to assess particular annotations.
+
+Post-translational modifications require further information. UniProt generally describes them using the modification type and its position in the protein sequence. They have no general accession-suffix convention. See [UniProt's explanation of modified residues](https://www.uniprot.org/help/mod_res){target="_blank" rel="noopener noreferrer"}.
+
+### Recording the version used
+
+Suppose a colleague reports, "I used HBB." That description leaves several possibilities. Was the input genomic DNA, an mRNA sequence or an amino-acid sequence? Which particular sequence was used?
+
+For the RefSeq mRNA accession **`NM_000518.5`**, the suffix `.5` specifies sequence version 5. The protein accession **`NP_000509.1`** has its own sequence-version history.
+
+Sequence versions help distinguish changes to the sequence itself. Updates to references or other annotations can occur without changing that suffix. Consequently, reproducing an analysis of annotations may also require the downloaded record and its release or retrieval date. [NLM's introduction to accession numbers](https://support.nlm.nih.gov/knowledgebase/article/KA-03434/en-us){target="_blank" rel="noopener noreferrer"} explains these distinctions.
+
+A useful methods statement would be:
+
+> The analysis used the human HBB RefSeq mRNA sequence NM_000518.5.
+
+When reporting other data, retain the corresponding context. Genome coordinates require an assembly, such as GRCh38. Protein isoform analyses require the relevant isoform identifier. UniProt records sequence and entry versions separately from its accession.
+
+### Following cross-references
+
+A **cross-reference** connects a record to related information in another collection or resource. Websites commonly display these connections as clickable identifiers.
+
+For example, the [UniProtKB beta-globin entry `P68871`](https://www.uniprot.org/uniprotkb/P68871/entry){target="_blank" rel="noopener noreferrer"} links to:
+
+- [**NCBI Gene `3043`**](https://www.ncbi.nlm.nih.gov/gene/3043){target="_blank" rel="noopener noreferrer"}, describing the human gene that encodes beta-globin.
+- [**RefSeq `NP_000509.1`**](https://www.ncbi.nlm.nih.gov/protein/NP_000509.1){target="_blank" rel="noopener noreferrer"}, providing a corresponding reference protein sequence.
+- [**PDB `2HHB`**](https://www.rcsb.org/structure/2HHB){target="_blank" rel="noopener noreferrer"}, describing an experimentally determined haemoglobin complex containing alpha- and beta-globin chains.
+
+These links let us follow relevant information without repeating a name search at each website.
+
+Check what relationship each link represents. It may connect corresponding records, a gene and its product, or a protein and a larger complex containing it. A cross-reference establishes a connection between records. The destination still needs to be checked for its organism, record type and supporting evidence.
+
+The [course notebook](notebooks/session03-databases-in-code.html#uniprot-record-checks){target="_blank" rel="noopener noreferrer"} demonstrates how to retrieve specified records and inspect their identifiers and connections programmatically.
+
+### Further watching {.unnumbered .unlisted}
+
+EMBL-EBI's [**Explore gene and transcript specific information**](https://www.ebi.ac.uk/training/online/courses/ensembl-data-platform/accessing-navigating-ensembl/explore-gene-and-transcript-specific-info/){target="_blank" rel="noopener noreferrer"} contains a video demonstrating gene searching, gene and transcript identifiers, and cross-references to external resources.
+
+While watching, consider which identifier specifies the gene, which specifies a transcript, and where an external cross-reference leads. The video uses Ensembl's newer data platform, so its page layout may differ from other Ensembl interfaces.
+
+<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
+<iframe src="https://embl-ebi.cloud.panopto.eu/Panopto/Pages/Embed.aspx?autoplay=false&amp;captions=true&amp;id=36e2e908-ef4e-479d-90f1-b4ad00ab571d&amp;interactivity=all&amp;offerviewer=false&amp;showbrand=true&amp;showtitle=true" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allow="fullscreen" allowfullscreen loading="lazy" title="Ensembl gene and transcript identifiers and cross-references, EMBL-EBI"></iframe>
+</div>
+
+For a demonstration closer to the protein-search example, [**How to search UniProtKB**](https://www.ebi.ac.uk/training/online/courses/proteomics-an-introduction/proteomics-resources-at-the-ebi/uniprotkb/){target="_blank" rel="noopener noreferrer"} is a suitable alternative.
 
 ### Further reading {.unnumbered .unlisted}
 
-- NCBI, [About RefSeq](https://www.ncbi.nlm.nih.gov/refseq/about/){target="_blank" rel="noopener noreferrer"} and [RefSeq FAQ](https://www.ncbi.nlm.nih.gov/books/NBK50679/){target="_blank" rel="noopener noreferrer"}, explaining reference records, prefixes and annotation status.
-- Wikipedia, [Accession number (bioinformatics)](https://en.wikipedia.org/wiki/Accession_number_(bioinformatics)){target="_blank" rel="noopener noreferrer"}, an overview of record identifiers and sequence versions.
+- NLM, [What are accession numbers at NCBI?](https://support.nlm.nih.gov/knowledgebase/article/KA-03434/en-us){target="_blank" rel="noopener noreferrer"}, a short explanation of accession formats, prefixes and sequence versions.
+- HGNC, [Frequently asked questions](https://www.genenames.org/help/faq/){target="_blank" rel="noopener noreferrer"}, explaining approved gene symbols and descriptive names.
+- Ensembl, [Stable identifiers](https://www.ensembl.org/info/genome/stable_ids/index.html){target="_blank" rel="noopener noreferrer"}, explaining identifier formats and the different versioning rules for genes, transcripts and proteins.
 
-## Searching: know your level, predict, then check
+## Genome browsers and literature searching {#searching-know-your-level-predict-then-check}
 
-A search across resources can return genome, gene, transcript and protein records for the same words. Choose the biological information you need before choosing the resource. Searching within a specific resource limits the kinds of records returned, but does not guarantee a short list or put the appropriate record first. Check the organism, record type and identifiers, and use filters or a more precise query where needed.
-
-For a gene question about human *HBB*, start in NCBI Gene and check that the selected record describes the human haemoglobin subunit beta gene. The Gene ID `3043` identifies that record, while its cross-references lead to transcript and protein records. A question about the protein's function or annotation can instead start in a protein resource such as UniProt. When you need many records, or want a retrieval to be reproducible, use programmatic interfaces, such as NCBI E-utilities and the UniProt REST API demonstrated in the notebook.
-
-### Searching protein information with UniProt {#searching-protein-information-with-uniprot}
-
-UniProt contains several datasets with different purposes. **UniProtKB**, the knowledgebase, is the starting point for finding protein sequences together with functional annotations and links to other resources. Its **Swiss-Prot** section contains reviewed entries, while **TrEMBL** contains automatically annotated entries awaiting full manual review. An entry moves into Swiss-Prot when that review is complete. Review status describes the annotation process, and reviewed entries can combine experimental findings with computational interpretations.
-
-Other parts of UniProt organise sequences for different tasks. **UniParc** stores each unique protein sequence once under a stable identifier and records links to its source entries and their history. The same sequence can occur in more than one biological context, so inspect the source records when interpreting a match. **UniRef** groups sequences into clusters at defined sequence-identity thresholds, which is useful when working with many similar sequences. These datasets complement the annotated protein records in UniProtKB.
-
-For our example, look for human *HBB* in UniProtKB and check the accession `P68871`, entry name `HBB_HUMAN` and organism *Homo sapiens*. After confirming the identity, choose an annotation relevant to your question and inspect its evidence or linked publication. The [UniProt record check in the notebook](notebooks/session03-databases-in-code.html#uniprot-record-checks){target="_blank" rel="noopener noreferrer"} shows how to retrieve selected fields and cross-references programmatically.
-
-UniProt's **protein-existence level** addresses evidence that a protein exists. The levels are 1, evidence at protein level; 2, evidence at transcript level; 3, inferred from homology; 4, predicted; and 5, uncertain. *HBB* (`P68871`) has level 1. This does not mean that every functional annotation or every residue in the displayed sequence has been experimentally confirmed. Check the evidence for the specific claim you intend to use.
-
-#### Further reading {.unnumbered .unlisted}
-
-- EMBL-EBI Training, [The UniProt databases](https://www.ebi.ac.uk/training/online/courses/uniprot-quick-tour/the-uniprot-databases/){target="_blank" rel="noopener noreferrer"}, introducing the knowledgebase, archive and sequence clusters.
-- UniProt, [Protein existence](https://www.uniprot.org/help/protein_existence){target="_blank" rel="noopener noreferrer"}, distinguishing protein-existence evidence from the evidence for individual annotations.
-
-#### Further watching {.unnumbered .unlisted}
-
-[*Welcome to UniProt*](https://www.youtube.com/watch?v=OwOJmKmc7VM){target="_blank" rel="noopener noreferrer"} (UniProt's own introduction to the resource):
-
-```{=html}
-<div style="position:relative;padding-bottom:56.25%;height:0;overflow:hidden;max-width:100%;margin-bottom:1em;">
-<iframe src="https://www.youtube.com/embed/OwOJmKmc7VM" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="Welcome to UniProt, UniProt"></iframe>
-</div>
-```
+Having selected a record, we can explore its genomic context or find the publications that support a biological interpretation. Genome browsers connect information along a reference genome, while literature-search services help us find research reports.
 
 ### Genome browsers: connected views
 
