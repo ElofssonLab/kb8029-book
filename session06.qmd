@@ -133,9 +133,32 @@ The four levels of protein structure and where they appear in the course.
 - The tertiary fold is held together mainly by the **hydrophobic
   effect** (non-polar side chains bury themselves away from water),
   together with hydrogen bonds, electrostatic interactions and van der
-  Waals contacts.
+  Waals contacts. Two of these are worth naming. A **salt bridge** is an
+  electrostatic interaction between oppositely charged side chains: a
+  lysine or arginine against an aspartate or glutamate. A **disulfide
+  bond** is a covalent link between two cysteine sulphur atoms, far
+  stronger than the rest, and the only one of these interactions that is
+  a real bond rather than an attraction.
 - Many proteins work as a single chain, while others assemble into
   complexes of two to hundreds of chains.
+
+### What the backbone can and cannot do
+
+The chain is often called flexible, which is true but narrower than it
+sounds. Each residue contributes three **dihedral angles** to the
+backbone: φ about the N--Cα bond, ψ about Cα--C, and ω about the peptide
+bond that joins one residue to the next. Only the first two turn freely.
+The peptide bond has partial double-bond character, so ω is held near
+180° --- the *trans* form --- and only about 0.3% of residues are found
+in the *cis* form, most of them before a proline.
+
+A conformation of the backbone is therefore two numbers per residue, not
+three, and that is why the **Ramachandran plot** --- φ against ψ --- can
+show the conformation of a whole chain on one pair of axes. Residues in
+an α-helix fall in one tight cluster, because a helix *is* the same pair
+of angles repeated; residues in a β-strand fall in another; coil
+residues scatter between them. The clusters are not drawn on the plot.
+They are where the residues land.
 
 ### Haemoglobin: all four levels in one protein
 
@@ -298,6 +321,22 @@ the same overall fold. This is a rule of thumb, not a law. The truncated
 haemoglobin above (0.57) and GFP (0.33) are clear cases, but scores in
 between need other evidence.
 
+Both measures share a dependency worth making explicit. Before either
+can be calculated, one structure has to be moved onto the other: a
+**rigid-body transformation**, which translates the centre of mass and
+rotates about it without changing anything inside the structure. The
+rotation is usually reported as a 3×3 matrix, and can equivalently be
+written as three **Euler angles**. Alignment programs print both the
+matrix and the translation vector, and the superposition they choose is
+the one that minimises RMSD --- so an RMSD is always the *best* RMSD,
+never an arbitrary one.
+
+Some measures avoid the superposition altogether. The **global distance
+test**, GDT, asks instead what fraction of distances in the model match
+the reference within a cutoff. Because the answer depends on the cutoff,
+the score is computed at several and averaged. GDT is the measure CASP
+has used to rank structure predictions for twenty-five years.
+
 ### DALI: comparing distance maps
 
 If two proteins have the same fold, their distance maps should look
@@ -430,6 +469,57 @@ proteins also bind **ligands**, small molecules or ions such as
 haemoglobin's haem groups. Interfaces and ligand-binding sites are where
 much of a protein's function happens, and predicting them is one of the
 open problems of Session 12.
+
+### Predicting a complex: docking
+
+Predicting how two proteins of known structure fit together is called
+**docking**, and it has its own history, running alongside single-chain
+prediction and along the same three routes.
+
+**Shape and physics.** Katchalski-Katzir et al. (1992, [*PNAS*
+89:2195](https://doi.org/10.1073/pnas.89.6.2195)) put both proteins on a
+3D grid and scored shape complementarity for every relative translation
+at once using the fast Fourier transform, sampling rotations
+exhaustively. That became the standard engine. **GRAMM** used
+low-resolution grids that tolerate errors in the structures (Vakser 1995,
+[*Protein Eng* 8:371](https://doi.org/10.1093/protein/8.4.371)), and
+**ZDOCK** added electrostatics and desolvation (Chen, Li & Weng 2003,
+[*Proteins* 52:80](https://doi.org/10.1002/prot.10389)). All of them
+produce thousands of candidate poses, so the hard part is not generating
+an answer but ranking the ones you have.
+
+**Data.** **HADDOCK** drives the search with experimental information ---
+mutations, NMR data --- marking which residues are at the interface
+(Dominguez, Boelens & Bonvin 2003, [*J Am Chem Soc*
+125:1731](https://doi.org/10.1021/ja026939x)).
+
+**Templates.** A complex can also be modelled from a related complex
+whose structure is known. Templates "are available to model nearly all
+complexes of structurally characterized proteins" (Kundrotas, Zhu, Janin
+& Vakser 2012, [*PNAS*
+109:9438](https://doi.org/10.1073/pnas.1200678109)); Petras Kundrotas,
+the first author, teaches on this course.
+
+### Judging a predicted complex
+
+A complex needs its own measures, because the two chains can each be
+modelled well and still be put together wrongly. The convention is to
+superimpose on the larger chain, the *receptor*, and measure the error on
+the smaller one: that is **ligand RMSD**. **Interface RMSD** measures only
+over the residues in contact. A third kind of measure counts contacts
+rather than distances --- what fraction of the real complex's contacts
+the model reproduces. **DockQ** combines these into one number between 0
+and 1 (Basu & Wallner 2016, [*PLoS One*
+11:e0161879](https://doi.org/10.1371/journal.pone.0161879)), which is why
+it is the figure usually quoted.
+
+**CAPRI** has been docking's CASP since 2001 (Janin et al. 2003,
+[*Proteins* 52:2](https://doi.org/10.1002/prot.10381)). Until 2018 its
+verdict was consistent: targets with a template were predicted "very good
+to excellent", but of 11 difficult targets without one, "medium and high
+quality models \[were\] submitted for only 3" (Lensink et al. 2019,
+[*Proteins* 87:1200](https://doi.org/10.1002/prot.25838)). What changed
+that is the subject of @sec-s12-complexes.
 
 ### One protein, more than one structure: haemoglobin T and R
 

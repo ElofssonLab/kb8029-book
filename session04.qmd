@@ -280,7 +280,17 @@ and the model they are built from:
   phylogenetic trees, ancestral sequences are inferred, and
   substitutions are counted along the branches of the tree. Matrices for
   larger distances (PAM250) are then extrapolated from the one for very
-  short distances.
+  short distances. Three quantities do the work. The **frequency** of
+  each amino acid says how often it occurs at all. Its **mutability**
+  says how often it was seen to change, divided by how often it could
+  have --- and the two do not track each other, which is the first
+  surprise in Dayhoff's paper. Dividing an observed substitution rate by
+  what chance alone would give is an **odds ratio**; taking its logarithm
+  turns "rarer than chance" into a negative number and "commoner" into a
+  positive one, which is why every substitution matrix holds log-odds
+  rather than probabilities. Extrapolation is then matrix multiplication:
+  PAM2 is PAM1 applied twice, PAM250 is PAM1 applied two hundred and
+  fifty times.
 - **BLOSUM** (BLOcks SUbstitution Matrix; Henikoff & Henikoff, 1992) is
   instead based on **local**, ungapped alignments of **distantly
   related** proteins. Substitution frequencies are counted directly from
@@ -317,6 +327,22 @@ tools use this distribution to estimate an **E-value**, the number of
 hits this good expected by chance in a database of this size. Session 5
 explains BLAST and E-values properly.
 
+There is also a useful rule for how *long* an alignment has to be before
+it can mean anything. Each aligned pair of residues carries a certain
+amount of information, measured in bits, which depends on the
+substitution matrix used; this is its **relative entropy**. Multiply it
+by the number of aligned residues and you have the information in the
+whole alignment. Roughly thirty bits are needed before an alignment is
+convincing on its own. The consequence is practical: a matrix built for
+distant relatives carries less information per residue, so detecting a
+distant homologue needs a *longer* alignment, not merely a better score.
+
+Shuffling also gives the simplest statistic of all. The **Z-score** of an
+alignment is how many standard deviations its score lies above the mean
+of the shuffled ones. It is easy to compute and easy to over-trust: it
+assumes the shuffled scores are normally distributed, and for local
+alignments they are not, which is exactly what the next section is about.
+
 ### Further reading
 
 - Wikipedia, [Extreme value theory](https://en.wikipedia.org/wiki/Extreme_value_theory), in its general statistical form, beyond its use here
@@ -337,7 +363,7 @@ three ideas:
   example).
 - **Iterative refinement** starts from a progressive alignment and
   repeatedly re-aligns parts of it, keeping the changes that improve the
-  score (as in MUSCLE).
+  score (as in MUSCLE and MAFFT).
 - **Consistency** uses the agreement among all the pairwise alignments
   as extra information. If A aligns with B and B with C at a position, a
   multiple alignment in which A also matches C there is preferred (as in

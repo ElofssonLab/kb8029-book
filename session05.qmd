@@ -103,6 +103,13 @@ Instead, it uses a substitution matrix (BLOSUM62, from Session 4) to
 precompute every 3-letter combination that scores *above a threshold*
 $T$ against each query word.
 
+Those words are then held in a **hash table**: the word itself is the
+key, and looking it up costs the same whether the table holds a thousand
+entries or a million. This is where BLAST's speed actually comes from.
+The database is scanned once, and at each position the program asks a
+constant-time question --- is this word in the table? --- instead of
+attempting an alignment.
+
 **Worked example.** Scored with the real BLOSUM62 matrix, several other
 words besides the query word `LWG` itself clear a typical threshold of
 $T=12$. The notebook computes them directly from BLOSUM62, and 49 words
@@ -177,6 +184,11 @@ tail beyond it. The notebook reproduces this computation in code.
 <iframe src="https://www.youtube.com/embed/kAAme1fBanc" style="position:absolute;top:0;left:0;width:100%;height:100%;border:0;" allowfullscreen title="BLAST 2: seed and extend, Rob Edwards"></iframe>
 </div>
 ```
+
+An extended seed that scores above a cutoff is called a **high-scoring
+segment pair**, or HSP, and that is the unit BLAST actually reports. One
+pair of sequences may yield several HSPs --- two proteins sharing two
+domains will often give one per domain.
 
 ## Stage 3: is this hit significant? E-values and bit scores
 
@@ -505,6 +517,16 @@ learned *where* insertions and deletions are common in that family,
 which a PSSM with uniform gap penalties can only approximate.
 
 ::: {.callout-note icon="false"}
+In practice the profile-HMM tools are **HMMER** --- `hmmsearch` to search
+with a model, `jackhmmer` to iterate one from a single sequence, as
+PSI-BLAST does with a PSSM --- and **HHblits**, which goes one step
+further and aligns a profile against a database of *profiles* rather than
+against plain sequences. Comparing two profiles uses the family
+information on both sides at once, which is why HHblits finds
+relationships that neither BLAST nor a single-profile search will reach.
+It is also why it is slower, and why BLAST remains the default for
+everyday work.
+
 ## What neither a PSSM nor a profile HMM can represent
 
 Both models score a sequence position by position. The score is a sum

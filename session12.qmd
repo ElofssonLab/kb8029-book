@@ -120,7 +120,7 @@ The second generation found this long-range information in evolution. If two res
 
 1.  **Better statistics: direct couplings.** Simple correlation between two alignment columns, such as their mutual information, is misled in two ways. **Phylogeny**: closely related sequences share many residues simply because they descend from a common ancestor, which makes unrelated columns look correlated. **Indirect couplings**: if residue A touches B and B touches C, then a change in A is often compensated in B, and the change in B in C. A and C therefore change together as well, although they never touch. In a fold, each residue has several neighbours, so such chains of contacts are everywhere, and correlation alone cannot tell a true contact from a pair connected through intermediates.
 
-    **Direct coupling analysis** (DCA; Weigt et al. 2009, [*PNAS* 106:67](https://doi.org/10.1073/pnas.0805923106); Morcos et al. 2011, [*PNAS* 108:E1293](https://doi.org/10.1073/pnas.1111471108)) solves this by fitting *one* statistical model to the whole alignment at once, instead of testing each pair of columns on its own. The model gives each sequence a probability from a field for every residue at every position and a **coupling** for every pair of residues at every pair of positions. It is the maximum-entropy model (Session 1) that reproduces the single-column and column-pair frequencies of the alignment. Because all the couplings are fitted together, the A-C correlation is already explained by the A-B and B-C couplings, and the A-C coupling itself stays near zero. Ranking pairs by the strength of their direct coupling, not by their correlation, raises the fraction of correct contacts from 0.49 to 0.73 in the CheY example below.
+    **Direct coupling analysis** (DCA; Weigt et al. 2009, [*PNAS* 106:67](https://doi.org/10.1073/pnas.0805923106); Morcos et al. 2011, [*PNAS* 108:E1293](https://doi.org/10.1073/pnas.1111471108)) solves this by fitting *one* statistical model to the whole alignment at once, instead of testing each pair of columns on its own. The model gives each sequence a probability from a field for every residue at every position and a **coupling** for every pair of residues at every pair of positions. It is the maximum-entropy model (Session 1) that reproduces the single-column and column-pair frequencies of the alignment — in physics the same object is called a **Potts model**, a generalisation of the Ising model to more than two states, and you will meet that name in the literature. Fitting it exactly is intractable, so the implementations approximate: mean-field DCA inverts a covariance matrix, while **plmDCA** and **GREMLIN** maximise a pseudo-likelihood instead, which is slower and more accurate and is what most later work uses. Because all the couplings are fitted together, the A-C correlation is already explained by the A-B and B-C couplings, and the A-C coupling itself stays near zero. Ranking pairs by the strength of their direct coupling, not by their correlation, raises the fraction of correct contacts from 0.49 to 0.73 in the CheY example below.
 
     **The idea had been shown a decade earlier, and was barely noticed.** Alan Lapedes and colleagues at Los Alamos identified both problems, phylogeny and indirect couplings, in 1999, and showed on model protein sequences how indirect correlations arise and how a global model separates them from direct ones (Lapedes, Giraud, Liu & Stormo 1999, [*IMS Lecture Notes* 33:236](https://doi.org/10.1214/lnms/1215455556)). The paper appeared in a statistics lecture-note series that few biologists read. In a 2002 manuscript they fitted the same maximum-entropy model to real protein alignments and showed that it predicts contacts better than simple correlation, and also the effects of combined mutations. That manuscript was not published in a journal and appeared only on arXiv in 2012 (Lapedes, Giraud & Jarzynski, [arXiv:1207.2484](https://arxiv.org/abs/1207.2484)), after DCA had made the idea famous. What changed between 1999 and 2011 was mostly the second development below: there were finally enough sequences for the model to work.
 
@@ -151,30 +151,12 @@ The Stockholm group (this course's teachers) contributed to this generation:
 - **AlphaFold 1** (Senior et al. 2020, first shown at CASP13 in 2018; [*Nature* 577:706](https://doi.org/10.1038/s41586-019-1923-7)) and **trRosetta** (Yang et al., 2020, [*PNAS* 117:1496](https://doi.org/10.1073/pnas.1914677117)) predicted **distance distributions** (and, in trRosetta, orientations) instead of binary contacts. They folded by minimising against them. By CASP13 most single-domain proteins could be predicted "quite accurately".
 :::
 
-::: {.callout-note collapse="true"}
-#### Docking before AlphaFold
-
-Historically, complexes were predicted by docking separately determined or modelled components, whereas modern models predict the chains and their interface jointly. The older route is summarised here for reference.
-
-Docking asks how two proteins of known structure fit together. It followed its own path, along the same three routes as structure prediction.
-
-- **Shape and physics.** Katchalski-Katzir et al. (1992, [*PNAS* 89:2195](https://doi.org/10.1073/pnas.89.6.2195)) put both proteins on a 3D grid. They scored shape complementarity for every relative translation at once with the fast Fourier transform (FFT), and they sampled the rotations exhaustively. This became the standard engine, and later methods refined it:
-
-  - **GRAMM** used low-resolution grids that tolerate errors in the structures (Vakser 1995, [*Protein Eng* 8:371](https://doi.org/10.1093/protein/8.4.371));
-  - **ZDOCK** added electrostatics and desolvation (Chen, Li & Weng 2003, [*Proteins* 52:80](https://doi.org/10.1002/prot.10389)).
-
-  All of them generate thousands of candidate poses, so the hard part is ranking them. This is the ranking problem again.
-
-- **Data.** **HADDOCK** drives docking with experimental information, such as mutations or NMR data, marking the interface residues (Dominguez, Boelens & Bonvin 2003, [*J Am Chem Soc* 125:1731](https://doi.org/10.1021/ja026939x)).
-
-- **Templates.** Complexes can also be modelled from a related complex of known structure. Templates "are available to model nearly all complexes of structurally characterized proteins" (Kundrotas, Zhu, Janin & Vakser 2012, [*PNAS* 109:9438](https://doi.org/10.1073/pnas.1200678109)). Petras Kundrotas, the first author, teaches on this course.
-
-**CAPRI**, the Critical Assessment of PRedicted Interactions, has been docking's CASP since 2001 (Janin et al. 2003, [*Proteins* 52:2](https://doi.org/10.1002/prot.10381)). DockQ was developed to score its models (Basu & Wallner 2016, [*PLoS One* 11:e0161879](https://doi.org/10.1371/journal.pone.0161879)). Until 2018 the picture was clear. Targets with a template were predicted "very good to excellent", but for 11 difficult targets without one, "medium and high quality models \[were\] submitted for only 3" (Lensink et al. 2019, CASP13-CAPRI, [*Proteins* 87:1200](https://doi.org/10.1002/prot.25838)).
+#### Coevolution across an interface
 
 **Coevolution across an interface.** Residues in contact between two proteins co-evolve too, provided we can pair up which sequence in one family interacts with which sequence in the other. This is easy for bacterial proteins encoded next to each other, but hard in general. Ovchinnikov, Kamisetty & Baker (2014, [*eLife* 3:e02030](https://doi.org/10.7554/eLife.02030)) and Hopf et al. (2014, [*eLife* 3:e03430](https://doi.org/10.7554/eLife.03430)) used such paired alignments to predict interfaces. Combined with folding, this idea led to fold and dock:
 
 - **Fold and dock.** Joining the alignments of two proteins lets the folding machinery predict how they bind. Pozzati et al. (2022, [*Bioinformatics* 38:954](https://doi.org/10.1093/bioinformatics/btab760)) did this with trRosetta, and their PconsDock score separated correct from incorrect models 98% of the time. With AlphaFold2 the same idea became FoldDock (@sec-s12-complexes), and folding and docking had become one problem.
-:::
+
 
 #### Further reading
 
