@@ -3,3 +3,4 @@
 
 **/*.quarto_ipynb
 /_pdf/
+/.deploy.lock
