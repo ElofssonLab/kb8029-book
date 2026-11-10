@@ -331,6 +331,85 @@ matrix and the translation vector, and the superposition they choose is
 the one that minimises RMSD --- so an RMSD is always the *best* RMSD,
 never an arbitrary one.
 
+### The arithmetic underneath {#sec-s06-superposition}
+
+It is worth seeing what "optimally superimposed" actually means, because
+it is one of the few places in this course where the optimum has a
+closed-form answer rather than a heuristic.
+
+Moving one structure onto another without deforming it means applying a
+rotation $R$ and a translation $\mathbf{t}$ to every atom:
+
+$$
+\mathbf{y}_i = R\,\mathbf{x}_i + \mathbf{t}
+$$
+
+$R$ is a 3×3 **rotation matrix**: orthogonal ($R^{\mathsf{T}}R = I$) with
+$\det R = +1$. Orthogonality is what keeps every internal distance
+unchanged, which is exactly what "rigid" means; the determinant being
+$+1$ rather than $-1$ rules out reflections, so a left-handed helix
+cannot be superimposed on a right-handed one by flipping it. Nine
+numbers with those constraints leave three degrees of freedom, which is
+why the same rotation can be written as three Euler angles instead.
+
+Given a correspondence --- which residue of one structure pairs with
+which of the other --- the RMSD over $n$ pairs is
+
+$$
+\mathrm{RMSD} = \sqrt{\frac{1}{n}\sum_{i=1}^{n} \lVert R\,\mathbf{x}_i + \mathbf{t} - \mathbf{y}_i \rVert^2}
+$$
+
+and the superposition problem is to minimise it over $R$ and
+$\mathbf{t}$. It separates into two parts. The translation is immediate:
+the optimum always puts the two centroids on top of each other, so
+subtract each structure's own centroid and the translation is dealt with.
+What is left is the rotation, and that is solved exactly by the **Kabsch
+algorithm**: form the 3×3 covariance matrix of the centred coordinates,
+
+$$
+H = \sum_{i=1}^{n} \mathbf{x}_i \mathbf{y}_i^{\mathsf{T}}
+$$
+
+take its singular value decomposition $H = U\Sigma V^{\mathsf{T}}$, and
+the best rotation is
+
+$$
+R = V
+\begin{pmatrix} 1 & 0 & 0 \\ 0 & 1 & 0 \\ 0 & 0 & d \end{pmatrix}
+U^{\mathsf{T}},
+\qquad d = \operatorname{sign}\!\left(\det(V U^{\mathsf{T}})\right)
+$$
+
+The $d$ is there to prevent exactly the reflection that the determinant
+condition forbids: without it the algebra will happily return the
+mirror image when that fits better.
+
+The TM-score replaces the plain average with a weighted one, which is
+what stops a single bad loop dominating:
+
+$$
+\mathrm{TM} = \frac{1}{L}\sum_{i=1}^{n} \frac{1}{1 + (d_i/d_0)^2},
+\qquad d_0 = 1.24\sqrt[3]{L - 15} - 1.8
+$$
+
+Here $d_i$ is the distance between the $i$th pair after superposition and
+$L$ is the length of the reference protein. A pair much closer than $d_0$
+contributes nearly 1 and a pair much further contributes nearly 0, so
+the score counts how much of the protein is in roughly the right place
+rather than averaging the errors. Dividing by $L$ rather than by $n$ is
+what stops a short, well-fitting fragment scoring highly. For
+β-globin's 146 residues $d_0$ is about 4.5 Å.
+
+**What the arithmetic does not solve.** All of the above assumes the
+correspondence is already known. Finding it --- deciding which residue
+pairs with which, allowing for insertions, deletions and rearranged
+segments --- is the hard half of structural alignment, and it has no
+closed-form solution. That is what DALI and TM-align actually spend their
+time on, each optimising the correspondence and the superposition
+together: DALI by matching patterns of internal distances, below, and
+TM-align by searching for the correspondence that maximises the TM-score.
+Kabsch is the inner step they call once the correspondence is fixed.
+
 Some measures avoid the superposition altogether. The **global distance
 test**, GDT, asks instead what fraction of distances in the model match
 the reference within a cutoff. Because the answer depends on the cutoff,
@@ -424,6 +503,8 @@ with a loosened significance threshold.
 ### Further reading
 
 - Wikipedia, [Root-mean-square deviation of atomic positions](https://en.wikipedia.org/wiki/Root-mean-square_deviation_of_atomic_positions) and [Template modeling score](https://en.wikipedia.org/wiki/Template_modeling_score)
+- Wikipedia, [Kabsch algorithm](https://en.wikipedia.org/wiki/Kabsch_algorithm) and [Rotation matrix](https://en.wikipedia.org/wiki/Rotation_matrix) — the derivation behind @sec-s06-superposition, including why the SVD gives the optimum
+- Original sources: Kabsch (1976), [A solution for the best rotation to relate two sets of vectors](https://doi.org/10.1107/S0567739476001873), *Acta Cryst.* A32:922, and the 1978 correction, [A discussion of the solution for the best rotation](https://doi.org/10.1107/S0567739478001680), *Acta Cryst.* A34:827; Zhang & Skolnick (2004), [Scoring function for automated assessment of protein structure template quality](https://doi.org/10.1002/prot.20264), *Proteins* 57:702, which defines the TM-score and $d_0$
 - Foldseek, [GitHub](https://github.com/steineggerlab/foldseek) and [web server](https://search.foldseek.com/search) — try it on any PDB entry or AlphaFold model, no installation needed
 - DALI server, [`ekhidna2.biocenter.helsinki.fi/dali`](http://ekhidna2.biocenter.helsinki.fi/dali/)
 

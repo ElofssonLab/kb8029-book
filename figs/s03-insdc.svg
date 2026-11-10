@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="840" height="220" viewBox="0 0 840 220" role="img" aria-labelledby="title desc">
+  <title id="title">Three partners in the international nucleotide sequence archive</title>
+  <desc id="desc">NCBI in the United States, EMBL-EBI in the United Kingdom and DDBJ in Japan exchange public records daily.</desc>
+  <defs><marker id="arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 8 4 0 8z" fill="#0e766f"/></marker></defs>
+  <rect x="1" y="1" width="838" height="218" rx="20" fill="#f4f9fd" stroke="#ccddeb"/>
+  <g font-family="system-ui, Segoe UI, sans-serif">
+    <rect x="28" y="27" width="242" height="90" rx="15" fill="#fff" stroke="#ccddeb"/>
+    <text x="149" y="65" text-anchor="middle" font-size="28" font-weight="700" fill="#153558">NCBI</text>
+    <text x="149" y="93" text-anchor="middle" font-size="19" font-weight="500" fill="#0e766f">United States</text>
+    <rect x="299" y="27" width="242" height="90" rx="15" fill="#fff" stroke="#ccddeb"/>
+    <text x="420" y="65" text-anchor="middle" font-size="28" font-weight="700" fill="#153558">EMBL-EBI</text>
+    <text x="420" y="93" text-anchor="middle" font-size="19" font-weight="500" fill="#0e766f">United Kingdom</text>
+    <rect x="570" y="27" width="242" height="90" rx="15" fill="#fff" stroke="#ccddeb"/>
+    <text x="691" y="65" text-anchor="middle" font-size="28" font-weight="700" fill="#153558">DDBJ</text>
+    <text x="691" y="93" text-anchor="middle" font-size="19" font-weight="500" fill="#0e766f">Japan</text>
+    <path d="M149 117v25h542v-25 M420 117v25" fill="none" stroke="#0e766f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+    <rect x="119" y="153" width="602" height="48" rx="10" fill="#e2f4f1" stroke="#b8dcd8"/>
+    <path d="M420 142v11" fill="none" stroke="#0e766f" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+    <text x="420" y="184" text-anchor="middle" font-size="23" font-weight="700" fill="#0e766f">Partners exchange public records daily</text>
+  </g>
+</svg>

@@ -23,7 +23,16 @@ Wikipedia,
 (US government work); EMBL-EBI's
 [InterPro](https://www.ebi.ac.uk/interpro/) — CC0. The *HBB*
 Pfam domain hit and all worked-example numbers below were computed or
-fetched live while writing this page (2026-09-18) — see the notebook.
+fetched live while writing this page (2026-09-18) — see the notebook. The
+three figures of hidden Markov models were drawn for this book with
+`tools/builders/make_session05_book_figures.py`, not taken from anywhere:
+the arrangement of a profile HMM — begin and end states, one
+match/insert/delete unit per alignment column, insert states that loop —
+is the standard one from Krogh, Brown, Mian, Sjölander & Haussler (1994),
+*J. Mol. Biol.* 235:1501-1531
+([PubMed](https://pubmed.ncbi.nlm.nih.gov/8107089/)) and Durbin, Eddy,
+Krogh & Mitchison, *Biological Sequence Analysis* (1998), and is drawn
+much the same way everywhere.
 :::
 
 # Session 5: Advanced Database Search & Profile Methods
@@ -477,6 +486,18 @@ labelled examples instead of deriving them from alignment counts.
 
 ## Profile Hidden Markov Models: what a PSSM still can't represent
 
+Before the profile, the model it is built on. A **Markov chain** is a set
+of states with probabilities for moving between them, and its defining
+property is that the next state depends only on the current one, not on
+how you arrived. In a **hidden** Markov model the states are still there
+and still take those steps, but you do not see them: each state *emits*
+a symbol, and the emissions are all you observe.
+
+![A Markov chain, and the same chain with its states hidden. Above: the states are what you see. Below: each state emits a residue, and only the residues are observed; the states (dashed) have to be inferred.](figs/session05-markov-to-hmm.png){#fig-session05-markov-to-hmm width=95%}
+
+That is the whole of the word "hidden", and it is worth being clear about
+it before the states acquire names and jobs.
+
 A PSSM gives position-specific *substitution* scores, but the alignment
 algorithm handles gaps separately, with the same penalties everywhere.
 Real families are not like that. A loop between two helices may tolerate
@@ -501,12 +522,16 @@ connect the M/I/D states of consecutive positions (e.g. $M_i \to
 M_{i+1}$, $M_i \to I_i$, $M_i \to D_{i+1}$), and each transition has its
 own learned probability.
 
+![A profile HMM over three alignment columns. One match, insert and delete state per column, bookended by Begin and End. Every transition drawn here carries its own probability learned from the family, which is how the model knows where *this* family tolerates a gap — the thing a PSSM, with one gap penalty everywhere, cannot express.](figs/session05-profile-hmm.png){#fig-session05-profile-hmm width=100%}
+
 **Why "hidden".** For an observed residue in a real sequence, the model
 never tells you directly whether it came from a Match state or an Insert
 state. That has to be *inferred* from the path through the states that
 best explains the whole sequence, using the emission and transition
 probabilities together. The states generate what you observe, but they
 themselves stay hidden.
+
+![The same six residues, explained by two different paths through the model. Nothing in the sequence says which state produced which residue; the path is inferred from the whole sequence at once, and the model scores every path it could have taken.](figs/session05-hmm-paths.png){#fig-session05-hmm-paths width=95%}
 
 This is the extra structure that PSSMs lack, and it is why profile HMMs,
 not PSSMs, are the standard tool behind large-scale protein family
