@@ -1,6 +1,67 @@
 # Course Schedule {.unnumbered}
 
-The course has twelve sessions and a capstone project. The table below lists, for each session, its page, its main reading, its biological case study and the size of its lab. Dates, times and rooms are in the Canvas schedule and calendar, which can also be subscribed to as <https://course.bioinfo.se/kb8029.ics>. How to get to SciLifeLab is on the [Session 0](session00.qmd#at-scilifelab) page. See [Course Information & Logistics](course-info.qmd) for grading, lab policy, and how the course actually runs.
+The course has twelve sessions and a capstone project. **When and where** each one happens is in the first table below, which is also published as a calendar you can subscribe to. **What each one covers** — its page, its main reading, its biological case study and the size of its lab — is in the second. See [Course Information & Logistics](course-info.qmd) for grading, lab policy, and how the course actually runs.
+
+<!-- SCHEDULE-DATES -->
+
+## When and where {#when-and-where}
+
+All times are local (Stockholm). Everything but the project deadline happens at **SciLifeLab**, Tomtebodavägen 23A in Solna; [Session 0](session00.qmd#at-scilifelab) has the directions and what you need to get through the gates. Who teaches each lecture and lab is the current plan. The teaching assistants of each lab, and the lab quizzes themselves, are on the course's Canvas page.
+
+**This page is the source.** Canvas shows the same events, but as a copy made when the course package was last imported into it, so between imports it can be out of date. This table and the calendar below are rebuilt from the schedule itself every time the site is published; where they and Canvas disagree, these are right.
+
+::: {.callout-tip}
+## Put the course in your own calendar
+
+Subscribe to **<https://course.bioinfo.se/kb8029.ics>**. It updates itself: a changed room or time reaches your
+calendar without you doing anything.
+
+- **Google Calendar:** Other calendars → **+** → *From URL* → paste the address.
+- **Apple Calendar:** File → *New Calendar Subscription* → paste the address.
+- **Outlook:** Add calendar → *Subscribe from web* → paste the address.
+
+Subscribe rather than import — an imported copy is a snapshot taken once and never
+updated. On a phone, [webcal://course.bioinfo.se/kb8029.ics](webcal://course.bioinfo.se/kb8029.ics)
+usually opens the calendar app directly.
+:::
+
+| Date | Time | What | Teacher | Room |
+|---|---|---|---|---|
+| Mon 22 Feb 2027 | 09:00–12:00 | Lecture 0 + 1: [Introduction to the Course](session00.qmd) and [Math Prerequisites](session01.qmd) | Arne Elofsson | Air&Fire (Gamma 2) |
+| Wed 24 Feb 2027 | 09:00–12:00 | Lecture 2: [Working like a computational biologist in Python](session02.qmd) | Arne Elofsson | Air&Fire (Gamma 2) |
+| Wed 24 Feb 2027 | 13:00–16:00 | Lab 2: [Working like a computational biologist in Python](session02.qmd); quiz due Thu 25 Feb 23:59 | Arne Elofsson | Air&Fire (Gamma 2) |
+| Fri 26 Feb 2027 | 09:00–12:00 | Lecture 3: [Biological Databases](session03.qmd) | Petras Kundrotas | Air&Fire (Gamma 2) |
+| Fri 26 Feb 2027 | 13:00–16:00 | Lab 3: [Biological Databases](session03.qmd); quiz due Sun 28 Feb 23:59 | Petras Kundrotas | Air&Fire (Gamma 2) |
+| Mon 01 Mar 2027 | 09:00–12:00 | Lecture 4: [Sequence Alignment](session04.qmd) | Petras Kundrotas | Air&Fire (Gamma 2) |
+| Mon 01 Mar 2027 | 13:00–16:00 | Lab 4: [Sequence Alignment](session04.qmd); quiz due Tue 02 Mar 23:59 | Petras Kundrotas | Air&Fire (Gamma 2) |
+| Wed 03 Mar 2027 | 09:00–12:00 | Lecture 5: [Advanced Database Search & Profile Methods](session05.qmd) | Petras Kundrotas | Air&Fire (Gamma 2) |
+| Wed 03 Mar 2027 | 13:00–16:00 | Lab 5: [Advanced Database Search & Profile Methods](session05.qmd); quiz due Thu 04 Mar 23:59 | Petras Kundrotas | Air&Fire (Gamma 2) |
+| Fri 05 Mar 2027 | 09:00–12:00 | Lecture 6: [Protein Structure](session06.qmd) | Petras Kundrotas | Air&Fire (Gamma 2) |
+| Fri 05 Mar 2027 | 13:00–16:00 | Lab 6: [Protein Structure](session06.qmd); quiz due Sun 07 Mar 23:59 | Petras Kundrotas | Air&Fire (Gamma 2) |
+| Mon 08 Mar 2027 | 09:00–12:00 | Lecture 7: [Linear Models, Gradient Descent, the XOR Problem & Secondary Structure Prediction](session07.qmd) | Arne Elofsson | Air&Fire (Gamma 2) |
+| Mon 08 Mar 2027 | 13:00–16:00 | Lab 7: [Linear Models, Gradient Descent, the XOR Problem & Secondary Structure Prediction](session07.qmd); quiz due Tue 09 Mar 23:59 | Arne Elofsson | Air&Fire (Gamma 2) |
+| Tue 09 Mar 2027 | 09:00–12:00 | Lecture 8: [Machine Learning Foundations & Practical PyTorch](session08.qmd) **(Tuesday, not Wednesday)** | Arne Elofsson | Air&Fire (Gamma 2) |
+| Wed 10 Mar 2027 | 09:00–10:00 | [Capstone project: introduction](capstone.qmd) | Teaching assistant | Air&Fire |
+| Wed 10 Mar 2027 | 10:00–12:00 | Q&A (practice exam): Sessions 1-6 | Petras Kundrotas | Air&Fire |
+| Wed 10 Mar 2027 | 14:00–17:00 | Lab 8: [Machine Learning Foundations & Practical PyTorch](session08.qmd) **(starts 14:00, not 13:00)**; quiz due Thu 11 Mar 23:59 | Arne Elofsson | Lunch Room (Gamma 2) |
+| Fri 12 Mar 2027 | 09:00–12:00 | Lecture 9: [How a Neural Network Learns, and Why Training Fails](session09.qmd) | Arne Elofsson | Milky Way and Andromeda (Alfa 2) |
+| Fri 12 Mar 2027 | 14:00–17:00 | Lab 9: [How a Neural Network Learns, and Why Training Fails](session09.qmd) **(starts 14:00, not 13:00)**; quiz due Sun 14 Mar 23:59 | Arne Elofsson | Lunch Room (Gamma 2) |
+| Mon 15 Mar 2027 | 09:00–12:00 | Lecture 10: [CNNs, from ImageNet to Biology](session10.qmd) | Arne Elofsson | Air&Fire (Gamma 2) |
+| Mon 15 Mar 2027 | 13:00–16:00 | Lab 10: [CNNs, from ImageNet to Biology](session10.qmd); quiz due Tue 16 Mar 23:59 | Arne Elofsson | Air&Fire (Gamma 2) |
+| Tue 16 Mar 2027 | 09:00–12:00 | Lecture 11: [Sequences, Language Models and SignalP](session11.qmd) **(Tuesday, not Wednesday)** | Arne Elofsson | Air&Fire (Gamma 2) |
+| Wed 17 Mar 2027 | 13:00–16:00 | Lab 11: [Sequences, Language Models and SignalP](session11.qmd); quiz due Thu 18 Mar 23:59 | Arne Elofsson | Air&Fire (Gamma 2) |
+| Thu 18 Mar 2027 | 13:00–16:00 | [Capstone project: help](capstone.qmd) | Teaching assistant | Milky Way and Andromeda (Alfa 2) |
+| Fri 19 Mar 2027 | 09:00–12:00 | Lecture 12: [AlphaFold and Generative Models of Protein Structure](session12.qmd) | Arne Elofsson | Air&Fire (Gamma 2) |
+| Fri 19 Mar 2027 | 13:00–15:00 | Q&A (practice exam): Sessions 7-12 | Arne Elofsson | Air&Fire (Gamma 2) |
+| Fri 19 Mar 2027 | 15:00–18:00 | Lab 12: [AlphaFold and Generative Models of Protein Structure](session12.qmd); quiz due Sun 21 Mar 23:59 | Arne Elofsson | Air&Fire (Gamma 2) |
+| Mon 22 Mar 2027 | 08:30–12:30 | Written exam | — | Air&Fire (Gamma 2) |
+| Mon 22 Mar 2027 | 13:00–17:00 | [Capstone project: oral presentations of the code (early slot, for students who want an Easter break)](capstone.qmd) | — | Madrid (Gamma 7) + London (Gamma 7) |
+| Wed 24 Mar 2027 | 09:00–17:00 | [Capstone project: oral presentations of the code (regular time)](capstone.qmd) | — | Earth (Gamma 2) + Water (Gamma 2) |
+| Thu 25 Mar 2027 | 23:59 | Deadline: [Capstone project: code and report](capstone.qmd) | — | Online |
+
+<!-- /SCHEDULE-DATES -->
+
+## What each session covers {#what-each-session-covers}
 
 Three phases: bioinformatics foundations build up to profiles and protein structure (Sessions 3-6); a convergence zone (Sessions 7-9) where the classical material directly motivates and is resolved by neural networks; then a deep-learning arc (Sessions 10-12) that keeps extending the same secondary-structure-prediction thread.
 
