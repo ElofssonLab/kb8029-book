@@ -64,10 +64,14 @@
     "11": "Session 11 — Sequences, Language Models and SignalP",
     "12": "Session 12 — AlphaFold and Generative Models of Protein Structure"
   };
-  const BLOCKS = ["Block 1", "Block 2", "Block 3"];
+  // How many parts a lecture has is a property of the lecture, not of this page: our decks
+  // are three blocks with breaks, and a converted deck is split wherever its own lecture
+  // divides. Petras's session 3 has four since his November rewrite. So the parts are
+  // probed for rather than assumed, up to PART_LIMIT.
+  const PART_LIMIT = 8;
 
   const want = (new URLSearchParams(location.search).get("v") || "session10-video-part1");
-  const m = /^session(\d\d)-video-part([123])(-arne)?$/.exec(want);
+  const m = /^(petras-)?session(\d\d)-video-part(\d+)(-arne)?$/.exec(want);
   const titleEl = document.getElementById("title"), subEl = document.getElementById("sub");
   const player = document.getElementById("player"), partsEl = document.getElementById("parts");
   const filesEl = document.getElementById("files");
@@ -75,13 +79,17 @@
   if (!m) {
     titleEl.textContent = "No such video";
     titleEl.classList.add("err");
-    subEl.textContent = "Expected ?v=sessionNN-video-partN, for example session10-video-part1.";
+    subEl.textContent = "Expected ?v=sessionNN-video-partN or ?v=petras-sessionNN-video-partN, "
+                      + "for example session10-video-part1.";
   } else {
-    const [, n, part, voice] = m;
+    const [, who, n, part, voice] = m;
+    const base = (who || "") + "session" + n + "-video-part";
+    const word = who ? "Part" : "Block";       // his decks are split by his own lecture
     const spoken = voice ? " · Arne's voice (cloned)" : "";
-    document.title = (SESSIONS[n] || ("Session " + n)) + " · " + BLOCKS[part - 1];
-    titleEl.textContent = SESSIONS[n] || ("Session " + n);
-    subEl.textContent = BLOCKS[part - 1] + " of 3" + spoken;
+    const name = (SESSIONS[n] || ("Session " + n)) + (who ? " · Petras's version" : "");
+    document.title = name + " · " + word + " " + part;
+    titleEl.textContent = name;
+    subEl.textContent = word + " " + part + spoken;
 
     player.src = "media/" + want + ".mp4";
     const track = document.createElement("track");
@@ -96,13 +104,28 @@
       if (player.textTracks.length) player.textTracks[0].mode = "showing";
     });
 
-    for (let p = 1; p <= 3; p++) {
-      const a = document.createElement("a");
-      a.textContent = BLOCKS[p - 1];
-      a.href = "watch.html?v=session" + n + "-video-part" + p + (voice || "");
-      if (String(p) === part) a.className = "on";
-      partsEl.appendChild(a);
-    }
+    // One HEAD per candidate part, stopping at the first that is not there. The current
+    // part is always offered, so a browser that refuses the probes still shows something.
+    (async function () {
+      let total = 0;
+      for (let p = 1; p <= PART_LIMIT; p++) {
+        if (p === Number(part)) { total = p; continue; }
+        try {
+          const r = await fetch("media/" + base + p + (voice || "") + ".mp4", { method: "HEAD" });
+          if (!r.ok) break;
+        } catch (e) { break; }
+        total = p;
+      }
+      total = Math.max(total, Number(part));
+      for (let p = 1; p <= total; p++) {
+        const a = document.createElement("a");
+        a.textContent = word + " " + p;
+        a.href = "watch.html?v=" + base + p + (voice || "");
+        if (String(p) === part) a.className = "on";
+        partsEl.appendChild(a);
+      }
+      if (total > 1) subEl.textContent = word + " " + part + " of " + total + spoken;
+    })();
     filesEl.innerHTML = 'Files: <a href="media/' + want + '.mp4" download>' + want + '.mp4</a> &middot; ' +
                         '<a href="media/' + want + '.vtt" download>captions (.vtt)</a> &middot; ' +
                         '<a href="media/' + want + '.srt" download>captions (.srt)</a>';

@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="840" height="220" viewBox="0 0 840 220" role="img" aria-labelledby="title desc">
+<title id="title">From a biological question to a checked search</title>
+<desc id="desc">Turn a biological question into a query, run the query and inspect how the search service interpreted it.</desc>
+<defs><marker id="arrow" viewBox="0 0 8 8" refX="7" refY="4" markerWidth="6" markerHeight="6" orient="auto"><path d="M0 0 8 4 0 8z" fill="#0e766f"/></marker></defs>
+<rect x="1" y="1" width="838" height="218" rx="20" fill="#f4f9fd" stroke="#ccddeb"/>
+<g font-family="system-ui, Segoe UI, sans-serif">
+<rect x="24" y="26" width="224" height="136" rx="14" fill="#fff" stroke="#ccddeb"/>
+<text x="136" y="61" text-anchor="middle" font-size="22" font-weight="700" fill="#153558">Question</text>
+<text x="136" y="94" text-anchor="middle" font-size="20" font-weight="500" fill="#0e766f">Intronic HBB variants</text>
+<text x="136" y="123" text-anchor="middle" font-size="19" font-weight="500" fill="#0e766f">RNA splicing</text>
+<path d="M258 95h35" fill="none" stroke="#0e766f" stroke-width="3" stroke-linecap="round" marker-end="url(#arrow)"/>
+<rect x="308" y="26" width="224" height="136" rx="14" fill="#fff" stroke="#ccddeb"/>
+<text x="420" y="61" text-anchor="middle" font-size="22" font-weight="700" fill="#153558">Query</text>
+<text x="420" y="94" text-anchor="middle" font-size="17" font-weight="500" fill="#0e766f">(HBB OR &quot;beta globin&quot;)</text>
+<text x="420" y="123" text-anchor="middle" font-size="19" font-weight="500" fill="#0e766f">AND splicing</text>
+<path d="M542 95h35" fill="none" stroke="#0e766f" stroke-width="3" stroke-linecap="round" marker-end="url(#arrow)"/>
+<rect x="592" y="26" width="224" height="136" rx="14" fill="#fff" stroke="#ccddeb"/>
+<text x="704" y="61" text-anchor="middle" font-size="22" font-weight="700" fill="#153558">Check the search</text>
+<text x="704" y="94" text-anchor="middle" font-size="20" font-weight="500" fill="#0e766f">Search Details</text>
+<text x="704" y="123" text-anchor="middle" font-size="19" font-weight="500" fill="#0e766f">and relevant results</text>
+<text x="420" y="196" text-anchor="middle" font-size="19" font-weight="500" fill="#153558">Revise the terms when the results do not match the question.</text>
+</g>
+</svg>
