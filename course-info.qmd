@@ -59,7 +59,7 @@ Most sessions have a lab (see the [Course Schedule](schedule.qmd)): a notebook i
 The course is full time for four weeks and two days: about 176 hours of work, at eight hours a day. The table below gives our estimate of where that time goes: each session has its lecture (three hours; Sessions 0 and 1 share one), reading the material and doing the lab, and then come the capstone project and the exam.
 
 - **Reading and understanding** means studying the session page carefully, with its worked examples, practice problems, quiz and main videos, and working through the course notebook. Optional videos and boxes are not included.
-- **Lab** is the total time for the lab, including its quiz on Canvas. Every lab is designed to fit into the scheduled three-hour lab afternoon, and most students need about two to two and a half hours. Optional extras in the lab notebooks are not included.
+- **Lab** is the total time for the lab, including its quiz on Canvas. Every lab is designed to fit into its scheduled lab afternoon. Optional extras in the lab notebooks are not included.
 
 | Part of the course | Lecture | Reading and understanding | Lab | Total |
 |---|---|---|---|---|
