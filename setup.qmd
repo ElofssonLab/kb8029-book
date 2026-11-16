@@ -34,7 +34,7 @@ All notebooks fetch their data from the course's GitHub repository, so they run 
 
 Google's **Colab** extension for VS Code (released November 2025) lets a notebook that is open in VS Code run on a Colab machine:
 
-1.  Open the downloaded notebook in VS Code (Part 2). *(Older links in Canvas may still send you to a page that asks for the path of a cloned folder; you can ignore it and open the file directly.)* The first time, the page that opens asks for the full path of your `kb8029-book` folder (for example `C:\Users\you\kb8029-book` or `/Users/you/kb8029-book`) and remembers it; after that, its button opens the notebook straight in VS Code. You can also open it yourself: in VS Code press Ctrl+P (Cmd+P on a Mac) and type the notebook's name, for example `session04-lab.ipynb`.
+1.  Open the downloaded notebook in VS Code, as in Part 2.
 
 2.  Click **Select Kernel** (top right) → **Colab** → **Auto Connect** (or choose a runtime with a GPU), and sign in with your Google account when asked.
 
@@ -56,13 +56,16 @@ Things to know:
 - **The free GPU is limited.** A session is closed after a period of inactivity or when your quota is used up, and a GPU is not always available. Ask for a GPU only when the notebook needs one, and when you are done, release the machine with **Colab: Remove Server**.
 - **No terminal tools.** Everything in the labs is done from Python: the sequence searches and alignments in Sessions 4 and 5 call EMBL-EBI's web services (HMMER, Clustal Omega, InterPro), and in Session 6 PyMOL runs inside the notebook and structure searches go to the Foldseek web service.
 
-The course notebooks that go with each session page work exactly the same way as a lab (Part 1), and can equally be opened from your `kb8029-book` folder in VS Code.
+The course notebooks that go with each session page work exactly the same way as a lab (Part 1): download and open.
 
 ## Part 4 (optional): Get every course notebook in one go
 
 1.  Click **[Clone the course notebooks into VS Code](vscode://vscode.git/clone?url=https%3A%2F%2Fgithub.com%2FElofssonLab%2Fkb8029-book.git)**. Your browser asks whether to open VS Code: allow it. (Or, in VS Code: Command Palette, Ctrl+Shift+P or Cmd+Shift+P → **Git: Clone** → `https://github.com/ElofssonLab/kb8029-book.git`.)
 2.  Choose where to save the folder `kb8029-book` (about 100 MB), and open it when VS Code offers to. The notebooks are in its `notebooks` folder.
 3.  Before each lab, get the latest version: Command Palette → **Git: Pull**. The teachers sometimes fix a lab shortly before it is used.
+4.  With a cloned folder you can open any notebook without downloading it again: in VS Code press Ctrl+P (Cmd+P on a Mac) and type its name, for example `session04-lab.ipynb`.
+
+*(Some older links in Canvas open a page that asks for the full path of your `kb8029-book` folder, for example `C:\Users\you\kb8029-book` or `/Users/you/kb8029-book`. It remembers the path and its button then opens notebooks straight in VS Code. If you have not cloned anything, ignore that page and download the notebook as in Part 2.)*
 
 ## Troubleshooting {#troubleshooting}
 

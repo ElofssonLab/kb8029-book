@@ -22,7 +22,7 @@ The final grade is 70% from the exam and 30% from the project, and you need 50% 
 
 ### Bonus points on the exam {#bonus}
 
-Up to 9 points are added to your score on the main exam (0-100), 3 for each of three things. For each, doing all of it gives 3 points, and every one you miss or do late takes away one point.
+Up to 9 points are added to your score on the main exam (0-100), 3 for each of three things. For each, doing all of it gives 3 points, and every one you miss or do late takes away one point: the points for a category are 3 minus the number you missed, and never less than 0. Every item in a category counts the same, so, for example, being at 10 of the 12 lectures is two misses, one of which is cancelled by attending a Q&A, which leaves 2 of the 3 attendance points.
 
 - **Questions before the lecture: up to 3 points.** Before each lecture from Session 2 on, send in on Canvas what you want explained: a question, or a topic you want more time on. One line is enough. The Canvas survey "Questions before the lecture" closes at 18:00 the day before the lecture, so that the teacher can read your questions and answer the most common ones at the start of the lecture.
 - **Being at the lectures: up to 3 points.** Every lecture has a short live quiz on [quiz.bioinfo.se](https://quiz.bioinfo.se), which you answer on your phone after logging in with your university account. Answering it counts as being present (at least three quarters of its questions); whether your answers are right or wrong is never used in grading. Sessions 0 and 1 are one lecture, so there are 12 lectures. Each of the two [Q&A sessions](#qa) you attend (by answering its check-in question when you arrive, logged in) makes up for one missed lecture.
@@ -52,6 +52,7 @@ Most sessions have a lab (see the [Course Schedule](schedule.qmd)): a notebook i
 - **Available as soon as published.** You do not have to wait for the lecture.
 - **Feedback after each lab.** The last part of every lab is a short feedback survey on Canvas, due with the lab quiz. It is anonymous: Canvas records that you filled it in, but nobody can see what you wrote. It asks for concrete suggestions on the lab and the session's material (what was too long, what background was missing, errors, unclear instructions), so that we can improve the course. Sessions 0 and 1, which have no lab, have the same kind of survey, filled in at the end of their lecture. Errors and suggestions can also be sent at any time with the [feedback form](https://bioinfo.se/internal/kb8029-feedback/).
 - **One redo chance** if you fail, normally only the next time the course runs, and the lab may have changed by then.
+- **If a live database disagrees with the quiz.** Several labs query services that are updated continuously (Session 3 onwards), and the later ones train models that start from random numbers, so a correct method can give a number that no option matches. If that happens, answer as best you can and tell the TA, on the Canvas forum or by email, with the cell and its output; saving the notebook with its output is enough, a screenshot is not needed. You are marked on the method and on what the service says today, not on a number that was right when the lab was written.
 
 ## Expected workload {#workload}
 

@@ -40,7 +40,7 @@ Each of the twelve sessions has the same parts:
 
 How much time each session takes, split into reading and lab, is in the table [Expected workload](course-info.qmd#workload).
 
-Read the page before the lecture: the lectures assume you have seen the material once, and use the time for the parts that are hard to learn alone. The exception is this first morning, which covers Sessions 0 and 1 together, so its reading is sent out before the course starts (below). **Lectures are not recorded.**
+Read the page before the lecture: the lectures assume you have seen the material once, and use the time for the parts that are hard to learn alone. The exception is this first morning, which covers Sessions 0 and 1 together, so its reading is sent out before the course starts (below). **The live lectures are not recorded.** Each session's page does carry a narrated video of that session's slides, but it was prepared separately and is not a recording of this year's lecture: it cannot show you the questions the room asked. Sessions 3 to 6 carry two, Petras Kundrotas's own lecture and ours of the same material.
 
 ## Where to find everything
 
