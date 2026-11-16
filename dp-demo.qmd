@@ -1,0 +1,122 @@
+---
+title: "Dynamic programming, interactively"
+subtitle: "A draft for comment, not yet part of the course"
+# This page is not a chapter: it is not in _quarto-web.yml and not in the PDF
+# profile, so `quarto render` for the book never touches it. deploy.sh renders
+# it on its own and drops the result next to the book, unlisted. That also
+# means the project's own header and stylesheet do not reach it, so it asks for
+# them here. This is the one page where that is right; a chapter must never do
+# it (see CLAUDE.md, "Styling is book-wide").
+format:
+  html:
+    css: session-titles.css
+    include-in-header:
+      - text: <script src="js/dp-matrix.js"></script>
+---
+
+::: {.callout-note}
+## What this is
+
+A working draft of an interactive dynamic-programming matrix, written for
+Sessions 4 and 5. It is not linked from the course notes and not in Canvas.
+This page exists so that it can be looked at and argued with before it goes
+anywhere students can reach.
+
+The same widget already supplies the matrix figures on the Session 4 slides:
+every matrix in block 2 of that deck is a screenshot of what is below, so the
+projector and this page cannot drift apart.
+:::
+
+## Why bother
+
+The matrix is the one thing in Session 4 that every student has to be able to
+fill by hand, and it is the thing a static figure teaches worst. A figure can
+assert that three candidates were compared and the largest kept. It cannot let
+anyone get it wrong and find out why.
+
+Three ways of using it, from watching to doing.
+
+## 1 · Step through it
+
+The blue cell is the one being decided. The three yellow cells are the only
+ones it is allowed to look at, and each carries a badge with the value it
+offers; the winning offer is green. That green badge is the `max` in the
+recurrence, happening where the room can see it.
+
+$$V(i,j) = \max \begin{cases} V(i-1,j-1) + s(x_i, y_j) \\ V(i-1,j) + g \\ V(i,j-1) + g \end{cases}$$
+
+```{=html}
+<div id="dp-step"></div>
+<script>
+renderDP("dp-step", {mode: "step", a: "GCAT", b: "GAC", match: 1, mismatch: -1, gap: -1});
+</script>
+```
+
+This is the GCAT against GAC example of Table 4.1, with match $+1$, mismatch
+$-1$ and gap $-1$ — the same numbers as the lecture and the notebook.
+
+## 2 · Guess the next value
+
+Everything above and to the left is filled in already. Work out the blue cell
+and type it. Whether the answer is right or wrong, the full `max(...)` is shown
+afterwards, and the widget says so when two predecessors tie, which is the
+point students most often miss.
+
+```{=html}
+<div id="dp-guess"></div>
+<script>
+renderDP("dp-guess", {mode: "guess", a: "GCAT", b: "GAC", match: 1, mismatch: -1, gap: -1, questions: 4});
+</script>
+```
+
+## 3 · Fill the whole matrix
+
+Every cell is yours to type. **Check the matrix** marks each one, and the
+traceback and the alignment appear once the grid is right. This is the lab
+exercise, done in a browser rather than on paper, and marked instantly.
+
+```{=html}
+<div id="dp-fill"></div>
+<script>
+renderDP("dp-fill", {mode: "fill", a: "GCAT", b: "GAC", match: 1, mismatch: -1, gap: -1});
+</script>
+```
+
+## It is not only Session 4
+
+The same engine takes a substitution matrix instead of a match/mismatch pair,
+and a zero floor instead of none. Below is Smith–Waterman on protein with
+BLOSUM62 and a gap of $-8$: the local case, where the floor of zero is a
+*fourth* alternative and gets a badge of its own in the cell being decided.
+That is the only place local differs from global, and it is invisible in a
+static figure.
+
+```{=html}
+<div id="dp-local"></div>
+<script>
+renderDP("dp-local", {mode: "step", a: "HEAGAWGHEE", b: "PAWHEAE", scoring: "blosum62", gap: -8, local: true});
+</script>
+```
+
+Viterbi is the same recurrence with max-plus over log probabilities, so the
+profile-HMM half of Session 5 is a fourth mode rather than a second program.
+
+## What we would like to know
+
+1. **Does it belong in the lecture, the lab, or only the notes?** The slides
+   already use it as a build-up. Whether a live demo is worth the minutes it
+   costs in the room is a different question.
+2. **Is GCAT against GAC the right example to keep?** It is small enough to do
+   in the room and it matches Table 4.1, but it has a tie in it, which is
+   either a feature or a distraction.
+3. **For Session 5, is BLOSUM62 with a linear gap enough**, or does the affine
+   gap need to be visible too? Affine means three matrices, and three matrices
+   on one screen may teach less than it shows.
+
+## Provenance
+
+Written for this course, from the recurrence, in plain JavaScript with no
+dependencies. Lukas Käll's
+[alignviz](https://github.com/statisticalbiotechnology/alignviz) (Apache-2.0)
+does the stepping well and is worth a look, but it is a Streamlit server with
+no substitution matrix and no answer checking; nothing here is derived from it.

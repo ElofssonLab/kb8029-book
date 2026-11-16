@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Dynamic programming, interactively &middot; KB8029</title>
+<!--
+  A bench for book/js/dp-matrix.js: all three modes on one page, with the
+  settings exposed so a teacher can try a sequence pair before pasting a
+  renderDP() call into a session page.
+
+  Deliberately not in the book's chapter list and marked noindex: it is a
+  workshop page, not course material. When the widget goes into Sessions 4
+  and 5 it goes in as a {=html} block there, not as a link to this.
+-->
+<script src="js/dp-matrix.js"></script>
+<style>
+  :root { --fg: #1f2933; --muted: #52606d; --border: #d9e2ec; --accent: #0d6efd; }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #fff; color: var(--fg);
+         font: 16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 980px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 1.45rem; margin: 0 0 4px; }
+  h2 { font-size: 1.1rem; margin: 2em 0 0.6em; }
+  p.sub { color: var(--muted); margin: 0 0 1.4em; }
+  fieldset { border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; margin: 0 0 1.6em; }
+  legend { font-weight: 600; font-size: 0.95rem; padding: 0 6px; }
+  .row { display: flex; flex-wrap: wrap; gap: 14px 20px; align-items: flex-end; }
+  label { display: block; font-size: 0.85rem; color: var(--muted); margin-bottom: 3px; }
+  input[type=text], input[type=number], select {
+    font: inherit; padding: 6px 9px; border: 1px solid var(--border); border-radius: 6px; background: #fff; color: inherit; }
+  input[type=text] { width: 11em; font-family: ui-monospace, Menlo, Consolas, monospace; }
+  input[type=number] { width: 5em; }
+  button { font: inherit; padding: 7px 16px; border: none; border-radius: 6px;
+           background: var(--accent); color: #fff; cursor: pointer; }
+  button:hover { background: #0b5ed7; }
+  button.ghost { background: rgba(0,0,0,0.07); color: var(--fg); font-size: 0.9em; padding: 6px 12px; }
+  button.ghost:hover { background: rgba(0,0,0,0.13); }
+  .presets { margin-top: 12px; display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .presets span { font-size: 0.85rem; color: var(--muted); }
+  .note { color: var(--muted); font-size: 0.9rem; margin: 0.2em 0 1em; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Dynamic programming, interactively</h1>
+  <p class="sub">A bench for the three modes of <code>renderDP()</code>. Change the settings, press Rebuild, and all three panels below redraw.</p>
+
+  <fieldset>
+    <legend>Settings</legend>
+    <div class="row">
+      <div><label for="seqa">Sequence A (rows)</label><input type="text" id="seqa" value="TGCATTA"></div>
+      <div><label for="seqb">Sequence B (columns)</label><input type="text" id="seqb" value="GCATTAC"></div>
+      <div><label for="scoring">Scoring</label>
+        <select id="scoring"><option value="identity">match / mismatch</option><option value="blosum62">BLOSUM62</option></select></div>
+      <div><label for="match">Match</label><input type="number" id="match" value="3"></div>
+      <div><label for="mismatch">Mismatch</label><input type="number" id="mismatch" value="-1"></div>
+      <div><label for="gap">Gap</label><input type="number" id="gap" value="-2"></div>
+      <div><label for="type">Alignment</label>
+        <select id="type"><option value="global">global (Needleman&ndash;Wunsch)</option><option value="local">local (Smith&ndash;Waterman)</option></select></div>
+      <div><label for="questions">Questions</label><input type="number" id="questions" value="5" min="1" max="20"></div>
+      <div><button id="rebuild">Rebuild</button></div>
+    </div>
+    <div class="presets">
+      <span>Presets:</span>
+      <button class="ghost" data-preset="dna">DNA, identity scoring</button>
+      <button class="ghost" data-preset="local">DNA, local</button>
+      <button class="ghost" data-preset="protein">Protein, BLOSUM62</button>
+      <button class="ghost" data-preset="globin">Globin fragment, BLOSUM62</button>
+    </div>
+  </fieldset>
+
+  <h2>1 &middot; Step through it</h2>
+  <p class="note">Walk the fill one cell at a time. The blue cell is the one being decided; the three yellow cells are the only ones it is allowed to look at. Each of them carries a badge with the value it offers, and the winning offer is green &mdash; that is the <code>max</code> in the recurrence, happening in front of you.</p>
+  <div id="panel-step"></div>
+
+  <h2>2 &middot; Guess the next value</h2>
+  <p class="note">Everything above and to the left is already filled in. Work out the blue cell and type it.</p>
+  <div id="panel-guess"></div>
+
+  <h2>3 &middot; Fill the whole matrix</h2>
+  <p class="note">Type every value yourself. Check marks each cell; the traceback appears once the grid is right.</p>
+  <div id="panel-fill"></div>
+</main>
+
+<script>
+const PRESETS = {
+  dna:     { seqa: "TGCATTA", seqb: "GCATTAC", scoring: "identity", match: 3, mismatch: -1, gap: -2, type: "global" },
+  local:   { seqa: "TTACGGAT", seqb: "CCTACGGA", scoring: "identity", match: 3, mismatch: -2, gap: -2, type: "local" },
+  protein: { seqa: "HEAGAWGHEE", seqb: "PAWHEAE", scoring: "blosum62", match: 1, mismatch: -1, gap: -8, type: "global" },
+  globin:  { seqa: "VLSPADKTN", seqb: "VHLTPEEKS", scoring: "blosum62", match: 1, mismatch: -1, gap: -8, type: "global" }
+};
+
+function readSettings() {
+  const g = id => document.getElementById(id);
+  return {
+    a: g("seqa").value,
+    b: g("seqb").value,
+    scoring: g("scoring").value,
+    match: parseInt(g("match").value, 10),
+    mismatch: parseInt(g("mismatch").value, 10),
+    gap: parseInt(g("gap").value, 10),
+    local: g("type").value === "local",
+    questions: parseInt(g("questions").value, 10)
+  };
+}
+
+function build() {
+  const s = readSettings();
+  renderDP("panel-step", Object.assign({}, s, { mode: "step" }));
+  renderDP("panel-guess", Object.assign({}, s, { mode: "guess" }));
+  renderDP("panel-fill", Object.assign({}, s, { mode: "fill" }));
+}
+
+document.getElementById("rebuild").addEventListener("click", build);
+document.querySelectorAll("[data-preset]").forEach(function (b) {
+  b.addEventListener("click", function () {
+    const p = PRESETS[b.dataset.preset];
+    Object.keys(p).forEach(function (k) { document.getElementById(k).value = p[k]; });
+    build();
+  });
+});
+build();
+</script>
+</body>
+</html>

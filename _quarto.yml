@@ -3,10 +3,12 @@ project:
 
   resources:
     - js/quiz-widget.js
+    - js/dp-matrix.js
     - exams/*
     - kb8029.ics
     - open.html
     - watch.html
+    - dp.html
 
 # The website's chapter list lives in _quarto-web.yml (the default profile);
 # the single-PDF version uses _quarto-pdf.yml (quarto render --profile pdf).
@@ -29,6 +31,7 @@ format:
     toc: true
     include-in-header:
       - text: <script src="js/quiz-widget.js"></script>
+      - text: <script src="js/dp-matrix.js"></script>
 
 execute:
   enabled: false   # notebooks already contain saved outputs from class; don't re-run them at build time
