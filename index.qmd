@@ -18,6 +18,8 @@ This is an open, interactive companion to the redesigned KB8029 Bioinformatics c
 
 Every page names which source(s) it draws on, and because of the CC BY-SA license, pages adapted from *Dive into Deep Learning* or Wikipedia are themselves shared here under CC BY-SA 4.0.
 
+**Licence.** Everything written for this course is [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/), except where otherwise noted. Some figures are other people's work — screenshots of database websites, and figures from published papers — reproduced here to teach about the thing they show. Each is credited where it appears, in the "Sources and figure provenance" box at the top of its page, and that credit rather than this licence governs its reuse. We cannot license what we do not own.
+
 **Students are never pointed at raw source material directly** — Wikipedia in particular is written to be browsed outward via its own links, which makes "how far should I read?" an unanswerable question. Every session gets one bounded, authored page instead, with sources listed for further reading, never as an inline dependency.
 
 **New to the course?** Start with [Session 0: Introduction to the Course](session00.qmd): what the course covers, how a session works, and what to do before Session 1. The rules (exam, grading, labs, plagiarism, AI tools) and the contact details of the student office are on [Course Information & Logistics](course-info.qmd).
