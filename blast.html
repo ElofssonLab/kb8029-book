@@ -1,0 +1,55 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How BLAST works &middot; KB8029</title>
+<!--
+  The six steps of a BLAST search, run on a database small enough to watch.
+  The companion to dp.html: that page fills a whole alignment matrix, this one
+  shows how BLAST avoids filling almost all of it.
+
+  Almost nothing here: the settings bar, the step switcher and every panel come
+  from js/blast-search.js, which the book pages load too. dp-matrix.js has to
+  load first, because blast-search.js borrows its BLOSUM62 rather than keeping
+  a second copy.
+-->
+<script src="js/dp-matrix.js"></script>
+<script src="js/blast-search.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #fff; color: #1f2933;
+         font: 16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 980px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 1.45rem; margin: 0 0 4px; }
+  p.sub { color: #52606d; margin: 0 0 1.5em; }
+  p.foot { color: #52606d; font-size: 0.88em; margin-top: 2em; }
+  a { color: #0d6efd; }
+</style>
+</head>
+<body>
+<main>
+  <h1>How BLAST works</h1>
+  <p class="sub">Dynamic programming compares two sequences by filling a whole matrix. A database search
+  cannot: a million sequences is a million matrices. BLAST fills almost none of them. Step through the
+  six things it does instead, and watch the counter at the bottom, which is the entire argument.
+  Then lower the threshold and see what the fast setting was missing.</p>
+  <div id="blast"></div>
+  <p class="foot">The defaults are the real ones, taken from the programs rather than from memory:
+  <code>blastp</code> prints <em>Neighboring words threshold: 11</em> and <em>Window for multiple
+  hits: 40</em> in the footer of every report, and <code>blastn</code> prints neither, because a
+  nucleotide search has no neighbourhood and extends from a single hit. The protein database is six
+  real globins from the Pfam seed alignment used in Session 4; the nucleotide one is synthetic, so
+  that the identities are exact and the odds can be worked out in advance. The one simplification is
+  the gap cost, which is linear here and affine in the real programs.
+  See also the <a href="dp.html">alignment matrix</a>.</p>
+</main>
+<script>
+renderBLAST("blast", {
+  controls: true,
+  alphabet: "protein",
+  step: 0
+});
+</script>
+</body>
+</html>

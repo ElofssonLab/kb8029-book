@@ -1,0 +1,1027 @@
+// Interactive BLAST: the six steps of a protein or nucleotide search, run on
+// a database small enough to watch.
+//
+// No external dependencies, the same rule as dp-matrix.js and quiz-widget.js
+// in this directory. This file does depend on dp-matrix.js being loaded first,
+// for BLOSUM62 and nothing else: a second copy of that table is a second thing
+// to keep true, and the whole point of the course's widgets is that the
+// lecture, the notes and the live page cannot disagree about a number.
+//
+// Usage, from a qmd page:
+//
+//   ```{=html}
+//   <script src="js/dp-matrix.js"></script>
+//   <script src="js/blast-search.js"></script>
+//   <div id="blast"></div>
+//   <script>
+//   renderBLAST("blast", {
+//     alphabet: "protein",   // "protein" | "dna"
+//     word: 3,               // W. blastp 3, blastn 11, megablast 28
+//     threshold: 11,         // T, protein only. blastp default
+//     controls: true,
+//     step: 0
+//   });
+//   </script>
+//   ```
+//
+// A `{=html}` block is dropped from the PDF build, so the PDF simply does not
+// show the widget. Put the static worked example in the prose, not in here.
+//
+// Why the defaults are what they are. They are not from memory: blastp 2.16.0
+// prints them in the footer of every report it writes —
+//
+//     Matrix: BLOSUM62
+//     Gap Penalties: Existence: 11, Extension: 1
+//     Neighboring words threshold: 11
+//     Window for multiple hits: 40
+//
+// — and the nucleotide word sizes (blastn 11, megablast 28) were checked
+// behaviourally: two 135 nt sequences sharing exactly 15 identical bases are
+// found by blastn and missed by megablast.
+//
+// The one deliberate simplification is the gap cost. Real BLAST uses an affine
+// penalty (open 11, extend 1); the banded step here uses a single linear gap,
+// because this widget is about WHICH CELLS GET COMPUTED, not about reproducing
+// a bit score. The settings line says so on screen rather than hiding it.
+
+// ------------------------------------------------------------------ the data
+//
+// Protein: a 50-residue window of human beta-globin against five globins and
+// one control. The window is HBB 26-75; the others are the regions that align
+// to it, found with a local alignment rather than by eye. The distant globins
+// come from the Pfam Globin (PF00042) seed alignment the course already ships
+// as book/notebooks/data/session04-globin-seed.sto, so this demo and the
+// Session 4 sequence logo are drawn from the same source.
+//
+// Checked against real blastp before being written down here. With the
+// defaults, blastp finds HBA_HUMAN (E = 2e-09), HBP2_CASGL (E = 6e-05) and
+// MYG_GALGA (E = 0.67), and MISSES MYG_HUMAN entirely. Sensitise the search
+// (blastp -word_size 2 -threshold 9) and myoglobin appears at E = 3e-06,
+// a better hit than the plant globin the default search did find. That miss
+// is the lesson, so it must keep working: see blSelfCheck at the bottom of
+// this file.
+
+const BL_PROTEIN = {
+  query: { name: "HBB_HUMAN", seq: "GEALGRLLVVYPWTQRFFESFGDLSTPDAVMGNPKVKAHGKKVLGAFSDG" },
+  db: [
+    { name: "HBA_HUMAN",  seq: "YGAEALERMFLSFPTTKTYFPHFDLSHGSAQVKGHGKKVADALTNAVAHV",
+      note: "human alpha-globin" },
+    { name: "MYG_HUMAN",  seq: "QEVLIRLFKGHPETLEKFDKFKHLKSEAEMKASEDLKKHGATVLTALGGILKKKGH",
+      note: "human myoglobin" },
+    { name: "MYG_GALGA",  seq: "QNILLRLFEQYPESQSYFPKLKNKSLGELKDTADIKAQADTVLKALGNIVKKKGN",
+      note: "chicken myoglobin" },
+    { name: "HBP2_CASGL", seq: "LKFFLKIFEIAPSAQKLFSFLKDSNVPLERNPKLKSHAMSVFLMTCESAVQLRK",
+      note: "a plant haemoglobin" },
+    { name: "GLB_MYCTO",  seq: "RRFYAHWFALDASVRDLFPPDMGAQRAAFGQALHWVYGELVAQRAE",
+      note: "a bacterial globin" },
+    { name: "SHUFFLED",   seq: "EGFRHGSYVLKTSGLDLGDEKFGPPKDLFQKTARVSFLVGMAPWANGVVA",
+      note: "the query, shuffled: a control, homologous to nothing" }
+  ]
+};
+
+// Nucleotide: one synthetic sequence and copies of it mutated to an exact,
+// stated identity. Synthetic on purpose. Real sequences would be better
+// biology but worse teaching, because here the identity is known to the base,
+// so the chance that any given W-mer survives unmutated is a number students
+// can work out before running anything:
+//
+//     identity   P(11-mer exact)   P(28-mer exact)
+//       0.95         0.57              0.24
+//       0.88         0.25              0.028
+//       0.80         0.086             0.002
+//
+// and the search then either finds the sequence or does not. Checked against
+// the real programs: blastn (W=11) finds all three copies, megablast (W=28)
+// finds the 95% and 88% copies and MISSES the 80% one. Generated once with a
+// fixed seed and written down, so every student sees the same database.
+const BL_DNA = {
+    query: { name: "query", seq:
+      "CACCCGGCGTAAGGGTATTCCGCCCCACAAAACCAGCGGAACGGCGTTACTGTCGATGCTGTTACGGCCAGCGAGACGTGGATGCCTTATCCCATGTTTGACGTCACAACGTGATTCTTTTTTACAAAGCGCGCGAAGTTATACTGCCGGAGACGGGGCCAATAACATCTCCTGGGGGGGGGTGTGCGTGGTGATTGAAC" },
+    db: [
+      { name: "copy_95", seq:
+        "CACCCGGCGTAAAGGTATCCCGCCACACAAAACCAGCGTAACGGCGTTACTGTCGATGCTGTTACGGCCAGCGAGACGTGGAAGCCTTATCCCCTGTTTGAAGTCACAACGTGATTCTTTTTTACAAAGCGCGCGAACTTATACTGCCGAAGACGGGGCCAATAACCTCTCCTGGGGGGGGGTGTGCGTGGTGATTGAAC",
+        note: "95% identical" },   // measured identity 0.950
+      { name: "copy_88", seq:
+        "CACCCGGCGTACAGGGATTCCGCCCCACAAGCCCCGTGGAACGGCGTTACTGTCGAGTCTGTTACGGCCAGCGACACGTGGATGCCTTATCCCATGTTTGATGTCACTTCGTGATTCTTTTTTACAAAGCGCGCGAAGCTACTCAGGAGAAGACGGGGCCTTTAACATCTCCTGGGGGGGGGTGTGCGTGGGGATTGGAC",
+        note: "88% identical" },   // measured identity 0.880
+      { name: "copy_80", seq:
+        "CACCCGGCGTCAGGGTAGCAGGCGCCACAACACCAGCGAAACAGCGATACTGTCGATGCTGTGCCGGCCAGCGGGATGTGCATGCCTCACCCTATGTTTGACGTCACGACGTGAGTGTTTTTTACGGCGCGGGCTAAGTTATTCTGATCCAGCCGTGGCCAATAACATCTCGTGGGGCTAGGTGTGTGTGGTGATTTAGC",
+        note: "80% identical" },   // measured identity 0.800
+      { name: "unrelated", seq:
+        "TTCCCCCAGTATCTCGTCCTCGAATGTAGATCGATCTAGCCCTCCAAACTTATACGATGCTCACTGTCGTACCTAAACGCCTCCGTCGAGCAGAAGCTTGTTTGACAGTTCGCGAGCCTGTATTGAGGTCGTGTCGTTCTGCGAGGCCGTCTGTAACAGCTCGTTGCAAGAAATGGGCATTCGTGCCTTTCGGCGTTCTT",
+        note: "an independent random sequence" },   // measured identity 0.230
+    ]
+};
+
+const BL_AA = "ACDEFGHIKLMNPQRSTVWY";
+const BL_NT = "ACGT";
+
+// --------------------------------------------------------------- the engine
+
+function blDefaults(cfg) {
+  const c = Object.assign({
+    alphabet: "protein",
+    word: null,          // null = the default for the alphabet
+    threshold: null,     // null = the default for the alphabet
+    window: null,        // two-hit window; 0 means extend from a single hit
+    xdrop: 7,            // X for the ungapped extension
+    band: 6,             // half-width of the gapped band
+    gap: null,           // linear, see the note at the top
+    step: 0,
+    focus: 0,            // which database sequence the matrix shows
+    controls: false,
+    steps: true          // show the step switcher
+  }, cfg || {});
+  if (c.word === null) c.word = c.alphabet === "dna" ? 11 : 3;
+  if (c.threshold === null) c.threshold = c.alphabet === "dna" ? null : 11;
+  // The two-hit rule is a protein heuristic. blastn extends from a single hit,
+  // and says so by omission: a blastp report ends with "Neighboring words
+  // threshold: 11" and "Window for multiple hits: 40", and a blastn report has
+  // neither line. Window 0 here means single-hit.
+  if (c.window === null) c.window = c.alphabet === "dna" ? 0 : 40;
+  // blastn's real penalties are open 5, extend 2; blastp's are 11 and 1. Both
+  // are flattened to one linear number, for the reason given at the top.
+  if (c.gap === null) c.gap = c.alphabet === "dna" ? -5 : -8;
+  return c;
+}
+
+function blData(cfg) { return cfg.alphabet === "dna" ? BL_DNA : BL_PROTEIN; }
+function blAlpha(cfg) { return cfg.alphabet === "dna" ? BL_NT : BL_AA; }
+
+function blScore(cfg) {
+  if (cfg.alphabet === "dna") {
+    // blastn's defaults: +2 for a match, -3 for a mismatch.
+    return function (x, y) { return x === y ? 2 : -3; };
+  }
+  const B = (typeof BLOSUM62 !== "undefined") ? BLOSUM62 : (window.BLOSUM62 || null);
+  if (!B) throw new Error("blast-search.js needs dp-matrix.js loaded first (for BLOSUM62)");
+  return function (x, y) {
+    const row = B[x] || B["X"];
+    const v = row[y];
+    return v === undefined ? B["X"]["X"] : v;
+  };
+}
+
+// Every overlapping word of the query, with the position it came from.
+function blWords(seq, W) {
+  const out = [];
+  for (let i = 0; i + W <= seq.length; i++) out.push({ pos: i, word: seq.slice(i, i + W) });
+  return out;
+}
+
+// Step 2, and the only step that distinguishes BLAST from FASTA.
+//
+// For protein, every W-letter word scoring at least T against this one, which
+// for W = 3 means walking all 8000 three-letter words. For DNA there is no
+// neighbourhood: blastn wants exact matches, so the "neighbourhood" of a word
+// is the word. Saying that out loud is the point, so it returns the same
+// shape either way rather than being special-cased by the caller.
+function blNeighbourhood(word, T, cfg) {
+  const s = blScore(cfg);
+  if (cfg.alphabet === "dna") return [{ word: word, score: word.length * 2, self: true }];
+  const alpha = BL_AA, W = word.length, out = [];
+  const buf = new Array(W);
+  (function rec(k, score) {
+    // The best any remaining position can add is 11 (W-W in BLOSUM62), so a
+    // partial word that cannot reach T even at its best is abandoned here
+    // rather than enumerated. Without this, W = 5 is 3.2 million words.
+    if (score + (W - k) * 11 < T) return;
+    if (k === W) { if (score >= T) out.push({ word: buf.join(""), score: score, self: buf.join("") === word }); return; }
+    for (let a = 0; a < alpha.length; a++) {
+      buf[k] = alpha[a];
+      rec(k + 1, score + s(word[k], alpha[a]));
+    }
+  })(0, 0);
+  out.sort(function (x, y) { return y.score - x.score || (x.word < y.word ? -1 : 1); });
+  return out;
+}
+
+// The lookup table BLAST actually builds: every neighbourhood word of every
+// query word, pointing back at the query positions that produced it.
+function blLookup(cfg) {
+  const q = blData(cfg).query.seq;
+  const table = new Map();
+  let generated = 0;
+  blWords(q, cfg.word).forEach(function (w) {
+    const nb = blNeighbourhood(w.word, cfg.threshold, cfg);
+    generated += nb.length;
+    nb.forEach(function (n) {
+      if (!table.has(n.word)) table.set(n.word, []);
+      table.get(n.word).push({ qpos: w.pos, score: n.score });
+    });
+  });
+  return { table: table, generated: generated, distinct: table.size };
+}
+
+// Step 3: where in a subject does any lookup word occur?
+function blScan(cfg, subject, lookup) {
+  const hits = [];
+  for (let j = 0; j + cfg.word <= subject.length; j++) {
+    const w = subject.slice(j, j + cfg.word);
+    const qs = lookup.table.get(w);
+    if (!qs) continue;
+    qs.forEach(function (q) {
+      hits.push({ qpos: q.qpos, spos: j, word: w, score: q.score });
+    });
+  }
+  // diag is (subject position - query position): one number per diagonal of
+  // the alignment matrix, which is what "on the same diagonal" means.
+  hits.forEach(function (h) { h.diag = h.spos - h.qpos; });
+  return hits;
+}
+
+// Step 4: BLAST2's two-hit rule. A seed is only extended if a second,
+// non-overlapping hit sits on the same diagonal within `window` residues.
+// This is what made gapped BLAST faster than the 1990 version despite doing
+// more work per seed: most isolated hits are noise and are never extended.
+function blTwoHit(cfg, hits) {
+  const byDiag = new Map();
+  hits.forEach(function (h) {
+    if (!byDiag.has(h.diag)) byDiag.set(h.diag, []);
+    byDiag.get(h.diag).push(h);
+  });
+  const seeds = [];
+  if (!cfg.window) {
+    // Single-hit extension: every word hit is a seed in its own right.
+    hits.forEach(function (h) { seeds.push({ first: h, second: h, diag: h.diag, single: true }); });
+    return { seeds: seeds, byDiag: byDiag, single: true };
+  }
+  byDiag.forEach(function (list, diag) {
+    list.sort(function (a, b) { return a.qpos - b.qpos; });
+    // Two hits, not two CONSECUTIVE hits. Word hits cluster: a conserved
+    // stretch gives overlapping hits one residue apart, and comparing only
+    // neighbours in the list then finds nothing, because everything overlaps.
+    // NCBI's rule is a second non-overlapping hit on the same diagonal within
+    // the window, so each hit is checked against the ones that follow it.
+    for (let i = 0; i < list.length; i++) {
+      for (let k = i + 1; k < list.length; k++) {
+        const apart = list[k].qpos - list[i].qpos;
+        if (apart < cfg.word) continue;     // overlapping: one hit, not two
+        if (apart > cfg.window) break;      // sorted, so nothing further qualifies
+        seeds.push({ first: list[i], second: list[k], diag: diag });
+        break;                              // one seed per left-hand hit
+      }
+    }
+  });
+  return { seeds: seeds, byDiag: byDiag };
+}
+
+// Step 5: extend along the diagonal without gaps, stopping when the running
+// score falls X below the best seen. Returns the HSP and the trail, so the
+// drop-off can be drawn rather than asserted.
+function blExtend(cfg, query, subject, qpos, spos) {
+  const s = blScore(cfg);
+  const W = cfg.word;
+  let score = 0;
+  for (let k = 0; k < W; k++) score += s(query[qpos + k], subject[spos + k]);
+
+  const trail = [];
+  function walk(dir) {
+    let i = dir < 0 ? qpos - 1 : qpos + W, j = dir < 0 ? spos - 1 : spos + W;
+    let run = score, best = score, bestI = i - dir, bestJ = j - dir, steps = 0;
+    while (i >= 0 && j >= 0 && i < query.length && j < subject.length) {
+      run += s(query[i], subject[j]);
+      steps++;
+      trail.push({ i: i, j: j, run: run, dir: dir });
+      if (run > best) { best = run; bestI = i; bestJ = j; }
+      if (best - run >= cfg.xdrop) break;
+      i += dir; j += dir;
+    }
+    return { best: best, i: bestI, j: bestJ, steps: steps };
+  }
+  const left = walk(-1), right = walk(1);
+  const qs = Math.min(qpos, left.i + (left.steps ? 0 : 1));
+  const ss = Math.min(spos, left.j + (left.steps ? 0 : 1));
+  const qe = Math.max(qpos + W - 1, right.i);
+  const se = Math.max(spos + W - 1, right.j);
+  let total = 0;
+  for (let k = 0; k <= qe - qs; k++) total += s(query[qs + k], subject[ss + k]);
+  return { qs: qs, qe: qe, ss: ss, se: se, score: total, trail: trail };
+}
+
+// Step 6: Smith-Waterman, but only inside a band around the HSP's diagonal.
+// Counts every cell it touches, because the count is the whole argument.
+function blBanded(cfg, query, subject, hsp) {
+  const s = blScore(cfg);
+  const n = query.length, m = subject.length;
+  const diag = hsp.ss - hsp.qs;
+  const V = [], cells = [];
+  for (let i = 0; i <= n; i++) V.push(new Array(m + 1).fill(0));
+  let computed = 0, best = 0, bi = 0, bj = 0;
+  for (let i = 1; i <= n; i++) {
+    const lo = Math.max(1, i + diag - cfg.band), hi = Math.min(m, i + diag + cfg.band);
+    for (let j = lo; j <= hi; j++) {
+      const d = V[i - 1][j - 1] + s(query[i - 1], subject[j - 1]);
+      const u = V[i - 1][j] + cfg.gap;
+      const l = V[i][j - 1] + cfg.gap;
+      const v = Math.max(0, d, u, l);
+      V[i][j] = v;
+      computed++;
+      cells.push({ i: i, j: j });
+      if (v > best) { best = v; bi = i; bj = j; }
+    }
+  }
+  // Traceback, diagonal first, stopping at the first zero.
+  const path = [];
+  let i = bi, j = bj;
+  while (i > 0 && j > 0 && V[i][j] > 0) {
+    path.push({ i: i, j: j });
+    const d = V[i - 1][j - 1] + s(query[i - 1], subject[j - 1]);
+    if (V[i][j] === d) { i--; j--; }
+    else if (V[i][j] === V[i - 1][j] + cfg.gap) i--;
+    else j--;
+  }
+  path.reverse();
+  return { V: V, cells: cells, computed: computed, score: best, path: path, full: n * m };
+}
+
+// The same search, one notch more sensitive: T lowered for protein, the word
+// shortened for nucleotides. Run alongside the real one so the widget can show
+// what the current settings MISS. Without this the speed-up looks free, and it
+// is not: with blastp's own defaults this database loses human myoglobin, a
+// textbook homolog of the query, which a search at T = 9 finds easily.
+function blSensitive(cfg) {
+  const c = blDefaults(Object.assign({}, cfg));
+  if (c.alphabet === "dna") c.word = 11;
+  else { c.word = 3; c.threshold = 9; }
+  return c;
+}
+
+// The whole pipeline for one subject, so the tally and the drawing agree.
+function blRun(cfg, subject, lookup) {
+  const q = blData(cfg).query.seq;
+  const hits = blScan(cfg, subject, lookup);
+  const two = blTwoHit(cfg, hits);
+  let hsp = null, band = null;
+  if (two.seeds.length) {
+    // Extend from the best-scoring surviving seed.
+    let bestSeed = two.seeds[0];
+    two.seeds.forEach(function (sd) {
+      if (sd.first.score + sd.second.score > bestSeed.first.score + bestSeed.second.score) bestSeed = sd;
+    });
+    hsp = blExtend(cfg, q, subject, bestSeed.first.qpos, bestSeed.first.spos);
+    band = blBanded(cfg, q, subject, hsp);
+  }
+  return {
+    hits: hits, two: two, hsp: hsp, band: band,
+    full: q.length * subject.length,
+    computed: band ? band.computed : 0
+  };
+}
+
+function blAlignmentText(cfg, query, subject, band) {
+  if (!band || !band.path.length) return "";
+  const s = blScore(cfg);
+  let a = "", mid = "", b = "";
+  let pi = band.path[0].i - 1, pj = band.path[0].j - 1;
+  band.path.forEach(function (p, k) {
+    if (k === 0) { a += query[p.i - 1]; b += subject[p.j - 1]; }
+    else if (p.i === pi + 1 && p.j === pj + 1) { a += query[p.i - 1]; b += subject[p.j - 1]; }
+    else if (p.i === pi + 1) { a += query[p.i - 1]; b += "-"; }
+    else { a += "-"; b += subject[p.j - 1]; }
+    const x = a[a.length - 1], y = b[b.length - 1];
+    if (x === "-" || y === "-") mid += " ";
+    else if (x === y) mid += x;
+    else mid += s(x, y) > 0 ? "+" : " ";
+    pi = p.i; pj = p.j;
+  });
+  return a + "\n" + mid + "\n" + b;
+}
+
+// ------------------------------------------------------------------- styling
+
+function blStyle() {
+  if (document.getElementById("blast-search-style")) return;
+  const style = document.createElement("style");
+  style.id = "blast-search-style";
+  style.textContent = `
+    .bls { border: 1px solid rgba(0,0,0,0.15); border-radius: 8px; padding: 1em 1.2em 1.2em; margin-bottom: 1.2em; }
+    .bls h4 { margin: 0 0 0.2em; font-size: 1em; }
+    .bls .bls-sub { color: rgba(0,0,0,0.6); font-size: 0.88em; margin: 0 0 0.9em; }
+    .bls .bls-mono { font-family: ui-monospace, Menlo, Consolas, monospace; }
+    .bls .bls-steps { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 0.9em; }
+    .bls .bls-steps button { border: 1px solid rgba(0,0,0,0.18); background: transparent; color: inherit;
+      border-radius: 6px; font-size: 0.82em; padding: 5px 10px; cursor: pointer; }
+    .bls .bls-steps button:hover { background: rgba(0,0,0,0.06); }
+    .bls .bls-steps button.on { background: #0d6efd; color: #fff; border-color: #0d6efd; }
+    .bls .bls-settings { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: flex-end;
+      padding: 0.7em 0.9em; margin-bottom: 0.9em; border: 1px solid rgba(0,0,0,0.12);
+      border-radius: 8px; background: rgba(0,0,0,0.02); }
+    .bls .bls-settings label { display: block; font-size: 0.76em; color: rgba(0,0,0,0.6); margin-bottom: 2px; }
+    .bls .bls-settings input, .bls .bls-settings select { font: inherit; font-size: 0.9em;
+      padding: 4px 7px; border: 1px solid rgba(0,0,0,0.2); border-radius: 5px; background: #fff; color: inherit; }
+    .bls .bls-settings input[type=number] { width: 4.6em; }
+    .bls .bls-say { margin: 0.5em 0 0.8em; font-size: 0.92em; }
+    .bls .bls-seq { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.86em;
+      white-space: pre-wrap; word-break: break-all; line-height: 1.7; }
+    .bls .bls-seq span.w { background: #cfe2ff; border-radius: 2px; }
+    .bls .bls-seq span.hit { background: #ffd79a; border-radius: 2px; }
+    .bls .bls-seq span.seed { background: #a8dab5; border-radius: 2px; font-weight: 600; }
+    .bls .bls-chips { display: flex; flex-wrap: wrap; gap: 4px; margin: 0.4em 0 0.8em; }
+    .bls .bls-chip { font-family: ui-monospace, Menlo, Consolas, monospace; font-size: 0.8em;
+      border: 1px solid rgba(0,0,0,0.18); border-radius: 4px; padding: 2px 6px; cursor: pointer; background: #fff; }
+    .bls .bls-chip:hover { background: rgba(0,0,0,0.06); }
+    .bls .bls-chip.on { background: #0d6efd; color: #fff; border-color: #0d6efd; }
+    .bls table.bls-nb { border-collapse: collapse; font-size: 0.85em; margin: 0.3em 0 0.6em; }
+    .bls table.bls-nb td, .bls table.bls-nb th { border: 1px solid rgba(0,0,0,0.15); padding: 3px 9px; text-align: left; }
+    .bls table.bls-nb th { background: rgba(0,0,0,0.05); }
+    .bls table.bls-nb td.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .bls table.bls-nb tr.self td { background: #cfe2ff; font-weight: 600; }
+    .bls .bls-db { width: 100%; border-collapse: collapse; font-size: 0.86em; margin-bottom: 0.6em; }
+    .bls .bls-db td, .bls .bls-db th { border-bottom: 1px solid rgba(0,0,0,0.1); padding: 5px 8px; text-align: left; }
+    .bls .bls-db th { font-size: 0.8em; color: rgba(0,0,0,0.6); font-weight: 600; }
+    .bls .bls-db td.n { text-align: right; font-variant-numeric: tabular-nums; }
+    .bls .bls-db tr.dead td { color: rgba(0,0,0,0.38); }
+    .bls .bls-db tr.focus td { background: #e7f1ff; }
+    .bls .bls-db tr.pick { cursor: pointer; }
+    .bls .bls-db tr.pick:hover td { background: rgba(0,0,0,0.04); }
+    .bls .bls-gridwrap { overflow-x: auto; margin: 0.4em 0 0.3em; }
+    .bls .bls-grid { display: grid; gap: 0; width: max-content; }
+    .bls .bls-grid i { width: var(--bl-cell); height: var(--bl-cell); display: block;
+      background: rgba(0,0,0,0.025); outline: 0.5px solid rgba(0,0,0,0.05); }
+    .bls .bls-grid b.bls-lab { font-family: ui-monospace, Menlo, Consolas, monospace;
+      font-weight: 400; font-size: 8px; line-height: var(--bl-cell); height: var(--bl-cell);
+      color: rgba(0,0,0,0.55); text-align: center; overflow: visible; white-space: nowrap; }
+    .bls .bls-grid b.bls-rowlab { width: 15px; text-align: right; padding-right: 3px; }
+    .bls .bls-grid i.band { background: #dbeafe; }
+    .bls .bls-grid i.hit { background: #f0a030; }
+    .bls .bls-grid i.seed { background: #198754; }
+    .bls .bls-grid i.hsp { background: #0d6efd; }
+    .bls .bls-grid i.path { background: #0f5132; }
+    .bls .bls-axis { font-size: 0.74em; color: rgba(0,0,0,0.55); margin-bottom: 0.7em; }
+    .bls .bls-align { font-family: ui-monospace, Menlo, Consolas, monospace; white-space: pre; overflow-x: auto;
+      background: rgba(0,0,0,0.04); border-radius: 6px; padding: 0.7em 0.9em; margin: 0.5em 0; font-size: 0.86em; }
+    .bls .bls-tally { border-top: 1px solid rgba(0,0,0,0.12); margin-top: 0.9em; padding-top: 0.7em; font-size: 0.88em; }
+    .bls .bls-bar { height: 10px; border-radius: 5px; background: rgba(0,0,0,0.08); overflow: hidden; margin: 0.4em 0; }
+    .bls .bls-bar span { display: block; height: 100%; background: #0d6efd; }
+    .bls .bls-big { font-size: 1.05em; font-weight: 600; }
+    .bls .bls-note { font-size: 0.84em; color: rgba(0,0,0,0.6); margin-top: 0.4em; }
+    .bls .bls-warn { background: #fff3cd; border-radius: 6px; padding: 0.6em 0.9em; font-size: 0.88em; margin: 0.5em 0; }
+  `;
+  document.head.appendChild(style);
+}
+
+function blEl(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text !== undefined) e.textContent = text;
+  return e;
+}
+
+function blNum(n) { return n.toLocaleString("en-GB"); }
+
+// A subject-by-query grid, with both sequences written along the edges.
+// Marks is a map "i,j" -> class name; later classes win, which is how the
+// path draws over the band.
+//
+// The cell size follows the subject length, because a 200-base nucleotide
+// search and a 50-residue protein one both have to fit on a slide. Residue
+// letters are only drawn when the cells are wide enough to hold them;
+// below that the edges carry a position every ten instead, which is still
+// enough to say where on the sequence a hit falls.
+function blGrid(cfg, qseq, sseq, marks) {
+  const n = qseq.length, m = sseq.length;
+  const size = m > 140 ? 5 : (m > 90 ? 7 : 11);
+  const letters = size >= 9;
+  const labW = 15;
+
+  const wrap = blEl("div", "bls-gridwrap");
+  const g = blEl("div", "bls-grid");
+  g.style.gridTemplateColumns = labW + "px repeat(" + m + ", " + size + "px)";
+  g.style.setProperty("--bl-cell", size + "px");
+
+  function edge(text, cls) { return blEl("b", "bls-lab " + cls, text); }
+
+  // Top edge: the subject.
+  g.appendChild(edge("", "bls-corner"));
+  for (let j = 0; j < m; j++) {
+    g.appendChild(edge(letters ? sseq[j] : ((j + 1) % 10 === 0 ? String(j + 1) : ""), "bls-collab"));
+  }
+  // Each row: the query residue, then the cells.
+  for (let i = 1; i <= n; i++) {
+    g.appendChild(edge(letters ? qseq[i - 1] : (i % 10 === 0 ? String(i) : ""), "bls-rowlab"));
+    for (let j = 1; j <= m; j++) {
+      const cell = blEl("i");
+      const k = marks.get(i + "," + j);
+      if (k) cell.className = k;
+      g.appendChild(cell);
+    }
+  }
+  wrap.appendChild(g);
+  return wrap;
+}
+
+// ------------------------------------------------------------------ the page
+
+const BL_STEPS = [
+  "1 · Cut the query into words",
+  "2 · Grow each word into a neighbourhood",
+  "3 · Scan the database",
+  "4 · Seeds worth extending",
+  "5 · Extend without gaps",
+  "6 · Fill a band, not a matrix"
+];
+
+function renderBLAST(containerId, config) {
+  const container = document.getElementById(containerId);
+  if (!container) return;
+  blStyle();
+  const cfg = blDefaults(config);
+
+  container.textContent = "";
+  const root = blEl("div", "bls");
+  const heading = blEl("h4");
+  const sub = blEl("p", "bls-sub");
+  root.appendChild(heading);
+  root.appendChild(sub);
+  if (cfg.controls) root.appendChild(blSettings(cfg, function () { draw(); }));
+
+  let switcher = null;
+  if (cfg.steps) {
+    switcher = blEl("div", "bls-steps");
+    BL_STEPS.forEach(function (label, k) {
+      const b = blEl("button", null, label);
+      b.dataset.step = k;
+      b.onclick = function () { cfg.step = k; draw(); };
+      switcher.appendChild(b);
+    });
+    root.appendChild(switcher);
+  }
+
+  const body = blEl("div", "bls-body");
+  const tally = blEl("div", "bls-tally");
+  root.appendChild(body);
+  root.appendChild(tally);
+  container.appendChild(root);
+
+  // Which query word the neighbourhood panel is showing. Kept here rather
+  // than in cfg: it is a view state, not a parameter of the search.
+  let pickedWord = 0;
+
+  function draw() {
+    const data = blData(cfg);
+    const q = data.query.seq;
+    const lookup = blLookup(cfg);
+    const runs = data.db.map(function (d) { return blRun(cfg, d.seq, lookup); });
+    const refCfg = blSensitive(cfg);
+    const sameAsRef = refCfg.word === cfg.word && refCfg.threshold === cfg.threshold;
+    const refLookup = sameAsRef ? lookup : blLookup(refCfg);
+    const refRuns = sameAsRef ? runs
+      : data.db.map(function (d) { return blRun(refCfg, d.seq, refLookup); });
+
+    heading.textContent = BL_STEPS[cfg.step];
+    sub.textContent = blSettingsLine(cfg, data);
+    if (switcher) {
+      [].forEach.call(switcher.children, function (b) {
+        b.classList.toggle("on", +b.dataset.step === cfg.step);
+      });
+    }
+    if (cfg.focus >= data.db.length) cfg.focus = 0;
+
+    body.textContent = "";
+    const fns = [blStepWords, blStepNeighbourhood, blStepScan, blStepTwoHit, blStepExtend, blStepBand];
+    fns[cfg.step](body, cfg, data, lookup, runs, {
+      refRuns: refRuns, refCfg: refCfg, sameAsRef: sameAsRef,
+      picked: pickedWord,
+      pick: function (k) { pickedWord = k; draw(); },
+      focus: function (k) { cfg.focus = k; draw(); }
+    });
+    blTally(tally, cfg, data, runs, refRuns, sameAsRef);
+  }
+  draw();
+}
+
+function blSettingsLine(cfg, data) {
+  const bits = [];
+  bits.push(cfg.alphabet === "dna" ? "blastn-style nucleotide search" : "blastp-style protein search");
+  bits.push("word size W = " + cfg.word);
+  if (cfg.alphabet !== "dna") bits.push("threshold T = " + cfg.threshold + " on BLOSUM62");
+  else bits.push("exact words, +2 / −3");
+  bits.push(cfg.window ? "two-hit window " + cfg.window : "single-hit extension");
+  bits.push("X-drop " + cfg.xdrop);
+  bits.push("band ±" + cfg.band + ", linear gap " + cfg.gap);
+  return data.query.name + " against " + data.db.length + " sequences — " + bits.join(", ") + ".";
+}
+
+function blStepWords(body, cfg, data, lookup, runs, ui) {
+  const q = data.query.seq;
+  const words = blWords(q, cfg.word);
+  body.appendChild(blEl("p", "bls-say",
+    "A query of " + q.length + " residues contains " + words.length + " overlapping words of length "
+    + cfg.word + ". Every one of them is a place the search could start. Click a word to carry it "
+    + "into the next step."));
+
+  const seq = blEl("div", "bls-seq");
+  const picked = words[Math.min(ui.picked, words.length - 1)];
+  for (let i = 0; i < q.length; i++) {
+    const inWord = i >= picked.pos && i < picked.pos + cfg.word;
+    const sp = blEl("span", inWord ? "w" : null, q[i]);
+    seq.appendChild(sp);
+  }
+  body.appendChild(seq);
+
+  const chips = blEl("div", "bls-chips");
+  words.forEach(function (w, k) {
+    const c = blEl("button", "bls-chip" + (k === ui.picked ? " on" : ""), w.word);
+    c.title = "query position " + (w.pos + 1);
+    c.onclick = function () { ui.pick(k); };
+    chips.appendChild(c);
+  });
+  body.appendChild(chips);
+  body.appendChild(blEl("p", "bls-note",
+    "FASTA stops here: it looks these words up exactly, and nothing else. That is the whole "
+    + "difference, and the next step is what BLAST does instead."));
+}
+
+function blStepNeighbourhood(body, cfg, data, lookup, runs, ui) {
+  const q = data.query.seq;
+  const words = blWords(q, cfg.word);
+  const picked = words[Math.min(ui.picked, words.length - 1)];
+  const nb = blNeighbourhood(picked.word, cfg.threshold, cfg);
+  const space = Math.pow(cfg.alphabet === "dna" ? 4 : 20, cfg.word);
+
+  if (cfg.alphabet === "dna") {
+    body.appendChild(blEl("div", "bls-warn",
+      "Nucleotide searches have no neighbourhood: blastn looks for exact matches only. A word "
+      + "either matches or it does not, so this step collapses to one word, and the sensitivity "
+      + "of the search is set entirely by W. That is why the nucleotide story is about word size "
+      + "and the protein story is about the threshold."));
+  }
+
+  const chips = blEl("div", "bls-chips");
+  words.forEach(function (w, k) {
+    const c = blEl("button", "bls-chip" + (k === ui.picked ? " on" : ""), w.word);
+    c.onclick = function () { ui.pick(k); };
+    chips.appendChild(c);
+  });
+  body.appendChild(chips);
+
+  body.appendChild(blEl("p", "bls-say",
+    "Word " + picked.word + " at query position " + (picked.pos + 1) + ": "
+    + blNum(nb.length) + " of the " + blNum(space) + " possible words score at least "
+    + (cfg.threshold === null ? "an exact match" : "T = " + cfg.threshold)
+    + ". BLAST puts all of them in its lookup table and searches for every one."));
+
+  const tab = blEl("table", "bls-nb");
+  const hr = blEl("tr");
+  hr.appendChild(blEl("th", null, "word"));
+  hr.appendChild(blEl("th", null, "score"));
+  tab.appendChild(hr);
+  nb.slice(0, 14).forEach(function (n) {
+    const tr = blEl("tr", n.self ? "self" : null);
+    tr.appendChild(blEl("td", "bls-mono", n.word));
+    tr.appendChild(blEl("td", "n", String(n.score)));
+    tab.appendChild(tr);
+  });
+  body.appendChild(tab);
+  if (nb.length > 14) body.appendChild(blEl("p", "bls-note", "… and " + (nb.length - 14) + " more."));
+
+  body.appendChild(blEl("p", "bls-note",
+    "Across the whole query the lookup table holds " + blNum(lookup.generated) + " words ("
+    + blNum(lookup.distinct) + " distinct) instead of the " + words.length
+    + " a FASTA-style exact lookup would hold. Raise T and the table shrinks and the search "
+    + "runs faster; lower it and the table grows and finds more. That trade is the whole of "
+    + "BLAST's design, and step 3 shows what it costs."));
+}
+
+function blStepScan(body, cfg, data, lookup, runs, ui) {
+  body.appendChild(blEl("p", "bls-say",
+    "Every sequence in the database is read once, in windows of " + cfg.word
+    + ", and each window is looked up in the table. A sequence with no hit at all is never "
+    + "aligned: BLAST never computes a single matrix cell for it. That, and not the banding, "
+    + "is where most of the speed comes from in a real search."));
+
+  const tab = blEl("table", "bls-db");
+  const hr = blEl("tr");
+  const cols = ["sequence", "", "length", "word hits", "score"];
+  if (!ui.sameAsRef) cols.push(ui.refCfg.alphabet === "dna"
+    ? "score at W = " + ui.refCfg.word : "score at T = " + ui.refCfg.threshold);
+  cols.forEach(function (h) { hr.appendChild(blEl("th", null, h)); });
+  tab.appendChild(hr);
+  data.db.forEach(function (d, k) {
+    const r = runs[k], rr = ui.refRuns[k];
+    const found = r.computed > 0, refFound = rr.computed > 0;
+    const tr = blEl("tr", (found ? "" : "dead ") + "pick" + (k === cfg.focus ? " focus" : ""));
+    tr.onclick = function () { ui.focus(k); };
+    tr.appendChild(blEl("td", "bls-mono", d.name));
+    tr.appendChild(blEl("td", null, d.note || ""));
+    tr.appendChild(blEl("td", "n", String(d.seq.length)));
+    tr.appendChild(blEl("td", "n", r.hits.length ? String(r.hits.length) : "none"));
+    tr.appendChild(blEl("td", "n", found ? String(r.band.score) : "not aligned"));
+    if (!ui.sameAsRef) {
+      const cell = blEl("td", "n", refFound ? String(rr.band.score) : "not aligned");
+      if (refFound && !found) { cell.style.color = "#b02a37"; cell.style.fontWeight = "600"; }
+      tr.appendChild(cell);
+    }
+    tab.appendChild(tr);
+  });
+  body.appendChild(tab);
+
+  const dead = runs.filter(function (r) { return r.computed === 0; }).length;
+  const noHit = runs.filter(function (r) { return r.hits.length === 0; }).length;
+  body.appendChild(blEl("p", "bls-note",
+    dead + " of " + data.db.length + " sequences are never aligned"
+    + (noHit ? " (" + noHit + " of them produced no word hit at all)" : "")
+    + ". Click a row to follow one through the remaining steps. A score here is only a score: "
+    + "whether it means anything is a separate question, which is why a real report gives an "
+    + "E-value and this widget cannot. The last sequence in the database is there to make that "
+    + "point — loosen the search far enough and even it aligns, just badly."));
+
+  const d = data.db[cfg.focus], r = runs[cfg.focus];
+  body.appendChild(blEl("p", "bls-say", "Hits in " + d.name + ":"));
+  const marked = new Set();
+  r.hits.forEach(function (h) {
+    for (let k = 0; k < cfg.word; k++) marked.add(h.spos + k);
+  });
+  const seq = blEl("div", "bls-seq");
+  for (let j = 0; j < d.seq.length; j++) {
+    seq.appendChild(blEl("span", marked.has(j) ? "hit" : null, d.seq[j]));
+  }
+  body.appendChild(seq);
+}
+
+function blStepTwoHit(body, cfg, data, lookup, runs, ui) {
+  const d = data.db[cfg.focus], r = runs[cfg.focus], q = data.query.seq;
+  body.appendChild(blEl("p", "bls-say",
+    cfg.window
+      ? "Each hit is a dot in the query-by-subject matrix, exactly like the dot plots in Session 4. "
+        + "Gapped BLAST only extends a hit when a second, non-overlapping hit lies on the same "
+        + "diagonal within " + cfg.window + " residues, because an isolated hit is usually noise. "
+        + "Orange: word hits. Green: hits that survive the two-hit rule."
+      : "Each hit is a dot in the query-by-subject matrix, exactly like the dot plots in Session 4. "
+        + "A nucleotide search has no two-hit rule: blastn extends from a single hit, so every dot "
+        + "here is a seed. The two-hit rule is a protein heuristic, and a blastn report says so by "
+        + "omission \u2014 it has neither a \u201cNeighboring words threshold\u201d line nor a "
+        + "\u201cWindow for multiple hits\u201d line, while a blastp report has both."));
+
+  const marks = new Map();
+  r.hits.forEach(function (h) {
+    for (let k = 0; k < cfg.word; k++) marks.set((h.qpos + k + 1) + "," + (h.spos + k + 1), "hit");
+  });
+  r.two.seeds.forEach(function (sd) {
+    [sd.first, sd.second].forEach(function (h) {
+      for (let k = 0; k < cfg.word; k++) marks.set((h.qpos + k + 1) + "," + (h.spos + k + 1), "seed");
+    });
+  });
+  body.appendChild(blGrid(cfg, q, d.seq, marks));
+  body.appendChild(blEl("div", "bls-axis",
+    "rows: " + data.query.name + " (" + q.length + ")  ·  columns: " + d.name + " (" + d.seq.length + ")"));
+  body.appendChild(blEl("p", "bls-note",
+    r.hits.length + " word hits on " + r.two.byDiag.size + " diagonals; "
+    + (cfg.window ? r.two.seeds.length + " survive the two-hit rule."
+                  : "every one is a seed, since this is a single-hit search.")
+    + (r.two.seeds.length ? "" : " Nothing survives, so this sequence is never aligned at all.")));
+}
+
+function blStepExtend(body, cfg, data, lookup, runs, ui) {
+  const d = data.db[cfg.focus], r = runs[cfg.focus], q = data.query.seq;
+  if (!r.hsp) {
+    body.appendChild(blEl("p", "bls-say",
+      d.name + " has no surviving seed, so there is nothing to extend. Pick another sequence in step 3."));
+    return;
+  }
+  body.appendChild(blEl("p", "bls-say",
+    "From the seed, walk out along the diagonal in both directions, adding substitution scores and "
+    + "never opening a gap. Stop when the running score falls " + cfg.xdrop
+    + " below the best seen so far — the X-drop. What is left is an HSP, a high-scoring segment pair."));
+
+  const marks = new Map();
+  r.hits.forEach(function (h) {
+    for (let k = 0; k < cfg.word; k++) marks.set((h.qpos + k + 1) + "," + (h.spos + k + 1), "hit");
+  });
+  for (let k = 0; k <= r.hsp.qe - r.hsp.qs; k++) {
+    marks.set((r.hsp.qs + k + 1) + "," + (r.hsp.ss + k + 1), "hsp");
+  }
+  body.appendChild(blGrid(cfg, q, d.seq, marks));
+  body.appendChild(blEl("div", "bls-axis",
+    "blue: the HSP, extended from the seed without gaps"));
+
+  const a = q.slice(r.hsp.qs, r.hsp.qe + 1), b = d.seq.slice(r.hsp.ss, r.hsp.se + 1);
+  const s = blScore(cfg);
+  let mid = "";
+  for (let k = 0; k < a.length; k++) {
+    mid += a[k] === b[k] ? a[k] : (s(a[k], b[k]) > 0 ? "+" : " ");
+  }
+  const box = blEl("div", "bls-align", a + "\n" + mid + "\n" + b);
+  body.appendChild(box);
+  body.appendChild(blEl("p", "bls-note",
+    "HSP score " + r.hsp.score + ", query " + (r.hsp.qs + 1) + "–" + (r.hsp.qe + 1)
+    + ", subject " + (r.hsp.ss + 1) + "–" + (r.hsp.se + 1)
+    + ". No gaps yet: every column here is one step down the diagonal."));
+}
+
+function blStepBand(body, cfg, data, lookup, runs, ui) {
+  const d = data.db[cfg.focus], r = runs[cfg.focus], q = data.query.seq;
+  if (!r.band) {
+    body.appendChild(blEl("p", "bls-say",
+      d.name + " never got a seed, so no matrix is ever built for it. Pick another sequence in step 3."));
+    return;
+  }
+  body.appendChild(blEl("p", "bls-say",
+    "Only now does BLAST do dynamic programming, and only in a band of ±" + cfg.band
+    + " cells around the HSP's diagonal. The pale blue cells are computed; the white ones never are. "
+    + "This is the same Smith-Waterman recurrence as Session 4, restricted."));
+
+  const marks = new Map();
+  r.band.cells.forEach(function (c) { marks.set(c.i + "," + c.j, "band"); });
+  r.band.path.forEach(function (c) { marks.set(c.i + "," + c.j, "path"); });
+  body.appendChild(blGrid(cfg, q, d.seq, marks));
+  body.appendChild(blEl("div", "bls-axis", "pale blue: computed  ·  dark green: the alignment"));
+
+  const txt = blAlignmentText(cfg, q, d.seq, r.band);
+  if (txt) body.appendChild(blEl("div", "bls-align", txt));
+  body.appendChild(blEl("p", "bls-note",
+    "Score " + r.band.score + ". Computed " + blNum(r.band.computed) + " of "
+    + blNum(r.band.full) + " cells for this sequence, which is "
+    + Math.round(100 * r.band.computed / r.band.full) + "%."));
+}
+
+function blTally(tally, cfg, data, runs, refRuns, sameAsRef) {
+  tally.textContent = "";
+  const q = data.query.seq;
+  const full = data.db.reduce(function (t, d) { return t + q.length * d.seq.length; }, 0);
+  const done = runs.reduce(function (t, r) { return t + r.computed; }, 0);
+  const skipped = runs.filter(function (r) { return r.computed === 0; }).length;
+  const pct = full ? (100 * done / full) : 0;
+
+  tally.appendChild(blEl("div", "bls-big",
+    "Matrix cells computed: " + blNum(done) + " of " + blNum(full)
+    + " (" + (pct < 1 ? pct.toFixed(1) : Math.round(pct)) + "%)"));
+  const bar = blEl("div", "bls-bar");
+  const fill = blEl("span");
+  fill.style.width = Math.max(0.6, pct) + "%";
+  bar.appendChild(fill);
+  tally.appendChild(bar);
+  if (!sameAsRef) {
+    const missed = [];
+    data.db.forEach(function (d, k) {
+      if (runs[k].computed === 0 && refRuns[k].computed > 0) {
+        missed.push({ name: d.name, runs: runs[k] });
+      }
+    });
+    if (missed.length) {
+      // Name the stage that actually killed each one. They fail in two quite
+      // different ways, and saying "no word scored high enough" about a
+      // sequence that produced nine word hits would be teaching a falsehood.
+      const noWord = missed.filter(function (d, i) { return d.runs.hits.length === 0; });
+      const noPair = missed.filter(function (d, i) { return d.runs.hits.length > 0; });
+      const warn = blEl("div", "bls-warn");
+      const parts = ["The speed is not free. A more sensitive search aligns "
+        + missed.map(function (d) { return d.name; }).join(", ") + ", and this one does not."];
+      if (noWord.length) parts.push(noWord.map(function (d) { return d.name; }).join(", ")
+        + ": not one word matched, so BLAST never looked at all.");
+      if (noPair.length) parts.push(noPair.map(function (d) { return d.name; }).join(", ")
+        + ": words did match"
+        + (cfg.window
+            ? ", but no two of them fell on the same diagonal within " + cfg.window
+              + " residues, so the two-hit rule threw them away before any alignment was attempted."
+            : ", but the extension never reached a score worth keeping."));
+      warn.textContent = parts.join(" ");
+      tally.appendChild(warn);
+    }
+  }
+  tally.appendChild(blEl("div", "bls-note",
+    "An exhaustive Smith-Waterman would compute every one of those " + blNum(full)
+    + " cells. BLAST computed " + blNum(done) + ", and never built a matrix at all for "
+    + skipped + " of the " + data.db.length + " sequences. Scale the database up to the "
+    + "hundreds of millions of sequences at NCBI and that is the entire argument."));
+}
+
+// ------------------------------------------------------------------ settings
+
+function blField(labelText, control) {
+  const wrap = blEl("div");
+  const id = "blf" + Math.random().toString(36).slice(2, 9);
+  control.id = id;
+  const lab = blEl("label", null, labelText);
+  lab.setAttribute("for", id);
+  wrap.appendChild(lab);
+  wrap.appendChild(control);
+  return wrap;
+}
+
+function blSettings(cfg, redraw) {
+  const bar = blEl("div", "bls-settings");
+
+  const alpha = document.createElement("select");
+  [["protein", "Protein (blastp)"], ["dna", "Nucleotide (blastn)"]].forEach(function (o) {
+    const opt = document.createElement("option");
+    opt.value = o[0]; opt.textContent = o[1];
+    alpha.appendChild(opt);
+  });
+  alpha.value = cfg.alphabet;
+
+  const word = document.createElement("input");
+  word.type = "number"; word.value = cfg.word; word.min = 2; word.max = 28;
+
+  const thr = document.createElement("input");
+  thr.type = "number"; thr.value = cfg.threshold === null ? 11 : cfg.threshold; thr.min = 0; thr.max = 30;
+  const thrField = blField("Threshold T", thr);
+
+  const preset = document.createElement("select");
+  [["", "—"], ["blastp", "blastp (W 3, T 11)"], ["sensitive", "sensitive (W 3, T 9)"],
+   ["blastn", "blastn (W 11)"], ["megablast", "megablast (W 28)"]].forEach(function (o) {
+    const opt = document.createElement("option");
+    opt.value = o[0]; opt.textContent = o[1];
+    preset.appendChild(opt);
+  });
+
+  function sync() {
+    thrField.style.display = alpha.value === "dna" ? "none" : "";
+  }
+
+  function apply() {
+    cfg.alphabet = alpha.value;
+    cfg.word = Math.max(2, Math.min(28, parseInt(word.value, 10) || 3));
+    // 20^W words get enumerated for every query word, so W above 4 is not a
+    // slow widget, it is a hung browser tab. The recursion prunes hard, but
+    // the floor still has to be held here.
+    if (cfg.alphabet === "protein" && cfg.word > 4) { cfg.word = 4; word.value = 4; }
+    cfg.threshold = cfg.alphabet === "dna" ? null : (parseInt(thr.value, 10) || 0);
+    cfg.focus = 0;
+    sync();
+    redraw();
+  }
+
+  preset.onchange = function () {
+    const p = preset.value;
+    if (p === "blastp")    { alpha.value = "protein"; word.value = 3;  thr.value = 11; }
+    if (p === "sensitive") { alpha.value = "protein"; word.value = 3;  thr.value = 9; }
+    if (p === "blastn")    { alpha.value = "dna";     word.value = 11; }
+    if (p === "megablast") { alpha.value = "dna";     word.value = 28; }
+    if (p) apply();
+  };
+  alpha.onchange = function () {
+    word.value = alpha.value === "dna" ? 11 : 3;
+    thr.value = 11;
+    apply();
+  };
+  word.onchange = apply;
+  thr.onchange = apply;
+
+  bar.appendChild(blField("Preset", preset));
+  bar.appendChild(blField("Alphabet", alpha));
+  bar.appendChild(blField("Word size W", word));
+  bar.appendChild(thrField);
+  sync();
+  return bar;
+}
+
+// The lesson, as an assertion. Run with:
+//
+//     node -e 'global.BLOSUM62=require("./book/js/dp-matrix.js").BLOSUM62;
+//              require("./book/js/blast-search.js").blSelfCheck()'
+//
+// Every number below was taken from the real programs, not from this code:
+// blastp with its own defaults finds HBA_HUMAN, HBP2_CASGL and MYG_GALGA on
+// this database and misses MYG_HUMAN; drop the threshold and myoglobin
+// appears. blastn finds all three nucleotide copies and megablast misses the
+// 80% one. If a change to the engine breaks any of that, the page starts
+// teaching something false, so it should fail loudly here first.
+function blSelfCheck() {
+  const checks = [];
+  function aligned(cfg) {
+    const c = blDefaults(cfg);
+    const data = blData(c);
+    const lookup = blLookup(c);
+    const out = {};
+    data.db.forEach(function (d) { out[d.name] = blRun(c, d.seq, lookup).computed > 0; });
+    return out;
+  }
+  function want(label, got, name, expect) {
+    const ok = got[name] === expect;
+    checks.push((ok ? "ok   " : "FAIL ") + label + ": " + name + " aligned=" + got[name]
+      + " (expected " + expect + ")");
+    return ok;
+  }
+  const def = aligned({ alphabet: "protein", word: 3, threshold: 11 });
+  const sens = aligned({ alphabet: "protein", word: 3, threshold: 9 });
+  const bn = aligned({ alphabet: "dna", word: 11 });
+  const mb = aligned({ alphabet: "dna", word: 28 });
+  let ok = true;
+  ok = want("blastp defaults", def, "HBA_HUMAN", true) && ok;
+  ok = want("blastp defaults", def, "HBP2_CASGL", true) && ok;
+  ok = want("blastp defaults", def, "MYG_GALGA", true) && ok;
+  ok = want("blastp defaults MISSES myoglobin", def, "MYG_HUMAN", false) && ok;
+  ok = want("T=9 finds myoglobin", sens, "MYG_HUMAN", true) && ok;
+  ok = want("blastn", bn, "copy_80", true) && ok;
+  ok = want("megablast MISSES the 80% copy", mb, "copy_80", false) && ok;
+  ok = want("megablast keeps the 88% copy", mb, "copy_88", true) && ok;
+  ok = want("nothing finds the unrelated sequence", bn, "unrelated", false) && ok;
+  checks.forEach(function (c) { console.log(c); });
+  console.log(ok ? "\nall checks passed" : "\nSELF-CHECK FAILED");
+  if (!ok && typeof process !== "undefined") process.exitCode = 1;
+  return ok;
+}
+
+if (typeof window !== "undefined") {
+  window.renderBLAST = renderBLAST;
+}
+if (typeof module !== "undefined" && module.exports) {
+  module.exports = {
+    blDefaults: blDefaults, blWords: blWords, blNeighbourhood: blNeighbourhood,
+    blLookup: blLookup, blScan: blScan, blTwoHit: blTwoHit, blExtend: blExtend,
+    blBanded: blBanded, blRun: blRun, blSelfCheck: blSelfCheck,
+    BL_PROTEIN: BL_PROTEIN, BL_DNA: BL_DNA
+  };
+}

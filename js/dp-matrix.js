@@ -813,7 +813,14 @@ function renderDP(containerId, config) {
   draw();
 }
 
-if (typeof window !== "undefined") window.renderDP = renderDP;
+if (typeof window !== "undefined") {
+  window.renderDP = renderDP;
+  // blast-search.js builds on these. Exported rather than copied: a second
+  // BLOSUM62 in the tree is a second thing to keep true.
+  window.BLOSUM62 = BLOSUM62;
+  window.computeDP = computeDP;
+  window.dpTraceback = dpTraceback;
+}
 if (typeof module !== "undefined" && module.exports) {
   module.exports = { computeDP: computeDP, dpTraceback: dpTraceback, dpDefaults: dpDefaults, BLOSUM62: BLOSUM62 };
 }
