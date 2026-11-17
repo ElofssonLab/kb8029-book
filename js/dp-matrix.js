@@ -83,7 +83,9 @@ function dpDefaults(cfg) {
     local: false,
     questions: 5,
     showPointers: true,
-    caption: null
+    caption: null,
+    controls: false,   // show the settings bar above the matrix
+    modes: null        // several modes with a switcher, e.g. ["step","guess","fill"]
   }, cfg || {});
   c.a = String(c.a).toUpperCase().replace(/[^A-Z*]/g, "");
   c.b = String(c.b).toUpperCase().replace(/[^A-Z*]/g, "");
@@ -228,6 +230,22 @@ function dpStyle() {
     .dpm .dpm-cand { position: absolute; right: 2px; bottom: 1px; font-size: 0.68em; line-height: 1.25;
       padding: 0 3px; border-radius: 3px; color: rgba(0,0,0,0.6); background: rgba(255,255,255,0.8); }
     .dpm .dpm-cand.dpm-cand-win { color: #0f5132; background: #a8dab5; font-weight: 600; }
+    .dpm .dpm-settings { display: flex; flex-wrap: wrap; gap: 8px 14px; align-items: flex-end;
+      padding: 0.7em 0.9em; margin-bottom: 0.9em; border: 1px solid rgba(0,0,0,0.12);
+      border-radius: 8px; background: rgba(0,0,0,0.02); }
+    .dpm .dpm-settings label { display: block; font-size: 0.76em; color: rgba(0,0,0,0.6); margin-bottom: 2px; }
+    .dpm .dpm-settings input, .dpm .dpm-settings select { font: inherit; font-size: 0.9em;
+      padding: 4px 7px; border: 1px solid rgba(0,0,0,0.2); border-radius: 5px;
+      background: #fff; color: inherit; }
+    .dpm .dpm-settings input[type=text] { width: 10em; font-family: ui-monospace, Menlo, Consolas, monospace; }
+    .dpm .dpm-settings input[type=number] { width: 4.6em; }
+    .dpm .dpm-settings .dpm-hidden { display: none; }
+    .dpm .dpm-modes { display: inline-flex; border: 1px solid rgba(0,0,0,0.18); border-radius: 6px; overflow: hidden; }
+    .dpm .dpm-modes button { border-radius: 0; background: transparent; color: inherit;
+      font-size: 0.88em; padding: 5px 13px; }
+    .dpm .dpm-modes button:hover { background: rgba(0,0,0,0.06); }
+    .dpm .dpm-modes button.on { background: #0d6efd; color: #fff; }
+    .dpm .dpm-modes button.on:hover { background: #0b5ed7; }
     .dpm .dpm-controls { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 0.4em 0 0.8em; }
     .dpm button { padding: 6px 16px; border: none; border-radius: 6px; background: #0d6efd; color: white;
       cursor: pointer; font-size: 0.9em; }
@@ -582,7 +600,151 @@ function dpRenderFill(root, cfg, dp) {
   };
 }
 
+// ------------------------------------------------- settings, when asked for
+
+const DP_ALPHABETS = { dna: "ACGT", protein: "ACDEFGHIKLMNPQRSTVWY" };
+
+function dpPick(alpha) { return alpha[Math.floor(Math.random() * alpha.length)]; }
+
+function dpRandomSeq(alpha, n) {
+  let s = "";
+  for (let i = 0; i < n; i++) s += dpPick(alpha);
+  return s;
+}
+
+// The second sequence is a mutated copy of the first, not an independent draw.
+// Two random strings align into noise, which teaches nothing; a copy with a few
+// substitutions and indels gives a matrix with a path worth tracing.
+function dpMutate(seq, alpha) {
+  let out = "";
+  for (let i = 0; i < seq.length; i++) {
+    const r = Math.random();
+    if (r < 0.10) continue;                              // deletion
+    if (r < 0.18) out += dpPick(alpha) + seq[i];         // insertion
+    else if (r < 0.36) out += dpPick(alpha);             // substitution
+    else out += seq[i];
+  }
+  return out || seq;
+}
+
+function dpField(labelText, control) {
+  const wrap = dpEl("div");
+  const id = "dpf" + Math.random().toString(36).slice(2, 9);
+  control.id = id;
+  const lab = dpEl("label", null, labelText);
+  lab.setAttribute("for", id);
+  wrap.appendChild(lab);
+  wrap.appendChild(control);
+  return wrap;
+}
+
+function dpInput(type, value) {
+  const i = document.createElement("input");
+  i.type = type;
+  i.value = value;
+  return i;
+}
+
+function dpSelect(options, value) {
+  const sel = document.createElement("select");
+  options.forEach(function (o) {
+    const opt = document.createElement("option");
+    opt.value = o[0];
+    opt.textContent = o[1];
+    sel.appendChild(opt);
+  });
+  sel.value = value;
+  return sel;
+}
+
+// The bar above the matrix. Everything on it writes straight into cfg and then
+// asks for a redraw, so there is one source of truth and no "apply" button to
+// forget to press.
+function dpSettings(cfg, redraw) {
+  const bar = dpEl("div", "dpm-settings");
+  const seqA = dpInput("text", cfg.a);
+  const seqB = dpInput("text", cfg.b);
+  const alpha = dpSelect([["dna", "DNA"], ["protein", "Protein"]],
+                         cfg.scoring === "blosum62" ? "protein" : "dna");
+  const len = dpInput("number", cfg.a.length);
+  len.min = 2; len.max = 24;
+  const fresh = dpEl("button", "dpm-secondary", "New pair");
+  const scoring = dpSelect([["identity", "match / mismatch"], ["blosum62", "BLOSUM62"]], cfg.scoring);
+  const match = dpInput("number", cfg.match);
+  const mismatch = dpInput("number", cfg.mismatch);
+  const gap = dpInput("number", cfg.gap);
+  const kind = dpSelect([["global", "global (Needleman\u2013Wunsch)"],
+                         ["local", "local (Smith\u2013Waterman)"]], cfg.local ? "local" : "global");
+
+  const matchField = dpField("Match", match);
+  const mismatchField = dpField("Mismatch", mismatch);
+
+  function sync() {
+    // BLOSUM62 supplies every pair score, so match and mismatch mean nothing.
+    const bl = scoring.value === "blosum62";
+    matchField.classList.toggle("dpm-hidden", bl);
+    mismatchField.classList.toggle("dpm-hidden", bl);
+  }
+
+  function apply() {
+    const next = dpDefaults({
+      a: seqA.value || cfg.a,
+      b: seqB.value || cfg.b,
+      scoring: scoring.value,
+      match: parseInt(match.value, 10),
+      mismatch: parseInt(mismatch.value, 10),
+      gap: parseInt(gap.value, 10),
+      local: kind.value === "local",
+      questions: cfg.questions,
+      showPointers: cfg.showPointers,
+      caption: cfg.caption,
+      mode: cfg.mode,
+      modes: cfg.modes,
+      controls: cfg.controls
+    });
+    Object.keys(next).forEach(function (k) { cfg[k] = next[k]; });
+    seqA.value = cfg.a;
+    seqB.value = cfg.b;
+    sync();
+    redraw();
+  }
+
+  fresh.onclick = function () {
+    const letters = DP_ALPHABETS[alpha.value];
+    const n = Math.max(2, Math.min(24, parseInt(len.value, 10) || 8));
+    seqA.value = dpRandomSeq(letters, n);
+    seqB.value = dpMutate(seqA.value, letters);
+    // A protein pair with match/mismatch scoring is a wasted demonstration,
+    // and BLOSUM62 on four nucleotides is meaningless, so follow the alphabet.
+    scoring.value = alpha.value === "protein" ? "blosum62" : "identity";
+    if (alpha.value === "protein" && parseInt(gap.value, 10) > -4) gap.value = -8;
+    if (alpha.value === "dna" && parseInt(gap.value, 10) < -4) gap.value = -2;
+    apply();
+  };
+  [seqA, seqB, scoring, match, mismatch, gap, kind].forEach(function (el) { el.onchange = apply; });
+
+  bar.appendChild(dpField("Sequence A (rows)", seqA));
+  bar.appendChild(dpField("Sequence B (columns)", seqB));
+  bar.appendChild(dpField("Alphabet", alpha));
+  bar.appendChild(dpField("Length", len));
+  bar.appendChild(dpField("\u00a0", fresh));
+  bar.appendChild(dpField("Scoring", scoring));
+  bar.appendChild(matchField);
+  bar.appendChild(mismatchField);
+  bar.appendChild(dpField("Gap", gap));
+  bar.appendChild(dpField("Alignment", kind));
+  sync();
+  return bar;
+}
+
 // --------------------------------------------------------------- entry point
+
+const DP_MODE_LABEL = { step: "Step through", guess: "Guess a cell", fill: "Fill it in" };
+const DP_TITLES = {
+  step: "Step through the matrix",
+  guess: "What goes in this cell?",
+  fill: "Fill the matrix yourself"
+};
 
 function renderDP(containerId, config) {
   const container = document.getElementById(containerId);
@@ -590,18 +752,52 @@ function renderDP(containerId, config) {
   dpStyle();
   const cfg = dpDefaults(config);
   if (!cfg.a.length || !cfg.b.length) { container.textContent = "renderDP: both sequences must be non-empty."; return; }
-  const dp = computeDP(cfg);
 
   container.textContent = "";
   const root = dpEl("div", "dpm");
-  const titles = { step: "Step through the matrix", guess: "What goes in this cell?", fill: "Fill the matrix yourself" };
-  root.appendChild(dpEl("h4", null, cfg.caption || titles[cfg.mode] || titles.step));
-  root.appendChild(dpEl("p", "dpm-sub", dpSettingsLine(cfg)));
+  const heading = dpEl("h4");
+  const sub = dpEl("p", "dpm-sub");
+  root.appendChild(heading);
+  root.appendChild(sub);
+
+  // The settings bar and the mode switcher are opt-in. Without them the markup
+  // is what it has always been, which matters: the Session 4 slide frames are
+  // screenshots driven by selectors into this DOM.
+  if (cfg.controls) root.appendChild(dpSettings(cfg, function () { draw(); }));
+
+  let switcher = null;
+  if (cfg.modes && cfg.modes.length > 1) {
+    switcher = dpEl("div", "dpm-modes");
+    cfg.modes.forEach(function (m) {
+      const b = dpEl("button", null, DP_MODE_LABEL[m] || m);
+      b.dataset.mode = m;
+      b.onclick = function () { cfg.mode = m; draw(); };
+      switcher.appendChild(b);
+    });
+    const wrap = dpEl("div", "dpm-controls");
+    wrap.appendChild(switcher);
+    root.appendChild(wrap);
+  }
+
+  const body = dpEl("div", "dpm-body");
+  root.appendChild(body);
   container.appendChild(root);
 
-  if (cfg.mode === "guess") dpRenderGuess(root, cfg, dp);
-  else if (cfg.mode === "fill") dpRenderFill(root, cfg, dp);
-  else dpRenderStep(root, cfg, dp);
+  function draw() {
+    const dp = computeDP(cfg);
+    heading.textContent = cfg.caption || DP_TITLES[cfg.mode] || DP_TITLES.step;
+    sub.textContent = dpSettingsLine(cfg);
+    if (switcher) {
+      [].forEach.call(switcher.children, function (b) {
+        b.classList.toggle("on", b.dataset.mode === cfg.mode);
+      });
+    }
+    body.textContent = "";
+    if (cfg.mode === "guess") dpRenderGuess(body, cfg, dp);
+    else if (cfg.mode === "fill") dpRenderFill(body, cfg, dp);
+    else dpRenderStep(body, cfg, dp);
+  }
+  draw();
 }
 
 if (typeof window !== "undefined") window.renderDP = renderDP;

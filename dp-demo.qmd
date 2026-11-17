@@ -101,6 +101,34 @@ renderDP("dp-local", {mode: "step", a: "HEAGAWGHEE", b: "PAWHEAE", scoring: "blo
 Viterbi is the same recurrence with max-plus over log probabilities, so the
 profile-HMM half of Session 5 is a fourth mode rather than a second program.
 
+## Try your own
+
+Everything above is fixed, so that the prose can describe it. This one is not.
+
+Type a pair of sequences, or set a length and press **New pair** — the second
+sequence is a mutated copy of the first rather than an independent draw, because
+two random strings align into noise and teach nothing. Switching **Alphabet**
+between DNA and Protein also switches the scoring, since match/mismatch on
+protein wastes the demonstration and BLOSUM62 on four nucleotides is meaningless.
+Gap cost, global or local, and the mode can all be changed without losing the
+sequences.
+
+```{=html}
+<div id="dp-play"></div>
+<script>
+renderDP("dp-play", {
+  controls: true,
+  modes: ["step", "guess", "fill"],
+  mode: "step",
+  a: "TGCATTA", b: "GCATTAC", match: 3, mismatch: -1, gap: -2
+});
+</script>
+```
+
+Anything on this page can be set in the same way from a session page: the
+settings bar is one flag on the call, so a chapter can show a fixed example
+while the lab lets students change it.
+
 ## What we would like to know
 
 1. **Does it belong in the lecture, the lab, or only the notes?** The slides
