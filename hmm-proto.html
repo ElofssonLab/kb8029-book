@@ -1,0 +1,33 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Viterbi prototype &middot; KB8029</title>
+<script src="js/hmm-viterbi.js"></script>
+<style>
+  body { margin:0; background:#fff; color:#1f2933;
+         font:16px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif; }
+  main { max-width: 980px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 1.4rem; margin: 0 0 4px; }
+  p.sub { color:#52606d; margin: 0 0 1.4em; }
+  p.foot { color:#52606d; font-size:0.88em; margin-top:1.6em; }
+  code { background: rgba(0,0,0,0.05); padding: 1px 4px; border-radius: 3px; }
+</style></head>
+<body><main>
+<h1>Viterbi against a profile HMM — prototype</h1>
+<p class="sub">One question only: do the three state types read as one matrix? Each profile position
+owns three rows — match, insert, delete — so the path is a single trace through a single grid, the
+way Session 4 taught it, instead of three grids with arrows flying between them.
+The profile is built from the five-sequence toy alignment the Session 5 PSSM slides already use:
+<code>AGLSP AGLTP RGISP AALSQ AALSP</code>.</p>
+<div id="h"></div>
+<p class="foot">Try <code>AGLSP</code> (the consensus, all match states), <code>AGLP</code>
+(a residue missing — watch a delete state light up), <code>AGLSAP</code> (a residue too many — an
+insert state), and <code>WWWWW</code>. Then switch the pseudocounts to <em>flat +1</em>, the
+notebook's scheme, and look at <code>WWWWW</code> again: it outscores the real consensus, because a
+flat pseudocount gives an unseen tryptophan the same probability as any other unseen residue while
+the background then divides by how rare tryptophan is. That is the Ala-vs-Trp point the
+"Why pseudocounts matter" slide already makes, here as a number you can watch change.</p>
+<p class="foot">Prototype. Not linked, not in the resources list, not deployed.</p>
+</main>
+<script>renderHMM("h", {query: "AGLSAP"});</script>
+</body></html>

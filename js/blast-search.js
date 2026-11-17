@@ -145,7 +145,71 @@ function blDefaults(cfg) {
   return c;
 }
 
-function blData(cfg) { return cfg.alphabet === "dna" ? BL_DNA : BL_PROTEIN; }
+// Everything a student pastes or opens stays in this tab. The page is a
+// static file on a CDN: there is no server to send a sequence to, and none of
+// this touches the network. Worth saying on the page, because people are
+// rightly cautious about pasting unpublished sequence into a web form.
+function blData(cfg) {
+  if (cfg.custom && cfg.custom.query) return cfg.custom;
+  return cfg.alphabet === "dna" ? BL_DNA : BL_PROTEIN;
+}
+
+// Guards, not preferences. The neighbourhood of one protein word is a walk
+// over 20^W words, so the lookup table costs 8000 x (L - 2) at W = 3; and the
+// matrix is drawn cell by cell. Both are fine at lecture scale and neither is
+// fine for a whole chromosome, so the limits are stated and enforced rather
+// than left for the browser to discover.
+const BL_LIMITS = { queryProtein: 400, queryDna: 3000, subject: 3000, seqs: 40, total: 40000 };
+
+function blGuessAlphabet(seq) {
+  const s = seq.toUpperCase().replace(/[^A-Z]/g, "");
+  if (!s.length) return "protein";
+  // ACGTUN covers nucleotide sequence including ambiguity; anything else in
+  // quantity means protein. A protein can be all-alanine, but not in practice.
+  const nt = (s.match(/[ACGTUN]/g) || []).length;
+  return nt / s.length > 0.9 ? "dna" : "protein";
+}
+
+// Accepts FASTA, multi-FASTA, or a bare sequence with no header at all, which
+// is what people actually paste.
+function blParseFasta(text) {
+  const out = [];
+  let cur = null;
+  String(text).split(/\r?\n/).forEach(function (line) {
+    if (/^\s*>/.test(line)) {
+      cur = { name: line.replace(/^\s*>\s*/, "").split(/\s+/)[0] || ("seq" + (out.length + 1)), seq: "" };
+      out.push(cur);
+    } else if (/\S/.test(line)) {
+      if (!cur) { cur = { name: "query", seq: "" }; out.push(cur); }
+      cur.seq += line.replace(/[^A-Za-z*]/g, "");
+    }
+  });
+  return out.filter(function (r) { return r.seq.length; })
+            .map(function (r) { return { name: r.name.slice(0, 24), seq: r.seq.toUpperCase() }; });
+}
+
+// Returns an error string, or null when the set is usable.
+function blCheck(records, alphabet) {
+  if (!records.length) return "No sequence found. Paste FASTA, or just the residues.";
+  const maxQ = alphabet === "dna" ? BL_LIMITS.queryDna : BL_LIMITS.queryProtein;
+  if (records[0].seq.length > maxQ) {
+    return "The query is " + records[0].seq.length + " residues. This runs in your browser, "
+      + "so it is capped at " + maxQ + " for " + (alphabet === "dna" ? "nucleotides" : "protein")
+      + ". Paste a domain rather than a whole sequence.";
+  }
+  if (records.length > BL_LIMITS.seqs) return "At most " + BL_LIMITS.seqs + " sequences.";
+  let total = 0;
+  for (let i = 0; i < records.length; i++) {
+    if (records[i].seq.length > BL_LIMITS.subject) {
+      return records[i].name + " is " + records[i].seq.length + " residues; the limit is "
+        + BL_LIMITS.subject + ".";
+    }
+    total += records[i].seq.length;
+  }
+  if (total > BL_LIMITS.total) return "That is " + total + " residues in all; the limit is "
+    + BL_LIMITS.total + ".";
+  return null;
+}
 function blAlpha(cfg) { return cfg.alphabet === "dna" ? BL_NT : BL_AA; }
 
 function blScore(cfg) {
@@ -456,6 +520,17 @@ function blStyle() {
     .bls .bls-bar span { display: block; height: 100%; background: #0d6efd; }
     .bls .bls-big { font-size: 1.05em; font-weight: 600; }
     .bls .bls-note { font-size: 0.84em; color: rgba(0,0,0,0.6); margin-top: 0.4em; }
+    .bls .bls-own { border: 1px solid rgba(0,0,0,0.12); border-radius: 8px;
+      padding: 0.6em 0.9em; margin-bottom: 0.9em; background: rgba(0,0,0,0.02); }
+    .bls .bls-own summary { cursor: pointer; font-size: 0.9em; font-weight: 600; }
+    .bls .bls-own .bls-note { margin: 0.5em 0; }
+    .bls .bls-ta { width: 100%; font-family: ui-monospace, Menlo, Consolas, monospace;
+      font-size: 0.82em; padding: 7px 9px; border: 1px solid rgba(0,0,0,0.2);
+      border-radius: 6px; background: #fff; color: inherit; resize: vertical; }
+    .bls .bls-file { font-size: 0.82em; max-width: 15em; }
+    .bls .bls-msg { font-size: 0.85em; }
+    .bls .bls-msg.ok { color: #0f5132; }
+    .bls .bls-msg.bad { color: #b02a37; }
     .bls .bls-warn { background: #fff3cd; border-radius: 6px; padding: 0.6em 0.9em; font-size: 0.88em; margin: 0.5em 0; }
   `;
   document.head.appendChild(style);
@@ -479,8 +554,38 @@ function blNum(n) { return n.toLocaleString("en-GB"); }
 // letters are only drawn when the cells are wide enough to hold them;
 // below that the edges carry a position every ten instead, which is still
 // enough to say where on the sequence a hit falls.
+const BL_COLOUR = { band: "#dbeafe", hit: "#f0a030", seed: "#198754",
+                    hsp: "#0d6efd", path: "#0f5132" };
+const BL_DOM_CELLS = 9000;   // above this, one <i> per cell stops being sane
+
+// The same picture on a canvas. Used only for pasted sequences large enough
+// that a DOM grid would be tens of thousands of elements; the built-in
+// databases stay on the DOM path, which is what the slide figures screenshot.
+function blGridCanvas(cfg, qseq, sseq, marks) {
+  const n = qseq.length, m = sseq.length;
+  const size = Math.max(1, Math.min(6, Math.floor(1300 / m)));
+  const wrap = blEl("div", "bls-gridwrap");
+  const c = document.createElement("canvas");
+  c.width = m * size;
+  c.height = n * size;
+  c.style.maxWidth = "100%";
+  const x = c.getContext("2d");
+  x.fillStyle = "#f7f7f7";
+  x.fillRect(0, 0, c.width, c.height);
+  marks.forEach(function (cls, key) {
+    const parts = key.split(",");
+    x.fillStyle = BL_COLOUR[cls] || "#999";
+    x.fillRect((+parts[1] - 1) * size, (+parts[0] - 1) * size, size, size);
+  });
+  x.strokeStyle = "rgba(0,0,0,0.15)";
+  x.strokeRect(0.5, 0.5, c.width - 1, c.height - 1);
+  wrap.appendChild(c);
+  return wrap;
+}
+
 function blGrid(cfg, qseq, sseq, marks) {
   const n = qseq.length, m = sseq.length;
+  if (n * m > BL_DOM_CELLS) return blGridCanvas(cfg, qseq, sseq, marks);
   const size = m > 140 ? 5 : (m > 90 ? 7 : 11);
   const letters = size >= 9;
   const labW = 15;
@@ -534,7 +639,10 @@ function renderBLAST(containerId, config) {
   const sub = blEl("p", "bls-sub");
   root.appendChild(heading);
   root.appendChild(sub);
-  if (cfg.controls) root.appendChild(blSettings(cfg, function () { draw(); }));
+  if (cfg.controls) {
+    root.appendChild(blSettings(cfg, function () { draw(); }));
+    root.appendChild(blOwnSequence(cfg, function () { draw(); }));
+  }
 
   let switcher = null;
   if (cfg.steps) {
@@ -1012,6 +1120,84 @@ function blSelfCheck() {
   console.log(ok ? "\nall checks passed" : "\nSELF-CHECK FAILED");
   if (!ok && typeof process !== "undefined") process.exitCode = 1;
   return ok;
+}
+
+// The panel that lets someone search their own sequence. Deliberately one
+// box: people paste FASTA, multi-FASTA or bare residues, and expect it to
+// work. The first record becomes the query and any others become the
+// database, which is the mental model the NCBI form already teaches.
+function blOwnSequence(cfg, redraw) {
+  const box = blEl("details", "bls-own");
+  const sum = document.createElement("summary");
+  sum.textContent = "Search your own sequence";
+  box.appendChild(sum);
+
+  box.appendChild(blEl("p", "bls-note",
+    "Paste a sequence, or several in FASTA. The first becomes the query; any others become "
+    + "the database, and with only one the built-in set is kept. Nothing is uploaded: this "
+    + "page is a static file and the search runs in this tab."));
+
+  const ta = document.createElement("textarea");
+  ta.className = "bls-ta";
+  ta.rows = 5;
+  ta.placeholder = ">my_query\nGEALGRLLVVYPWTQRFFESFGDLST...\n>a_relative\nYGAEALERMFLSFPTTKTYFPHF...";
+  box.appendChild(ta);
+
+  const row = blEl("div", "bls-controls");
+  const file = document.createElement("input");
+  file.type = "file";
+  file.accept = ".fa,.fasta,.faa,.fna,.txt,.seq";
+  file.className = "bls-file";
+  const run = blEl("button", null, "Search it");
+  const reset = blEl("button", "bls-secondary", "Back to the globins");
+  const msg = blEl("span", "bls-msg");
+  row.appendChild(file);
+  row.appendChild(run);
+  row.appendChild(reset);
+  row.appendChild(msg);
+  box.appendChild(row);
+
+  file.onchange = function () {
+    const f = file.files && file.files[0];
+    if (!f) return;
+    const r = new FileReader();
+    r.onload = function () { ta.value = String(r.result).slice(0, 2000000); apply(); };
+    r.readAsText(f);
+  };
+
+  function apply() {
+    const records = blParseFasta(ta.value);
+    const alphabet = records.length ? blGuessAlphabet(records[0].seq) : "protein";
+    const err = blCheck(records, alphabet);
+    if (err) { msg.textContent = err; msg.className = "bls-msg bad"; return; }
+
+    const query = records[0];
+    const db = records.slice(1);
+    cfg.alphabet = alphabet;
+    // The word size and threshold follow the alphabet, or a protein default
+    // would be used on nucleotides and find nothing.
+    cfg.word = alphabet === "dna" ? 11 : 3;
+    cfg.threshold = alphabet === "dna" ? null : 11;
+    cfg.window = alphabet === "dna" ? 0 : 40;
+    cfg.gap = alphabet === "dna" ? -5 : -8;
+    cfg.custom = { query: query, db: db.length ? db : blData({ alphabet: alphabet }).db };
+    cfg.focus = 0;
+    msg.textContent = query.name + ", " + query.seq.length + " residues, read as "
+      + (alphabet === "dna" ? "nucleotide" : "protein")
+      + (db.length ? ", against your " + db.length + " sequences." : ", against the built-in set.");
+    msg.className = "bls-msg ok";
+    redraw();
+  }
+
+  run.onclick = apply;
+  reset.onclick = function () {
+    cfg.custom = null;
+    ta.value = "";
+    msg.textContent = "";
+    msg.className = "bls-msg";
+    redraw();
+  };
+  return box;
 }
 
 if (typeof window !== "undefined") {
