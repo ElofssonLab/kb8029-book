@@ -1,0 +1,58 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>How a profile HMM scores a sequence &middot; KB8029</title>
+<!--
+  Viterbi against a profile HMM, drawn as one matrix.
+
+  The third of the three widget pages, and the one that closes the argument the
+  other two open: dp.html fills a whole alignment matrix, blast.html shows how a
+  search avoids filling almost any of it, and this page replaces the substitution
+  matrix itself with a position-specific model. Everything is in
+  js/hmm-viterbi.js, which the book pages can load too.
+-->
+<script src="js/hmm-viterbi.js"></script>
+<style>
+  * { box-sizing: border-box; }
+  body { margin: 0; background: #fff; color: #1f2933;
+         font: 16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width: 980px; margin: 0 auto; padding: 24px 16px 64px; }
+  h1 { font-size: 1.45rem; margin: 0 0 4px; }
+  p.sub { color: #52606d; margin: 0 0 1.5em; }
+  p.foot { color: #52606d; font-size: 0.88em; margin-top: 1.6em; }
+  code { background: rgba(0, 0, 0, 0.05); padding: 1px 4px; border-radius: 3px; }
+  a { color: #0d6efd; }
+</style>
+</head>
+<body>
+<main>
+  <h1>How a profile HMM scores a sequence</h1>
+  <p class="sub">A substitution matrix says what any alanine is worth anywhere. A profile says what
+  an alanine is worth <em>at position 4 of this family</em>, and what it costs to skip that position
+  or to squeeze a residue in beside it. Viterbi finds the best path through that model, and the path
+  is a single trace through a single grid: each profile position owns three rows — match, insert,
+  delete — so this is the Session 4 matrix with more rows, not a new idea.
+  The profile is built from the five-sequence alignment the Session 5 slides already use:
+  <code>AGLSP AGLTP RGISP AALSQ AALSP</code>.</p>
+  <div id="hmm"></div>
+  <p class="foot">Things worth typing into it: <code>AGLSP</code>, the consensus, which is all match
+  states; <code>AGLP</code>, a residue short, where a delete state lights up; <code>AGLSAP</code>, a
+  residue too many, which forces an insert; and <code>WWWWW</code>, five tryptophans, which the
+  family has never seen. Then switch the pseudocounts from background-proportional to <em>flat +1</em>
+  and look at <code>WWWWW</code> again: it now outscores the real consensus. A flat pseudocount gives
+  an unseen tryptophan the same probability as any other unseen residue, and the score then divides
+  by how rare tryptophan is in the background, so never having seen one becomes a reward. That is
+  the Ala-versus-Trp point the <em>Why pseudocounts matter</em> slide makes, here as a number you can
+  watch move.</p>
+  <p class="foot">The transition probabilities are a readable toy set rather than fitted ones, and
+  the model has no begin or end state beyond the single entry: this is for seeing the mechanism, not
+  for scoring real families — HMMER does that, in the lab. See also the
+  <a href="dp.html">alignment matrix</a> and <a href="blast.html">how BLAST works</a>.</p>
+</main>
+<script>
+renderHMM("hmm", { query: "AGLSAP" });
+</script>
+</body>
+</html>

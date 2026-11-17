@@ -1,4 +1,5 @@
-// PROTOTYPE. Viterbi decoding against a profile HMM, drawn as one matrix.
+// Viterbi decoding against a profile HMM, drawn as one matrix. Shipped as
+// hmm.html; the book pages can load it too.
 //
 // Built to answer one question before any more is written: can the three
 // state types be shown together without the picture teaching less than it
@@ -11,7 +12,7 @@
 // So this lays the layers out as rows of one grid instead. Each profile
 // position owns three consecutive rows, M then I then D, and the Viterbi path
 // is a single trace through a single matrix, the way Session 4 taught it.
-// Whether that reads is what this prototype is for.
+// Whether that reads was the question this was built to answer. It does.
 //
 // The profile is built from the five-sequence toy alignment the Session 5
 // PSSM slides already use, so the second half of that session can become one
