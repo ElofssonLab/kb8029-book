@@ -648,6 +648,26 @@ distributions into position-specific scores.
 - von Heijne (1990), [The signal peptide](https://doi.org/10.1007/BF01868635), *J. Membr. Biol.* 115:195, a short review of the signal-peptide design
 - Wikipedia, [Sequence logo](https://en.wikipedia.org/wiki/Sequence_logo); Schneider & Stephens (1990), "Sequence logos: a new way to display consensus sequences," *Nucleic Acids Research* 18:6097-6100
 
+## Practice: the same matrix, in the browser
+
+Everything in this chapter is one algorithm filling one table, and that is
+easier to believe once you have watched it happen. The page at
+[course.bioinfo.se/dp.html](https://course.bioinfo.se/dp.html) runs the same
+code that produced the three tables above, and it opens on exactly the pair
+this chapter uses: `AWGHE` against `AWHEA`, scored by identity, which is
+@tbl-s04-awghe-identity. Switch *Scoring* to BLOSUM62 and you have
+@tbl-s04-awghe-blosum; switch *Alignment* to local as well and you have
+@tbl-s04-awghe-local. The three runs of that section can be walked through
+rather than read.
+
+Three modes sit above the matrix. *Step* advances one cell at a time and says
+where each value came from. *Guess* hides the values and asks you to fill them
+in, marking each answer, which is the useful one before an exam. *Fill*
+completes the matrix at once, for when you want the traceback and not the
+arithmetic. The sequences are editable, so a pair of your own works as well as
+ours, and changing the gap cost while a matrix is on screen shows which
+alignment survives the change and which was an artefact of the penalty.
+
 ## The course notebook
 
 `notebooks/session04-alignment-in-code.ipynb` implements Needleman-Wunsch

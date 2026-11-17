@@ -598,6 +598,43 @@ chance. The profile HMM thus does on a real sequence what the toy PSSM
 above did on paper: it scores how well a sequence matches a family,
 position by position.
 
+## Practice: the search, and the profile, in the browser
+
+Two pages run the algorithms of this chapter on data small enough to watch,
+and both are worth ten minutes before the lab.
+
+[course.bioinfo.se/blast.html](https://course.bioinfo.se/blast.html) steps
+through all six stages of a BLAST search — cutting the query into words,
+growing each word into its neighbourhood, scanning the database, applying the
+two-hit rule, extending with X-drop, and finally the banded alignment — over a
+query taken from human *HBB* and a database of six globins. The defaults are
+the real ones, read out of `blastp` and `blastn` rather than from memory. The
+reason to open it is the failure described above: with `blastp`'s own settings
+the page misses human myoglobin, and it shows why. Myoglobin produces nine
+word hits, but no two of them land on the same diagonal close enough together,
+so the two-hit rule discards them before any alignment is attempted. Lower the
+threshold $T$ from 11 to 9 and myoglobin appears, scoring 53 against
+alpha-globin's 56 — and the shuffled control appears with it, at 20, which is
+the other half of the bargain. A counter at the bottom reports how many matrix
+cells were computed, which is the whole argument for the heuristic in one
+number. The nucleotide mode makes the same point with word size: `megablast`,
+with its default word of 28, misses a sequence 80% identical to the query that
+`blastn` finds at word size 11. Your own sequences can be pasted in or
+uploaded as FASTA.
+
+[course.bioinfo.se/hmm.html](https://course.bioinfo.se/hmm.html) does the same
+for the second half of the chapter. It builds a profile HMM from the
+five-sequence alignment used above and aligns whatever you type to it, with
+match, insert and delete states drawn as three rows of a single matrix, so the
+Viterbi path is one trace through one grid. `AGLSP`, the consensus, stays in
+the match row; `AGLP` steps through a delete state; `AGLSAP` through an
+insert. Then change the pseudocount scheme to flat $+1$ and score `WWWWW`:
+five tryptophans the family has never seen score 7.35 bits against the real
+consensus's 6.49. That is the alanine-versus-tryptophan problem of the
+previous section, in a number rather than an argument. Add the pseudocounts in
+proportion to the background instead and the same sequence scores −6.09,
+against 12.02 for the consensus.
+
 ## The course notebook
 
 `notebooks/session05-blast-and-profiles-in-code.ipynb` reproduces every
