@@ -177,31 +177,37 @@ of $g=1$:
 Every other cell is filled in the same way, and only the numbers that go
 into the three candidates change. **Worked example.** The following case
 is small enough to do completely by hand. We align $x =
-\texttt{GCAT}$ against $y = \texttt{GAC}$, with match $= +1$, mismatch
-$= -1$ and gap $= -1$:
+\texttt{AWGHE}$ against $y = \texttt{AWHEA}$ --- two fragments of
+`HEAGAWGHEE` and `PAWHEAE`, the pair the textbooks use --- with match
+$= +1$, mismatch $= -1$ and gap $= -1$:
 
-::: {#tbl-s04-gcat-gac}
-|       |   | G  | A  | C  |
-|---|---|---|---|---|
-|       | **0** | -1 | -2 | -3 |
-| **G** | -1 | **1** | 0 | -1 |
-| **C** | -2 | **0** | 0 | 1 |
-| **A** | -3 | -1 | **1** | 0 |
-| **T** | -4 | -2 | 0 | **0** |
+::: {#tbl-s04-awghe-identity}
+|       |   | A | W | H | E | A |
+|---|---|---|---|---|---|---|
+|       | **0** | -1 | -2 | -3 | -4 | -5 |
+| **A** | -1 | **1** | 0 | -1 | -2 | -3 |
+| **W** | -2 | 0 | **2** | 1 | 0 | -1 |
+| **G** | -3 | -1 | **1** | 1 | 0 | -1 |
+| **H** | -4 | -2 | 0 | **2** | 1 | 0 |
+| **E** | -5 | -3 | -1 | 1 | **3** | **2** |
 
-The dynamic-programming matrix for aligning $x = \texttt{GCAT}$ with $y = \texttt{GAC}$ (match $+1$, mismatch $-1$, gap $-1$). The traceback path of the optimal alignment is in bold.
+The dynamic-programming matrix for aligning $x = \texttt{AWGHE}$ with $y = \texttt{AWHEA}$ under identity scoring (match $+1$, mismatch $-1$, gap $-1$). The traceback path of the optimal alignment is in bold.
 :::
 
-Tracing back from the bottom-right corner (score 0) along the cells in
-bold in @tbl-s04-gcat-gac gives the optimal global alignment:
+Tracing back from the bottom-right corner (score 2) along the cells in
+bold in @tbl-s04-awghe-identity gives the optimal global alignment:
 
 ```
-G C A T
-G - A C
+A W G H E -
+A W - H E A
 ```
 
-Here G matches G, C is deleted, A matches A, and T is mismatched with C,
-for a total score of $1 - 1 + 1 - 1 = 0$.
+A matches A, W matches W, G is deleted, H matches H, E matches E, and
+the last A of $y$ is inserted, for a total score of $1 + 1 - 1 + 1 + 1 -
+1 = 2$. Notice what the scoring has bought here: two gaps, at $-1$ each,
+spent to chase two exact matches. Whether that is a good trade is a
+question about the scoring rather than about the algorithm, which is why
+the same two sequences come back under BLOSUM62 further down.
 
 The same procedure works at the scale where it is actually used. The
 figure below shows two protein sequences of 12 and 13 residues, with the
@@ -310,6 +316,77 @@ The two families are easy to confuse, because their numbering runs in
 comparison, so PAM250 suits more divergent sequences than PAM100. A
 **higher** BLOSUM number, in contrast, means a **closer** comparison, so
 BLOSUM80 suits more similar sequences than BLOSUM45.
+
+### The same two sequences, three times
+
+@tbl-s04-awghe-identity aligned $x = \texttt{AWGHE}$ against $y =
+\texttt{AWHEA}$ with match $+1$ and mismatch $-1$, and that scoring
+bought two gaps to chase two exact matches. Nothing below has changed
+except the substitution score: the same two sequences and the same
+Needleman-Wunsch recurrence, now with BLOSUM62 and a gap of $-8$.
+
+::: {#tbl-s04-awghe-blosum}
+|       |   | A | W | H | E | A |
+|---|---|---|---|---|---|---|
+|       | **0** | -8 | -16 | -24 | -32 | -40 |
+| **A** | -8 | **4** | -4 | -12 | -20 | -28 |
+| **W** | -16 | -4 | **15** | 7 | -1 | -9 |
+| **G** | -24 | -12 | 7 | **13** | 5 | -1 |
+| **H** | -32 | -20 | -1 | 15 | **13** | 5 |
+| **E** | -40 | -28 | -9 | 7 | 20 | **12** |
+
+The same pair under BLOSUM62 with a gap penalty of $-8$. The traceback runs straight down the diagonal, so the alignment has no gaps in it at all.
+:::
+
+The alignment is therefore the unadorned one:
+
+```
+A W G H E
+A W H E A
+```
+
+BLOSUM62 scores $s(\texttt{A},\texttt{A}) = 4$,
+$s(\texttt{W},\texttt{W}) = 11$, $s(\texttt{G},\texttt{H}) = -2$,
+$s(\texttt{H},\texttt{E}) = 0$ and $s(\texttt{E},\texttt{A}) = -1$, for a
+total of $12$. The matrix knows that G against H and E against A are
+substitutions a protein tolerates, and that neither is anywhere near bad
+enough to be worth $-8$ to avoid. Same letters, same algorithm,
+different answer: this is the argument for substitution matrices, made
+on a matrix small enough to check by hand.
+
+One more change, and again only one. Smith-Waterman's floor of zero,
+applied to the same BLOSUM62 scores, gives a local alignment instead:
+
+::: {#tbl-s04-awghe-local}
+|       |   | A | W | H | E | A |
+|---|---|---|---|---|---|---|
+|       | 0 | 0 | 0 | 0 | 0 | 0 |
+| **A** | 0 | **4** | 0 | 0 | 0 | 4 |
+| **W** | 0 | 0 | **15** | 7 | 0 | 0 |
+| **G** | 0 | 0 | **7** | 13 | 5 | 0 |
+| **H** | 0 | 0 | 0 | **15** | 13 | 5 |
+| **E** | 0 | 0 | 0 | 7 | **20** | 12 |
+
+The same pair and the same BLOSUM62 scores under Smith-Waterman: negative values are floored at zero, and the traceback starts at the best cell anywhere in the matrix rather than in the bottom-right corner.
+:::
+
+The best cell is not the corner but the $20$ at $V(5,4)$, and tracing
+back from it stops at the first zero:
+
+```
+A W G H E
+A W - H E
+```
+
+The score is $4 + 11 - 8 + 8 + 5 = 20$. The ragged ends have been
+dropped and the conserved core is what remains, which is the answer the
+textbooks give for the full `HEAGAWGHEE` and `PAWHEAE` pair that these
+two fragments were cut from.
+
+Three runs of one algorithm over one pair of sequences, with a single
+thing changed each time, and a different alignment every time. All three
+matrices, and any others, can be stepped through cell by cell at
+[course.bioinfo.se/dp.html](https://course.bioinfo.se/dp.html).
 
 ### Further reading
 

@@ -74,12 +74,15 @@ const BLOSUM62 = (function () {
 function dpDefaults(cfg) {
   const c = Object.assign({
     mode: "step",
-    a: "TGCATTA",
-    b: "GCATTAC",
+    // The Session 4 example, so the widget, the slide figures and the lecture
+    // all open on the same matrix. Both are fragments of HEAGAWGHEE/PAWHEAE,
+    // the textbook pair the local example further down uses in full.
+    a: "AWGHE",
+    b: "AWHEA",
     scoring: "identity",
-    match: 3,
+    match: 1,
     mismatch: -1,
-    gap: -2,
+    gap: -1,
     local: false,
     questions: 5,
     showPointers: true,
@@ -606,6 +609,13 @@ const DP_ALPHABETS = { dna: "ACGT", protein: "ACDEFGHIKLMNPQRSTVWY" };
 
 function dpPick(alpha) { return alpha[Math.floor(Math.random() * alpha.length)]; }
 
+// Anything outside ACGT in either sequence means we are looking at protein.
+// BLOSUM62 settles it on its own, since there is no DNA reading of it.
+function dpGuessAlphabet(cfg) {
+  if (cfg.scoring === "blosum62") return "protein";
+  return /[^ACGT]/.test(cfg.a + cfg.b) ? "protein" : "dna";
+}
+
 function dpRandomSeq(alpha, n) {
   let s = "";
   for (let i = 0; i < n; i++) s += dpPick(alpha);
@@ -664,8 +674,11 @@ function dpSettings(cfg, redraw) {
   const bar = dpEl("div", "dpm-settings");
   const seqA = dpInput("text", cfg.a);
   const seqB = dpInput("text", cfg.b);
+  // Read the alphabet off the sequences rather than off the scoring: the
+  // lecture opens on protein letters scored by plain identity, and a box
+  // reading "DNA" there would be wrong and would make New pair hand back DNA.
   const alpha = dpSelect([["dna", "DNA"], ["protein", "Protein"]],
-                         cfg.scoring === "blosum62" ? "protein" : "dna");
+                         dpGuessAlphabet(cfg));
   const len = dpInput("number", cfg.a.length);
   len.min = 2; len.max = 24;
   const fresh = dpEl("button", "dpm-secondary", "New pair");

@@ -34,7 +34,9 @@ fill by hand, and it is the thing a static figure teaches worst. A figure can
 assert that three candidates were compared and the largest kept. It cannot let
 anyone get it wrong and find out why.
 
-Three ways of using it, from watching to doing.
+Three ways of using it, from watching to doing, and then the same two
+sequences run twice more with one thing changed each time: first the scoring,
+then global for local. The lecture walks the same three passes.
 
 ## 1 · Step through it
 
@@ -48,12 +50,15 @@ $$V(i,j) = \max \begin{cases} V(i-1,j-1) + s(x_i, y_j) \\ V(i-1,j) + g \\ V(i,j-
 ```{=html}
 <div id="dp-step"></div>
 <script>
-renderDP("dp-step", {mode: "step", a: "GCAT", b: "GAC", match: 1, mismatch: -1, gap: -1});
+renderDP("dp-step", {mode: "step", a: "AWGHE", b: "AWHEA", match: 1, mismatch: -1, gap: -1});
 </script>
 ```
 
-This is the GCAT against GAC example of Table 4.1, with match $+1$, mismatch
-$-1$ and gap $-1$ — the same numbers as the lecture and the notebook.
+The two sequences are protein fragments, scored for now by plain identity:
+match $+1$, mismatch $-1$, gap $-1$. Protein letters from the start, because
+Sessions 4 and 5 are about proteins, and because the same two sequences come
+back below under BLOSUM62 and then locally, with one thing changed at a time.
+They are pieces of `HEAGAWGHEE` and `PAWHEAE`, the pair the textbooks use.
 
 ## 2 · Guess the next value
 
@@ -65,7 +70,7 @@ point students most often miss.
 ```{=html}
 <div id="dp-guess"></div>
 <script>
-renderDP("dp-guess", {mode: "guess", a: "GCAT", b: "GAC", match: 1, mismatch: -1, gap: -1, questions: 4});
+renderDP("dp-guess", {mode: "guess", a: "AWGHE", b: "AWHEA", match: 1, mismatch: -1, gap: -1, questions: 4});
 </script>
 ```
 
@@ -78,25 +83,51 @@ exercise, done in a browser rather than on paper, and marked instantly.
 ```{=html}
 <div id="dp-fill"></div>
 <script>
-renderDP("dp-fill", {mode: "fill", a: "GCAT", b: "GAC", match: 1, mismatch: -1, gap: -1});
+renderDP("dp-fill", {mode: "fill", a: "AWGHE", b: "AWHEA", match: 1, mismatch: -1, gap: -1});
 </script>
 ```
 
-## It is not only Session 4
+## 4 · The same letters, a real substitution matrix
 
-The same engine takes a substitution matrix instead of a match/mismatch pair,
-and a zero floor instead of none. Below is Smith–Waterman on protein with
-BLOSUM62 and a gap of $-8$: the local case, where the floor of zero is a
-*fourth* alternative and gets a badge of its own in the cell being decided.
-That is the only place local differs from global, and it is invisible in a
-static figure.
+Nothing below has changed except the scoring: the same `AWGHE` against
+`AWHEA`, now with BLOSUM62 and a gap of $-8$ instead of match/mismatch.
+
+```{=html}
+<div id="dp-b62"></div>
+<script>
+renderDP("dp-b62", {mode: "step", a: "AWGHE", b: "AWHEA", scoring: "blosum62", gap: -8});
+</script>
+```
+
+Identity scoring bought two gaps to chase exact matches and returned
+`AWGHE-` against `AW-HEA`, score $2$. BLOSUM62 knows that G against H and E
+against A are substitutions a protein tolerates, and that neither is worth a
+gap at $-8$, so it drops both gaps and returns `AWGHE` against `AWHEA`,
+score $12$. Same letters, same algorithm, different answer — which is the
+argument for substitution matrices, made on a matrix small enough to check by
+hand.
+
+## 5 · The same letters again, local instead of global
+
+One more change, and again only one: a floor of zero, which is all that
+separates Smith–Waterman from Needleman–Wunsch.
 
 ```{=html}
 <div id="dp-local"></div>
 <script>
-renderDP("dp-local", {mode: "step", a: "HEAGAWGHEE", b: "PAWHEAE", scoring: "blosum62", gap: -8, local: true});
+renderDP("dp-local", {mode: "step", a: "AWGHE", b: "AWHEA", scoring: "blosum62", gap: -8, local: true});
 </script>
 ```
+
+The zero is a *fourth* candidate and gets a badge of its own in the cell being
+decided, which is the only place local differs from global and the thing a
+static figure cannot show. The traceback now starts at the best cell anywhere
+in the grid rather than the bottom-right corner, and stops at the first zero,
+giving `AWGHE` against `AW-HE`, score $20$: the ragged ends are dropped and the
+conserved core is left. That is the answer the textbooks give for the full
+`HEAGAWGHEE` / `PAWHEAE` pair these fragments came from.
+
+## It is not only Session 4
 
 Viterbi is the same recurrence with max-plus over log probabilities, so the
 profile-HMM half of Session 5 is a fourth mode rather than a second program.
@@ -120,7 +151,7 @@ renderDP("dp-play", {
   controls: true,
   modes: ["step", "guess", "fill"],
   mode: "step",
-  a: "TGCATTA", b: "GCATTAC", match: 3, mismatch: -1, gap: -2
+  a: "AWGHE", b: "AWHEA", match: 1, mismatch: -1, gap: -1
 });
 </script>
 ```
@@ -134,9 +165,10 @@ while the lab lets students change it.
 1. **Does it belong in the lecture, the lab, or only the notes?** The slides
    already use it as a build-up. Whether a live demo is worth the minutes it
    costs in the room is a different question.
-2. **Is GCAT against GAC the right example to keep?** It is small enough to do
-   in the room and it matches Table 4.1, but it has a tie in it, which is
-   either a feature or a distraction.
+2. **Is one pair run three times the right shape?** `AWGHE` against `AWHEA`
+   is small enough to do in the room, and the notes now work the same three
+   passes, so the lecture, this page and Session 4 all show one example. The
+   cost is that nothing here is DNA any more.
 3. **For Session 5, is BLOSUM62 with a linear gap enough**, or does the affine
    gap need to be visible too? Affine means three matrices, and three matrices
    on one screen may teach less than it shows.

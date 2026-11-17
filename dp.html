@@ -27,8 +27,9 @@
 <main>
   <h1>The alignment matrix</h1>
   <p class="sub">Step through the fill, have it ask you what goes in the next cell, or fill the whole
-  grid and have it marked. Change the sequences, the scoring and the gap cost, or press New pair for
-  a fresh example.</p>
+  grid and have it marked. It opens on the two protein fragments from the lecture, scored by plain
+  identity; switch Scoring to BLOSUM62, then Alignment to local, and watch the answer change. Change
+  the sequences and the gap cost too, or press New pair for a fresh example.</p>
   <div id="dp"></div>
 </main>
 <script>
@@ -36,7 +37,10 @@ renderDP("dp", {
   controls: true,
   modes: ["step", "guess", "fill"],
   mode: "step",
-  a: "TGCATTA", b: "GCATTAC", match: 3, mismatch: -1, gap: -2
+  // The lecture's example: protein letters, scored by plain identity to begin
+  // with. Switching Scoring to BLOSUM62, and then Alignment to local, walks
+  // the same three steps the Session 4 slides walk.
+  a: "AWGHE", b: "AWHEA", match: 1, mismatch: -1, gap: -1
 });
 </script>
 </body>
