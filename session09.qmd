@@ -543,6 +543,65 @@ renderQuiz("session09-quiz", [
 </script>
 ```
 
+## Practice: a network you can watch train {#sec-s09-playground}
+
+Every argument on this page is about what happens to weights while a network
+trains, and that is easier to believe once you have watched it. The page at
+[course.bioinfo.se/playground/](https://course.bioinfo.se/playground/) trains a
+small network in the browser, a few steps per second, and draws every weight and
+every unit's output while it does. It is the Neural Network Playground, written
+at Google by Daniel Smilkov and Shan Carter and released under the Apache
+licence; the copy here is ours, so it carries no analytics and will not
+disappear if the original is retired. Each link below opens it on one exact
+configuration, random seed included, so the numbers quoted here are the numbers
+you will see.
+
+**A hidden layer, and what it buys.** @sec-s09-epistasis argues that an additive
+model cannot represent epistasis, and that a hidden layer can. The same argument
+without the protein is the XOR dataset: four quadrants with alternating labels.
+Open it [with no hidden layer at all](https://course.bioinfo.se/playground/#dataset=xor&networkShape=&showTestData=true&seed=0.12345) and press play. Every input
+gets one weight and the weights are added, exactly as in a PSSM, so the output
+can only be a ramp, high on one side and low on the other. After 300 steps the
+training loss is 0.512 and the test loss 0.498, which is chance, and no amount of
+further training moves them. Now open [the same thing with one hidden layer of
+four units](https://course.bioinfo.se/playground/#dataset=xor&networkShape=4&showTestData=true&seed=0.12345), and nothing else changed. After the same 300 steps the
+training loss is 0.011 and the test loss 0.024. The four small squares in the
+hidden layer show why: each unit is itself a ramp, and the output is a weighted
+sum of the four. Four ramps added together make a chequerboard that no single
+ramp can.
+
+**Overfitting, as it happens.** @sec-s09-enormous makes its case with a network
+of 192,389 weights trained on 486 proteins. [The spiral](https://course.bioinfo.se/playground/#activation=relu&dataset=spiral&networkShape=8,8,8,8&noise=50&percTrainData=10&showTestData=true&seed=0.12345) is the same
+situation small enough to watch: two spiral arms scattered with the noise slider
+at maximum until they overlap, 500 points of which only a tenth are kept for
+training, and a network of four layers of eight units, which is 249 weights
+including the biases. That is 50 training points for 249 weights. Press play and
+watch the two curves in the top right, the grey one the training loss and the
+black one the test loss. They fall together for about a hundred steps, the test
+loss reaching 0.486, which is the lowest it will ever go. They separate around
+step 200. By step 1,000 the training loss is down to 0.138 while the test loss has
+climbed to 0.837, and the coloured wedges in the output square have grown out
+towards individual training points. The network is drawing a boundary around
+single examples, which is what memorising looks like. This is the localisation
+network's curve of @sec-s09-early, whose validation accuracy peaked at epoch 5
+and then fell, with pictures of the weights that caused it.
+
+**And what a penalty does.** Leave that run as it is and set *Regularization* to
+L1 with a rate of 0.01, [like this](https://course.bioinfo.se/playground/#activation=relu&dataset=spiral&networkShape=8,8,8,8&noise=50&percTrainData=10&showTestData=true&seed=0.12345&regularization=L1&regularizationRate=0.01). After 1,000 steps the training
+loss is 0.499 and the test loss 0.501: the network predicts nothing at all. Most
+of the connecting lines have faded to grey, which is @sec-s09-l1l2's constant
+pull towards zero winning outright against the fit. A weaker penalty does less of
+both: L1 at 0.003 ends at 0.088 and 0.800, barely better on the test set than no
+penalty. This is the $\lambda$ argument of that section with both ends visible,
+and it is the reason $\lambda$ is chosen on a validation set by trying powers of
+ten rather than guessed.
+
+One warning. These are two hundred points in a plane, not a biological dataset,
+and a decision boundary drawn around coloured dots is a picture of a mechanism
+rather than a result. What transfers to the GB1 and localisation models of this
+chapter is the mechanism: what a hidden layer adds, what a training curve and a
+test curve do when a model starts memorising, and what a penalty does to a weight.
+
 ## The course notebook
 
 `notebooks/session09-backprop-training-regularization.ipynb` computes every number and figure on this page, section by section. It runs the breast-cancer training and shows the predictions before and after training. It works the backpropagation example by hand and checks it against autograd, and it computes cross-entropy by hand. It then reproduces the three training failures (equal initialisation, deep sigmoid networks, optimiser and learning rate), the GB1 models and the effect of the training-set size, and finally the localisation network's overfitting, regularisation and comparison with logistic regression.
