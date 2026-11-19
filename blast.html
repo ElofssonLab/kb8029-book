@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>How BLAST works &middot; KB8029</title>
 <!--
-  The six steps of a BLAST search, run on a database small enough to watch.
+  The seven steps of a BLAST search, run on a database small enough to watch.
   The companion to dp.html: that page fills a whole alignment matrix, this one
   shows how BLAST avoids filling almost all of it.
 
@@ -32,8 +32,9 @@
   <h1>How BLAST works</h1>
   <p class="sub">Dynamic programming compares two sequences by filling a whole matrix. A database search
   cannot: a million sequences is a million matrices. BLAST fills almost none of them. Step through the
-  six things it does instead, and watch the counter at the bottom, which is the entire argument.
-  Then lower the threshold and see what the fast setting was missing.</p>
+  seven things it does instead, and watch the counter at the bottom, which is the entire argument.
+  Then lower the threshold and see what the fast setting was missing, and let step 7 work out
+  whether any of it means anything.</p>
   <div id="blast"></div>
   <p class="foot">The defaults are the real ones, taken from the programs rather than from memory:
   <code>blastp</code> prints <em>Neighboring words threshold: 11</em> and <em>Window for multiple
@@ -41,7 +42,10 @@
   nucleotide search has no neighbourhood and extends from a single hit. The protein database is six
   real globins from the Pfam seed alignment used in Session 4; the nucleotide one is synthetic, so
   that the identities are exact and the odds can be worked out in advance. The one simplification is
-  the gap cost, which is linear here and affine in the real programs.
+  the gap cost, which is linear here and affine in the real programs. Step 7 solves the
+  Karlin-Altschul equation for lambda rather than quoting it, and gets 0.3176 for BLOSUM62,
+  which is the value NCBI publishes; its E-values are for the ungapped HSP, because the linear
+  gap of step 6 has no closed-form lambda.
   See also the <a href="dp.html">alignment matrix</a> and <a href="hmm.html">profile HMMs</a>.</p>
 </main>
 <script>

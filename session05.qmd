@@ -390,32 +390,34 @@ they still share the globin fold).
 ## Try it · what sensitivity costs, in three numbers
 
 @sec-s05-extension ended by lowering the threshold until myoglobin appeared.
-That is only half of the bargain. The panel below is the last stage, the banded
-alignment, and the counter underneath it reports how many matrix cells the
-whole search actually computed.
+That is only half of the bargain. The panel below is the last stage, where the
+scores of this chapter finally become E-values, and the counter underneath it
+reports how many matrix cells the whole search computed to get them. It opens
+at the sensitive setting, $T=9$.
 
 ::: {.content-visible when-format="html"}
 ```{=html}
 <div id="s05-try-cost"></div>
 <script>
-renderBLAST("s05-try-cost", {step: 5, controls: true});
+renderBLAST("s05-try-cost", {step: 6, threshold: 9, controls: true});
 </script>
 ```
 :::
 
 ::: {.content-visible when-format="pdf"}
 *This box is interactive, and a printed page cannot press anything. Open
-[course.bioinfo.se/blast.html](https://course.bioinfo.se/blast.html) and choose step 6, *Fill a band, not a matrix*.*
+[course.bioinfo.se/blast.html](https://course.bioinfo.se/blast.html) and choose step 7, *Is it significant?*, with the threshold at 9.*
 :::
 
-Read the counter at `blastp`'s defaults, then set *Preset* to **sensitive
-(W 3, T 9)** and read it again --- and look at which sequences now have
-alignments. **What did the extra sensitivity buy, and what did it cost?**
+Read the E-value column, then switch *Preset* between **blastp (W 3, T 11)**
+and **sensitive (W 3, T 9)** and watch which rows appear. **What did the extra
+sensitivity buy, what did it cost, and which two rows should you refuse to tell
+apart?**
 
 ::: {.callout-note collapse="true" appearance="simple"}
 ## What you should see
 
-Three numbers move together.
+Three things move together.
 
 **Speed.** At `blastp`'s defaults the search computes **1,635 of the 15,550**
 cells that a full Smith-Waterman against all six sequences would fill, and
@@ -424,15 +426,29 @@ twice as many. That ratio is the whole argument for the heuristic, and on a
 database of a hundred million sequences rather than six it is the difference
 between seconds and weeks.
 
-**Sensitivity.** Myoglobin appears, at 53. So does the mycobacterial globin,
-at 21.
+**Sensitivity.** Human myoglobin appears, at 53 raw and **27.2 bits**, with an
+E-value of $1.0\times10^{-4}$. Look at that against alpha-globin's
+$3.6\times10^{-4}$: the sequence `blastp`'s own defaults never aligned at all is
+the *best hit in the database*. The bacterial globin appears too, at 12.5 bits.
 
-**Specificity.** So does `SHUFFLED`, at 20 --- a sequence with the same
-amino-acid composition as a globin and no history whatsoever. A shuffled
-control scoring 20 while a real homologue scores 21 is the situation this
-section exists to resolve: a raw score cannot tell you which of the two is
-worth reading. That is why BLAST reports an E-value and not a score, and why
-the myoglobin row above is interesting rather than embarrassing.
+**Specificity.** So does `SHUFFLED`, at 10.2 bits --- a sequence with the
+composition of a globin and no history whatsoever. And here is the row to sit
+with: **chicken myoglobin and the shuffled control both score 16**, so they get
+the same 10.2 bits and the same E-value of 13. A real homologue and a sequence
+related to nothing are, on this evidence, indistinguishable.
+
+That is the answer to "which two rows should you refuse to tell apart". It is
+also what the E-value is for. It cannot rescue the chicken sequence, and it
+does not pretend to: what it says is that **neither** row is evidence, where
+the raw score alone invited you to rank them. An E-value of 13 means you should
+expect thirteen alignments this good from chance in a database this size, so
+finding one tells you nothing.
+
+Then change *Searched against* to UniProtKB. Nothing realigns and no score
+changes, but every E-value grows by about nine orders of magnitude and the
+green disappears. E is linear in the size of the haystack, which is why a
+50-residue window is a demonstration and not a search: a real query is a whole
+protein, reaches several hundred bits, and every bit halves E.
 :::
 :::
 

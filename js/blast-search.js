@@ -129,6 +129,7 @@ function blDefaults(cfg) {
     gap: null,           // linear, see the note at the top
     step: 0,
     focus: 0,            // which database sequence the matrix shows
+    dbsize: "this",      // which database size E is scaled against, see BL_DBSIZES
     controls: false,
     steps: true          // show the step switcher
   }, cfg || {});
@@ -211,6 +212,95 @@ function blCheck(records, alphabet) {
   return null;
 }
 function blAlpha(cfg) { return cfg.alphabet === "dna" ? BL_NT : BL_AA; }
+
+// --------------------------------------------------------- is it significant?
+//
+// Karlin & Altschul (1990): the scores of local alignments between unrelated
+// sequences follow an extreme-value distribution, and the number of alignments
+// scoring at least S expected by chance in a search of a query of length m
+// against a database of n residues is
+//
+//     E = K m n exp(-lambda S)
+//
+// lambda is not a constant of nature and not a number worth asserting: it is
+// the unique positive root of
+//
+//     sum_ij p_i p_j exp(lambda s_ij) = 1
+//
+// over the scoring scheme in use and a background model, and the page solves it
+// below rather than quoting it. For BLOSUM62 with the Robinson & Robinson
+// background that root comes out at 0.3176, which is the value NCBI publishes
+// for an ungapped BLOSUM62 search. The nucleotide schemes land a little above
+// the published numbers (0.634 against 0.625 for +2/-3) because this solves the
+// idealised equation and makes no finite-length correction.
+//
+// K has no such tidy root, so it is taken from the published tables and said to
+// be. It only scales E linearly; lambda is in the exponent and is what the
+// argument actually turns on.
+
+// Robinson & Robinson (1991) amino-acid frequencies, the background BLAST uses.
+const BL_BG_AA = {
+  A: 0.07805, R: 0.05129, N: 0.04487, D: 0.05364, C: 0.01925, Q: 0.04264,
+  E: 0.06295, G: 0.07377, H: 0.02199, I: 0.05142, L: 0.09019, K: 0.05744,
+  M: 0.02243, F: 0.03856, P: 0.05203, S: 0.07120, T: 0.05841, W: 0.01330,
+  Y: 0.03216, V: 0.06441
+};
+
+// Published K for the ungapped schemes this widget uses.
+const BL_K = { protein: 0.134, dna: 0.410 };
+
+// Database sizes to scale E against, so that "is it significant" can be asked
+// of the same alignment at the scale it would really be searched at.
+const BL_DBSIZES = [
+  { key: "this", label: "this database" },
+  { key: "swissprot", label: "Swiss-Prot (~2x10^8 residues)", n: 2.0e8 },
+  { key: "uniprot", label: "UniProtKB (~9x10^10 residues)", n: 9.0e10 }
+];
+
+function blBackground(cfg) {
+  if (cfg.alphabet === "dna") return { A: 0.25, C: 0.25, G: 0.25, T: 0.25 };
+  return BL_BG_AA;
+}
+
+// The positive root of sum_ij p_i p_j exp(lambda s_ij) = 1, by bisection. The
+// root exists only when the expected score per aligned pair is negative, which
+// is what makes a local alignment meaningful at all: with a positive expected
+// score the best alignment of two random sequences just grows with their
+// length and no threshold separates signal from noise.
+function blLambda(cfg) {
+  const s = blScore(cfg);
+  const p = blBackground(cfg);
+  const letters = Object.keys(p);
+  let expected = 0;
+  letters.forEach(function (a) {
+    letters.forEach(function (b) { expected += p[a] * p[b] * s(a, b); });
+  });
+  if (!(expected < 0)) return { lambda: null, expected: expected };
+  function f(lam) {
+    let t = 0;
+    letters.forEach(function (a) {
+      letters.forEach(function (b) { t += p[a] * p[b] * Math.exp(lam * s(a, b)); });
+    });
+    return t - 1;
+  }
+  let lo = 1e-9, hi = 5;
+  for (let i = 0; i < 200; i++) {
+    const mid = (lo + hi) / 2;
+    if (f(mid) < 0) lo = mid; else hi = mid;
+  }
+  return { lambda: (lo + hi) / 2, expected: expected };
+}
+
+function blBits(S, lambda, K) { return (lambda * S - Math.log(K)) / Math.LN2; }
+function blE(S, lambda, K, m, n) { return K * m * n * Math.exp(-lambda * S); }
+
+function blFmtE(e) {
+  if (!isFinite(e)) return "-";
+  if (e >= 1000 || e < 0.01) return e.toExponential(1).replace("e+", "e").replace("e-", "e-");
+  if (e >= 10) return e.toFixed(0);
+  if (e >= 1) return e.toFixed(1);
+  return e.toFixed(3);
+}
 
 function blScore(cfg) {
   if (cfg.alphabet === "dna") {
@@ -624,7 +714,8 @@ const BL_STEPS = [
   "3 · Scan the database",
   "4 · Seeds worth extending",
   "5 · Extend without gaps",
-  "6 · Fill a band, not a matrix"
+  "6 · Fill a band, not a matrix",
+  "7 · Is it significant?"
 ];
 
 function renderBLAST(containerId, config) {
@@ -687,12 +778,14 @@ function renderBLAST(containerId, config) {
     if (cfg.focus >= data.db.length) cfg.focus = 0;
 
     body.textContent = "";
-    const fns = [blStepWords, blStepNeighbourhood, blStepScan, blStepTwoHit, blStepExtend, blStepBand];
+    const fns = [blStepWords, blStepNeighbourhood, blStepScan, blStepTwoHit, blStepExtend,
+                 blStepBand, blStepEvalue];
     fns[cfg.step](body, cfg, data, lookup, runs, {
       refRuns: refRuns, refCfg: refCfg, sameAsRef: sameAsRef,
       picked: pickedWord,
       pick: function (k) { pickedWord = k; draw(); },
-      focus: function (k) { cfg.focus = k; draw(); }
+      focus: function (k) { cfg.focus = k; draw(); },
+      redraw: function () { draw(); }
     });
     blTally(tally, cfg, data, runs, refRuns, sameAsRef);
   }
@@ -831,9 +924,9 @@ function blStepScan(body, cfg, data, lookup, runs, ui) {
     dead + " of " + data.db.length + " sequences are never aligned"
     + (noHit ? " (" + noHit + " of them produced no word hit at all)" : "")
     + ". Click a row to follow one through the remaining steps. A score here is only a score: "
-    + "whether it means anything is a separate question, which is why a real report gives an "
-    + "E-value and this widget cannot. The last sequence in the database is there to make that "
-    + "point — loosen the search far enough and even it aligns, just badly."));
+    + "whether it means anything is a separate question, which is what step 7 is for. The last "
+    + "sequence in the database is there to make that point — loosen the search far enough and "
+    + "even it aligns, just badly."));
 
   const d = data.db[cfg.focus], r = runs[cfg.focus];
   body.appendChild(blEl("p", "bls-say", "Hits in " + d.name + ":"));
@@ -942,6 +1035,122 @@ function blStepBand(body, cfg, data, lookup, runs, ui) {
     "Score " + r.band.score + ". Computed " + blNum(r.band.computed) + " of "
     + blNum(r.band.full) + " cells for this sequence, which is "
     + Math.round(100 * r.band.computed / r.band.full) + "%."));
+}
+
+function blStepEvalue(body, cfg, data, lookup, runs, ui) {
+  const q = data.query.seq;
+  const m = q.length;
+  const dbN = data.db.reduce(function (t, d) { return t + d.seq.length; }, 0);
+  const sol = blLambda(cfg);
+  const K = BL_K[cfg.alphabet === "dna" ? "dna" : "protein"];
+
+  body.appendChild(blEl("p", "bls-say",
+    "Every score so far has been a score and nothing more. The question a report has to answer "
+    + "is whether a score that size would have turned up anyway, and that depends on how much "
+    + "database you searched. Karlin and Altschul: the number of alignments scoring at least S "
+    + "expected by chance is E = K m n exp(-lambda S)."));
+
+  if (sol.lambda === null) {
+    body.appendChild(blEl("p", "bls-note",
+      "With this scoring scheme the expected score of an aligned pair is "
+      + sol.expected.toFixed(3) + ", which is not negative, so there is no positive root and no "
+      + "E-value. That is not a bug in the arithmetic: if random pairs score positively on "
+      + "average, the best local alignment of two unrelated sequences just keeps growing with "
+      + "their length, and no score threshold separates anything from anything."));
+    return;
+  }
+
+  const chosen = BL_DBSIZES.filter(function (o) { return o.key === cfg.dbsize; })[0] || BL_DBSIZES[0];
+  const n = chosen.n || dbN;
+
+  const bar = blEl("div", "bls-settings");
+  const sel = document.createElement("select");
+  BL_DBSIZES.forEach(function (o) {
+    const opt = document.createElement("option");
+    opt.value = o.key;
+    opt.textContent = o.key === "this" ? o.label + " (" + blNum(dbN) + " residues)" : o.label;
+    sel.appendChild(opt);
+  });
+  sel.value = chosen.key;
+  sel.onchange = function () { cfg.dbsize = sel.value; ui.redraw(); };
+  bar.appendChild(blField("Searched against", sel));
+  body.appendChild(bar);
+
+  const tab = blEl("table", "bls-db");
+  const hr = blEl("tr");
+  ["sequence", "", "HSP score", "bits", "E-value"].forEach(function (h) {
+    hr.appendChild(blEl("th", null, h));
+  });
+  tab.appendChild(hr);
+  data.db.forEach(function (d, k) {
+    const r = runs[k];
+    const tr = blEl("tr", (r.hsp ? "" : "dead ") + "pick" + (k === cfg.focus ? " focus" : ""));
+    tr.onclick = function () { ui.focus(k); };
+    tr.appendChild(blEl("td", "bls-mono", d.name));
+    tr.appendChild(blEl("td", null, d.note || ""));
+    if (!r.hsp) {
+      tr.appendChild(blEl("td", "n", "not aligned"));
+      tr.appendChild(blEl("td", "n", "-"));
+      tr.appendChild(blEl("td", "n", "-"));
+    } else {
+      const S = r.hsp.score;
+      const e = blE(S, sol.lambda, K, m, n);
+      tr.appendChild(blEl("td", "n", String(S)));
+      tr.appendChild(blEl("td", "n", blBits(S, sol.lambda, K).toFixed(1)));
+      const cell = blEl("td", "n", blFmtE(e));
+      // The convention every report uses: 0.001 or below is worth reading.
+      if (e <= 1e-3) { cell.style.color = "#146c43"; cell.style.fontWeight = "600"; }
+      else if (e >= 1) { cell.style.color = "rgba(0,0,0,0.45)"; }
+      tr.appendChild(cell);
+    }
+    tab.appendChild(tr);
+  });
+  body.appendChild(tab);
+
+  if (chosen.n) {
+    // Switching to a real database size makes every row insignificant, which
+    // looks like a broken widget unless the reason is on the screen.
+    const best = data.db.reduce(function (b, d, k) {
+      const r = runs[k];
+      return (r.hsp && (b === null || r.hsp.score > b)) ? r.hsp.score : b;
+    }, null);
+    body.appendChild(blEl("p", "bls-note",
+      "Nothing above is significant any more, and not one alignment changed: the same best hit "
+      + "at " + blBits(best, sol.lambda, K).toFixed(1) + " bits is now expected about "
+      + blFmtE(blE(best, sol.lambda, K, m, n)) + " times by chance, because n went from "
+      + blNum(dbN) + " residues to " + blNum(n) + ". E is linear in the size of the haystack. "
+      + "That is why a 50-residue window is a demonstration and not a search: a real query is "
+      + "a whole protein and reaches several hundred bits, and every bit halves E."));
+  }
+
+  body.appendChild(blEl("p", "bls-note",
+    "lambda = " + sol.lambda.toFixed(4) + ", solved here from the scoring scheme and the "
+    + (cfg.alphabet === "dna" ? "flat 0.25 base composition" : "Robinson & Robinson amino-acid background")
+    + ", not looked up; K = " + K + ", which is taken from the published tables. m = " + m
+    + " (the query) and n = " + blNum(n) + "."));
+
+  // Whichever two sequences share a score, say so: it is the point of the step.
+  const byScore = {};
+  data.db.forEach(function (d, k) {
+    if (!runs[k].hsp) return;
+    (byScore[runs[k].hsp.score] = byScore[runs[k].hsp.score] || []).push(d.name);
+  });
+  const tied = Object.keys(byScore).filter(function (sc) { return byScore[sc].length > 1; });
+  if (tied.length) {
+    body.appendChild(blEl("p", "bls-note",
+      tied.map(function (sc) {
+        return byScore[sc].join(" and ") + " both score " + sc;
+      }).join("; ") + " — and so get the same E-value, whatever their history. A score cannot "
+      + "tell a weak homologue from a sequence with no history at all, and neither can an "
+      + "E-value; what the E-value can say is that neither of them is evidence."));
+  }
+
+  body.appendChild(blEl("p", "bls-note",
+    "These E-values are for the ungapped HSP of step 5. The banded score of step 6 has no "
+    + "closed-form lambda, because this page charges one linear gap where real BLAST charges an "
+    + "affine one; production BLAST fits gapped parameters by simulation instead. Note too that "
+    + "the query here is a " + m + "-residue window, so the bit scores are small — a full-length "
+    + "globin search reaches several hundred."));
 }
 
 function blTally(tally, cfg, data, runs, refRuns, sameAsRef) {
@@ -1116,6 +1325,44 @@ function blSelfCheck() {
   ok = want("megablast MISSES the 80% copy", mb, "copy_80", false) && ok;
   ok = want("megablast keeps the 88% copy", mb, "copy_88", true) && ok;
   ok = want("nothing finds the unrelated sequence", bn, "unrelated", false) && ok;
+
+  // Step 7. lambda is solved, not quoted, so the solver is what has to be held
+  // to the published value; and the point the step exists to make -- that a
+  // real but weak homologue and a sequence with no history score the same and
+  // so get the same E-value -- is an assertion about the data, not a turn of
+  // phrase, so it is checked here too.
+  function claim(label, cond) {
+    checks.push((cond ? "ok   " : "FAIL ") + label);
+    return cond;
+  }
+  const lamP = blLambda(blDefaults({ alphabet: "protein" })).lambda;
+  const lamD = blLambda(blDefaults({ alphabet: "dna" })).lambda;
+  ok = claim("lambda for BLOSUM62 solves to NCBI's published 0.3176 (got "
+             + lamP.toFixed(4) + ")", Math.abs(lamP - 0.3176) < 5e-4) && ok;
+  ok = claim("lambda for +2/-3 is near the published 0.625 (got "
+             + lamD.toFixed(4) + ")", Math.abs(lamD - 0.625) < 0.02) && ok;
+
+  const cE = blDefaults({ alphabet: "protein", word: 3, threshold: 9 });
+  const lkE = blLookup(cE);
+  const dataE = blData(cE);
+  const mE = dataE.query.seq.length;
+  const nE = dataE.db.reduce(function (t, d) { return t + d.seq.length; }, 0);
+  const KE = BL_K.protein;
+  const scoreOf = {};
+  dataE.db.forEach(function (d) {
+    const r = blRun(cE, d.seq, lkE);
+    scoreOf[d.name] = r.hsp ? r.hsp.score : null;
+  });
+  function eOf(name) { return blE(scoreOf[name], lamP, KE, mE, nE); }
+  ok = claim("HBA_HUMAN is significant on this database (E = " + blFmtE(eOf("HBA_HUMAN")) + ")",
+             eOf("HBA_HUMAN") < 1e-3) && ok;
+  ok = claim("the shuffled control is not (E = " + blFmtE(eOf("SHUFFLED")) + ")",
+             eOf("SHUFFLED") > 1) && ok;
+  ok = claim("MYG_GALGA and SHUFFLED score the same, so share an E-value",
+             scoreOf.MYG_GALGA !== null && scoreOf.MYG_GALGA === scoreOf.SHUFFLED) && ok;
+  ok = claim("a bigger database makes the same alignment less significant",
+             blE(scoreOf.HBA_HUMAN, lamP, KE, mE, 9e10) > eOf("HBA_HUMAN")) && ok;
+
   checks.forEach(function (c) { console.log(c); });
   console.log(ok ? "\nall checks passed" : "\nSELF-CHECK FAILED");
   if (!ok && typeof process !== "undefined") process.exitCode = 1;
