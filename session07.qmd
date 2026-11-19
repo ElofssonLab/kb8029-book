@@ -198,6 +198,47 @@ The XOR function.
 
 ![A linear model trained on XOR (left) settles on predicting 0.5 everywhere. Every straight-line boundary it could draw leaves at least one point on the wrong side, so gradient descent settles for the least-wrong compromise. A hidden-layer model on the same data (right) combines two linear boundaries into a non-linear one that separates all four points correctly. Both panels show the notebook's own trained models, not illustrative sketches.](figs/session07-xor-boundary.png){#fig-session07-xor-boundary width="95%"}
 
+::: {.callout-note .tryit icon="false"}
+## Try it · let gradient descent fail at it too
+
+The notebook tried 226,981 combinations of $w_1$, $w_2$ and $b$ by brute force.
+Gradient descent is cleverer than brute force, and it does no better, which is
+worth seeing because a failure to *learn* and an inability to *represent* look
+quite different from the inside.
+
+Open [the XOR dataset with no hidden layer](https://course.bioinfo.se/playground/#dataset=xor&networkShape=&showTestData=true&seed=0.12345)
+and press play. It opens in the frame underneath: the Neural Network
+Playground, written at Google by Daniel Smilkov and Shan Carter under the
+Apache licence, served here as the course's own copy. The two inputs $x_1$ and $x_2$
+each get one weight, and the weights are added: this is exactly one perceptron,
+trained properly, on the four quadrants of @tbl-s07-xor with 500 points instead
+of 4. **Let it run as long as you like. What does the output settle on, and
+where have you seen that number before?**
+
+::: {.pg-embed}
+:::
+
+::: {.callout-note collapse="true" appearance="simple"}
+## What you should see
+
+The loss falls for a few steps and then stops at about **0.5**, where it stays
+for ever: after 300 steps the training loss is 0.512 and the test loss 0.498.
+The output square is a single soft ramp across the whole square rather than a
+boundary, and the two weights wobble without ever settling anywhere useful.
+
+That 0.5 is the same 0.5 as the left-hand panel of @fig-session07-xor-boundary,
+where the trained linear model predicts 0.5 for every input. Gradient descent is
+working perfectly. It has found the best weights there are, and the best weights
+there are get half the points wrong, because every straight line through that
+square leaves one quadrant on the wrong side.
+
+This is what "cannot represent" looks like in practice, and it is the thing to
+recognise in the lab: a loss that plateaus well above zero and stays there is
+usually a model that is too simple, not an optimiser that is stuck. @sec-s07-hidden
+adds one hidden layer to the same data and the same loss goes to 0.011.
+:::
+:::
+
 ::: {.callout-note collapse="true"}
 ## Optional: the algebraic proof
 
@@ -274,6 +315,44 @@ $$
 $$
 
 which is again a single weighted sum of the inputs, with one matrix $W_1 W_2$ and one bias. Any number of linear layers therefore collapses into one linear layer, and one linear layer cannot solve XOR. A nonlinear activation between the layers (a step, sigmoid, tanh or ReLU) is what lets the hidden units bend the decision boundary. The notebook shows this directly. The same two-hidden-unit network, trained on XOR with the activation removed, gets stuck at 0.5 for every input, just like the plain linear model.
+
+::: {.callout-note .tryit icon="false"}
+## Try it · four layers that are still one line
+
+"Any number of linear layers collapses into one linear layer" is proved above
+in two lines of algebra. It is also something you can watch refuse to happen.
+
+Open [four hidden layers of eight units with the activation set to
+Linear](https://course.bioinfo.se/playground/#activation=linear&dataset=spiral&networkShape=8,8,8,8&showTestData=true&seed=0.12345)
+and press play. That is 32 hidden units and about 250 weights, on the spiral.
+Then open [the identical network with
+ReLU](https://course.bioinfo.se/playground/#activation=relu&dataset=spiral&networkShape=8,8,8,8&showTestData=true&seed=0.12345)
+--- same depth, same width, same data, same seed. **Only one thing is
+different. How different is the result?**
+
+::: {.pg-embed}
+:::
+
+::: {.callout-note collapse="true" appearance="simple"}
+## What you should see
+
+With Linear activations, after 1,000 steps the training loss is **0.465** and
+the test loss **0.480**, and the output square is a single straight-edged ramp
+from one corner to the other. Look along the hidden layers while you are there:
+every one of the 32 units is itself a straight ramp, tilted a little
+differently. That is the algebra on screen. A ramp of ramps is a ramp, however
+many times you do it, because $W_1 W_2 W_3 W_4$ is one matrix --- so four
+layers of eight units draw precisely what one weighted sum would draw.
+
+With ReLU, the same network reaches **0.006** and **0.019** and traces both
+arms of the spiral.
+
+Try Linear on the XOR dataset too, which is nearer to this section: four layers,
+still 0.490 and 0.496, still chance. Depth without a nonlinearity buys nothing
+at all --- not a little, nothing. The activation is not a detail tacked onto the
+end of a layer; it is the only reason the next layer is worth having.
+:::
+:::
 
 **Keeping track of shapes.** The table follows the shapes in the notebook's network for XOR, with the four input rows stacked into one matrix (Session 1's shape rules):
 
@@ -585,6 +664,17 @@ renderQuiz("session07-quiz", [
     ],
     correctIndex: 0,
     explanation: "In Rost &amp; Sander's words, 'a new key aspect is the use of evolutionary information in the form of multiple sequence alignments'. That alone added six to eight percentage points. (Qian &amp; Sejnowski had used a neural network on single sequences in 1988.)"
+  },
+  {
+    question: "A network with four hidden layers of eight units is trained on the spiral dataset with its activation function set to Linear. It reaches a loss of about 0.47 and draws a single straight-edged boundary. What does that show?",
+    choices: [
+      "Stacked linear layers collapse into one linear layer, so depth without a nonlinear activation adds no representational power at all",
+      "The network needs more hidden units before depth helps",
+      "The learning rate was too small for a network that deep",
+      "The spiral dataset cannot be separated by any neural network"
+    ],
+    correctIndex: 0,
+    explanation: "W1*W2*W3*W4 is a single matrix, so the whole network computes one weighted sum of the inputs. The identical network with ReLU reaches about 0.006 and traces both arms of the spiral. The activation is what makes the next layer worth having."
   }
 ]);
 </script>

@@ -21,6 +21,8 @@
   main { max-width: 980px; margin: 0 auto; padding: 24px 16px 64px; }
   h1 { font-size: 1.45rem; margin: 0 0 4px; }
   p.sub { color: #52606d; margin: 0 0 1.5em; }
+  p.foot { color: #52606d; font-size: 0.88em; margin-top: 2em; }
+  a { color: #0d6efd; }
 </style>
 </head>
 <body>
@@ -31,6 +33,20 @@
   identity; switch Scoring to BLOSUM62, then Alignment to local, and watch the answer change. Change
   the sequences and the gap cost too, or press New pair for a fresh example.</p>
   <div id="dp"></div>
+  <p class="foot">Three modes sit above the matrix. <em>Step through</em> advances one cell at a
+  time and says where each value came from; the <em>Fill all</em> button beside it completes the
+  rest in one go, for when you want the traceback and not the arithmetic. <em>Guess a cell</em>
+  picks cells scattered over the matrix and asks you for each in turn. <em>Fill it in</em> hands you
+  the empty grid and marks what you type, which is the one worth doing before the exam. The
+  sequences are editable, so a pair of your own works as well as ours, and changing the gap cost
+  with a matrix on screen shows which alignment survives the change and which was an artefact of
+  the penalty. Nothing you type leaves the tab: this is a static file, and there is no server to
+  send a sequence to.</p>
+  <p class="foot">The gap cost here is linear, charged per gap position; real programs use an
+  affine penalty that charges more to open a gap than to extend one, which
+  <a href="session04.html#sec-s04-gaps">Session 4</a> explains and this page
+  cannot show. See also <a href="blast.html">how BLAST works</a> and
+  <a href="hmm.html">profile HMMs</a>.</p>
 </main>
 <script>
 renderDP("dp", {

@@ -6,6 +6,7 @@ project:
     - js/dp-matrix.js
     - js/blast-search.js
     - js/hmm-viterbi.js
+    - js/playground-embed.js
     - exams/*
     - kb8029.ics
     - open.html
@@ -38,7 +39,16 @@ format:
     toc: true
     include-in-header:
       - text: <script src="js/quiz-widget.js"></script>
+      # The three interactive pages are also embedded in the chapters, in the
+      # "Try it" boxes, so every chapter has to be able to call renderDP,
+      # renderBLAST and renderHMM. Loaded here rather than per chapter for the
+      # same reason the stylesheet is: a page that sets up its own machinery
+      # drifts away from the other twelve. blast-search.js needs dp-matrix.js
+      # ahead of it, because it borrows that file's BLOSUM62.
       - text: <script src="js/dp-matrix.js"></script>
+      - text: <script src="js/blast-search.js"></script>
+      - text: <script src="js/hmm-viterbi.js"></script>
+      - text: <script src="js/playground-embed.js"></script>
 
 execute:
   enabled: false   # notebooks already contain saved outputs from class; don't re-run them at build time

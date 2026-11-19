@@ -70,7 +70,7 @@ By the end of this session you should be able to:
 - explain, at a conceptual level, what a profile Hidden Markov Model
   adds beyond a PSSM.
 
-## The scaling problem, and BLAST's heuristic answer
+## The scaling problem, and BLAST's heuristic answer {#sec-s05-scaling}
 
 Session 4's dynamic programming finds the *provably optimal* alignment
 between two sequences, but its cost is proportional to the product of
@@ -108,7 +108,7 @@ extend, evaluate.
 - Wikipedia, [BLAST (biotechnology)](https://en.wikipedia.org/wiki/BLAST_(biotechnology))
 - NCBI, [BLAST Help](https://www.ncbi.nlm.nih.gov/books/NBK1762/) — the practical reference for choosing blastp/blastn/blastx and reading real output
 
-## Stage 1: seeding — turning the query into fast lookups
+## Stage 1: seeding — turning the query into fast lookups {#sec-s05-seeding}
 
 The first stage turns the query into a set of short words. For protein
 sequences, a "word" is usually only 3 residues long, so a query of
@@ -157,7 +157,54 @@ where?" Because that check is a single table lookup, the scan is fast
 and linear in the size of the database. Only the few places that produce
 a seed go on to the expensive extension step.
 
-## Stage 2: extension — growing a seed into a real alignment
+::: {.callout-note .tryit icon="false"}
+## Try it · what one step of the threshold costs
+
+The panel below is this stage, run on a real query: 50 residues of human *HBB*
+against a database of six globins. It opens on the neighbourhood of the first
+query word, `GEA`, at `blastp`'s own threshold of $T=11$. Click any other word
+in the grid to see its neighbourhood instead.
+
+::: {.content-visible when-format="html"}
+```{=html}
+<div id="s05-try-seed"></div>
+<script>
+renderBLAST("s05-try-seed", {step: 1, controls: true});
+</script>
+```
+:::
+
+::: {.content-visible when-format="pdf"}
+*This box is interactive, and a printed page cannot press anything. Open
+[course.bioinfo.se/blast.html](https://course.bioinfo.se/blast.html) and choose step 2, *Grow each word into a neighbourhood*.*
+:::
+
+Now set *Preset* to **sensitive (W 3, T 9)**. **How many words does `GEA` seed
+at each threshold, and what has that done to the size of the lookup table?**
+
+::: {.callout-note collapse="true" appearance="simple"}
+## What you should see
+
+At $T=11$, nine of the $20^3 = 8{,}000$ possible three-letter words score high
+enough against `GEA` to go into the table. At $T=9$, thirty-four do. One step
+of the threshold has nearly quadrupled the neighbourhood of every query word,
+and the table is built for all 48 words of the query, not just this one.
+
+That is the entire tuning knob of stage 1. A bigger table means more places in
+the database that will produce a seed, which means more sensitivity and more
+work. @sec-s05-extension shows what the extra sensitivity buys and
+@sec-s05-evalue shows what it costs.
+
+Nucleotides make the same trade with word size instead, because there is no
+neighbourhood to grow: a nucleotide word either matches or it does not. Switch
+*Alphabet* to **Nucleotide (blastn)** and compare the **blastn (W 11)** and
+**megablast (W 28)** presets on the four-sequence database. A 28-letter word
+has to match exactly, so megablast is fast on near-identical sequences and
+blind to anything much diverged.
+:::
+:::
+
+## Stage 2: extension — growing a seed into a real alignment {#sec-s05-extension}
 
 A seed hit is only a 3-letter coincidence and not yet evidence of
 anything. BLAST therefore extends it outwards in both directions and
@@ -206,7 +253,52 @@ segment pair**, or HSP, and that is the unit BLAST actually reports. One
 pair of sequences may yield several HSPs --- two proteins sharing two
 domains will often give one per domain.
 
-## Stage 3: is this hit significant? E-values and bit scores
+::: {.callout-note .tryit icon="false"}
+## Try it · the hit that the two-hit rule throws away
+
+Production BLAST will not extend a lone seed. It waits for *two* seeds on the
+same diagonal within a window of 40 residues, on the argument that one
+three-letter coincidence is cheap and two in register are not. The panel below
+is that filter, with human myoglobin selected as the subject.
+
+::: {.content-visible when-format="html"}
+```{=html}
+<div id="s05-try-twohit"></div>
+<script>
+renderBLAST("s05-try-twohit", {step: 3, focus: 1, controls: true});
+</script>
+```
+:::
+
+::: {.content-visible when-format="pdf"}
+*This box is interactive, and a printed page cannot press anything. Open
+[course.bioinfo.se/blast.html](https://course.bioinfo.se/blast.html) and choose step 4, *Seeds worth extending*.*
+:::
+
+`blastp`'s defaults do not find myoglobin in this database, although myoglobin
+and haemoglobin are the textbook example of homology. **It is not for want of
+seeds --- so what goes wrong, and what fixes it?**
+
+::: {.callout-note collapse="true" appearance="simple"}
+## What you should see
+
+Myoglobin produces **nine word hits**, which is about as many as alpha-globin's
+eleven. Not one pair of them lands on the same diagonal within the window, so
+**no seed survives**, and no alignment is ever attempted. The sequence is
+discarded before the expensive step, by a rule that never looks at it again.
+
+Set *Preset* to **sensitive (W 3, T 9)**. Myoglobin now produces 24 word hits,
+four seeds survive, and it aligns with a score of **53** --- against
+alpha-globin's 56. It was always there to be found.
+
+This is what a heuristic is. BLAST is not a slower exhaustive search; it is a
+different search, one that trades a guarantee for speed and is wrong in ways
+you can predict. Before concluding from a BLAST report that two proteins are
+unrelated, it is worth knowing which of your settings decided that.
+:::
+:::
+
+## Stage 3: is this hit significant? E-values and bit scores {#sec-s05-evalue}
 
 Extending every seed produces a raw alignment score. A raw score alone,
 however, does not say whether the alignment is *meaningful* or simply
@@ -294,6 +386,56 @@ the bacterial *truncated* haemoglobins, give no detectable pairwise
 signal at all, even with the optimal alignment (Session 6 shows that
 they still share the globin fold).
 
+::: {.callout-note .tryit icon="false"}
+## Try it · what sensitivity costs, in three numbers
+
+@sec-s05-extension ended by lowering the threshold until myoglobin appeared.
+That is only half of the bargain. The panel below is the last stage, the banded
+alignment, and the counter underneath it reports how many matrix cells the
+whole search actually computed.
+
+::: {.content-visible when-format="html"}
+```{=html}
+<div id="s05-try-cost"></div>
+<script>
+renderBLAST("s05-try-cost", {step: 5, controls: true});
+</script>
+```
+:::
+
+::: {.content-visible when-format="pdf"}
+*This box is interactive, and a printed page cannot press anything. Open
+[course.bioinfo.se/blast.html](https://course.bioinfo.se/blast.html) and choose step 6, *Fill a band, not a matrix*.*
+:::
+
+Read the counter at `blastp`'s defaults, then set *Preset* to **sensitive
+(W 3, T 9)** and read it again --- and look at which sequences now have
+alignments. **What did the extra sensitivity buy, and what did it cost?**
+
+::: {.callout-note collapse="true" appearance="simple"}
+## What you should see
+
+Three numbers move together.
+
+**Speed.** At `blastp`'s defaults the search computes **1,635 of the 15,550**
+cells that a full Smith-Waterman against all six sequences would fill, and
+builds no matrix at all for three of the six. At $T=9$ it computes **3,285**,
+twice as many. That ratio is the whole argument for the heuristic, and on a
+database of a hundred million sequences rather than six it is the difference
+between seconds and weeks.
+
+**Sensitivity.** Myoglobin appears, at 53. So does the mycobacterial globin,
+at 21.
+
+**Specificity.** So does `SHUFFLED`, at 20 --- a sequence with the same
+amino-acid composition as a globin and no history whatsoever. A shuffled
+control scoring 20 while a real homologue scores 21 is the situation this
+section exists to resolve: a raw score cannot tell you which of the two is
+worth reading. That is why BLAST reports an E-value and not a score, and why
+the myoglobin row above is interesting rather than embarrassing.
+:::
+:::
+
 ### Further reading
 
 - Wikipedia, [E-values](https://en.wikipedia.org/wiki/E-value)
@@ -380,7 +522,7 @@ model that chooses its own training data can reinforce its own mistakes.
 In practice, keep the inclusion threshold strict, look at what entered
 in each round, and check surprising late-round hits independently.
 
-### Building a PSSM, step by step
+### Building a PSSM, step by step {#sec-s05-pssm}
 
 Session 4 ended with alignment columns, their entropy, and sequence
 logos. A logo *describes* an alignment column, whereas a PSSM turns the
@@ -491,7 +633,7 @@ labelled examples instead of deriving them from alignment counts.
 
 - Wikipedia, [PSI-BLAST](https://en.wikipedia.org/wiki/PSI-BLAST), [Position weight matrix](https://en.wikipedia.org/wiki/Position_weight_matrix), and [Pseudocount](https://en.wikipedia.org/wiki/Pseudocount)
 
-## Profile Hidden Markov Models: what a PSSM still can't represent
+## Profile Hidden Markov Models: what a PSSM still can't represent {#sec-s05-hmm}
 
 Before the profile, the model it is built on. A **Markov chain** is a set
 of states with probabilities for moving between them, and its defining
@@ -540,6 +682,56 @@ themselves stay hidden.
 
 ![The same six residues, explained by two different paths through the model. Nothing in the sequence says which state produced which residue; the path is inferred from the whole sequence at once, and the model scores every path it could have taken.](figs/session05-hmm-paths.png){#fig-session05-hmm-paths width=95%}
 
+::: {.callout-note .tryit icon="false"}
+## Try it · watch the path use a delete state
+
+Three state types are easier to believe once you have seen a sequence pick its
+way through them. The model below is built from the five-sequence alignment of
+@sec-s05-pssm --- `AGLSP AGLTP RGISP AALSQ AALSP` --- and drawn as a single
+grid with three rows per position: match, insert, delete. The highlighted cells
+are the Viterbi path, the one explanation of the sequence the model rates
+highest.
+
+::: {.content-visible when-format="html"}
+```{=html}
+<div id="s05-try-path"></div>
+<script>
+renderHMM("s05-try-path", {query: "AGLSP"});
+</script>
+```
+:::
+
+::: {.content-visible when-format="pdf"}
+*This box is interactive, and a printed page cannot press anything. Open
+[course.bioinfo.se/hmm.html](https://course.bioinfo.se/hmm.html) and type `AGLSP` into *Query*.*
+:::
+
+It opens on `AGLSP`, the consensus. Now type `AGLP` into *Query*, a residue
+short, and then `AGLSAP`, a residue too many. **Which row does the path move
+into in each case, and where?**
+
+::: {.callout-note collapse="true" appearance="simple"}
+## What you should see
+
+`AGLSP` stays in the match row the whole way: five residues, five conserved
+positions, score 12.02.
+
+`AGLP` has four residues for five positions. The path runs M M M, drops into
+the **delete** row at position 4 --- emitting nothing, which is how a model can
+skip a position a real family sometimes skips --- and returns to match for the
+final `P`. Score 4.83.
+
+`AGLSAP` has six residues for five positions, so one of them has nowhere to go.
+The path runs M M M M, steps into the **insert** row to absorb the extra `A`,
+and then matches the `P`. Score 6.85.
+
+That is the thing a PSSM cannot do. A PSSM scores five columns and hands the
+gap problem to the alignment algorithm, which charges the same penalty
+everywhere. Here, skipping position 4 and squeezing a residue in beside it are
+*moves in the model*, each with its own probability learned from the family.
+:::
+:::
+
 This is the extra structure that PSSMs lack, and it is why profile HMMs,
 not PSSMs, are the standard tool behind large-scale protein family
 databases such as **Pfam**. A profile HMM trained on a protein family
@@ -547,6 +739,58 @@ can recognise a new sequence as a member even when it has a genuinely
 different number of residues in a variable region. The model itself has
 learned *where* insertions and deletions are common in that family,
 which a PSSM with uniform gap penalties can only approximate.
+
+::: {.callout-note .tryit icon="false"}
+## Try it · a prior that rewards never having been seen
+
+@sec-s05-pssm added a flat $+1$ to every residue count, and called it a
+teaching model with a note that real tools use smarter priors. This is what
+that note is about. The model below is the same one, with the pseudocount
+scheme exposed.
+
+::: {.content-visible when-format="html"}
+```{=html}
+<div id="s05-try-pseudo"></div>
+<script>
+renderHMM("s05-try-pseudo", {query: "WWWWW", scheme: "flat"});
+</script>
+```
+:::
+
+::: {.content-visible when-format="pdf"}
+*This box is interactive, and a printed page cannot press anything. Open
+[course.bioinfo.se/hmm.html](https://course.bioinfo.se/hmm.html) and set *Pseudocounts* to flat $+1$.*
+:::
+
+It opens on `WWWWW` under the flat $+1$ prior: five tryptophans, a residue this
+family has never once shown, scoring **7.35**. Now type `AGLSP`, the consensus
+of the five real sequences, and compare. Then switch *Pseudocounts* to
+**background-proportional** and try both again. **Which scheme ranks them the
+right way round, and why does the other one fail?**
+
+::: {.callout-note collapse="true" appearance="simple"}
+## What you should see
+
+Under flat $+1$, `WWWWW` scores **7.35** and the real consensus `AGLSP` scores
+**6.49**. The model prefers a sequence the family has never produced.
+
+The reason is in the denominator. A log-odds score divides the probability the
+model assigns a residue by that residue's background frequency. A flat prior
+gives every unseen residue the same small probability, but tryptophan is rare
+in proteins --- about 1.3% against alanine's 7.4% --- so dividing by a small
+background turns "never seen" into a reward. The prior says every residue is
+equally possible, which is exactly the thing that is not true.
+
+Switch to background-proportional, which spreads the pseudocount in proportion
+to how common each residue is, and `WWWWW` scores **−6.09** against the
+consensus's **12.02**. Same counts, same alignment, same algorithm; the two
+models disagree about a sequence by eighteen bits, purely over what they assume
+before seeing any data.
+
+A prior is not a technicality to be tidied away at the end. It is a claim about
+the family, and with only five sequences it is most of what the model knows.
+:::
+:::
 
 ::: {.callout-note icon="false"}
 In practice the profile-HMM tools are **HMMER** --- `hmmsearch` to search
@@ -597,43 +841,6 @@ database of this size, essentially no match that good is expected by
 chance. The profile HMM thus does on a real sequence what the toy PSSM
 above did on paper: it scores how well a sequence matches a family,
 position by position.
-
-## Practice: the search, and the profile, in the browser
-
-Two pages run the algorithms of this chapter on data small enough to watch,
-and both are worth ten minutes before the lab.
-
-[course.bioinfo.se/blast.html](https://course.bioinfo.se/blast.html) steps
-through all six stages of a BLAST search — cutting the query into words,
-growing each word into its neighbourhood, scanning the database, applying the
-two-hit rule, extending with X-drop, and finally the banded alignment — over a
-query taken from human *HBB* and a database of six globins. The defaults are
-the real ones, read out of `blastp` and `blastn` rather than from memory. The
-reason to open it is the failure described above: with `blastp`'s own settings
-the page misses human myoglobin, and it shows why. Myoglobin produces nine
-word hits, but no two of them land on the same diagonal close enough together,
-so the two-hit rule discards them before any alignment is attempted. Lower the
-threshold $T$ from 11 to 9 and myoglobin appears, scoring 53 against
-alpha-globin's 56 — and the shuffled control appears with it, at 20, which is
-the other half of the bargain. A counter at the bottom reports how many matrix
-cells were computed, which is the whole argument for the heuristic in one
-number. The nucleotide mode makes the same point with word size: `megablast`,
-with its default word of 28, misses a sequence 80% identical to the query that
-`blastn` finds at word size 11. Your own sequences can be pasted in or
-uploaded as FASTA.
-
-[course.bioinfo.se/hmm.html](https://course.bioinfo.se/hmm.html) does the same
-for the second half of the chapter. It builds a profile HMM from the
-five-sequence alignment used above and aligns whatever you type to it, with
-match, insert and delete states drawn as three rows of a single matrix, so the
-Viterbi path is one trace through one grid. `AGLSP`, the consensus, stays in
-the match row; `AGLP` steps through a delete state; `AGLSAP` through an
-insert. Then change the pseudocount scheme to flat $+1$ and score `WWWWW`:
-five tryptophans the family has never seen score 7.35 bits against the real
-consensus's 6.49. That is the alanine-versus-tryptophan problem of the
-previous section, in a number rather than an argument. Add the pseudocounts in
-proportion to the background instead and the same sequence scores −6.09,
-against 12.02 for the consensus.
 
 ## The course notebook
 
@@ -788,6 +995,17 @@ renderQuiz("session05-quiz", [
     ],
     correctIndex: 0,
     explanation: "The states generate what you observe, but which state produced any specific observation is inferred, not directly seen -- the general meaning of \"hidden\" in a hidden Markov model."
+  },
+  {
+    question: "With blastp's default settings, a search of human HBB against a small globin database produces nine word hits against human myoglobin, yet reports no alignment to myoglobin at all. Why not?",
+    choices: [
+      "No two of those hits lie on the same diagonal within the two-hit window, so no seed is ever extended",
+      "All nine hits score below the neighbourhood threshold T",
+      "Myoglobin is too short for a gapped alignment",
+      "The alignment was found but its E-value was above the reporting cutoff"
+    ],
+    correctIndex: 0,
+    explanation: "The sequence is discarded by the two-hit rule before any alignment is attempted, which is why the report shows nothing rather than a weak hit. Lower T to 9 and four seeds survive, and myoglobin aligns at 53 against alpha-globin's 56. The Try it box in the extension section shows the diagonals."
   }
 ]);
 </script>

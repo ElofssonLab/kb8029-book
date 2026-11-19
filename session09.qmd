@@ -162,6 +162,47 @@ The full story is in @sec-s09-epistasis; this is what you need for this section.
 - **Why?** Every hidden unit computes the same thing and receives the same gradient, so the units stay identical for ever. After training, all 64 units in the first layer are still exactly the same, so 64 units behave like one.
 - **Fix.** Random initialisation *breaks the symmetry*, and PyTorch does this by default.
 
+::: {.callout-note .tryit icon="false"}
+## Try it · a network that cannot start
+
+"All the units stay identical for ever" is easier to believe when you can see
+the units. Open [XOR with one hidden layer of four, every weight starting at
+zero](https://course.bioinfo.se/playground/#dataset=xor&networkShape=4&initZero=true&showTestData=true&seed=0.12345)
+and press play, then open [the same network with the usual random
+start](https://course.bioinfo.se/playground/#dataset=xor&networkShape=4&showTestData=true&seed=0.12345)
+and compare. **Watch the loss and the four squares in the hidden layer in each
+run. When does the zero-start run stop improving?**
+
+::: {.pg-embed}
+:::
+
+::: {.callout-note collapse="true" appearance="simple"}
+## What you should see
+
+The zero-start run moves for about ten steps, from 0.500 to **0.497** training
+and **0.503** test, and then stops. Those are the numbers at step 10, at step
+100 and at step 300: the network is frozen. The four hidden squares are blank
+white, because every unit outputs exactly zero, and the output square never
+grows a decision surface at all.
+
+The random start falls past 0.438 by step 10 and 0.027 by step 100, and ends at
+**0.011** and **0.024**.
+
+Nothing is broken in the frozen run --- every gradient is computed correctly,
+and that is the point. With all weights at zero the hidden units emit zero, so
+the gradient reaching the weights below them is zero too, and they stay where
+they are for ever. The ten steps of movement are the output bias, which is a
+single parameter and has no twin to be symmetric with.
+
+The observation above is the gentler version of this. Starting every weight at
+0.1 rather than 0 leaves the units able to move, but they move *together*: all
+64 units in the first layer are still exactly equal after training, so 64 units
+do the work of one, and the validation MAE lands at 0.352 against the additive
+model's 0.371. Zero is the same disease with nothing left over --- and in both
+cases the cure is the same, which is to start the weights apart.
+:::
+:::
+
 ### Failure 2: deep sigmoid networks, and vanishing gradients
 
 - **Observation.** A network with six hidden layers of sigmoid units, trained with plain stochastic gradient descent (SGD), does not learn at all. Its validation MAE stays around 0.48, the error of predicting the mean. The same network with tanh (0.321) or ReLU (0.312) does learn.
@@ -191,11 +232,90 @@ The weights $w_k$ in the product matter as well. Large weights can make the grad
 
 ReLU (Session 8) never shrinks the gradient for positive inputs, which is why it is the default for hidden layers. Its flat side, however, can leave a unit with no gradient at all ("dying ReLU", the first discussion problem). Vanishing gradients come back in very deep CNNs (Session 10), recurrent networks and Transformers (Session 11), and each of those sessions shows the architectural fix.
 
+::: {.callout-note .tryit icon="false"}
+## Try it · a deep sigmoid network that never starts
+
+The observation above is a number in a table: validation MAE stuck at 0.48, the
+error of predicting the mean. Here is the same failure with the units on screen.
+
+Open [six hidden layers of eight sigmoid units on the
+spiral](https://course.bioinfo.se/playground/#activation=sigmoid&dataset=spiral&networkShape=8,8,8,8,8,8&showTestData=true&seed=0.12345)
+and press play. Then open [the same six layers with
+ReLU](https://course.bioinfo.se/playground/#activation=relu&dataset=spiral&networkShape=8,8,8,8,8,8&showTestData=true&seed=0.12345).
+**Compare the 48 hidden squares between the two runs. What is each unit
+showing?**
+
+::: {.pg-embed}
+:::
+
+::: {.callout-note collapse="true" appearance="simple"}
+## What you should see
+
+With sigmoid, after 500 steps the training loss is **0.499** and the test loss
+**0.501**. All 48 hidden squares are the same flat pale wash --- no unit has
+found anything that distinguishes it from its neighbours --- the output square
+is blank, with the spiral data sitting on no decision surface at all, and the
+loss curve is a horizontal line.
+
+With ReLU, the same six layers reach **0.049** and **0.092**. Every hidden
+square now carries its own pattern, a different edge or wedge in each, a few of
+them blank where a unit has died, and the output square traces both arms of the
+spiral.
+
+The sigmoid network is not short of capacity. It has exactly as many weights as
+the ReLU one and it is being trained by the same algorithm on the same data.
+What it lacks is a gradient that reaches the front of it: six activation slopes
+of at most 0.25 multiply to $0.25^6 \approx 0.00024$, so the early layers are
+told almost nothing about the loss and never move away from their starting
+values. The flat pale squares are what "the first layers barely move" looks
+like.
+
+This is also why depth only became useful after ReLU. The idea of stacking
+layers was never the obstacle.
+:::
+:::
+
 ### Failure 3: the optimiser and the learning rate
 
 - **Observation.** The same 64/64 network reaches a validation MAE of 0.250 with Adam (learning rate 0.001), but only 0.305 with plain SGD in the same 20 epochs. With Adam and a learning rate of 0.1, the error jumps around and never gets below 0.298.
 - **Why?** The learning rate sets the step size of gradient descent (Session 1). A rate that is too small is slow, and one that is too large overshoots the minimum. Plain SGD also uses the same step size for every weight, which Adam does not (next subsection).
 - **Fix.** Start with Adam and a learning rate around $10^{-3}$, and always watch the validation curve.
+
+::: {.callout-note .tryit icon="false"}
+## Try it · too big, too small, and about right
+
+Three runs of one network on one dataset, with nothing changed but the learning
+rate. Press play on each and watch the loss curve in the top right.
+
+- [Learning rate 10](https://course.bioinfo.se/playground/#activation=relu&dataset=circle&networkShape=4,2&learningRate=10&showTestData=true&seed=0.12345)
+- [Learning rate 0.0001](https://course.bioinfo.se/playground/#activation=relu&dataset=circle&networkShape=4,2&learningRate=0.0001&showTestData=true&seed=0.12345)
+- [Learning rate 0.03](https://course.bioinfo.se/playground/#activation=relu&dataset=circle&networkShape=4,2&learningRate=0.03&showTestData=true&seed=0.12345)
+
+**Two of these fail, and they do not look alike. How would you tell them apart
+from the loss curve alone?**
+
+::: {.pg-embed}
+:::
+
+::: {.callout-note collapse="true" appearance="simple"}
+## What you should see
+
+At **10**, the loss after 300 steps is **0.968** training and **1.032** test ---
+*worse than the 0.5 of predicting nothing*. The curve is jagged and does not
+settle. Each step overshoots the minimum and lands further up the other side.
+
+At **0.0001**, the loss is **0.488** and **0.496**: a smooth curve, sloping
+gently, that has barely left where it started. Nothing is wrong except that
+300 steps at this size go nowhere. Left running long enough it would get there.
+
+At **0.03**, the same network reaches **0.005** and **0.009**.
+
+That is the diagnosis to carry into the lab. A loss that jumps around or rises
+means the steps are too big. A loss that falls smoothly but far too slowly
+means they are too small. The two need opposite fixes, and the curve tells you
+which you have before you have wasted an afternoon on the wrong one.
+:::
+:::
 
 ### Momentum and Adam: why an optimiser can beat plain stochastic gradient descent {#sec-s09-adam}
 
@@ -266,6 +386,58 @@ The network explains about 79% of the variance in fitness, against 50% for the a
 
 This is Session 7's lesson, now on real biological data. A hidden layer can represent non-additive relationships, and with enough data, training actually finds them. It is also the limitation of profiles noted in Session 5, since a sum over positions cannot capture interactions, and Session 12 returns to it with pairwise models learned from multiple alignments. The second discussion problem asks where the advantage comes from, by giving the linear model hand-made interaction features for each pair of positions, as Session 7 did for XOR with $x_1 x_2$.
 
+::: {.callout-note .tryit icon="false"}
+## Try it · the same argument, without the protein
+
+The claim above is that an additive model cannot represent an interaction and a
+hidden layer can. GB1 makes that case with 149,361 measured variants, which is
+convincing but not watchable. The same argument on 200 points in a plane is.
+
+The [Neural Network Playground](https://course.bioinfo.se/playground/) trains a
+small network in the browser, a few steps per second, and draws every weight and
+every unit's output while it does. It was written at Google by Daniel Smilkov
+and Shan Carter and released under the Apache licence; the copy the course
+serves is ours, so it carries no analytics and will not disappear if the
+original is retired. Each link below opens it on one exact configuration,
+random seed included, so the numbers here are the numbers you will get, and
+clicking one loads it into the frame underneath.
+
+Open the [XOR dataset with no hidden layer](https://course.bioinfo.se/playground/#dataset=xor&networkShape=&showTestData=true&seed=0.12345)
+and press play. Every input gets one weight and the weights are added, exactly
+as in a PSSM. Then open [the same thing with one hidden layer of four
+units](https://course.bioinfo.se/playground/#dataset=xor&networkShape=4&showTestData=true&seed=0.12345),
+with nothing else changed, and press play again. **Watch the four small squares
+in the hidden layer: what is each one doing, and what does adding them up
+buy?**
+
+::: {.pg-embed}
+:::
+
+::: {.callout-note collapse="true" appearance="simple"}
+## What you should see
+
+With no hidden layer, after 300 steps the training loss is **0.512** and the
+test loss **0.498**. That is chance, and no amount of further training moves
+them. The output can only be a ramp, high on one side of a line and low on the
+other, because that is all a weighted sum is.
+
+With one hidden layer of four units, after the same 300 steps the training loss
+is **0.011** and the test loss **0.024**. Each of the four squares is itself a
+ramp, tilted a different way, and the output is a weighted sum of the four.
+Four ramps added together make a chequerboard that no single ramp can.
+
+That is the whole of @tbl-s09-gb1 in a picture. The additive model's $R^2$ of
+0.496 and the network's 0.787 are the protein version of 0.498 against 0.024:
+positions that interact, and a model that can or cannot say so.
+
+One warning, which applies to every box like this in the chapter. These are two
+hundred points in a plane, not a biological dataset, and a decision boundary
+drawn around coloured dots is a picture of a mechanism rather than evidence
+about proteins. The evidence is in the tables on this page. The playground is
+here so that you can see what those tables are describing.
+:::
+:::
+
 ## Why not make the network enormous? {#sec-s09-enormous}
 
 If larger networks can represent more, why not always use an enormous one? Session 8's protein-localisation network answers that question. It has 3000 inputs (150 residues, one-hot), a hidden layer of 64 units and 5 outputs, **192,389 weights** in all, and it is trained on only **486 proteins** of the homology-aware split.
@@ -288,6 +460,45 @@ The localisation classifier: the untrained network of Session 8, the trained net
 :::
 
 Training works, since every number is far above chance, but **the linear model is better**. Before believing that a bigger model is better, always compare it against a simple baseline.
+
+::: {.callout-note .tryit icon="false"}
+## Try it · overfitting, as it happens
+
+@fig-session09-localization-overfitting shows a validation curve that peaks at
+epoch 5 and then falls. It is one line on a finished plot. Here is the same
+thing happening, slowly enough to watch, with the weights that cause it drawn
+beside it.
+
+Open [the noisy spiral](https://course.bioinfo.se/playground/#activation=relu&dataset=spiral&networkShape=8,8,8,8&noise=50&percTrainData=10&showTestData=true&seed=0.12345):
+two spiral arms scattered with the noise slider at maximum until they overlap,
+500 points of which only a tenth are kept for training, and a network of four
+layers of eight units, which is 249 weights including the biases. **That is 50
+training points for 249 weights** --- the localisation network's 486 proteins
+for 192,389 weights, scaled down until it fits on a screen.
+
+Press play and watch the two curves in the top right: the grey one is the
+training loss, the black one the test loss. **At roughly which step do they
+stop moving together, and what is the output square doing by step 1,000?**
+
+::: {.pg-embed}
+:::
+
+::: {.callout-note collapse="true" appearance="simple"}
+## What you should see
+
+They fall together for about a hundred steps. At step 100 the test loss reaches
+**0.486**, which is the lowest it will ever go, with the training loss at 0.449.
+They separate around step 200. By step **1,000** the training loss is down to
+**0.138** while the test loss has climbed to **0.837**, and the coloured wedges
+in the output square have grown out towards individual training points. The
+network is drawing a boundary around single examples, which is what memorising
+looks like.
+
+The best model in that run existed at step 100 and was then trained away. That
+is exactly @sec-s09-early's argument, and the reason early stopping keeps the
+weights from the best epoch rather than the last one.
+:::
+:::
 
 ## What can we do about overfitting? {#sec-s09-overfitting}
 
@@ -338,6 +549,61 @@ For linear regression the two have their own names, **ridge** (L2) and **lasso**
 ![Logistic regression on the 30 biopsy features. Left and middle: every line is one feature's weight as the penalty gets stronger (to the right). Right: the number of non-zero weights (solid) and the validation accuracy (dotted).](figs/session09-l1-l2.png){#fig-session09-l1-l2 width="100%"}
 
 With $\lambda$ chosen on the validation set, L2 keeps all 30 weights (test accuracy 0.965), while L1 keeps only **6** (test accuracy 0.942). The six are led by the largest nucleus radius and the number of concave points on the cell nuclei. L1 thus gives almost the same accuracy with a model that a pathologist can read. When features are many and examples few, as in gene-expression data with 20,000 genes and a few hundred patients, this is often the main reason to use L1. The third discussion problem checks the same effect by hand.
+
+
+::: {.callout-note .tryit icon="false"}
+## Try it · the same $\lambda$, through L1 and through L2
+
+The argument above is that L1 and L2 differ in how hard they pull on a *small*
+weight. The cleanest way to believe it is to give both the same $\lambda$ and
+watch them do opposite things.
+
+Go back to the overfitting run of @sec-s09-enormous --- the noisy spiral, 50
+training points, 249 weights --- and add a penalty of 0.01:
+
+- [No penalty](https://course.bioinfo.se/playground/#activation=relu&dataset=spiral&networkShape=8,8,8,8&noise=50&percTrainData=10&showTestData=true&seed=0.12345)
+- [**L2**, rate 0.01](https://course.bioinfo.se/playground/#activation=relu&dataset=spiral&networkShape=8,8,8,8&noise=50&percTrainData=10&showTestData=true&seed=0.12345&regularization=L2&regularizationRate=0.01)
+- [**L1**, rate 0.01](https://course.bioinfo.se/playground/#activation=relu&dataset=spiral&networkShape=8,8,8,8&noise=50&percTrainData=10&showTestData=true&seed=0.12345&regularization=L1&regularizationRate=0.01)
+
+Run each for 1,000 steps. **One of the two penalties helps and the other
+destroys the network, at the same strength. Which, and why?**
+
+::: {.pg-embed}
+:::
+
+::: {.callout-note collapse="true" appearance="simple"}
+## What you should see
+
+| at step 1,000 | training loss | test loss |
+|---|---|---|
+| no penalty | 0.138 | 0.837 |
+| L2, rate 0.01 | 0.117 | **0.697** |
+| L1, rate 0.01 | 0.499 | 0.501 |
+
+**L2** improves the test loss and leaves the network working. Its pull is
+proportional to each weight's size, so it shrinks the few large weights that
+were bending the boundary around single points and barely touches the rest.
+
+**L1** at the same rate predicts nothing at all: 0.5 is chance. Every one of
+the 32 hidden units is a blank white square and every connection has faded to
+grey, because L1 pulls on a weight of 0.01 as hard as on a weight of 2, and no
+weight in this network can resist a constant pull of that size. The feature selection that made L1 useful on the
+30 biopsy features has here selected everything away.
+
+Weaken it and it comes back: L1 at **0.003** ends at 0.088 and 0.800, and L2 at
+**0.003** at 0.077 and 0.752. That is the $\lambda$ search of the paragraph
+above, with both ends visible --- and the reason it is done on a validation set
+by trying powers of ten rather than guessed.
+
+One more thing worth noticing. The best test loss anywhere in this box is
+0.697, and simply stopping the unpenalised run at step 100 gave **0.486**. With
+50 training points for 249 weights, no penalty strength recovers what more data
+or an earlier stop would have given. That is the same conclusion
+@sec-s09-overfitting reached on the localisation network, where dropout and
+weight decay could not beat early stopping either. **Regularisation is not a
+substitute for enough data.**
+:::
+:::
 
 ### Dropout {#sec-s09-dropout}
 
@@ -538,69 +804,21 @@ renderQuiz("session09-quiz", [
     ],
     correctIndex: 0,
     explanation: "Dropout switches off random units in every forward pass, but only in training mode. model.eval() turns it off (and model.train() back on), so predictions become deterministic."
+  },
+  {
+    question: "On the same overfitting run, an L1 penalty with rate 0.01 leaves the network predicting 0.5 for everything, while an L2 penalty with the same rate 0.01 improves the test loss. Why do the same strength and the same network give opposite results?",
+    choices: [
+      "L1 pulls every weight towards zero with the same force whatever its size, so at that strength almost no weight survives; L2's pull is proportional to the weight, so it shrinks the few large ones and barely touches the rest",
+      "L1 is computed on the training set and L2 on the validation set",
+      "L2 is applied only to the biases, which L1 leaves alone",
+      "L1 uses a larger effective learning rate than L2"
+    ],
+    correctIndex: 0,
+    explanation: "This is the difference in the penalties' slopes: L1 adds a constant to each weight's gradient, L2 adds a term proportional to the weight. The same lambda is therefore a mild shrinkage under L2 and a death sentence under L1. Weaken L1 to 0.003 and the network comes back."
   }
 ]);
 </script>
 ```
-
-## Practice: a network you can watch train {#sec-s09-playground}
-
-Every argument on this page is about what happens to weights while a network
-trains, and that is easier to believe once you have watched it. The page at
-[course.bioinfo.se/playground/](https://course.bioinfo.se/playground/) trains a
-small network in the browser, a few steps per second, and draws every weight and
-every unit's output while it does. It is the Neural Network Playground, written
-at Google by Daniel Smilkov and Shan Carter and released under the Apache
-licence; the copy here is ours, so it carries no analytics and will not
-disappear if the original is retired. Each link below opens it on one exact
-configuration, random seed included, so the numbers quoted here are the numbers
-you will see.
-
-**A hidden layer, and what it buys.** @sec-s09-epistasis argues that an additive
-model cannot represent epistasis, and that a hidden layer can. The same argument
-without the protein is the XOR dataset: four quadrants with alternating labels.
-Open it [with no hidden layer at all](https://course.bioinfo.se/playground/#dataset=xor&networkShape=&showTestData=true&seed=0.12345) and press play. Every input
-gets one weight and the weights are added, exactly as in a PSSM, so the output
-can only be a ramp, high on one side and low on the other. After 300 steps the
-training loss is 0.512 and the test loss 0.498, which is chance, and no amount of
-further training moves them. Now open [the same thing with one hidden layer of
-four units](https://course.bioinfo.se/playground/#dataset=xor&networkShape=4&showTestData=true&seed=0.12345), and nothing else changed. After the same 300 steps the
-training loss is 0.011 and the test loss 0.024. The four small squares in the
-hidden layer show why: each unit is itself a ramp, and the output is a weighted
-sum of the four. Four ramps added together make a chequerboard that no single
-ramp can.
-
-**Overfitting, as it happens.** @sec-s09-enormous makes its case with a network
-of 192,389 weights trained on 486 proteins. [The spiral](https://course.bioinfo.se/playground/#activation=relu&dataset=spiral&networkShape=8,8,8,8&noise=50&percTrainData=10&showTestData=true&seed=0.12345) is the same
-situation small enough to watch: two spiral arms scattered with the noise slider
-at maximum until they overlap, 500 points of which only a tenth are kept for
-training, and a network of four layers of eight units, which is 249 weights
-including the biases. That is 50 training points for 249 weights. Press play and
-watch the two curves in the top right, the grey one the training loss and the
-black one the test loss. They fall together for about a hundred steps, the test
-loss reaching 0.486, which is the lowest it will ever go. They separate around
-step 200. By step 1,000 the training loss is down to 0.138 while the test loss has
-climbed to 0.837, and the coloured wedges in the output square have grown out
-towards individual training points. The network is drawing a boundary around
-single examples, which is what memorising looks like. This is the localisation
-network's curve of @sec-s09-early, whose validation accuracy peaked at epoch 5
-and then fell, with pictures of the weights that caused it.
-
-**And what a penalty does.** Leave that run as it is and set *Regularization* to
-L1 with a rate of 0.01, [like this](https://course.bioinfo.se/playground/#activation=relu&dataset=spiral&networkShape=8,8,8,8&noise=50&percTrainData=10&showTestData=true&seed=0.12345&regularization=L1&regularizationRate=0.01). After 1,000 steps the training
-loss is 0.499 and the test loss 0.501: the network predicts nothing at all. Most
-of the connecting lines have faded to grey, which is @sec-s09-l1l2's constant
-pull towards zero winning outright against the fit. A weaker penalty does less of
-both: L1 at 0.003 ends at 0.088 and 0.800, barely better on the test set than no
-penalty. This is the $\lambda$ argument of that section with both ends visible,
-and it is the reason $\lambda$ is chosen on a validation set by trying powers of
-ten rather than guessed.
-
-One warning. These are two hundred points in a plane, not a biological dataset,
-and a decision boundary drawn around coloured dots is a picture of a mechanism
-rather than a result. What transfers to the GB1 and localisation models of this
-chapter is the mechanism: what a hidden layer adds, what a training curve and a
-test curve do when a model starts memorising, and what a penalty does to a weight.
 
 ## The course notebook
 

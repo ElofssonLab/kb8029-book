@@ -13,3 +13,94 @@
 #quarto-document-content ol > li + li {
   margin-top: 0.65rem;
 }
+
+/* "Try it" boxes.
+   Sessions 4, 5, 7 and 9 each put the matching interactive page inside the
+   section it belongs to, rather than in one appendix at the end of the
+   chapter: the alignment matrix where substitution matrices are discussed,
+   the BLAST search where the two-hit rule is, the playground where L1 and L2
+   are. Each box is one instruction, the widget itself, one question, and the
+   answer folded away underneath.
+
+   They are callout-notes with an extra class so that they read as a series --
+   a student who has done one knows what the next one is asking of them -- and
+   so that they do not look like the chapter-opening joke, which is also a
+   callout. Book-wide, because all four chapters use them. */
+#quarto-document-content .tryit.callout {
+  border-left: 4px solid #2c7a7b;
+  background: #f4fafa;
+}
+#quarto-document-content .tryit.callout > .callout-header {
+  background: transparent;
+  border-bottom: 1px solid #cfe3e3;
+}
+#quarto-document-content .tryit.callout .callout-title-container {
+  font-weight: 600;
+  color: #22595a;
+}
+
+/* The widget inside a box is the thing being talked about, so it gets room:
+   the paragraph above it is the instruction and the one below is the
+   question, and running all three together makes the box hard to scan. */
+#quarto-document-content .tryit .dpm,
+#quarto-document-content .tryit .bls,
+#quarto-document-content .tryit .hmm {
+  margin: 1.1rem 0;
+}
+
+/* The folded answer. Quieter than the box around it: it is there to be
+   checked against after trying, not read on the way past. */
+#quarto-document-content .tryit .callout-style-simple {
+  background: #ffffff;
+  border: 1px solid #cfe3e3;
+  margin-top: 1rem;
+}
+
+/* A figure standing in for a widget that cannot be embedded -- the Playground
+   needs about 980px and the body column is 730 -- is the result the reader is
+   being asked to reproduce, so it is shown full width with a visible edge
+   rather than floated or shrunk. */
+#quarto-document-content .tryit img {
+  width: 100%;
+  border: 1px solid #cbd2d9;
+  border-radius: 3px;
+}
+
+/* The embedded Playground (js/playground-embed.js).
+   The page's own layout wants about 1000px and the body column is about 730,
+   so the frame is rendered full size and scaled down with a transform; the
+   factor is computed in the script, because the column is narrower on a laptop
+   and narrower again on a phone. The wrapper is the scaled box's height, so
+   that the prose underneath sits where it should rather than on top of it. */
+#quarto-document-content .pg-frame {
+  position: relative;
+  overflow: hidden;
+  margin: 1.1rem 0 0.4rem;
+  border: 1px solid #cbd2d9;
+  border-radius: 3px;
+  background: #fff;
+}
+#quarto-document-content .pg-frame iframe {
+  position: absolute;
+  top: 0;
+  left: 0;
+  border: 0;
+  transform-origin: top left;
+}
+/* A sibling of the frame, never a child: the frame's box is clipped to the
+   scaled height, so a footer inside it would be cut off. Outside, it also
+   keeps the body's own type size instead of being shrunk with the frame. */
+#quarto-document-content .pg-foot {
+  margin: 0 0 0.9rem;
+  font-size: 0.82em;
+  color: #52606d;
+}
+
+/* Which preset the frame is currently showing. The links stay ordinary links
+   -- ctrl-click still opens a tab, and with JavaScript off they are all that
+   is there -- so this is the only sign that one of them is "current". */
+#quarto-document-content .tryit a.pg-current {
+  font-weight: 600;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 2px;
+}

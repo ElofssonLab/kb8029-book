@@ -58,7 +58,8 @@ Most sessions have a lab (see the [Course Schedule](schedule.qmd)): a notebook i
 
 The course is full time for four weeks and two days: about 176 hours of work, at eight hours a day. The table below gives our estimate of where that time goes: each session has its lecture (three hours; Sessions 0 and 1 share one), reading the material and doing the lab, and then come the capstone project and the exam.
 
-- **Reading and understanding** means studying the session page carefully, with its worked examples, practice problems, quiz and main videos, and working through the course notebook. Optional videos and boxes are not included.
+- **Reading and understanding** means studying the session page carefully, with its worked examples, practice problems, **Try it** boxes, quiz and main videos, and working through the course notebook. Videos and sections marked optional are not included.
+- **The "Try it" boxes** are part of that reading, not extra work on top of it. Sessions 4, 5, 7 and 9 each carry a few: a small interactive version of what the section just argued, one instruction, and one question with the answer folded away underneath. They take about five minutes each, they are already counted in the hours below, and **nothing in them is submitted or marked** --- the question is there so that you know whether you have understood the section, and a few of the answers come back in that session's quiz. The same pages stand on their own at [course.bioinfo.se/dp.html](https://course.bioinfo.se/dp.html), [blast.html](https://course.bioinfo.se/blast.html), [hmm.html](https://course.bioinfo.se/hmm.html) and [playground/](https://course.bioinfo.se/playground/) if you want to keep playing with them.
 - **Lab** is the total time for the lab, including its quiz on Canvas. Every lab is designed to fit into its scheduled lab afternoon. Optional extras in the lab notebooks are not included.
 
 | Part of the course | Lecture | Reading and understanding | Lab | Total |
