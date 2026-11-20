@@ -34,7 +34,7 @@
   cannot: a million sequences is a million matrices. BLAST fills almost none of them. Step through the
   seven things it does instead, and watch the counter at the bottom, which is the entire argument.
   Then lower the threshold and see what the fast setting was missing, and let step 7 work out
-  whether any of it means anything.</p>
+  whether any of it means anything &mdash; against a distribution it samples in front of you.</p>
   <div id="blast"></div>
   <p class="foot">The defaults are the real ones, taken from the programs rather than from memory:
   <code>blastp</code> prints <em>Neighboring words threshold: 11</em> and <em>Window for multiple
@@ -45,7 +45,9 @@
   the gap cost, which is linear here and affine in the real programs. Step 7 solves the
   Karlin-Altschul equation for lambda rather than quoting it, and gets 0.3176 for BLOSUM62,
   which is the value NCBI publishes; its E-values are for the ungapped HSP, because the linear
-  gap of step 6 has no closed-form lambda.
+  gap of step 6 has no closed-form lambda. It also samples the distribution the formula is about
+  &mdash; a few thousand random sequence pairs, scored the same way &mdash; and draws the predicted
+  curve over those samples, so the statistics can be checked rather than believed.
   See also the <a href="dp.html">alignment matrix</a> and <a href="hmm.html">profile HMMs</a>.</p>
 </main>
 <script>

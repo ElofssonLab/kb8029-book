@@ -320,8 +320,12 @@ and $\lambda$ are constants of the particular scoring system
 (substitution matrix and gap penalties), which real BLAST output reports
 as "Karlin-Altschul statistics". This is the simplified textbook form.
 Real BLAST replaces $m$ and $n$ by slightly smaller *effective* lengths
-(an alignment cannot start right at the end of a sequence) and adjusts
-for composition, but the behaviour is the same.
+--- an alignment cannot start right at the end of a sequence, so the last
+$\ln(Kmn)/H$ positions of each are not really places a high-scoring
+alignment could begin --- and adjusts for composition, but the behaviour
+is the same. Here $H$ is the relative entropy of the scoring matrix,
+0.401 nats for BLOSUM62. The widget below does that same shortening, so
+the E-values it prints are the ones a real report would print.
 
 Two consequences of the formula matter. First, a higher score gives an
 exponentially smaller $E$. Second, a bigger database ($n$) inflates $E$
@@ -393,7 +397,9 @@ they still share the globin fold).
 That is only half of the bargain. The panel below is the last stage, where the
 scores of this chapter finally become E-values, and the counter underneath it
 reports how many matrix cells the whole search computed to get them. It opens
-at the sensitive setting, $T=9$.
+at the sensitive setting, $T=9$. Underneath the table it samples the random-score
+distribution those E-values are read against; clicking a row in the table moves
+the marker onto that hit's score.
 
 ::: {.content-visible when-format="html"}
 ```{=html}
@@ -406,7 +412,9 @@ renderBLAST("s05-try-cost", {step: 6, threshold: 9, controls: true});
 
 ::: {.content-visible when-format="pdf"}
 *This box is interactive, and a printed page cannot press anything. Open
-[course.bioinfo.se/blast.html](https://course.bioinfo.se/blast.html) and choose step 7, *Is it significant?*, with the threshold at 9.*
+[course.bioinfo.se/blast.html](https://course.bioinfo.se/blast.html) and choose step 7, *Is it significant?*, with the threshold at 9. That step samples the
+random-score distribution and draws the Karlin--Altschul curve over the samples,
+which is the figure this paragraph is standing in for.*
 :::
 
 Read the E-value column, then switch *Preset* between **blastp (W 3, T 11)**
@@ -427,25 +435,42 @@ database of a hundred million sequences rather than six it is the difference
 between seconds and weeks.
 
 **Sensitivity.** Human myoglobin appears, at 53 raw and **27.2 bits**, with an
-E-value of $1.0\times10^{-4}$. Look at that against alpha-globin's
-$3.6\times10^{-4}$: the sequence `blastp`'s own defaults never aligned at all is
+E-value of $6.2\times10^{-5}$. Look at that against alpha-globin's
+$2.2\times10^{-4}$: the sequence `blastp`'s own defaults never aligned at all is
 the *best hit in the database*. The bacterial globin appears too, at 12.5 bits.
 
 **Specificity.** So does `SHUFFLED`, at 10.2 bits --- a sequence with the
 composition of a globin and no history whatsoever. And here is the row to sit
 with: **chicken myoglobin and the shuffled control both score 16**, so they get
-the same 10.2 bits and the same E-value of 13. A real homologue and a sequence
+the same 10.2 bits and the same E-value of 7.9. A real homologue and a sequence
 related to nothing are, on this evidence, indistinguishable.
+
+**Where those numbers come from.** Under the table is the distribution the
+E-values are read against: the best ungapped score reached by each of two
+thousand random sequence pairs, with the Karlin--Altschul curve drawn over the
+samples rather than in place of them. Click `MYG_GALGA` and the marker lands at
+16 with the entire distribution to the right of it --- all two thousand random
+pairs scored at least that well. That is the same verdict as its E-value of 7.9,
+drawn instead of asserted. Now click `MYG_HUMAN`: the marker lands at 53, past
+everything chance managed. Press **Sample five times as many pairs** and exactly
+one of the eight thousand gets there --- about what $E = 6.2\times10^{-5}$
+predicts, since it means roughly one random search in sixteen thousand reaches
+that score, so half a pair is expected in eight thousand. The solid curve is the
+formula exactly as the table applies it, over the *effective* lengths
+$32\times293$; the dashed one is the same formula over the plain $50\times311$,
+and it sits visibly above the samples. That gap is the correction this chapter
+mentioned when it introduced $E = K m n e^{-\lambda S}$, and it is why the solid
+curve is the one the table reads.
 
 That is the answer to "which two rows should you refuse to tell apart". It is
 also what the E-value is for. It cannot rescue the chicken sequence, and it
 does not pretend to: what it says is that **neither** row is evidence, where
-the raw score alone invited you to rank them. An E-value of 13 means you should
-expect thirteen alignments this good from chance in a database this size, so
+the raw score alone invited you to rank them. An E-value of 7.9 means you should
+expect about eight alignments this good from chance in a database this size, so
 finding one tells you nothing.
 
 Then change *Searched against* to UniProtKB. Nothing realigns and no score
-changes, but every E-value grows by about nine orders of magnitude and the
+changes, but every E-value grows by about eight orders of magnitude and the
 green disappears. E is linear in the size of the haystack, which is why a
 50-residue window is a demonstration and not a search: a real query is a whole
 protein, reaches several hundred bits, and every bit halves E.

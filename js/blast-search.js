@@ -294,12 +294,199 @@ function blLambda(cfg) {
 function blBits(S, lambda, K) { return (lambda * S - Math.log(K)) / Math.LN2; }
 function blE(S, lambda, K, m, n) { return K * m * n * Math.exp(-lambda * S); }
 
+// Effective lengths and search spaces span 7.5 to 7x10^11 in this one step, so
+// neither commas everywhere nor exponents everywhere is readable.
+function blLen(v) {
+  if (v < 10) return v.toFixed(1);
+  if (v < 1e6) return blNum(Math.round(v));
+  return v.toExponential(1).replace("e+", "e");
+}
+
 function blFmtE(e) {
   if (!isFinite(e)) return "-";
   if (e >= 1000 || e < 0.01) return e.toExponential(1).replace("e+", "e").replace("e-", "e-");
   if (e >= 10) return e.toFixed(0);
   if (e >= 1) return e.toFixed(1);
   return e.toFixed(3);
+}
+
+// ---------------------------------------------------------------------------
+// Where the E-value comes from.
+//
+// E = K m n exp(-lambda S) is easy to print and hard to believe. The claim
+// underneath it is that the best ungapped score between two *random* sequences
+// follows a known distribution, and that a real score means something only
+// when it is read against that distribution. None of that has to be taken on
+// trust: random pairs are cheap, so the page samples the null distribution
+// itself and draws the predicted curve over the top of the samples. If the two
+// ever stop agreeing, the picture says so without anyone having to notice.
+//
+// Two details decide whether the curve lands on the bars.
+//
+//   - Scores are integers, so the continuous curve is read across each score's
+//     own interval, x-0.5 to x+0.5, rather than at the point.
+//
+//   - m and n are not the lengths BLAST uses. An alignment that starts in the
+//     last few residues of either sequence has no room left to reach a high
+//     score, so the usable search space is smaller than m*n. BLAST subtracts
+//     ln(K m n)/H from each length; the result is the "effective search space"
+//     printed in every report. Here that takes 50 x 311 down to about 32 x 293,
+//     a factor of 1.6, and it is plainly visible as the gap between the plain
+//     curve and the samples. The table keeps the plain formula, which is what
+//     the step teaches and what the notes say it uses; the chart draws both,
+//     because a curve that misses the data under it teaches the wrong lesson.
+
+// Deterministic, so that the distribution is the same on every reload and a
+// screenshot taken for the slides matches what the student sees. mulberry32.
+function blRng(seed) {
+  let a = seed >>> 0;
+  return function () {
+    a = (a + 0x6D2B79F5) >>> 0;
+    let t = Math.imul(a ^ (a >>> 15), 1 | a);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+// Relative entropy of the scoring scheme, in nats: H = lambda * sum q_ij s_ij,
+// with q_ij = p_i p_j exp(lambda s_ij) the target frequencies lambda implies.
+// For BLOSUM62 on the Robinson & Robinson background this comes out at 0.401,
+// which is the H NCBI publishes beside lambda and K -- so getting it right is
+// a second, independent check that the matrix and the background agree.
+function blEntropy(cfg, lambda) {
+  const s = blScore(cfg);
+  const p = blBackground(cfg);
+  const letters = Object.keys(p);
+  let h = 0;
+  letters.forEach(function (a) {
+    letters.forEach(function (b) {
+      h += p[a] * p[b] * Math.exp(lambda * s(a, b)) * s(a, b);
+    });
+  });
+  return h * lambda;
+}
+
+// The effective search space: both lengths shortened by ln(K m n)/H, which
+// depends on the lengths, so it is iterated to a fixed point. Floored at 1/K,
+// as BLAST floors it, so a very short query cannot drive a length negative.
+function blEffective(m, n, K, H) {
+  if (!(H > 0)) return { m: m, n: n };
+  let mE = m, nE = n;
+  for (let i = 0; i < 10; i++) {
+    const cut = Math.log(K * mE * nE) / H;
+    if (!isFinite(cut) || cut <= 0) break;
+    mE = Math.max(1 / K, m - cut);
+    nE = Math.max(1 / K, n - cut);
+  }
+  return { m: mE, n: nE };
+}
+
+// The best ungapped score between two sequences is the best-scoring segment on
+// some one diagonal, so each diagonal is a one-dimensional maximum-subarray
+// problem and Kadane's scan settles it in a single pass. This is deliberately
+// the honest best rather than what the search would have found: a null
+// distribution built from seeded hits would be a distribution of what BLAST
+// happens to look at, not of what the score could have been.
+function blMaxSegment(A, B, S) {
+  const la = A.length, lb = B.length;
+  let best = 0;
+  for (let d = -(la - 1); d < lb; d++) {
+    let run = 0;
+    let i = d < 0 ? -d : 0, j = d < 0 ? 0 : d;
+    for (; i < la && j < lb; i++, j++) {
+      run += S[A[i]][B[j]];
+      if (run < 0) run = 0;
+      else if (run > best) best = run;
+    }
+  }
+  return best;
+}
+
+// How much scanning one sample costs is m*n, and a nucleotide query is four
+// times the length of the protein one, so the number of pairs is set by a
+// budget of cells rather than written down. About 0.3 s of work either way.
+//
+// The budget has to be a ceiling and not just a target, because the "search
+// your own sequence" panel accepts a 400-residue query against 40,000 residues
+// of database. That is 16 million cells per pair: a floor of 500 pairs would
+// ask the browser for eight billion cell operations and freeze the tab for
+// minutes. Past the ceiling the panel samples nothing and says so, which is
+// better than a page that appears to have crashed.
+const BL_SAMPLE_CELLS = 3.2e7;
+const BL_SAMPLE_CEILING = 1.6e8;   // a hard stop, even when more pairs are asked for
+const BL_SAMPLE_FLOOR = 500;       // below this a histogram is too ragged to read
+const BL_SAMPLE_MIN = 150;         // below this, do not draw at all
+const BL_SAMPLE_SEED = 20260419;
+const BL_SAMPLE_CACHE = {};
+
+function blSampleTrials(m, n, mult) {
+  const cells = Math.max(1, m * n);
+  const k = mult || 1;
+  let t = Math.round(BL_SAMPLE_CELLS * k / cells);
+  if (t < BL_SAMPLE_FLOOR) t = BL_SAMPLE_FLOOR;
+  t = Math.min(t, Math.floor(BL_SAMPLE_CEILING / cells));
+  return Math.max(0, Math.min(8000, t));
+}
+
+function blSampleKey(cfg, m, n, mult) {
+  return [cfg.alphabet, m, n, BL_SAMPLE_SEED, blSampleTrials(m, n, mult)].join(":");
+}
+
+function blSampleReady(cfg, m, n, mult) {
+  return !!BL_SAMPLE_CACHE[blSampleKey(cfg, m, n, mult)];
+}
+
+// Random sequences of the same two lengths, drawn letter by letter from the
+// same background the lambda above was solved against. Shuffling the real
+// query would be the other obvious choice, and is the control the SHUFFLED
+// database entry already provides; the background is used here instead so that
+// any disagreement between samples and curve is a disagreement about the
+// theory and not about composition.
+function blSampleNull(cfg, m, n, mult) {
+  const key = blSampleKey(cfg, m, n, mult);
+  if (BL_SAMPLE_CACHE[key]) return BL_SAMPLE_CACHE[key];
+  const trials = blSampleTrials(m, n, mult);
+  if (trials < 1) return { trials: 0, counts: {}, max: 0, ms: 0 };
+  const p = blBackground(cfg);
+  const letters = Object.keys(p);
+  const sc = blScore(cfg);
+  const S = letters.map(function (a) {
+    return letters.map(function (b) { return sc(a, b); });
+  });
+  const cum = [];
+  let acc = 0;
+  letters.forEach(function (L) { acc += p[L]; cum.push(acc); });
+  const rnd = blRng(BL_SAMPLE_SEED);
+  function draw(len) {
+    const out = new Int32Array(len);
+    for (let i = 0; i < len; i++) {
+      const u = rnd();
+      let k = 0;
+      while (k < cum.length - 1 && u > cum[k]) k++;
+      out[i] = k;
+    }
+    return out;
+  }
+  const counts = {};
+  let max = 0;
+  const t0 = Date.now();
+  for (let t = 0; t < trials; t++) {
+    const v = blMaxSegment(draw(m), draw(n), S);
+    counts[v] = (counts[v] || 0) + 1;
+    if (v > max) max = v;
+  }
+  const res = { trials: trials, counts: counts, max: max, ms: Date.now() - t0 };
+  BL_SAMPLE_CACHE[key] = res;
+  return res;
+}
+
+// How many of the sampled pairs reached at least this score.
+function blAtLeast(samples, x) {
+  let t = 0;
+  Object.keys(samples.counts).forEach(function (k) {
+    if (Number(k) >= x) t += samples.counts[k];
+  });
+  return t;
 }
 
 function blScore(cfg) {
@@ -622,6 +809,14 @@ function blStyle() {
     .bls .bls-msg.ok { color: #0f5132; }
     .bls .bls-msg.bad { color: #b02a37; }
     .bls .bls-warn { background: #fff3cd; border-radius: 6px; padding: 0.6em 0.9em; font-size: 0.88em; margin: 0.5em 0; }
+    .bls .bls-evd { margin: 0.9em 0 0.2em; }
+    .bls .bls-evd svg { width: 100%; height: auto; display: block;
+      background: rgba(0,0,0,0.015); border-radius: 6px; }
+    .bls .bls-evd .bls-key { font-size: 0.8em; color: rgba(0,0,0,0.65);
+      margin: 0.45em 0 0.2em; }
+    .bls .bls-evd .bls-key i { display: inline-block; width: 1.6em; height: 0.55em;
+      vertical-align: middle; margin-right: 0.4em; border-radius: 2px; }
+    .bls .bls-evd button { margin-top: 0.5em; }
   `;
   document.head.appendChild(style);
 }
@@ -707,6 +902,310 @@ function blGrid(cfg, qseq, sseq, marks) {
 }
 
 // ------------------------------------------------------------------ the page
+
+function blSvg(tag, attrs) {
+  const e = document.createElementNS("http://www.w3.org/2000/svg", tag);
+  Object.keys(attrs || {}).forEach(function (k) { e.setAttribute(k, attrs[k]); });
+  return e;
+}
+
+const BL_EVD = { bar: "#9db8d2", bars: "#6b8fb5", fit: "#0d6efd",
+                 plain: "rgba(0,0,0,0.5)", mark: "#146c43",
+                 tail: "rgba(20,108,67,0.10)" };
+
+// The null distribution, with the curve the formula predicts drawn over it and
+// the score in question marked on the same axis. Drawn as SVG at a fixed
+// viewBox and scaled by CSS, so it is right in a 730px chapter column, right
+// on a slide, and right while the box it lives in is still display:none.
+function blEvdChart(samples, opt) {
+  const W = 760, H = 250, L = 50, R = 14, T = 16, B = 40;
+  const lo = opt.lo, hi = opt.hi, span = Math.max(1, hi - lo);
+  const px = function (v) { return L + (v - lo) / span * (W - L - R); };
+
+  function dens(v, mm, nn) {
+    const F = function (z) {
+      return Math.exp(-opt.K * mm * nn * Math.exp(-opt.lambda * z));
+    };
+    return F(v + 0.5) - F(v - 0.5);
+  }
+
+  let top = 0;
+  Object.keys(samples.counts).forEach(function (k) {
+    top = Math.max(top, samples.counts[k] / samples.trials);
+  });
+  for (let v = lo; v <= hi; v++) top = Math.max(top, dens(v, opt.effM, opt.effN));
+  top = (top || 1) * 1.18;
+  const py = function (p) { return T + (1 - p / top) * (H - T - B); };
+
+  const svg = blSvg("svg", {
+    viewBox: "0 0 " + W + " " + H,
+    preserveAspectRatio: "xMidYMid meet"
+  });
+  svg.appendChild(blSvg("title", {})).textContent =
+    "The best ungapped score reached by " + blNum(samples.trials)
+    + " random sequence pairs, with the Karlin-Altschul curve over it and "
+    + opt.markName + "'s score of " + opt.mark + " marked.";
+
+  // the tail being asked about: everything at or above the marked score
+  if (opt.mark !== null && opt.mark - 0.5 < hi) {
+    const x0 = px(Math.max(lo, opt.mark - 0.5));
+    svg.appendChild(blSvg("rect", {
+      x: x0, y: T, width: Math.max(0, px(hi) - x0), height: H - T - B,
+      fill: BL_EVD.tail
+    }));
+  }
+
+  // axes
+  svg.appendChild(blSvg("line", {
+    x1: L, y1: py(0), x2: W - R, y2: py(0), stroke: "rgba(0,0,0,0.45)"
+  }));
+  // A nucleotide hit scores in the hundreds and a protein window in the tens,
+  // so a fixed tick spacing either labels nothing or draws an unreadable smear.
+  let tick = 1;
+  const ticks = [1, 2, 5, 10, 20, 25, 50, 100, 200, 500, 1000, 2000];
+  for (let i = 0; i < ticks.length; i++) {
+    tick = ticks[i];
+    if (span / tick <= 12) break;
+  }
+  for (let v = Math.ceil(lo / tick) * tick; v <= hi; v += tick) {
+    svg.appendChild(blSvg("line", {
+      x1: px(v), y1: py(0), x2: px(v), y2: py(0) + 4, stroke: "rgba(0,0,0,0.45)"
+    }));
+    const lab = blSvg("text", {
+      x: px(v), y: py(0) + 17, "text-anchor": "middle",
+      "font-size": "12", fill: "rgba(0,0,0,0.6)"
+    });
+    lab.textContent = String(v);
+    svg.appendChild(lab);
+  }
+  const xlab = blSvg("text", {
+    x: (L + W - R) / 2, y: H - 6, "text-anchor": "middle",
+    "font-size": "12.5", fill: "rgba(0,0,0,0.7)"
+  });
+  xlab.textContent = "best ungapped score between two random sequences";
+  svg.appendChild(xlab);
+  const ylab = blSvg("text", {
+    x: -(T + (H - T - B) / 2), y: 14, transform: "rotate(-90)",
+    "text-anchor": "middle", "font-size": "12.5", fill: "rgba(0,0,0,0.7)"
+  });
+  ylab.textContent = "share of pairs";
+  svg.appendChild(ylab);
+
+  // the samples
+  const bw = Math.max(1.5, (W - L - R) / span - 1.5);
+  Object.keys(samples.counts).forEach(function (k) {
+    const v = Number(k), p = samples.counts[k] / samples.trials;
+    if (v < lo - 1 || v > hi + 1) return;
+    svg.appendChild(blSvg("rect", {
+      x: px(v) - bw / 2, y: py(p), width: bw, height: Math.max(0, py(0) - py(p)),
+      fill: v >= opt.mark ? BL_EVD.bars : BL_EVD.bar
+    }));
+  });
+
+  // the two curves
+  function curve(mm, nn, colour, dash) {
+    const pts = [];
+    for (let v = lo; v <= hi; v += 0.25) pts.push(px(v) + "," + py(dens(v, mm, nn)));
+    const pl = blSvg("polyline", {
+      points: pts.join(" "), fill: "none", stroke: colour, "stroke-width": "2"
+    });
+    if (dash) pl.setAttribute("stroke-dasharray", dash);
+    svg.appendChild(pl);
+  }
+  curve(opt.m, opt.n, BL_EVD.plain, "5 4");
+  curve(opt.effM, opt.effN, BL_EVD.fit, null);
+
+  // The score being asked about. A nucleotide HSP can score 350 against a
+  // random range that stops at 27, and stretching the axis to reach it would
+  // squash the whole distribution into one spike. Past a point the mark is
+  // therefore left at the edge and labelled as off the scale, which is the
+  // same thing the picture is there to say.
+  if (opt.mark !== null) {
+    const off = opt.mark > hi;
+    const mx = off ? W - R : px(opt.mark);
+    svg.appendChild(blSvg("line", {
+      x1: mx, y1: T - 4, x2: mx, y2: py(0),
+      stroke: BL_EVD.mark, "stroke-width": "2"
+    }));
+    if (off) {
+      svg.appendChild(blSvg("path", {
+        d: "M" + (mx - 11) + "," + (T + 4) + "h9l-3.5,-3.5M" + (mx - 2) + "," + (T + 4)
+           + "l-3.5,3.5",
+        fill: "none", stroke: BL_EVD.mark, "stroke-width": "1.6"
+      }));
+    }
+    const atEnd = off || mx > W - 190;
+    const t = blSvg("text", {
+      x: atEnd ? mx - (off ? 15 : 6) : mx + 6, y: T + 8,
+      "text-anchor": atEnd ? "end" : "start",
+      "font-size": "12.5", "font-weight": "600", fill: BL_EVD.mark
+    });
+    t.textContent = opt.markName + " scores " + opt.mark
+      + (off ? ", off this scale" : "");
+    svg.appendChild(t);
+  }
+  return svg;
+}
+
+function blKeyItem(colour, text, dashed) {
+  const s = blEl("span", null);
+  const swatch = blEl("i");
+  swatch.style.background = dashed
+    ? "repeating-linear-gradient(90deg," + colour + " 0 5px,transparent 5px 9px)"
+    : colour;
+  s.appendChild(swatch);
+  s.appendChild(document.createTextNode(text));
+  s.style.marginRight = "1.1em";
+  return s;
+}
+
+// The whole picture, plus the sentence that turns it into a number. Sampling
+// costs a few hundred milliseconds, which is not worth blocking a chapter page
+// for, so the first draw is deferred and the result cached: switching steps
+// back and forth redraws instantly and shows the same distribution.
+function blEvdPanel(body, cfg, data, runs, opt) {
+  const wrap = blEl("div", "bls-evd");
+  body.appendChild(wrap);
+
+  let mark = null, markName = null;
+  const focus = runs[cfg.focus];
+  if (focus && focus.hsp) {
+    mark = focus.hsp.score;
+    markName = data.db[cfg.focus].name;
+  } else {
+    runs.forEach(function (r, k) {
+      if (r.hsp && (mark === null || r.hsp.score > mark)) {
+        mark = r.hsp.score;
+        markName = data.db[k].name;
+      }
+    });
+  }
+  if (mark === null) {
+    wrap.appendChild(blEl("p", "bls-note",
+      "Nothing aligned at these settings, so there is no score to place against the "
+      + "null distribution. Lower the threshold and this picture comes back."));
+    return;
+  }
+
+  // A sequence of your own can be far larger than the globins, and sampling it
+  // honestly would cost more than the page is allowed to spend.
+  if (blSampleTrials(opt.m, opt.dbN, cfg.evdMult || 1) < BL_SAMPLE_MIN) {
+    wrap.appendChild(blEl("p", "bls-note",
+      "No distribution is drawn for a search this size: " + blNum(opt.m) + " by "
+      + blNum(opt.dbN) + " residues is " + blNum(opt.m * opt.dbN) + " cells per random "
+      + "pair, and enough pairs to draw a readable histogram would lock the page up for "
+      + "minutes. The E-values above are unaffected \u2014 they come from the formula, which "
+      + "is the entire point of having one. Go back to the globins to see the picture."));
+    return;
+  }
+
+  let mult = cfg.evdMult || 1;
+
+  function draw() {
+    const s = blSampleNull(cfg, opt.m, opt.dbN, mult);
+    const sLo = Math.min.apply(null, Object.keys(s.counts).map(Number));
+    const eff = blEffective(opt.m, opt.dbN, opt.K, blEntropy(cfg, opt.lambda));
+    wrap.textContent = "";
+    wrap.appendChild(blEvdChart(s, {
+      lambda: opt.lambda, K: opt.K, m: opt.m, n: opt.dbN,
+      effM: eff.m, effN: eff.n,
+      lo: Math.max(0, Math.min(
+        Math.min.apply(null, Object.keys(s.counts).map(Number)), mark) - 2),
+      // Stretch the axis to reach the marked score only while that leaves the
+      // distribution readable. A nucleotide HSP scores 350 where chance stops
+      // at 27, and an axis running to 350 is one spike and a lot of white
+      // space; past 60% of the sampled range the mark is left off the scale
+      // and labelled as such instead.
+      hi: (mark <= s.max + 0.6 * Math.max(5, s.max - sLo))
+        ? Math.max(s.max, mark) + 2
+        : s.max + Math.round(0.08 * Math.max(5, s.max - sLo)) + 2,
+      mark: mark, markName: markName
+    }));
+
+    const key = blEl("div", "bls-key");
+    key.appendChild(blKeyItem(BL_EVD.bar, blNum(s.trials) + " random pairs, scored here"));
+    key.appendChild(blKeyItem(BL_EVD.fit, "K m n e^-lambda S, as the table computes it"));
+    key.appendChild(blKeyItem(BL_EVD.plain, "the same, uncorrected: plain m x n", true));
+    wrap.appendChild(key);
+
+    // The arithmetic the picture is standing in for.
+    const hit = blAtLeast(s, mark);
+    const Eeff = blE(mark, opt.lambda, opt.K, eff.m, eff.n);
+    const pEff = 1 - Math.exp(-Eeff);
+    // In the tail the shares both round to 0.0% and say nothing, so out there the
+    // comparison is made in counts -- which is what E is anyway: an expected
+    // number of alignments per search, not a probability.
+    const expect = s.trials * pEff;
+    let said;
+    if (hit === 0) {
+      said = "Not one of the " + blNum(s.trials) + " random pairs reached " + mark
+        + "; the best any of them managed was " + s.max + ". The curve agrees that none "
+        + "should have: at that score it expects " + expect.toFixed(expect < 1 ? 2 : 1)
+        + " of " + blNum(s.trials) + ". That is what a significant score looks like from "
+        + "here, off the end of what chance produced, and E = " + blFmtE(Eeff)
+        + " is how far off. Sampling more pairs is how to watch that number earn itself.";
+    } else if (pEff < 0.01) {
+      said = blNum(hit) + " of the " + blNum(s.trials) + " random pairs reached " + mark
+        + " or more. The curve expects " + expect.toFixed(expect < 1 ? 2 : 1)
+        + ". Counts, not percentages, are the honest comparison this far out, and a count "
+        + "is what E is: " + blFmtE(Eeff) + " alignments this good per search of a "
+        + "database this size.";
+    } else {
+      said = blNum(hit) + " of the " + blNum(s.trials) + " random pairs reached " + mark
+        + " or more, which is " + (100 * hit / s.trials).toFixed(1) + "%. The curve, with "
+        + "the effective lengths the table uses, says " + (100 * pEff).toFixed(1)
+        + "%. That agreement is the "
+        + "whole basis for the E-value: the distribution is predictable, so a score can be "
+        + "read against it without anyone sampling anything.";
+    }
+    wrap.appendChild(blEl("p", "bls-note", said));
+
+    wrap.appendChild(blEl("p", "bls-note",
+      "The solid curve is the formula exactly as the table applies it, over the effective "
+      + "search space " + blLen(eff.m) + " x " + blLen(eff.n) + ". The dashed one is "
+      + "the same formula over the plain " + blNum(opt.m) + " x " + blNum(opt.dbN) + ", and it "
+      + "sits above the samples: an alignment that would have to start near the end of either "
+      + "sequence has no room left to score well, so counting those starts predicts more high "
+      + "scores than chance delivers. Shortening both lengths by ln(K m n)/H is what a real "
+      + "BLAST report calls its “effective search space”, and it is worth a factor of "
+      + (opt.m * opt.dbN / (eff.m * eff.n)).toFixed(1) + " here. The dashed curve is drawn "
+      + "only so that the correction can be seen; no number on this page is computed from it."));
+
+    if (opt.scaled) {
+      wrap.appendChild(blEl("p", "bls-note",
+        "The picture is of this " + blNum(opt.dbN) + "-residue database, not of the one "
+        + "selected above: the table rescales E to a larger n, but there is no sampling a "
+        + "database of " + blNum(opt.n) + " residues in a browser."));
+    }
+
+    // Only offer more pairs when more pairs are actually available: at the
+    // larger sizes the ceiling, not the multiplier, is what decides.
+    if (blSampleTrials(opt.m, opt.dbN, mult * 5) > s.trials) {
+      const more = blEl("button", "bls-secondary", "Sample five times as many pairs");
+      more.onclick = function () {
+        mult = mult * 5;
+        cfg.evdMult = mult;   // so the larger sample survives a step change
+        render();
+      };
+      wrap.appendChild(more);
+    }
+  }
+
+  // Sampling costs a few hundred milliseconds. That is not worth blocking a
+  // chapter page for, so an uncached draw is deferred and the result kept:
+  // stepping away and back redraws at once, on the same distribution. The
+  // redraw happens inside the box that is already in place, because building a
+  // fresh panel would append it after the notes that follow it.
+  function render() {
+    if (blSampleReady(cfg, opt.m, opt.dbN, mult)) { draw(); return; }
+    wrap.textContent = "";
+    wrap.appendChild(blEl("p", "bls-note",
+      "Sampling " + blNum(blSampleTrials(opt.m, opt.dbN, mult))
+      + " random sequence pairs…"));
+    window.setTimeout(draw, 0);
+  }
+  render();
+}
 
 const BL_STEPS = [
   "1 · Cut the query into words",
@@ -1048,7 +1547,7 @@ function blStepEvalue(body, cfg, data, lookup, runs, ui) {
     "Every score so far has been a score and nothing more. The question a report has to answer "
     + "is whether a score that size would have turned up anyway, and that depends on how much "
     + "database you searched. Karlin and Altschul: the number of alignments scoring at least S "
-    + "expected by chance is E = K m n exp(-lambda S)."));
+    + "expected by chance is E = K m n exp(-lambda S). Where that comes from is drawn below: the distribution is sampled from random pairs here, not asserted."));
 
   if (sol.lambda === null) {
     body.appendChild(blEl("p", "bls-note",
@@ -1062,6 +1561,19 @@ function blStepEvalue(body, cfg, data, lookup, runs, ui) {
 
   const chosen = BL_DBSIZES.filter(function (o) { return o.key === cfg.dbsize; })[0] || BL_DBSIZES[0];
   const n = chosen.n || dbN;
+
+  // E is computed over the effective search space, the way BLAST computes it:
+  // both lengths shortened by ln(K m n)/H, because an alignment that would
+  // have to start near the end of either sequence has no room left to reach a
+  // high score, so counting those starts predicts more high scores than chance
+  // produces. Leaving the correction out overstates every E below by a factor
+  // of about 1.6 on this database, and by much more when a short query is run
+  // against a large one. The picture underneath draws both curves, and the
+  // solid one -- the corrected one -- is the one this table uses.
+  const H = blEntropy(cfg, sol.lambda);
+  const eff = blEffective(m, n, K, H);
+  const effThis = blEffective(m, dbN, K, H);
+  const floored = eff.m <= 1 / K + 1e-9;
 
   const bar = blEl("div", "bls-settings");
   const sel = document.createElement("select");
@@ -1094,7 +1606,7 @@ function blStepEvalue(body, cfg, data, lookup, runs, ui) {
       tr.appendChild(blEl("td", "n", "-"));
     } else {
       const S = r.hsp.score;
-      const e = blE(S, sol.lambda, K, m, n);
+      const e = blE(S, sol.lambda, K, eff.m, eff.n);
       tr.appendChild(blEl("td", "n", String(S)));
       tr.appendChild(blEl("td", "n", blBits(S, sol.lambda, K).toFixed(1)));
       const cell = blEl("td", "n", blFmtE(e));
@@ -1117,17 +1629,35 @@ function blStepEvalue(body, cfg, data, lookup, runs, ui) {
     body.appendChild(blEl("p", "bls-note",
       "Nothing above is significant any more, and not one alignment changed: the same best hit "
       + "at " + blBits(best, sol.lambda, K).toFixed(1) + " bits is now expected about "
-      + blFmtE(blE(best, sol.lambda, K, m, n)) + " times by chance, because n went from "
-      + blNum(dbN) + " residues to " + blNum(n) + ". E is linear in the size of the haystack. "
-      + "That is why a 50-residue window is a demonstration and not a search: a real query is "
-      + "a whole protein and reaches several hundred bits, and every bit halves E."));
+      + blFmtE(blE(best, sol.lambda, K, eff.m, eff.n)) + " times by chance, because the "
+      + "effective search space went from " + blLen(effThis.m * effThis.n)
+      + " to " + blLen(eff.m * eff.n) + ". E is linear in the size of the haystack. "
+      + "That is why a " + m + "-letter window is a demonstration and not a search: a real "
+      + "query is a whole sequence and reaches several hundred bits, and every bit halves E."));
   }
 
   body.appendChild(blEl("p", "bls-note",
     "lambda = " + sol.lambda.toFixed(4) + ", solved here from the scoring scheme and the "
     + (cfg.alphabet === "dna" ? "flat 0.25 base composition" : "Robinson & Robinson amino-acid background")
     + ", not looked up; K = " + K + ", which is taken from the published tables. m = " + m
-    + " (the query) and n = " + blNum(n) + "."));
+    + " (the query) and n = " + blNum(n) + ", shortened to an effective " + blLen(eff.m)
+    + " x " + blLen(eff.n) + " by subtracting ln(K m n)/H from each, with "
+    + "H = " + H.toFixed(3) + " nats the relative entropy of the scoring scheme. That is the "
+    + "\u201ceffective search space\u201d line a real BLAST report prints, and it is what the "
+    + "E-values above are computed over."
+    + (floored
+        ? " Here the correction is longer than the " + m + "-residue query, so the effective "
+          + "query length is held at its floor of 1/K = " + (1 / K).toFixed(1)
+          + ": a query this short against a database this large is almost all edge, and real "
+          + "BLAST floors it the same way."
+        : "")));
+
+  // The distribution the formula is about, measured rather than claimed. Always
+  // sampled at the real database size: the selector above can ask for 9e10
+  // residues, and nothing samples that.
+  blEvdPanel(body, cfg, data, runs, {
+    lambda: sol.lambda, K: K, m: m, n: n, dbN: dbN, scaled: !!chosen.n
+  });
 
   // Whichever two sequences share a score, say so: it is the point of the step.
   const byScore = {};
@@ -1149,8 +1679,8 @@ function blStepEvalue(body, cfg, data, lookup, runs, ui) {
     "These E-values are for the ungapped HSP of step 5. The banded score of step 6 has no "
     + "closed-form lambda, because this page charges one linear gap where real BLAST charges an "
     + "affine one; production BLAST fits gapped parameters by simulation instead. Note too that "
-    + "the query here is a " + m + "-residue window, so the bit scores are small — a full-length "
-    + "globin search reaches several hundred."));
+    + "the query here is a " + m + (cfg.alphabet === "dna" ? "-base" : "-residue")
+    + " window, so the bit scores are small — a full-length search reaches several hundred."));
 }
 
 function blTally(tally, cfg, data, runs, refRuns, sameAsRef) {
@@ -1353,15 +1883,61 @@ function blSelfCheck() {
     const r = blRun(cE, d.seq, lkE);
     scoreOf[d.name] = r.hsp ? r.hsp.score : null;
   });
-  function eOf(name) { return blE(scoreOf[name], lamP, KE, mE, nE); }
+  // The table computes E over the effective search space, so the checks have to
+  // as well, or they would be holding the page to arithmetic it does not do.
+  const HP = blEntropy(cE, lamP);
+  const effP = blEffective(mE, nE, KE, HP);
+  function eOf(name) { return blE(scoreOf[name], lamP, KE, effP.m, effP.n); }
   ok = claim("HBA_HUMAN is significant on this database (E = " + blFmtE(eOf("HBA_HUMAN")) + ")",
              eOf("HBA_HUMAN") < 1e-3) && ok;
   ok = claim("the shuffled control is not (E = " + blFmtE(eOf("SHUFFLED")) + ")",
              eOf("SHUFFLED") > 1) && ok;
   ok = claim("MYG_GALGA and SHUFFLED score the same, so share an E-value",
              scoreOf.MYG_GALGA !== null && scoreOf.MYG_GALGA === scoreOf.SHUFFLED) && ok;
-  ok = claim("a bigger database makes the same alignment less significant",
-             blE(scoreOf.HBA_HUMAN, lamP, KE, mE, 9e10) > eOf("HBA_HUMAN")) && ok;
+  ok = claim("a bigger database makes the same alignment less significant", (function () {
+    const big = blEffective(mE, 9e10, KE, HP);
+    return blE(scoreOf.HBA_HUMAN, lamP, KE, big.m, big.n) > eOf("HBA_HUMAN");
+  })()) && ok;
+  ok = claim("the correction is actually applied: E over the effective space is smaller "
+             + "than E over the plain m x n (" + blFmtE(eOf("HBA_HUMAN")) + " vs "
+             + blFmtE(blE(scoreOf.HBA_HUMAN, lamP, KE, mE, nE)) + ")",
+             eOf("HBA_HUMAN") < blE(scoreOf.HBA_HUMAN, lamP, KE, mE, nE) * 0.9) && ok;
+
+  // Step 7's picture claims that a sampled null distribution and the
+  // Karlin-Altschul curve agree. If they ever stop agreeing, the chart teaches
+  // that the theory is wrong without saying so, which is the worst way to be
+  // wrong, so the agreement is asserted here.
+  ok = claim("H for BLOSUM62 is NCBI's published 0.401 nats (got " + HP.toFixed(3) + ")",
+             Math.abs(HP - 0.401) < 2e-3) && ok;
+  ok = claim("effective lengths shrink " + mE + " x " + nE + " to "
+             + effP.m.toFixed(0) + " x " + effP.n.toFixed(0),
+             effP.m < mE && effP.n < nE && effP.m * effP.n > 0.4 * mE * nE) && ok;
+  const cS = blDefaults({ alphabet: "protein" });
+  const sampA = blSampleNull(cS, mE, nE, 1);
+  const sampB = blSampleNull(cS, mE, nE, 1);
+  ok = claim("the null sampler is seeded, so the picture is reproducible",
+             sampA.trials === sampB.trials && sampA.max === sampB.max
+             && blAtLeast(sampA, 30) === blAtLeast(sampB, 30)) && ok;
+  const obs30 = blAtLeast(sampA, 30) / sampA.trials;
+  const fit30 = 1 - Math.exp(-blE(30, lamP, KE, effP.m, effP.n));
+  ok = claim("sampled pairs match the corrected curve at score 30 ("
+             + (100 * obs30).toFixed(1) + "% sampled, "
+             + (100 * fit30).toFixed(1) + "% predicted)",
+             Math.abs(obs30 - fit30) / fit30 < 0.25) && ok;
+  const plain30 = 1 - Math.exp(-blE(30, lamP, KE, mE, nE));
+  ok = claim("the plain m x n curve sits above the samples, as the chart shows",
+             plain30 > obs30 * 1.2) && ok;
+  ok = claim("a sequence against itself scores its own self-score", (function () {
+    const letters = Object.keys(blBackground(cS));
+    const sc = blScore(cS);
+    const S = letters.map(function (a) {
+      return letters.map(function (b) { return sc(a, b); });
+    });
+    const seq = Int32Array.from([0, 1, 2, 3, 4]);
+    let self = 0;
+    seq.forEach(function (i) { self += S[i][i]; });
+    return blMaxSegment(seq, seq, S) === self;
+  })()) && ok;
 
   checks.forEach(function (c) { console.log(c); });
   console.log(ok ? "\nall checks passed" : "\nSELF-CHECK FAILED");
