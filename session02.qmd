@@ -465,10 +465,11 @@ git status                          # what has changed since the last commit?
 git add analysis.ipynb              # choose what goes into the next snapshot
 git commit -m "Add volcano plot"    # take the snapshot, with a message saying why
 git log --oneline                   # the history
-git pull                            # fetch others' changes (git push sends yours to your own repository)
+git pull                            # fetch others' changes
+git push                            # send your own commits to your repository on GitHub
 ```
 
-Commit small, working steps, with messages that say *why*. Do not commit large data files, passwords or keys; list them in a `.gitignore` file instead. For further reading, see the Software Carpentry lessons [The Unix Shell](https://swcarpentry.github.io/shell-novice/) and [Version Control with Git](https://swcarpentry.github.io/git-novice/) (CC BY 4.0).
+Commit small, working steps, with messages that say *why*. Do not commit large data files, passwords or keys; list them in a `.gitignore` file instead. For further reading, see the Software Carpentry lessons [The Unix Shell](https://swcarpentry.github.io/shell-novice/) and [Version Control with Git](https://swcarpentry.github.io/git-novice/) (CC BY 4.0). Every command above is documented in full in the [git reference](https://git-scm.com/docs), which is the place to look when you want the options rather than the idea.
 
 ## Mini challenge: a small analysis, start to finish {#sec-s02-challenge}
 
