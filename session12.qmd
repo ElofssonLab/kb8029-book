@@ -321,7 +321,7 @@ How, then, can we decide when to trust a complex prediction? The lecture sorts p
 Four regions of protein-protein interactions, by how well current methods handle them (a heuristic).
 :::
 
-The lab tests this heuristic. Each group makes one AlphaFold3 Server prediction per region and checks whether the model's confidence tracks how hard each problem really is.
+The lab tests this heuristic. You make one AlphaFold3 Server prediction per region, all four, and check whether the model's confidence tracks how hard each problem really is.
 
 **What the scores do not tell you.** pLDDT is the confidence in the local structure, PAE the confidence in the relative position of two parts, and ipTM or ipSAE the confidence in an interface. All of them are the model's own estimates for the chains it was given. None of them shows that the proteins actually bind, that they bind each other rather than a competitor that was left out, or that the predicted complex is the one formed in the cell. A confident interface is a candidate hypothesis, to be tested with other evidence.
 
@@ -625,7 +625,7 @@ It runs on a CPU in a few minutes. Open the notebook in [Google Colab](https://c
 
 ## The lab
 
-**Full lab:** the lab is adapted from the previous course's AlphaFold2 lab and the 2026 AlphaFold3 Server exercise. Your group runs one of four targets on the [AlphaFold Server](https://alphafoldserver.com), one for each region of the four-regions heuristic on this page:
+**Full lab:** the lab is adapted from the previous course's AlphaFold2 lab and the 2026 AlphaFold3 Server exercise. You run all four targets on the [AlphaFold Server](https://alphafoldserver.com), one for each region of the four-regions heuristic on this page:
 
 - Region I: Ephrin-A5 : EphB2 (1SHW);
 - Region II: Izumo1 : Juno (5F4E);
@@ -634,11 +634,11 @@ It runs on a CPU in a few minutes. Open the notebook in [Google Colab](https://c
 
 Work through [`notebooks/session12-lab.ipynb`](https://course.bioinfo.se/notebooks/session12-lab.ipynb){download=''}, replacing every `todo(...)` call with your own code:
 
-1.  fetch your target's chain sequences from the PDB and submit them to the AlphaFold Server (20 jobs per day and account);
+1.  fetch the four targets' chain sequences from the PDB and submit all four to the AlphaFold Server (the cap is 20 jobs per day and account, so four in one sitting is fine);
 2.  read AlphaFold DB models: pLDDT, the PAE matrix, which models are disordered, and how closely a model matches its crystal structure;
-3.  load your AlphaFold Server result, plot its PAE heatmap, and compute pTM, ipTM and the interface score ipSAE;
-4.  pool the class's results and compare ipTM with ipSAE across the four regions;
-5.  superimpose your model on the crystal structure in PyMOL.
+3.  load each AlphaFold Server result, plot its PAE heatmap, and compute pTM, ipTM and the interface score ipSAE;
+4.  put your four results side by side and compare ipTM with ipSAE across the regions;
+5.  superimpose one of your models on its crystal structure in PyMOL.
 
 ### Submitting this lab
 
