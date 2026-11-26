@@ -11,7 +11,7 @@ toc-depth: 4
 
 **Lecture video:** Petras Kundrotas's lecture, narrated from his own speaker notes, with captions — [part 1](watch.html?v=petras-session03-video-part1){target="_blank"} (24 min) · [part 2](watch.html?v=petras-session03-video-part2){target="_blank"} (26 min) · [part 3](watch.html?v=petras-session03-video-part3){target="_blank"} (12 min) · [part 4](watch.html?v=petras-session03-video-part4){target="_blank"} (26 min).
 
-**The same lecture, a second time:** the course's own slides on the same material, read aloud with captions — [block 1](watch.html?v=session03-video-part1){target="_blank"} (26 min) · [block 2](watch.html?v=session03-video-part2){target="_blank"} (15 min) · [block 3](watch.html?v=session03-video-part3){target="_blank"} (22 min). The two differ in how they explain it rather than in what they cover, so if one loses you, try the other.
+**The same lecture, a second time:** the course's own slides on the same material, read aloud with captions — [block 1](watch.html?v=session03-video-part1){target="_blank"} (29 min) · [block 2](watch.html?v=session03-video-part2){target="_blank"} (29 min) · [block 3](watch.html?v=session03-video-part3){target="_blank"} (23 min). The two differ in how they explain it rather than in what they cover, so if one loses you, try the other.
 <!-- /video-links -->
 :::
 
@@ -20,22 +20,28 @@ toc-depth: 4
 
 This chapter develops Petras Kundrotas’s KB8029 teaching materials, *Databases of Sequence Information* (2026–2027), around biological questions and linked records. Provider documentation and original research are linked beside the claims they support; the Further reading and Further watching lists offer optional explanations.
 
-**Data and figures.** The simple diagrams are course illustrations, not experimental observations. The record-anatomy figure is drawn from the NCBI records for `NM_000518.5` and `NP_000509.1`; the browser figure is output from UCSC’s `hgRenderTracks` service. The two PubMed figures in the literature section are browser screenshots captured on 12 November 2026 for Petras Kundrotas’s lecture slides, reused here with their teaching annotations; the page text is unaltered. Those two figures retain the 5 November 2026 snapshots used to prepare them. Sequence versions, annotation releases and retrieval dates distinguish a saved example from a current database result. Sizes, prices and search-result counts are dated examples, not fixed properties of a resource.
+**Data and figures.** The simple diagrams are course illustrations, not experimental observations. The record-anatomy figure is drawn from the NCBI records for `NM_000518.5` and `NP_000509.1`; the browser figure is output from UCSC’s `hgRenderTracks` service. The two PubMed figures in the literature section are browser screenshots captured on 12 November 2026 for Petras Kundrotas’s lecture slides, reused here with their teaching annotations; the page text is unaltered. The record-anatomy and UCSC browser figures retain the 5 November 2026 snapshots used to prepare them. Sequence versions, annotation releases and retrieval dates distinguish a saved example from a current database result. Sizes, prices and search-result counts are dated examples, not fixed properties of a resource.
 
 **Reuse and attribution.** EMBL-EBI Training material carries [CC BY 4.0, unless otherwise indicated](https://www.ebi.ac.uk/training/online/courses/bioinformatics-terrified/the-role-of-public-databases/){target="_blank" rel="noopener noreferrer"}. This does not assign that licence to every database hosted by EMBL-EBI. [NCBI’s policy](https://www.ncbi.nlm.nih.gov/home/about/policies/){target="_blank" rel="noopener noreferrer"} distinguishes US-government text from contributed material; [Ensembl’s data policy](https://www.ensembl.org/info/about/legal/disclaimer.html){target="_blank" rel="noopener noreferrer"} and [UCSC’s graphics and data policy](https://genome.ucsc.edu/license/){target="_blank" rel="noopener noreferrer"} describe their respective reuse conditions. Original articles retain their stated licences.
 
 Earlier versions also drew on the following Wikipedia articles, credited here under [CC BY-SA 4.0](https://creativecommons.org/licenses/by-sa/4.0/){target="_blank" rel="noopener noreferrer"}: [Biological database](https://en.wikipedia.org/wiki/Biological_database), [Sequence database](https://en.wikipedia.org/wiki/Sequence_database), [INSDC](https://en.wikipedia.org/wiki/International_Nucleotide_Sequence_Database_Collaboration), [GenBank](https://en.wikipedia.org/wiki/GenBank), [UniProt](https://en.wikipedia.org/wiki/UniProt), [RefSeq](https://en.wikipedia.org/wiki/RefSeq), [Accession number](https://en.wikipedia.org/wiki/Accession_number_(bioinformatics)), [Genome browser](https://en.wikipedia.org/wiki/Genome_browser), [UCSC Genome Browser](https://en.wikipedia.org/wiki/UCSC_Genome_Browser), [Ensembl](https://en.wikipedia.org/wiki/Ensembl_genome_database_project), [PubMed](https://en.wikipedia.org/wiki/PubMed), [PubMed Central](https://en.wikipedia.org/wiki/PubMed_Central), [MEDLINE](https://en.wikipedia.org/wiki/MEDLINE), [bioRxiv](https://en.wikipedia.org/wiki/BioRxiv) and [Boolean search](https://en.wikipedia.org/wiki/Boolean_search). The chapter has been reorganised and rewritten for this course.
 :::
 
+::: {.callout-tip icon="false"}
+## ID, please
+
+> A gene walks into a bar. The bartender asks for ID.
+>
+> "Which one?" says the gene. "My DNA, RNA or protein ID?"
+:::
+
 ## Learning goals
 
-By the end of this session you should be able to:
+Rather than listing databases one by one, this book uses human beta-globin (*HBB*) to connect genomic DNA, RNA transcripts and protein information. Several databases may help answer the same biological question, offering complementary records, annotations and evidence. The aim is to recognise the information needed and check what supports it. By the end of this session you should be able to:
 
 1.  choose appropriate DNA, RNA or protein databases for a biological question, connect records using identifiers, versions and cross-references, and trace individual claims to their sources and evaluate their supporting evidence;
 2.  compare command-line or programmatic access, database-specific web pages and genome browsers, and use UCSC or Ensembl to retrieve genomic, transcript and protein sequences through one interface, recording the organism, assembly and versioned identifiers;
 3.  find scientific literature through databases, scholarly search engines and AI-assisted tools; use PubMed as a worked example to construct and check queries, locate publications and available full text, and verify suggested references and claims against the original sources.
-
-Rather than listing databases one by one, the reading uses human beta-globin (*HBB*) to connect genomic DNA, RNA transcripts and protein information. Several databases may help answer the same biological question, offering complementary records, annotations and evidence. The aim is to recognise the information needed and check what supports it.
 
 ![Three skills for this session.](figs/s03-goals.svg){#fig-s03-goals fig-alt="Connect DNA, RNA and protein records, choose a route to retrieve sequences, and trace claims to research studies." width="100%"}
 
@@ -959,8 +965,8 @@ The lab follows the same path with a new example: human myoglobin (gene symbol *
 
 Open the **Session 3: Biological Databases** module in Canvas for the lab instructions, ten graded questions and the feedback survey. [Download the Session 3 lab notebook](notebooks/session03-lab.ipynb){download=""} and open it in VS Code or upload it to Colab. Use the notebook outputs and database pages to choose your answers as you work. Some questions ask for one answer and others ask you to select all correct answers. Each question is worth one point. Five points meets the pass threshold. Check Canvas for the deadline and feedback survey.
 
-## What's next
+## What's next?
 
-Session 4 picks up where the cross-references leave off. Once you can retrieve two related sequences, the next question is how to line them up and score how similar they are, and that is sequence alignment.
+In Session 3, you learned how to find biological information, retrieve DNA, RNA and protein sequences, and check the sources and evidence behind records and claims. Once you have selected sequences for a biological question, how can you compare them? Session 4 introduces sequence alignment, which identifies matching and differing regions and uses scoring schemes to assess their similarity.
 
-![A simple alignment of two DNA sequences.](figs/s03-next.svg){#fig-s03-next fig-alt="The aligned rows GACTA and GA–TA show a gap in the second row, opposite the C in the first row." width="100%"}
+![An illustrative alignment of two protein sequence fragments.](figs/s03-next.svg){#fig-s03-next fig-alt="The illustrative protein fragments MELKW and MD–KW show matching amino acids, an E/D difference and a gap opposite L." width="100%"}

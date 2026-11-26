@@ -62,4 +62,117 @@ format:
           <script>
           // Keep the browser tab title consistent with the displayed session title.
           document.title = document.title.replace(/^\d+(?:\.\d+)*\s+(?=Session\s+\d+\b)/i, "");
+
+          // Group each session's textbook and notebook beneath one unlinked title.
+          const sidebar = document.querySelector("#quarto-sidebar");
+          const sidebarLinks = [...(sidebar?.querySelectorAll(".sidebar-item-container > a.sidebar-link") || [])];
+          const notebooks = new Map();
+          for (const link of sidebarLinks) {
+            const match = link.getAttribute("href")?.match(/(?:^|\/)notebooks\/session(\d+)[^/]*\.html(?:[?#]|$)/);
+            if (match) notebooks.set(Number(match[1]), link);
+          }
+          for (const textbook of sidebarLinks) {
+            const match = textbook.getAttribute("href")?.match(/(?:^|\/)session(\d+)\.html(?:[?#]|$)/);
+            if (!match) continue;
+            const number = Number(match[1]);
+            const container = textbook.parentElement;
+            const title = document.createElement("span");
+            title.className = "sidebar-item-text menu-text sidebar-session-title";
+            title.id = `sidebar-session-${number}`;
+            title.textContent = (textbook.querySelector(".chapter-title") || textbook.querySelector(".menu-text")).textContent.trim();
+            const links = document.createElement("div");
+            links.className = "sidebar-session-links";
+            links.setAttribute("role", "group");
+            links.setAttribute("aria-labelledby", title.id);
+            container.classList.add("sidebar-session");
+            container.prepend(title);
+            for (const [link, label] of [[textbook, "textbook"], [notebooks.get(number), "notebook"]]) {
+              if (!link) continue;
+              const oldItem = link.closest("li.sidebar-item");
+              const icon = document.createElement("i");
+              icon.className = label === "textbook" ? "bi bi-book" : "bi bi-journal-code";
+              icon.setAttribute("aria-hidden", "true");
+              const resourceLabel = document.createElement("span");
+              resourceLabel.className = "sidebar-resource-label";
+              resourceLabel.textContent = label;
+              link.replaceChildren(icon, resourceLabel);
+              link.setAttribute("aria-label", `Session ${number} ${label}`);
+              if (link.classList.contains("active")) link.setAttribute("aria-current", "page");
+              links.append(link);
+              if (label === "notebook") oldItem.remove();
+            }
+            container.append(links);
+          }
+
+          // Emphasise the leading labels in the book navigation.
+          for (const menu of document.querySelectorAll("#quarto-sidebar .menu-text")) {
+            const title = menu.querySelector(".chapter-title") || menu;
+            const text = title.firstChild;
+            if (!text || text.nodeType !== Node.TEXT_NODE) continue;
+            const prefix = text.textContent.match(/^(Session\s*\d+\s*[:—–-]|Setup\s*:|Capstone Project\s*:)/i);
+            if (!prefix) continue;
+            const label = document.createElement("strong");
+            label.className = "sidebar-label";
+            label.textContent = prefix[0];
+            text.splitText(prefix[0].length);
+            title.replaceChild(label, text);
+            for (const child of [...menu.childNodes]) {
+              if (child.nodeType === Node.TEXT_NODE && !child.textContent.trim()) child.remove();
+            }
+          }
+
+          // Keep the menu at the clicked position across textbook/notebook pages.
+          if (sidebar) {
+            const scrollKey = "kb8029-sidebar-position";
+            const currentPage = new URL(window.location.href);
+            currentPage.hash = "";
+            let savedTop = null;
+            try {
+              const saved = JSON.parse(sessionStorage.getItem(scrollKey) || "null");
+              if (saved?.destination === currentPage.href && Number.isFinite(saved.top) && saved.top >= 0) {
+                savedTop = saved.top;
+                sessionStorage.removeItem(scrollKey);
+              }
+            } catch (_) {
+              // Navigation still works when browser storage is unavailable.
+            }
+
+            sidebar.addEventListener("click", event => {
+              if (event.defaultPrevented || event.button !== 0 || event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
+              const link = event.target.closest("a.sidebar-link");
+              if (!link || !sidebar.contains(link) || link.hasAttribute("download")) return;
+              const target = link.getAttribute("target");
+              if (target && target.toLowerCase() !== "_self") return;
+              const destination = new URL(link.href);
+              if (destination.origin !== currentPage.origin) return;
+              const hash = destination.hash;
+              destination.hash = "";
+              if (hash && destination.href === currentPage.href) return;
+              try {
+                sessionStorage.setItem(scrollKey, JSON.stringify({ destination: destination.href, top: sidebar.scrollTop }));
+              } catch (_) {}
+            });
+
+            if (savedTop !== null) {
+              let restorePending = true;
+              const restorePosition = () => {
+                if (restorePending && sidebar.clientHeight > 0) sidebar.scrollTop = savedTop;
+              };
+              // Quarto also scrolls its active item after layout; restore after it.
+              const restoreAfterLayout = () => requestAnimationFrame(() => requestAnimationFrame(restorePosition));
+              restorePosition();
+              if (document.readyState === "loading") {
+                document.addEventListener("DOMContentLoaded", restoreAfterLayout, { once: true });
+              } else {
+                restoreAfterLayout();
+              }
+              window.addEventListener("load", restoreAfterLayout, { once: true });
+              sidebar.addEventListener("shown.bs.collapse", restoreAfterLayout);
+              document.fonts?.ready.then(restoreAfterLayout);
+              // Late font/image loading must not undo the reader's own scrolling.
+              for (const event of ["wheel", "touchstart", "pointerdown", "keydown"]) {
+                sidebar.addEventListener(event, () => { restorePending = false; }, { once: true, passive: true });
+              }
+            }
+          }
           </script>

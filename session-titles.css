@@ -1,9 +1,94 @@
-/* The session titles already begin with "Session N", so Quarto's chapter
-   number is a duplicate in the page's own heading. Hide it there only: the
-   sidebar and the table of contents keep their numbers, which is what makes
-   them easy to navigate. */
-#title-block-header .chapter-number {
+/* Session titles already include "Session N". Hide Quarto's duplicate chapter
+   number in the page heading and sidebar. Section numbers in the table of
+   contents keep their labels. */
+#title-block-header .chapter-number,
+#quarto-sidebar a.sidebar-link[href*="session"] .chapter-number {
   display: none;
+}
+
+/* Align all sidebar labels and their wrapped lines to the left. */
+#quarto-sidebar,
+#quarto-sidebar .sidebar-title,
+#quarto-sidebar .sidebar-item-text {
+  text-align: left;
+}
+#quarto-sidebar a.sidebar-link {
+  min-width: 0;
+}
+#quarto-sidebar .menu-text {
+  display: block;
+  padding-inline-start: 0;
+  text-indent: 0;
+  text-align: left;
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+#quarto-sidebar .sidebar-label {
+  font-weight: 700;
+}
+
+/* A session title and its links share normal line spacing. */
+#quarto-sidebar .sidebar-item-container.sidebar-session {
+  display: block;
+  cursor: default;
+}
+#quarto-sidebar .sidebar-session-title {
+  margin: 0;
+  padding: 0;
+  color: var(--bs-body-color);
+  cursor: default;
+}
+#quarto-sidebar .sidebar-session-links {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 0.65em;
+  row-gap: 0;
+  margin: 0;
+  padding: 0;
+  line-height: inherit;
+}
+#quarto-sidebar .sidebar-session-links > a.sidebar-link {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.3em;
+  flex: none;
+  width: auto;
+  margin: 0;
+  padding: 0;
+  line-height: inherit;
+  color: var(--bs-link-color);
+  text-decoration: none;
+  cursor: pointer;
+}
+#quarto-sidebar .sidebar-resource-label {
+  text-decoration: none;
+}
+#quarto-sidebar .sidebar-session-links > a.sidebar-link:hover {
+  color: var(--bs-link-hover-color, var(--bs-link-color));
+}
+#quarto-sidebar .sidebar-session-links > a.sidebar-link:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+#quarto-sidebar .sidebar-session-links > a.sidebar-link.active .sidebar-resource-label {
+  font-weight: 600;
+}
+
+/* Endnotes use a smaller serif face and a short divider. */
+#quarto-document-content .footnotes {
+  margin-top: 2rem;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: 0.82em;
+  line-height: 1.5;
+  color: var(--bs-secondary-color, #52606d);
+}
+#quarto-document-content .footnotes > hr {
+  width: 35%;
+  margin: 0 0 0.8rem;
+  border: 0;
+  border-top: 1px solid var(--bs-border-color, #adb5bd);
+  opacity: 1;
 }
 
 /* Prose lists in the chapters are often several lines per item, and set tight

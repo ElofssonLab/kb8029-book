@@ -1,0 +1,60 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="840" height="220" viewBox="0 0 840 220" role="img" aria-labelledby="title desc">
+  <title id="title">Three learning goals for sequence alignment</title>
+  <desc id="desc">Three panels: align two sequences using global and local algorithms; explain scoring with PAM, BLOSUM and gap penalties; build and read multiple sequence alignments using methods, entropy and sequence logos. Icons show aligned residues and a gap, a substitution matrix with a gap, and alignment columns above a small sequence logo.</desc>
+  <rect x="1" y="1" width="838" height="218" rx="20" fill="#f4f9fd" stroke="#ccddeb"/>
+  <g font-family="system-ui, Segoe UI, sans-serif">
+    <rect x="24" y="24" width="260" height="172" rx="15" fill="#fff" stroke="#ccddeb"/>
+    <circle cx="154" cy="76" r="36" fill="#e2f4f1"/>
+    <g transform="translate(127 52)">
+      <g fill="#fff" stroke="#0e766f" stroke-width="1.7">
+        <rect x="1" y="0" width="14" height="17" rx="3"/>
+        <rect x="20" y="0" width="14" height="17" rx="3"/>
+        <rect x="39" y="0" width="14" height="17" rx="3"/>
+        <rect x="1" y="31" width="14" height="17" rx="3"/>
+        <rect x="39" y="31" width="14" height="17" rx="3"/>
+        <path d="M8 19v9M46 19v9" stroke-width="2.2"/>
+      </g>
+      <rect x="20" y="31" width="14" height="17" rx="3" fill="#faefd9" stroke="#9a5b14" stroke-width="1.7"/>
+      <g font-family="Consolas, monospace" font-size="12" font-weight="700" text-anchor="middle" fill="#0e766f">
+        <text x="8" y="13">A</text><text x="27" y="13">G</text><text x="46" y="13">T</text>
+        <text x="8" y="44">A</text><text x="46" y="44">T</text>
+      </g>
+      <path d="M24 39.5h6" stroke="#9a5b14" stroke-width="2.2" stroke-linecap="round"/>
+    </g>
+    <text x="154" y="143" text-anchor="middle" font-size="23" font-weight="700" fill="#153558">Align two sequences</text>
+    <text x="154" y="171" text-anchor="middle" font-size="18" font-weight="500" fill="#0e766f">Global and local</text>
+    <rect x="290" y="24" width="260" height="172" rx="15" fill="#fff" stroke="#ccddeb"/>
+    <circle cx="420" cy="76" r="36" fill="#e7effa"/>
+    <g transform="translate(395 53)">
+      <rect x="0" y="0" width="33" height="33" rx="3" fill="#fff" stroke="#153558" stroke-width="2"/>
+      <g fill="#c5e4df"><rect x="1" y="1" width="10" height="10"/><rect x="11" y="11" width="11" height="11"/><rect x="22" y="22" width="10" height="10"/></g>
+      <path d="M11 1v31M22 1v31M1 11h31M1 22h31" stroke="#153558" stroke-width="1.5"/>
+      <g stroke="#153558" stroke-width="1.4" stroke-linecap="round">
+        <path d="M3.5 5.5h4M5.5 3.5v4M14.5 16.5h4M16.5 14.5v4M25.5 27.5h4M27.5 25.5v4"/>
+        <path d="M14.5 5.5h4M3.5 27.5h4"/>
+      </g>
+      <g fill="#fff" stroke="#153558" stroke-width="1.7"><rect x="0" y="39" width="10" height="5" rx="1.5"/><rect x="15" y="39" width="10" height="5" rx="1.5"/><rect x="40" y="39" width="10" height="5" rx="1.5"/></g>
+      <path d="M30 41.5h5" stroke="#9a5b14" stroke-width="2.2" stroke-linecap="round"/>
+      <path d="M39 3h10M39 11h10M39 19h10" stroke="#153558" stroke-width="2" stroke-linecap="round"/>
+    </g>
+    <text x="420" y="143" text-anchor="middle" font-size="23" font-weight="700" fill="#153558">Explain scoring</text>
+    <text x="420" y="171" text-anchor="middle" font-size="18" font-weight="500" fill="#153558">PAM, BLOSUM and gaps</text>
+    <rect x="556" y="24" width="260" height="172" rx="15" fill="#fff" stroke="#ccddeb"/>
+    <circle cx="686" cy="76" r="36" fill="#faefd9"/>
+    <g transform="translate(660 50)">
+      <rect x="18" y="0" width="7" height="22" rx="2" fill="#e7c892"/>
+      <g stroke="#9a5b14" stroke-width="2.7" stroke-linecap="round">
+        <path d="M1 3h9M16 3h10M32 3h5M43 3h9M1 11h9M16 11h10M32 11h9M47 11h5M1 19h5M12 19h14M32 19h9M47 19h5"/>
+      </g>
+      <path d="M1 52h52" stroke="#9a5b14" stroke-width="1.3"/>
+      <g font-family="Consolas, monospace" font-weight="700" text-anchor="middle">
+        <text x="10" y="49" font-size="20" fill="#9a5b14">A</text>
+        <text x="28" y="49" font-size="13" fill="#153558">L</text>
+        <text x="28" y="37" font-size="9" fill="#0e766f">V</text>
+        <text x="46" y="49" font-size="20" fill="#9a5b14">G</text>
+      </g>
+    </g>
+    <text x="686" y="143" text-anchor="middle" font-size="23" font-weight="700" fill="#153558">Build and read MSA</text>
+    <text x="686" y="171" text-anchor="middle" font-size="18" font-weight="500" fill="#9a5b14">Methods, entropy and logos</text>
+  </g>
+</svg>
