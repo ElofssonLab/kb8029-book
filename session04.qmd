@@ -17,7 +17,7 @@ Alignment" (Feb 2026) — this page follows its structure and worked
 examples, adapted and shortened for this book, not copied verbatim; three
 figures below (filling one DP cell; the completed Needleman-Wunsch
 traceback; linear vs. affine gap penalties) are taken directly from that
-lecture's slides, and the globin gene tree was computed for this course;
+lecture's slides;
 Dayhoff, Schwartz & Orcutt (1978), *Atlas of Protein Sequence and
 Structure*, pp. 345-352 (origin of the PAM matrices); Henikoff & Henikoff
 (1992), *PNAS* 89:10915-10919 (origin of the BLOSUM matrices); Wikipedia,
@@ -41,6 +41,11 @@ with [logomaker](https://logomaker.readthedocs.io/); sequence logos were
 introduced by Schneider & Stephens (1990), *Nucleic Acids Research*
 18:6097-6100; Wikipedia, [Sequence logo](https://en.wikipedia.org/wiki/Sequence_logo)
 — CC BY-SA 4.0.
+
+**Globin-relationship illustration.** The cartoon in @fig-s04-globin-relatives is an AI-generated course schematic of selected globin lineages. The ancestral animals are illustrative, rather than reconstructions of identified fossils. It shows selected globin lineages and omits additional genes, later duplications and intermediate animal lineages. The ancient origin of the alpha- and beta-globin lineages follows a [review of globin evolution](https://pubmed.ncbi.nlm.nih.gov/22846683/){target="_blank" rel="noopener noreferrer"}; the basic relationships are explained in the [NCBI/NLM tutorial](https://www.nlm.nih.gov/ncbi/workshops/2023-08_BLAST_evol/ortho_para.html){target="_blank" rel="noopener noreferrer"}.
+
+**Alignment illustrations.** The diagrams in @fig-s04-mind-the-gap and @fig-s04-alignment-avalanche are AI-generated educational schematics. The avalanche illustrates the growth in possible arrangements and is not drawn to scale.
+
 :::
 
 ::: {.callout-tip icon="false"}
@@ -61,128 +66,95 @@ Session 3 showed how to find DNA, RNA and protein sequences, identify what each 
 
 ![Three skills for this session: align two sequences, explain scoring choices, and construct and interpret multiple sequence alignments (MSAs).](figs/s04-goals.svg){#fig-s04-goals fig-alt="Three panels: align two sequences using global and local algorithms; explain PAM, BLOSUM and gap scoring; build and read multiple alignments using methods, entropy and sequence logos." width="100%"}
 
-## Homology, orthologs and paralogs
+## Sequences make sense together {#homology-orthologs-and-paralogs}
 
-By definition, two sequences are **homologous** if and only if they
-share a common evolutionary origin. We cannot observe that ancestry
-directly, so we have to *infer* it from statistical evidence, usually
-the similarity (or identity) of the two sequences. Both measures require
-an alignment. **Identity** is the fraction of aligned positions with the
-same residue. **Similarity** is defined more loosely and also counts
-residues with shared physicochemical properties (two hydrophobic
-residues, say). High identity or similarity is therefore *evidence* for
-homology, not proof of it.
+### Why compare sequences?
 
-Since homology is defined by a common ancestor, it follows that homologs
-come in two kinds, depending on the event that separated them:
+In Session 3, we learned how to retrieve DNA, RNA and protein sequences. Retrieving a sequence gives us a starting point for a biological investigation. Suppose we obtain a protein sequence from a newly sequenced animal. We want to know whether it resembles beta-globin, myoglobin or another protein, which parts have remained conserved, and what its differences might mean.
 
-- **orthologs** are homologs separated by a **speciation** event, such as
-  myoglobin in human and in mouse;
-- **paralogs** are homologs separated by a **gene duplication**, such as
-  α- and β-globin, which descend from a duplicated ancestral globin gene.
+**For these questions, sequence comparison is indispensable.** Comparing an unfamiliar sequence with sequences already studied connects it to existing knowledge about protein structure, function and evolution. It helps us move from a string of letters to biological hypotheses that we can investigate. [Pearson, PMC open-access article](https://pmc.ncbi.nlm.nih.gov/articles/PMC3820096/#S1){target="_blank" rel="noopener noreferrer"}.
 
-The two definitions refer to events, not to genomes, so paralogs need
-not be in the same genome. Human α-globin and mouse β-globin are
-paralogs too, because the duplication that separated the α- and β-globin
-genes happened before human and mouse diverged. A gene tree makes the
-order of these events visible.
+Comparing several relatives provides another perspective. Some positions may have changed repeatedly, while others have remained almost unchanged. These **conserved positions** can help us identify regions important for a protein's activity or stability and guide experiments investigating the consequences of a sequence change. [Pearson, PMC open-access article](https://pmc.ncbi.nlm.nih.gov/articles/PMC3820096/#S5){target="_blank" rel="noopener noreferrer"}.
 
-### Reading a gene tree {#from-alignment-to-tree}
+### Two ways to become relatives {#from-alignment-to-tree}
 
-A **phylogenetic tree** proposes how sequences are related by descent.
-The globin gene tree below helps us distinguish speciation from gene
-duplication before we examine how its sequences can be aligned. A tree
-is read as follows:
+The human beta-globin gene has relatives both within our genome and in other species. To understand these relationships, we need to trace their origins. Genes can be **copied**, and species can **split**. These two events give rise to different relationships between the genes we find today.
 
-- The **leaves** are the sequences, and the internal **nodes** are
-  inferred ancestors.
-- The **branch lengths** show the amount of change (here, the fraction
-  of differing residues).
-- A **clade** is an ancestor with all its descendants.
-- A tree is either **rooted** or **unrooted**. In a rooted tree the root
-  marks the oldest ancestor, so the order of events can be read off.
+**Paralogs** descend from different copies produced by **gene duplication**. The alpha- and beta-globin lineages arose this way from an ancestral haemoglobin gene, long before mammals evolved. The copies can subsequently retain similar roles or develop different properties. Human alpha-globin genes and the beta-globin gene **HBB** are therefore paralogs. [Globin evolution](https://pubmed.ncbi.nlm.nih.gov/22846683/){target="_blank" rel="noopener noreferrer"}.
 
-The notebook uses these ideas to build a tree of α-globin, β-globin and
-myoglobin from human, mouse and chicken:
+**Orthologs** descend from a corresponding ancestral gene after **species separation**. The matching alpha-globin genes illustrated for mouse and human are orthologs, as are the matching beta-globin genes. Both species inherited these lineages from their common ancestor. [NCBI/NLM tutorial](https://www.nlm.nih.gov/ncbi/workshops/2023-08_BLAST_evol/ortho_para.html){target="_blank" rel="noopener noreferrer"}.
 
-![A gene tree of nine globins (neighbour joining on the fraction of differing residues in pairwise BLOSUM62 alignments, midpoint-rooted). Red squares: gene duplications, where both branches contain the same species; the copies below them are paralogs. Blue circles: speciations; the copies are orthologs.](figs/session04-globin-tree.png){#fig-session04-globin-tree width=85%}
+These terms describe **relationships between pairs of genes**. Any alpha-beta pair is paralogous, whether the genes occur in the same species or different species. Thus **mouse alpha-globin and human beta-globin**, and **human alpha-globin and mouse beta-globin**, are both paralogous pairs: their histories trace back to the earlier duplication, not the later species separation. @fig-s04-globin-relatives illustrates these relationships for selected globin lineages.
 
-This tree is a **gene tree**, and comparing it with the **species tree**
-(in which chicken branched off before human and mouse) tells the two
-kinds of homolog apart. The first split separates myoglobin from the
-haemoglobins, and the second separates α- from β-globin. Both splits are
-**duplications**, because each branch still contains all three species,
-so the genes must have been copied before birds and mammals diverged.
-Every node below them follows the species tree, with human and mouse
-joining first, so those nodes are **speciations**. Human and mouse
-α-globin are therefore orthologs (human α-globin differs from mouse
-α-globin at 14% of positions, and from chicken α-globin at 30%), while
-human α- and β-globin are paralogs (54% different).
+![An ancient duplication separates the α- and β-globin lineages, followed much later by species separation into lineages leading to mouse and human. Teal links mark orthologs; both magenta diagonals mark cross-species paralogs. All shown genes are homologs. α–β pairs are paralogs, including across species. Simplified: additional globin genes, later gene duplications and intermediate lineages are omitted. Ancestral animals are schematic.](figs/s04-globin-orthologs-paralogs.png){#fig-s04-globin-relatives fig-alt="Ancient haemoglobin gene duplication gives alpha- and beta-globin lineages before mammals. An extinct mammalian ancestor passes both lineages to mouse and human. Teal vertical links connect matching alpha genes and matching beta genes as orthologs. Two magenta diagonals connect mouse alpha with human beta, and human alpha with mouse beta, as paralogs across species. Black braces mark paralogs within each species." width="100%"}
 
-::: {.callout-note collapse="true"}
-#### Optional: how this tree was built {.unnumbered .unlisted}
+### Shared ancestry and measurable resemblance
 
-The notebook builds a matrix of pairwise sequence distances and uses
-**neighbour joining** to construct the gene tree. This method allows
-lineages to evolve at different rates. Distance methods give unrooted
-trees; a root can be added with an **outgroup**, a sequence known to have
-branched off first, or, as here, at the midpoint of the longest path.
-The guide tree used to construct a multiple sequence alignment has a
-different purpose, explained later in this session.
+Orthologs and paralogs share an important property: they descend from a common ancestral gene. This shared evolutionary origin is called **homology**, and the related genes—and their corresponding protein sequences—are called **homologs**.
 
-Two cautions apply. First, a tree does not by itself say how much each
-branch can be trusted. This is usually measured by **bootstrap**
-support: the alignment columns are resampled many times, the tree is
-rebuilt each time, and we count how often each branch reappears.
-Second, real phylogenetics uses models of how residues substitute,
-together with maximum likelihood (for example IQ-TREE or FastTree),
-whereas this course only needs the concepts. The fact that sequences are
-related by a tree comes back in Session 8's homology-aware splits and in
-Session 12's coevolution.
+**Homology is qualitative: it describes a yes-or-no evolutionary relationship.** The genes or sequence regions being compared either descend from a common ancestral sequence or they do not. Our evidence may leave that relationship uncertain, but uncertainty does not make the sequences "partly homologous."
 
-#### Further reading
+**Sequence resemblance is quantitative: sequences can be more or less alike.** We distinguish two useful descriptions of this resemblance:
 
-- Wikipedia, [Phylogenetic tree](https://en.wikipedia.org/wiki/Phylogenetic_tree), [Neighbor joining](https://en.wikipedia.org/wiki/Neighbor_joining) and [UPGMA](https://en.wikipedia.org/wiki/UPGMA)
-- Saitou & Nei (1987), [The neighbor-joining method: a new method for reconstructing phylogenetic trees](https://doi.org/10.1093/oxfordjournals.molbev.a040454), *Mol Biol Evol* 4:406-425
+- **Identity** concerns exact matches: the same nucleotide or amino acid at corresponding positions.
+- **Similarity**, when comparing proteins, also recognises replacements between amino acids with related chemical properties. Leucine and isoleucine, for example, are different amino acids, but both have hydrophobic side chains. A replacement between them may preserve properties important for the protein. [EMBL-EBI Training](https://www.ebi.ac.uk/training/online/courses/foundations-protein-structure/fundamentals-of-protein-composition/the-peptide-bond-and-primary-structure/ss/){target="_blank" rel="noopener noreferrer"}.
 
-:::
+Identity and similarity therefore describe resemblance that varies by degree. We can report "70% sequence identity," but **"70% homology" confuses measurable resemblance with shared ancestry**.
 
-## Why alignment needs an algorithm
+Sequence resemblance greater than expected by chance can provide strong evidence for homology. Conversely, relatives that have accumulated many changes may be difficult to recognise from their sequences alone. [Pearson, PMC open-access article](https://pmc.ncbi.nlm.nih.gov/articles/PMC3820096/#S2){target="_blank" rel="noopener noreferrer"}.
 
-To measure identity, we first have to decide which residues to compare.
-In the simplest case, two sequences have the same length and their
-positions already correspond: we place one under the other and count
-the matches. Equal length alone does not establish that correspondence.
-Real sequences usually differ in length, because insertions and deletions
-have accumulated over evolutionary time. Where we place one sequence
-under the other then changes the answer dramatically. Two example globin
-sequences that are 21.5% identical when aligned correctly can look as
-low as 4% identical if placed naively. Finding the right placement is
-therefore the real problem.
+Recognising relatives also helps us choose useful biological comparisons. However, shared ancestry does not guarantee identical function: related proteins may retain similar activities or acquire different ones. Functional interpretations therefore require supporting evidence. [Pearson, PMC open-access article](https://pmc.ncbi.nlm.nih.gov/articles/PMC3820096/#S4){target="_blank" rel="noopener noreferrer"}.
 
-An alignment is a hypothesis about that correspondence. It proposes
-which residues descend from the same ancestral position, so
-substitutions appear as aligned pairs, and insertions and deletions as
-gaps. The score of the alignment then says how plausible this proposed
-history is *under the chosen scoring scheme*. That is not the same as
-recovering the true evolutionary history, and much of this session is
-about the choices that go into the score.
+To make these comparisons useful, we next need a consistent way to decide which sequence positions should be compared. That is the task of **sequence alignment**.
 
-Could we simply try every possible placement and keep the best one?
-Unfortunately not. For two sequences of length $n$, allowing gaps, the
-number of possible alignments grows so fast that for $n = 100$ it is
-already around $10^{59}$, far too many to search exhaustively. This is
-why **dynamic programming** algorithms are used for this problem. They
-find the guaranteed-optimal alignment without ever checking most of the
-possibilities. The trick is that many candidate alignments share the
-same beginnings. Dynamic programming therefore solves the best alignment
-of every pair of prefixes once, stores it, and reuses it. Before we turn
-to the algorithm, it helps to see what a good alignment looks
-like.
+## Too many ways to line up {#why-alignment-needs-an-algorithm}
 
-### Further reading
+### Which residue goes where?
 
-- Wikipedia, [Sequence homology](https://en.wikipedia.org/wiki/Sequence_homology): orthology, paralogy and the other relatedness terms, in more depth than needed here
+Counting matches is straightforward once we know which residues correspond.
+Human and sperm whale myoglobins provide a simple starting example: two
+sequences of the same length placed beneath one another. Equal length alone,
+however, does not establish correspondence.
+
+Insertions and deletions make the comparison more demanding. Introducing
+**gaps** produces aligned rows of equal length while preserving residue
+order. Gap placement changes which residues face one another, so the
+identity and similarity we measure depend on the proposed alignment.
+
+![The same two short protein sequences give different residue correspondences when the gap moves. Each arrangement contains six alignment columns, giving two, three or five exact matches. All six columns are counted here.](figs/s04-mind-the-gap.png){#fig-s04-mind-the-gap fig-alt="Three arrangements of ACDEFG and ACEFG preserve residue order. Placing the shorter sequence's gap at the end, beginning or internally gives two, three or five exact matches, respectively, across six columns." width="100%"}
+
+### Best according to which score?
+
+An alignment is a hypothesis about residue correspondence. We compare
+candidates using an **alignment score** that combines contributions from
+aligned residue pairs with penalties for gaps. The aim is to find a
+highest-scoring alignment under the chosen scheme. This optimum does not
+by itself establish the true evolutionary history.
+
+### 63 is only the beginning
+
+Could we score every candidate and keep the best? Even **AGN and ADN**,
+with just three residues each, have **63 possible gap-placement
+arrangements** when residue order is preserved and columns containing two
+gaps are excluded.
+
+For two sequences of **100 residues each**, a conservative lower-bound
+estimate is already about **$10^{59}$ possible alignments**. Exhaustively
+scoring them is impractical.
+
+![The number of candidate alignments grows rapidly. Two three-residue sequences permit 63 arrangements under the stated rules. For two 100-residue sequences, even a conservative lower-bound estimate is about $10^{59}$. The avalanche is schematic, not to scale.](figs/s04-alignment-avalanche.png){#fig-s04-alignment-avalanche fig-alt="Two three-residue protein sequences lead to a small stack representing 63 candidate alignments. A separate example with 100 residues per sequence leads to an avalanche of alignment cards overwhelming a computer, labelled approximately ten to the power fifty-nine as a conservative lower-bound estimate." width="100%"}
+
+We therefore need **specialized alignment algorithms** that find a
+best-scoring alignment efficiently, without exhaustively scoring every
+possible arrangement. Before introducing these algorithms, we will use
+dotplots to inspect patterns of sequence resemblance visually.
+
+[**Further reading**]{#alignment-further-reading}
+
+- Jeffrey R. Chasnov, [Sequence alignment by brute force](https://www.math.hkust.edu.hk/~machas/mathematical-biology.pdf#page=108){target="_blank" rel="noopener noreferrer"},
+  *Mathematical Biology*, Section 7.2, pp. 102–103, explains how the number
+  of possible alignments grows and why exhaustive search becomes
+  impractical. The mathematical derivation is optional.
 
 ## Visualising alignments: dot plots
 
@@ -813,9 +785,7 @@ it, the notebook compares global and local alignment of two real globin
 fragments (from HBB and myoglobin) that share one conserved motif but
 differ elsewhere. This makes two things directly visible: the practical
 difference between the two algorithms, and the effect of a graded
-substitution matrix compared with a flat identity scheme. Finally, the
-notebook builds the globin gene tree introduced in [Reading a gene
-tree](#from-alignment-to-tree) by neighbour joining. Open it in
+substitution matrix compared with a flat identity scheme. Open it in
 [Google Colab](https://colab.research.google.com/github/ElofssonLab/kb8029-book/blob/main/notebooks/session04-alignment-in-code.ipynb)
 via the badge at the top of the notebook page to edit and run it
 yourself.
