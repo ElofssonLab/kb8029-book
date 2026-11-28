@@ -12,19 +12,13 @@
 ::: {.callout-note collapse="true"}
 ## Sources and figure provenance {.unnumbered .unlisted}
 
-Petras Kundrotas's KB8029 lecture "Sequence
-Alignment" (Feb 2026) — this page follows its structure and worked
-examples, adapted and shortened for this book, not copied verbatim; three
-figures below (filling one DP cell; the completed Needleman-Wunsch
-traceback; linear vs. affine gap penalties) are taken directly from that
-lecture's slides;
-Dayhoff, Schwartz & Orcutt (1978), *Atlas of Protein Sequence and
-Structure*, pp. 345-352 (origin of the PAM matrices); Henikoff & Henikoff
-(1992), *PNAS* 89:10915-10919 (origin of the BLOSUM matrices); Wikipedia,
-[Needleman–Wunsch algorithm](https://en.wikipedia.org/wiki/Needleman%E2%80%93Wunsch_algorithm),
-[Smith–Waterman algorithm](https://en.wikipedia.org/wiki/Smith%E2%80%93Waterman_algorithm),
-[Gap penalty](https://en.wikipedia.org/wiki/Gap_penalty),
-[Dot plot (bioinformatics)](https://en.wikipedia.org/wiki/Dot_plot_(bioinformatics)),
+The worked examples in this chapter use illustrative protein
+sequences and scoring rules. The accompanying lecture explores
+them in more detail. Dayhoff, Schwartz & Orcutt
+(1978), *Atlas of Protein Sequence and Structure*, pp. 345–352,
+introduced the PAM matrices. Henikoff & Henikoff (1992), *PNAS*
+89:10915–10919, introduced the BLOSUM matrices. Other background
+sources include Wikipedia’s [Gap penalty](https://en.wikipedia.org/wiki/Gap_penalty),
 [Standard score](https://en.wikipedia.org/wiki/Standard_score),
 [Kullback–Leibler divergence](https://en.wikipedia.org/wiki/Kullback%E2%80%93Leibler_divergence),
 [Sequence homology](https://en.wikipedia.org/wiki/Sequence_homology),
@@ -33,8 +27,7 @@ Structure*, pp. 345-352 (origin of the PAM matrices); Henikoff & Henikoff
 [Multiple sequence alignment](https://en.wikipedia.org/wiki/Multiple_sequence_alignment)
 — CC BY-SA 4.0; the notebook's core algorithm code is adapted from Lukas
 Käll's [*bibook*](https://github.com/statisticalbiotechnology/bibook)
-— CC BY 4.0. The guide-tree worked-example figure is original to this
-book, not from the lecture. The globin sequence logo is drawn for this
+— CC BY 4.0. The guide-tree worked-example figure was drawn for this book. The globin sequence logo is drawn for this
 book from the Pfam Globin family (PF00042) seed alignment, via
 [InterPro](https://www.ebi.ac.uk/interpro/entry/pfam/PF00042/) (CC0),
 with [logomaker](https://logomaker.readthedocs.io/); sequence logos were
@@ -42,9 +35,14 @@ introduced by Schneider & Stephens (1990), *Nucleic Acids Research*
 18:6097-6100; Wikipedia, [Sequence logo](https://en.wikipedia.org/wiki/Sequence_logo)
 — CC BY-SA 4.0.
 
-**Globin-relationship illustration.** The cartoon in @fig-s04-globin-relatives is an AI-generated course schematic of selected globin lineages. The ancestral animals are illustrative, rather than reconstructions of identified fossils. It shows selected globin lineages and omits additional genes, later duplications and intermediate animal lineages. The ancient origin of the alpha- and beta-globin lineages follows a [review of globin evolution](https://pubmed.ncbi.nlm.nih.gov/22846683/){target="_blank" rel="noopener noreferrer"}; the basic relationships are explained in the [NCBI/NLM tutorial](https://www.nlm.nih.gov/ncbi/workshops/2023-08_BLAST_evol/ortho_para.html){target="_blank" rel="noopener noreferrer"}.
+**Globin-relationship illustration.** The cartoon in @fig-s04-globin-relatives is an AI-generated course schematic of selected globin lineages. The ancestral animals are illustrative, rather than reconstructions of identified fossils. It shows selected globin lineages and omits additional genes, later duplications and intermediate animal lineages. The ancient origin of the alpha- and beta-globin lineages follows a [review of globin evolution](https://abc.gao-lab.org/reference/storz-jf-mpe-2012-globin.pdf){target="_blank" rel="noopener noreferrer"}; the basic relationships are explained in the [NCBI/NLM tutorial](https://www.nlm.nih.gov/ncbi/workshops/2023-08_BLAST_evol/ortho_para.html){target="_blank" rel="noopener noreferrer"}.
 
-**Alignment illustrations.** The diagrams in @fig-s04-mind-the-gap and @fig-s04-alignment-avalanche are AI-generated educational schematics. The avalanche illustrates the growth in possible arrangements and is not drawn to scale.
+**Alignment illustrations.** The diagrams in @fig-s04-mind-the-gap and @fig-s04-alignment-avalanche are AI-generated educational schematics. The avalanche illustrates the growth in possible arrangements. The horizontal illustration in @fig-s04-dp-retrieves-alignment is
+AI-generated. The gap-cost comparison in @fig-session04-gap-penalty
+was drawn for this book using illustrative costs. The dot plot in
+@fig-s04-dot-plot was drawn from the two example strings using exact
+letter matches. The cooking illustration in
+@fig-s04-alignment-ingredients was generated with ImageGen.
 
 :::
 
@@ -80,7 +78,7 @@ Comparing several relatives provides another perspective. Some positions may hav
 
 The human beta-globin gene has relatives both within our genome and in other species. To understand these relationships, we need to trace their origins. Genes can be **copied**, and species can **split**. These two events give rise to different relationships between the genes we find today.
 
-**Paralogs** descend from different copies produced by **gene duplication**. The alpha- and beta-globin lineages arose this way from an ancestral haemoglobin gene, long before mammals evolved. The copies can subsequently retain similar roles or develop different properties. Human alpha-globin genes and the beta-globin gene **HBB** are therefore paralogs. [Globin evolution](https://pubmed.ncbi.nlm.nih.gov/22846683/){target="_blank" rel="noopener noreferrer"}.
+**Paralogs** descend from different copies produced by **gene duplication**. The alpha- and beta-globin lineages arose this way from an ancestral haemoglobin gene, long before mammals evolved. The copies can subsequently retain similar roles or develop different properties. Human alpha-globin genes and the beta-globin gene **HBB** are therefore paralogs. [Globin evolution](https://abc.gao-lab.org/reference/storz-jf-mpe-2012-globin.pdf){target="_blank" rel="noopener noreferrer"}.
 
 **Orthologs** descend from a corresponding ancestral gene after **species separation**. The matching alpha-globin genes illustrated for mouse and human are orthologs, as are the matching beta-globin genes. Both species inherited these lineages from their common ancestor. [NCBI/NLM tutorial](https://www.nlm.nih.gov/ncbi/workshops/2023-08_BLAST_evol/ortho_para.html){target="_blank" rel="noopener noreferrer"}.
 
@@ -144,10 +142,9 @@ scoring them is impractical.
 
 ![The number of candidate alignments grows rapidly. Two three-residue sequences permit 63 arrangements under the stated rules. For two 100-residue sequences, even a conservative lower-bound estimate is about $10^{59}$. The avalanche is schematic, not to scale.](figs/s04-alignment-avalanche.png){#fig-s04-alignment-avalanche fig-alt="Two three-residue protein sequences lead to a small stack representing 63 candidate alignments. A separate example with 100 residues per sequence leads to an avalanche of alignment cards overwhelming a computer, labelled approximately ten to the power fifty-nine as a conservative lower-bound estimate." width="100%"}
 
-We therefore need **specialized alignment algorithms** that find a
-best-scoring alignment efficiently, without exhaustively scoring every
-possible arrangement. Before introducing these algorithms, we will use
-dotplots to inspect patterns of sequence resemblance visually.
+We therefore need **specialised alignment algorithms** that find a
+best-scoring alignment efficiently. The next section shows how
+these algorithms reuse work across many candidates.
 
 [**Further reading**]{#alignment-further-reading}
 
@@ -156,239 +153,306 @@ dotplots to inspect patterns of sequence resemblance visually.
   of possible alignments grows and why exhaustive search becomes
   impractical. The mathematical derivation is optional.
 
-## Visualising alignments: dot plots
+## Dynamic programming {#sec-s04-dp}
 
-The simplest way to see whether two sequences are related is a **dot
-plot**, and it needs no algorithm at all. We put one sequence along each
-axis of a grid and mark a dot wherever the row and column residues
-match. A run of matches then lines up as a diagonal line, which the eye
-picks out immediately. A long alignment shows up as one long diagonal, a
-repeat as several parallel diagonals, and an inversion as a diagonal
-running in the opposite direction. A dot plot gives no score and no
-optimal alignment, so it is only a fast qualitative screen. It is still
-used today to visualise the output of real alignments (BLAST's web
-output includes one), because a picture answers "is there a match here
-at all, and roughly where?" faster than a score does. To get an actual
-alignment, and a score for it, we need dynamic programming.
+We just saw how quickly the pile of possible alignments grows. So how
+do we find the highest-scoring alignment in that pile?
 
-### Further reading
+The simplest way to see where two sequences might align is a **dot
+plot**. It marks matching residues on a grid, where runs of matches
+stand out as diagonals. The optional reading *Two diagonals in a dot plot*
+shows how to read these patterns.
 
-- Wikipedia, [Dot plot (bioinformatics)](https://en.wikipedia.org/wiki/Dot_plot_(bioinformatics)) — filtering/windowing techniques for noisy real sequences, beyond the simple version above
+::: {#visualising-alignments-dot-plots .callout-note collapse="true"}
+### Optional reading · Two diagonals in a dot plot
 
-## Dynamic programming: Needleman-Wunsch and Smith-Waterman {#sec-s04-dp}
+Put `SEQUENCEANALYSISPRIMER` across the top and
+`ANALYZESEQUENCES` down the left. Each square compares a
+pair of letters. Mark it when the letters match. For example, the
+cell at column 13, row 5 compares Y with Y.
 
-Dynamic programming builds a matrix $V$ with one extra row and column
-(for handling the sequence starts), fills it in using a simple rule, and
-then traces back through it to read off the best alignment. Each cell
-$V(i,j)$ holds the score of the best alignment of the first $i$ residues
-of one sequence with the first $j$ residues of the other. It is filled
-as the best of three options: extending the alignment diagonally with a
-match or mismatch, or opening a gap from above or from the left.
+![Exact matches in the dot plot. The shared stretches ANALY and SEQUENCE form the two highlighted diagonals.](figs/s04-dot-plot.png){#fig-s04-dot-plot fig-alt="Dot plot of SEQUENCEANALYSISPRIMER across 22 columns and ANALYZESEQUENCES down 16 rows. All 35 exact matches are shaded. Amber highlights ANALY at columns 9–13, rows 1–5 and SEQUENCE at columns 1–8, rows 8–15. An outline marks the Y–Y match at column 13, row 5." width="90%"}
 
-$$
-V(i,j) = \max \begin{cases} V(i-1,j-1) + s(x_i, y_j) \\ V(i-1,j) + g \\ V(i,j-1) + g \end{cases}
-$$
+The five consecutive matches in `ANALY` and the eight in
+`SEQUENCE` make two clear diagonals. Other shaded cells
+mark individual matches. This is how a dot plot makes shared
+stretches easy to spot.
 
-Here $s(x_i, y_j)$ is a substitution score (see below) and $g$ is a gap
-penalty. In practice, filling one cell means computing all three
-candidates and keeping the largest. The figure shows this for cell
-$V(1,1)$ of a pair of 13- and 12-residue sequences, with a gap penalty
-of $g=1$:
-
-![Filling one cell, $V(1,1)$, of the dynamic-programming matrix: all three candidates are computed and the largest is kept (gap penalty $g=1$).](figs/session04-cell-fill.png){#fig-session04-cell-fill width=90%}
-
-Every other cell is filled in the same way, and only the numbers that go
-into the three candidates change. **Worked example.** The following case
-is small enough to do completely by hand. We align $x =
-\texttt{AWGHE}$ against $y = \texttt{AWHEA}$ --- two fragments of
-`HEAGAWGHEE` and `PAWHEAE`, the pair the textbooks use --- with match
-$= +1$, mismatch $= -1$ and gap $= -1$:
-
-::: {#tbl-s04-awghe-identity}
-|       |   | A | W | H | E | A |
-|---|---|---|---|---|---|---|
-|       | **0** | -1 | -2 | -3 | -4 | -5 |
-| **A** | -1 | **1** | 0 | -1 | -2 | -3 |
-| **W** | -2 | 0 | **2** | 1 | 0 | -1 |
-| **G** | -3 | -1 | **1** | 1 | 0 | -1 |
-| **H** | -4 | -2 | 0 | **2** | 1 | 0 |
-| **E** | -5 | -3 | -1 | 1 | **3** | **2** |
-
-The dynamic-programming matrix for aligning $x = \texttt{AWGHE}$ with $y = \texttt{AWHEA}$ under identity scoring (match $+1$, mismatch $-1$, gap $-1$). The traceback path of the optimal alignment is in bold.
+[Erik L. L. Sonnhammer and Richard Durbin’s DOTTER paper](https://sonnhammer.sbc.su.se/download/papers/1995_Gene_167%3AGC1-10.pdf){target="_blank" rel="noopener noreferrer"}
+describes a dot-plot tool that can help distinguish stretches of
+similarity from isolated matches.
 :::
 
-Tracing back from the bottom-right corner (score 2) along the cells in
-bold in @tbl-s04-awghe-identity gives the optimal global alignment:
+The main method we’ll use here is **dynamic programming**. It fills
+the score matrix one cell at a time, using the best scores from
+previously filled neighbouring cells. This lets us efficiently fish
+an **optimal alignment** out of the pile, one with the highest score
+under the rules we chose.
 
-```
-A W G H E -
-A W - H E A
-```
+::: {#s04-bellman .callout-note collapse="true"}
+### Optional reading · How dynamic programming got its name
 
-A matches A, W matches W, G is deleted, H matches H, E matches E, and
-the last A of $y$ is inserted, for a total score of $1 + 1 - 1 + 1 + 1 -
-1 = 2$. Notice what the scoring has bought here: two gaps, at $-1$ each,
-spent to chase two exact matches. Whether that is a good trade is a
-question about the scoring rather than about the algorithm, which is why
-the same two sequences come back under BLOSUM62 further down.
+Dynamic programming was formalised in the early 1950s by mathematician
+Richard Bellman, who was working at RAND Corporation on optimal decision
+processes. In his autobiography, he recalled wanting to concoct an
+impressive name that would shield his work from US Secretary of Defense
+Charles Wilson, whom he remembered as hostile to mathematical research.
+His work involved decisions that changed over time and planning, hence
+*dynamic* and *programming*. Here *programming* meant planning
+decisions. Bellman especially liked *dynamic* because “it's impossible
+to use the word dynamic in a pejorative sense”. He figured dynamic
+programming was “something not even a Congressman could object to”.
 
-::: {.callout-note .tryit icon="false"}
-## Try it · why the diagonal wins at a mismatch
+[Bellman’s 1952 paper](https://pmc.ncbi.nlm.nih.gov/articles/PMC1063639/?page=1){target="_blank" rel="noopener noreferrer"}
+introduces the method. The story is from his autobiography, quoted in
+[Stuart Dreyfus’s account](https://pubsonline.informs.org/doi/pdf/10.1287/opre.50.1.48.17791){target="_blank" rel="noopener noreferrer"}.
+:::
 
-Below is @tbl-s04-awghe-identity being filled one cell at a time. Press *Next
-cell* until the blue cell reaches row **G**, column **H**. The three yellow
-cells are the only ones it is allowed to look at, and each carries a badge with
-the value it offers; the winning offer turns green.
+![Fishing optimal alignment efficiently](figs/s04-dp-retrieves-alignment.png){#fig-s04-dp-retrieves-alignment fig-alt="On the right, a score matrix with a highlighted path extends a robotic claw to the left. The claw lifts one labelled best-scoring alignment above a pile of alternative alignments." width="100%"}
+
+First, decide how much of the two sequences you want to align.
+A **global alignment** includes both sequences from end to end.
+A **local alignment** finds the best-scoring pair of stretches within
+them.
+
+Two flavours of dynamic programming have been developed for these
+tasks. **Needleman–Wunsch** finds a global alignment, and
+**Smith–Waterman** finds a local alignment. Let’s look at how each works.
+
+### End to end with Needleman–Wunsch {#sec-s04-nw}
+
+**How do two sequences line up from first residue to last?** The
+Needleman–Wunsch algorithm finds a highest-scoring **global alignment**.
+Every residue appears in the result, paired with another residue or with
+a gap. Global alignment is useful when we expect correspondence along
+most of both sequences, as with the two myoglobins introduced earlier.
+
+#### Fill the grid one cell at a time
+
+Put sequence $x$ across the columns and sequence $y$ down the rows. Cell $V(i,j)$
+holds the best score for aligning the first $i$ residues of $x$ with the
+first $j$ residues of $y$. The origin scores zero because both prefixes
+are empty. Along the top row and left column, each new residue sits
+opposite a gap. Subtract the gap cost at each step along these
+boundaries.
+
+For every interior cell, compare three extensions. A **diagonal** step
+pairs two residues. A step **from the left** takes a residue from $x$ and
+places a gap in $y$. A step **from above** takes a residue from $y$ and
+places a gap in $x$. With a residue-pair score $s$ and a positive cost
+$g$ per gap position, use the largest of these three totals.
+
+$$
+V(i,j)=\max\left\{
+\begin{aligned}
+& V(i-1,j-1)+s(x_i,y_j),\\
+& V(i-1,j)-g,\\
+& V(i,j-1)-g.
+\end{aligned}
+\right.
+$$
+
+For two sequences of 100 residues each, the algorithm fills 10,000
+interior cells, each with three candidates. The grid lets us reuse a
+score wherever the same pair of prefixes occurs.
+
+#### Read the alignment backward
+
+As we fill each cell, we remember which of the three neighbouring
+cells gives the highest total after adding the residue-pair score
+or subtracting the gap cost. We draw an arrow **from** that
+predecessor **into** the cell we just filled. If several choices tie
+for the highest score, we keep all their arrows.
+
+To reconstruct a global alignment, start at the bottom right
+and follow those arrows **backward** to the origin. Each step adds a
+column to the left of the columns already recovered.
+
+[**Further reading**]{#global-alignment-further-reading}
+
+- Saul B. Needleman and Christian D. Wunsch, [A general method applicable to the search for similarities in the amino acid sequence of two proteins](https://bytes.usc.edu/cs270/docs/needleman-wunsch-1970.pdf){target="_blank" rel="noopener noreferrer"},
+  *Journal of Molecular Biology* (1970), introduces the matrix method for comparing protein sequences.
+
+### Find the best stretch with Smith–Waterman {#sec-s04-sw}
+
+Two larger proteins may share one domain. The Smith–Waterman algorithm
+finds a highest-scoring **local alignment** of the stretches that
+correspond best under the chosen scores. Leading and trailing residues
+can fall outside the alignment. Gaps within the aligned stretch still
+carry their cost.
+
+#### Give the score a fresh start
+
+Set the top row and left column to **zero**, so
+$V_{\mathrm{SW}}(i,0)=V_{\mathrm{SW}}(0,j)=0$. Fill each interior cell
+with the same three extensions as before, adding **zero as a fourth
+candidate**. Here $s(x_i,y_j)$ scores the residue pair and $g$ is the
+positive cost of a gap position.
+
+$$
+V_{\mathrm{SW}}(i,j)=\max\left\{
+\begin{aligned}
+& V_{\mathrm{SW}}(i-1,j-1)+s(x_i,y_j),\\
+& V_{\mathrm{SW}}(i-1,j)-g,\\
+& V_{\mathrm{SW}}(i,j-1)-g,\\
+& 0.
+\end{aligned}
+\right.
+$$
+
+When the extensions give no positive score, a zero allows a new
+alignment to begin from that point.
+
+#### Start at the peak, stop at zero
+
+At the end of the fill, **start at the highest score anywhere in the
+matrix**. Follow the stored arrows backward to the **first zero**.
+A step that gives zero can leave an incoming arrow in that cell.
+The traceback ends at the zero even when such arrows are visible.
+
+[**Further reading**]{#local-alignment-further-reading}
+
+- Temple F. Smith and Michael S. Waterman, [Identification of common molecular subsequences](https://dornsife.usc.edu/msw/wp-content/uploads/sites/236/2023/09/msw-042.pdf){target="_blank" rel="noopener noreferrer"},
+  *Journal of Molecular Biology* (1981), sets out the local alignment recurrence and its traceback rule.
+
+### A worked example {#sec-s04-try-traceback}
+
+Use the same two protein sequences in both algorithms. Put
+`AGCNVRQCLCRPM` across the columns and `AVCVNRCKCRGP`
+down the rows.
+
+We’ll use an **artificial scoring scheme**. Each exact match earns
+**2** points. Pairing A with G scores **0**, pairing V with G costs
+**2** points, and every other mismatch costs **1** point. Each gap
+position costs **1** point.
 
 ::: {.content-visible when-format="html"}
+Choose an **Algorithm**, then select **Fill matrix** or **Traceback**
+from **View**. In traceback, follow the arrows backward. At a tie,
+choose a **Tied predecessor**. The arrows you follow become darker,
+and the recovered alignment columns appear below the grid.
+:::
+
+::: {#tbl-s04-lecture-dp}
+
+::: {#s04-lecture-dp}
+
+|  | 0 | A | G | C | N | V | R | Q | C | L | C | R | P | M |
+| :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: | :---: |
+| 0 | 0 | -1 | -2 | -3 | -4 | -5 | -6 | -7 | -8 | -9 | -10 | -11 | -12 | -13 |
+| A | -1 | 2 | 1 | 0 | -1 | -2 | -3 | -4 | -5 | -6 | -7 | -8 | -9 | -10 |
+| V | -2 | 1 | 0 | 0 | -1 | 1 | 0 | -1 | -2 | -3 | -4 | -5 | -6 | -7 |
+| C | -3 | 0 | 0 | 2 | 1 | 0 | 0 | -1 | 1 | 0 | -1 | -2 | -3 | -4 |
+| V | -4 | -1 | -1 | 1 | 1 | 3 | 2 | 1 | 0 | 0 | -1 | -2 | -3 | -4 |
+| N | -5 | -2 | -2 | 0 | 3 | 2 | 2 | 1 | 0 | -1 | -1 | -2 | -3 | -4 |
+| R | -6 | -3 | -3 | -1 | 2 | 2 | 4 | 3 | 2 | 1 | 0 | 1 | 0 | -1 |
+| C | -7 | -4 | -4 | -1 | 1 | 1 | 3 | 3 | 5 | 4 | 3 | 2 | 1 | 0 |
+| K | -8 | -5 | -5 | -2 | 0 | 0 | 2 | 2 | 4 | 4 | 3 | 2 | 1 | 0 |
+| C | -9 | -6 | -6 | -3 | -1 | -1 | 1 | 1 | 4 | 3 | 6 | 5 | 4 | 3 |
+| R | -10 | -7 | -7 | -4 | -2 | -2 | 1 | 0 | 3 | 3 | 5 | 8 | 7 | 6 |
+| G | -11 | -8 | -5 | -5 | -3 | -3 | 0 | 0 | 2 | 2 | 4 | 7 | 7 | 6 |
+| P | -12 | -9 | -6 | -6 | -4 | -4 | -1 | -1 | 1 | 1 | 3 | 6 | 9 | **8** |
+
+:::
+
+The dynamic-programming matrix for the worked protein pair. The
+default view fills the Needleman–Wunsch matrix. In the interactive
+version, use **Algorithm** to compare it with Smith–Waterman.
+
+:::
+
 ```{=html}
-<div id="s04-try-step"></div>
 <script>
-renderDP("s04-try-step", {mode: "step", a: "AWGHE", b: "AWHEA",
-                          match: 1, mismatch: -1, gap: -1});
+renderDP("s04-lecture-dp", {
+  mode: "step",
+  modes: ["step", "traceback"],
+  a: "AVCVNRCKCRGP",
+  b: "AGCNVRQCLCRPM",
+  match: 2,
+  mismatch: -1,
+  pairScores: { AG: 0, VG: -2 },
+  gap: -1,
+  columnFirst: true,
+  incomingArrows: true,
+  viewSelect: true,
+  chooseAlignment: true
+});
 </script>
 ```
-:::
 
-::: {.content-visible when-format="pdf"}
-*This box is interactive, and a printed page cannot press anything. Open
-[course.bioinfo.se/dp.html](https://course.bioinfo.se/dp.html) which opens on this matrix.*
-:::
+::: {#s04-traceback-results .callout-note collapse="true" appearance="simple"}
+#### What you should see
 
-G and H are different residues, so the diagonal move scores $-1$ at that cell.
-**Why does the algorithm take it anyway?**
+**Needleman–Wunsch.** The bottom-right cell at column 13, row 12
+scores **8**. Traceback first moves left, pairing the final M with
+a gap, then diagonally, pairing P with P. Following the stored arrows
+to the origin gives this optimal global alignment.
 
-::: {.callout-note collapse="true" appearance="simple"}
-## What you should see
-
-The diagonal offers $V(2,2) + s(\texttt{G},\texttt{H}) = 2 - 1 = 1$. The move
-from above offers $V(2,3) + g = 1 - 1 = 0$, and the move from the left offers
-$V(3,2) + g = 1 - 1 = 0$. The cell keeps $1$.
-
-A mismatch costs one point here. Stepping around it costs a gap, and then a
-second gap further on to get back onto the diagonal, which is two. The choice
-in each cell is never between "match" and "mismatch": it is between three
-running totals, and an optimal alignment can contain a mismatch simply because
-every way of avoiding it scores worse.
-:::
-:::
-
-The same procedure works at the scale where it is actually used. The
-figure below shows two protein sequences of 12 and 13 residues, with the
-completed matrix and its full traceback path highlighted:
-
-![The completed Needleman-Wunsch matrix for two protein sequences of 12 and 13 residues, with the traceback path highlighted.](figs/session04-nw-traceback.png){#fig-session04-nw-traceback width=95%}
-
-This algorithm, **Needleman-Wunsch**, produces a *global* alignment, in
-which the entire length of both sequences is forced into the result,
-gaps and all. Often, however, we want only the best-matching sub-region,
-that is, a *local* alignment. **Smith-Waterman** achieves this with one
-change to the same algorithm. Negative values in the matrix are reset to
-zero, and the traceback starts from the highest-scoring cell anywhere in
-the matrix (not necessarily the bottom-right corner) and stops as soon
-as it reaches a zero.
-
-Which of the two to use is a biological choice, not just a mechanical
-one. **Global** alignment is the right choice when we expect the two
-sequences to correspond along most of their length, as two myoglobins
-do. **Local** alignment is the right choice when they may share only a
-part, such as one domain common to two large multidomain proteins, or a
-short motif inside a long sequence. Forcing a global alignment on such
-sequences buries the shared region under a long tail of meaningless
-gaps. How the gaps are penalised is therefore the next question.
-
-### Further reading
-
-- Wikipedia, [Needleman–Wunsch algorithm](https://en.wikipedia.org/wiki/Needleman%E2%80%93Wunsch_algorithm) and [Smith–Waterman algorithm](https://en.wikipedia.org/wiki/Smith%E2%80%93Waterman_algorithm) — pseudocode and complexity analysis beyond what's needed here
-
-## Gap penalties: linear vs. affine {#sec-s04-gaps}
-
-So far $g$ has been a single flat number charged per gap position, and
-this choice matters more than it might seem. A **linear** gap penalty,
-$g(n) = n \times g_{\text{op}}$ for $n$ consecutive gaps, charges the
-same total whether the gaps are spread out or bunched together.
-Evolutionary insertions and deletions often affect contiguous
-stretches of residues. It is therefore usually more realistic to charge
-more for opening a gap than for extending one. A linear penalty, in
-contrast, can produce implausible alignments that scatter single gaps
-throughout and break up motifs that are conserved as a block.
-
-The fix is an **affine** gap penalty. It charges a larger cost
-$g_{\text{op}}$ to *open* a new gap and a much smaller cost
-$g_{\text{ext}}$ to *extend* an already open one ($g_{\text{ext}} \ll
-g_{\text{op}}$):
-
-$$
-g(n) = g_{\text{op}} + (n-1) \times g_{\text{ext}}
-$$
-
-With this penalty, a single long gap costs less than the same number of
-gap positions scattered as many short gaps, which is the behaviour we
-want. The figure below makes this concrete. It shows the same two
-sequences aligned once with a linear penalty (top pair), where the gaps
-are scattered and break up the shared "QQW" motif, and once with an
-affine penalty (bottom pair), where the gaps are consolidated into
-contiguous stretches and "QQW" stays together:
-
-![The same two sequences aligned with a linear gap penalty (top pair) and with an affine gap penalty (bottom pair).](figs/session04-gap-penalty.png){#fig-session04-gap-penalty width=90%}
-
-::: {.callout-note .tryit icon="false"}
-## Try it · the gap cost at which the gaps disappear
-
-The matrix below charges a *linear* gap --- the penalty this section is arguing
-against --- which makes it the right place to watch one misbehave. It opens on
-the pair from @tbl-s04-awghe-identity under BLOSUM62 with a gap of $-1$. Press
-*Fill all* and read the alignment underneath: it spends two gaps to bring `H`
-onto `H` and `E` onto `E`.
-
-::: {.content-visible when-format="html"}
-```{=html}
-<div id="s04-try-gap"></div>
-<script>
-renderDP("s04-try-gap", {mode: "step", a: "AWGHE", b: "AWHEA",
-                         scoring: "blosum62", gap: -1, controls: true});
-</script>
+```text
+x  AGCNV-RQCLCR-PM
+y  AVC-VNR-CKCRGP-
 ```
+
+At column 5, row 5, the predecessors above and to the left both have
+score 3. Either gives 2 after the gap cost. The route above pairs
+V with V in this stretch. The route to the left pairs N with N there
+and yields another global alignment with score 8.
+
+**Smith–Waterman.** The highest score is **9** at column 12, row 12.
+Traceback starts with P paired with P and stops at the first zero,
+at column 2, row 2. The last backward step recovers the first C–C
+pair. This gives one optimal local alignment.
+
+```text
+x  CNV-RQCLCR-P
+y  C-VNR-CKCRGP
+```
+
+The first two residues of each sequence and the final M of $x$ lie
+outside the local alignment.
 :::
 
-::: {.content-visible when-format="pdf"}
-*This box is interactive, and a printed page cannot press anything. Open
-[course.bioinfo.se/dp.html](https://course.bioinfo.se/dp.html) and set *Scoring* to BLOSUM62 and *Gap* to $-1$.*
-:::
+### What is needed to align? {#sec-s04-alignment-scoring}
 
-Now make the gap more expensive one step at a time, pressing *Fill all* after
-each change. **At which gap cost do both gaps vanish?**
+The algorithms used two ingredients. A **residue-pair score** tells
+us what to add when two residues share an alignment column. A **gap
+cost** tells us what to subtract when a column pairs a residue with
+a gap.
 
-::: {.callout-note collapse="true" appearance="simple"}
-## What you should see
+![Cooking up a sequence alignment](figs/s04-alignment-ingredients.png){#fig-s04-alignment-ingredients fig-alt="A cartoon chef stirs a bowl labelled Dynamic programming. A tin labelled Residue-pair scores pours in pairs of amino-acid tiles. A second tin labelled Gap costs pours in dash tiles, and one dash runs away." width="100%"}
 
-At $-8$. The gapped alignment survives all the way down to $-7$, where it still
-scores 14; at $-8$ the traceback runs straight down the diagonal and the
-ungapped alignment wins with 12.
+#### Score a pair of residues
 
-$-8$ is the gap cost this chapter has been using with BLOSUM62, and it is about
-what two average substitutions are worth on that matrix. That is the whole
-rule: a gap has to buy more than it costs, and two exact matches stop being
-worth two gaps somewhere between $-7$ and $-8$ for this pair. Move either the
-matrix or the gap cost and that crossing point moves with it.
+A **substitution matrix** is a lookup table for the scores of all
+residue pairs in a given scoring scheme. A simple matrix for the
+20 standard amino acids has 20 rows and 20 columns. Each score
+depends only on the two amino acids being paired. More sophisticated
+scoring schemes can also take into account where the residues occur
+in their respective sequences.
 
-Real programs do not charge a flat number per gap position at all. `blastp`
-charges $11$ to *open* a gap and $1$ to *extend* it, which is the affine
-penalty above, and which this widget cannot express --- so treat the number it
-gives you as the shape of the argument rather than as `blastp`'s answer.
+In the next subchapter, we’ll look at two widely used families of
+substitution matrices, **PAM** and **BLOSUM**, and see how they use
+statistics from different sets of related proteins to derive their
+scores.
 
-Look at *where* the two gaps are while you still have them on screen. They are
-not one gap of two positions: they are two single gaps at different places,
-one in each sequence. That is the scattering this section warns about, on an
-alignment five residues long. An affine penalty would charge each of them a
-fresh opening cost and so discourage exactly this, which is what
-@fig-session04-gap-penalty shows on a pair long enough for it to matter.
-:::
-:::
+#### Decide what a gap costs {#sec-s04-gaps}
 
-### Further reading
+A **gap run** is a stretch of consecutive gaps in one row of the
+alignment. Its cost can depend on its length and where it falls.
 
-- Wikipedia, [Gap penalty](https://en.wikipedia.org/wiki/Gap_penalty) — covers this in more depth, including the position-dependent variant shown at the bottom of the figure above, which is beyond what this course needs
+- A **linear gap cost** charges the same amount for every gap
+  position. For a run of length $n$, the cost is $n$ times the
+  cost per position. This is the rule we used in both matrices above.
+- An **affine gap cost** charges $g_{\text{op}}$ to open a run and
+  $g_{\text{ext}}$ for each additional position. A run of length $n$
+  costs $g_{\text{op}}+(n-1)g_{\text{ext}}$. With a higher opening
+  cost, one run is cheaper than several runs with the same total
+  length.
+- A **position-dependent gap cost** can make gaps more expensive
+  in a protected region. For example, structural evidence can
+  indicate positions where gaps would be unlikely.
+
+![One run of three gap positions and three separate gaps cost 6 points each under the illustrated linear rule. Under the affine rule they cost 6 and 12. A position-dependent surcharge raises the same three-position run from 6 outside the protected region to 18 inside it. Orange marks positions in the reference row opposite the displayed sequence.](figs/s04-gap-costs.png){#fig-session04-gap-penalty fig-alt="Three panels compare the cost of placing three gaps in the same short sequence. Linear cost is 6 for one run or three. Affine cost is 6 for one run and 12 for three. A surcharge of 4 per gap position in the orange region increases the cost of one run from 6 to 18." width="100%"}
 
 ## Substitution matrices: PAM and BLOSUM {#sec-s04-matrices}
 
@@ -437,11 +501,11 @@ BLOSUM80 suits more similar sequences than BLOSUM45.
 
 ### The same two sequences, three times {#sec-s04-three}
 
-@tbl-s04-awghe-identity aligned $x = \texttt{AWGHE}$ against $y =
-\texttt{AWHEA}$ with match $+1$ and mismatch $-1$, and that scoring
-bought two gaps to chase two exact matches. Nothing below has changed
-except the substitution score: the same two sequences and the same
-Needleman-Wunsch recurrence, now with BLOSUM62 and a gap of $-8$.
+Use the shorter exercise pair $x = \texttt{AWGHE}$ and
+$y = \texttt{AWHEA}$ to compare scoring schemes. With match $+1$,
+mismatch $-1$, and a gap score of $-1$, the best global alignment
+is `AWGHE-` against `AW-HEA`, with score $2$. Now keep the same global
+algorithm and use BLOSUM62 with a gap score of $-8$.
 
 ::: {#tbl-s04-awghe-blosum}
 |       |   | A | W | H | E | A |
@@ -507,8 +571,8 @@ thing changed each time, and a different alignment every time.
 ::: {.callout-note .tryit icon="false"}
 ## Try it · the same pair, all three ways
 
-The three tables above are three settings of one widget. It opens on
-@tbl-s04-awghe-identity: the same `AWGHE` against `AWHEA`, scored by identity.
+This widget compares three settings on the shorter exercise pair. It
+opens on `AWGHE` against `AWHEA` with identity scoring.
 
 ::: {.content-visible when-format="html"}
 ```{=html}
@@ -547,8 +611,9 @@ same scores gives `AWGHE` against `AW-HE`, score 20, read from the best cell
 anywhere in the matrix rather than from the corner, with the ragged ends
 dropped.
 
-The algorithm was identical in all three. Everything that changed was the
-scoring scheme and where the traceback is allowed to start and stop.
+The first two runs use global alignment with different scores and
+gap costs. The third uses the same BLOSUM62 and gap scores as the
+second, with local boundaries, a zero candidate, and local traceback.
 :::
 :::
 
@@ -729,7 +794,7 @@ contrast, two single positions stand out. Positions −3 and −1 carry
 small, uncharged residues (mostly alanine, also glycine and serine),
 while position −2, between them, is free. This is the **(−3, −1)
 rule**, found in 1983 in a collection of 78 signal peptides (von Heijne,
-[*Eur. J. Biochem.* 133:17](https://doi.org/10.1111/j.1432-1033.1983.tb07424.x)).
+[*Eur. J. Biochem.* 133:17](https://febs.onlinelibrary.wiley.com/doi/pdf/10.1111/j.1432-1033.1983.tb07424.x)).
 The enzyme that cuts, signal peptidase, needs small side chains at these
 two positions. The positively charged n-region is blurred in the logo,
 because signal peptides differ in length, so the left-hand columns mix
@@ -738,7 +803,7 @@ residues from different regions. It is clearest in bacteria (K and R).
 Like a family's logo, this description can be turned into a score
 (Session 5's PSSM). In 1986, von Heijne built a position weight matrix
 for positions −13 to +2 around the cleavage site
-([*Nucleic Acids Res.* 14:4683](https://doi.org/10.1093/nar/14.11.4683)).
+([*Nucleic Acids Res.* 14:4683](https://pmc.ncbi.nlm.nih.gov/articles/PMC311474/?page=1)).
 The signal peptide comes back several times in the course. Session 7
 compares this weight matrix with a neural network, Session 8 uses the
 hydrophobicity of the h-region as a feature, and Session 11 lets
@@ -757,7 +822,7 @@ distributions into position-specific scores.
 ### Further reading
 
 - Wikipedia, [Multiple sequence alignment](https://en.wikipedia.org/wiki/Multiple_sequence_alignment) — additional methods and applications, e.g. profile HMMs, which Session 5 picks up in full
-- von Heijne (1990), [The signal peptide](https://doi.org/10.1007/BF01868635), *J. Membr. Biol.* 115:195, a short review of the signal-peptide design
+- von Heijne and Abrahmsén (1989), [Species-specific variation in signal peptide design](https://www.sbc.su.se/gunnar/gvhpapers/FEBS244-439.pdf), *FEBS Letters* 244:439–446, compares signal-peptide regions across species.
 - Wikipedia, [Sequence logo](https://en.wikipedia.org/wiki/Sequence_logo); Schneider & Stephens (1990), "Sequence logos: a new way to display consensus sequences," *Nucleic Acids Research* 18:6097-6100
 
 ## The course notebook
@@ -830,15 +895,15 @@ renderQuiz("session04-quiz", [
     explanation: "The real number is around 10^59 possible alignments for n=100 &mdash; dynamic programming avoids ever checking most of them."
   },
   {
-    question: "Smith-Waterman turns Needleman-Wunsch's global algorithm into a local one with one specific change to the DP matrix. What is that change?",
+    question: "Which changes let Smith–Waterman recover a local alignment?",
     choices: [
-      "Negative values in the matrix are reset to zero, and traceback starts from the highest-scoring cell anywhere and stops at a zero",
+      "The boundaries start at zero, zero competes when filling each cell, and traceback goes from the highest-scoring cell to the first zero",
       "The substitution matrix is replaced with a different one",
       "The gap penalty is changed from linear to affine",
       "The matrix's rows and columns are transposed"
     ],
     correctIndex: 0,
-    explanation: "This single change &mdash; flooring the matrix at zero &mdash; is what turns global alignment into local alignment."
+    explanation: "The zero boundaries and fourth candidate allow the alignment to begin within the sequences. Traceback from the maximum ends when it reaches zero."
   },
   {
     question: "With an affine gap penalty g(n) = g_open + (n-1) &times; g_ext, using g_open = -10 and g_ext = -1, what is the total penalty for a single gap of length 4?",

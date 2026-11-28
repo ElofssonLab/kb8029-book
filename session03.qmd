@@ -955,13 +955,17 @@ renderQuiz("session03-quiz", [
 
 ## The lab
 
-The lab follows the same path with a new example: human myoglobin (gene symbol **MB**). You start by comparing a submitted DNA record from the three INSDC partners, then check how a reference transcript connects to its protein. In the database websites, you locate the transcript on a specified genome assembly, compare a reviewed protein annotation with an InterPro record, and use the notebook and record pages to see how an experimental structure and a predicted model were obtained. The last part follows a reported protein interaction to its evidence record and paper. These checks form a small dossier in which each conclusion can be traced back to the record or study that supports it.
+The lab follows the same path with a new example: human myoglobin (gene symbol **MB**). Its ten investigations combine independent database searches with notebook checks. You compare one archived DNA record through NCBI, ENA and DDBJ, then find the reference transcript and protein records yourself. In a genome browser, you retrieve the transcript's genomic span and its coding sequence, and examine why the two sequences answer different biological questions. The protein investigations compare evidence for individual UniProt annotations, distinguish an InterPro family from a domain, and evaluate experimental structures alongside a predicted model. A structure can describe the right protein family yet have the wrong organism or a modified experimental sequence for your question.
+
+The final investigations follow a reported interaction to its experimental record and publication abstract, and ask how far that evidence supports a biological claim. No full-paper reading or structural-quality calculations are required. You keep identifiers, versions, sources and sequence-export settings in a record log, so someone else can revisit the same records and genomic interval. Together these checks build a dossier in which conclusions remain connected to their supporting evidence.
 
 ![How the lab brings connected records into one dossier.](figs/s03-lab.svg){#fig-s03-lab fig-alt="Start from a biological question, connect records and document their identifiers, versions and evidence." width="100%"}
 
 ### Submitting this lab
 
-Open the **Session 3: Biological Databases** module in Canvas for the lab instructions, ten graded questions and the feedback survey. [Download the Session 3 lab notebook](notebooks/session03-lab.ipynb){download=""} and open it in VS Code or upload it to Colab. Use the notebook outputs and database pages to choose your answers as you work. Some questions ask for one answer and others ask you to select all correct answers. Each question is worth one point. Five points meets the pass threshold. Check Canvas for the deadline and feedback survey.
+Plan for a **three-hour lab session**, including the investigations, a short break, review and submission. This is a planning estimate; your background and database availability affect the time needed. All ten investigations are required and each leads to a graded question.
+
+Open the **Session 3: Biological Databases** module in Canvas for the instructions, ten graded questions and feedback survey. [Download the Session 3 lab notebook](notebooks/session03-lab.ipynb){download=""} and open it in VS Code or upload it to Colab. Uploading the downloaded file ensures that you use this revision; the notebook's Colab badge opens the published copy. You can also [read the lab notebook in your browser](notebooks/session03-lab.html){target="_blank" rel="noopener noreferrer"}. Use your outputs, source records and record log to choose the answers. Some questions ask for one answer and others ask you to select all correct answers. Each question is worth one point. Five points meets the pass threshold. Check Canvas for the deadline and feedback survey.
 
 ## What's next?
 

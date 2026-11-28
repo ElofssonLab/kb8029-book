@@ -11,7 +11,7 @@
 //   <div id="nw-step"></div>
 //   <script>
 //   renderDP("nw-step", {
-//     mode: "step",              // "step" | "guess" | "fill"
+//     mode: "step",              // "step" | "guess" | "fill" | "traceback"
 //     a: "TGCATTA",              // rows,    read top to bottom
 //     b: "GCATTAC",              // columns, read left to right
 //     scoring: "identity",       // "identity" | "blosum62"
@@ -74,9 +74,7 @@ const BLOSUM62 = (function () {
 function dpDefaults(cfg) {
   const c = Object.assign({
     mode: "step",
-    // The Session 4 example, so the widget, the slide figures and the lecture
-    // all open on the same matrix. Both are fragments of HEAGAWGHEE/PAWHEAE,
-    // the textbook pair the local example further down uses in full.
+    // A short pair for the general-purpose demos.
     a: "AWGHE",
     b: "AWHEA",
     scoring: "identity",
@@ -86,6 +84,11 @@ function dpDefaults(cfg) {
     local: false,
     questions: 5,
     showPointers: true,
+    pairScores: null,   // symmetric pair overrides, e.g. { AG: 0 }
+    incomingArrows: false,
+    columnFirst: false,
+    viewSelect: false,
+    chooseAlignment: false,
     caption: null,
     controls: false,   // show the settings bar above the matrix
     modes: null        // several modes with a switcher, e.g. ["step","guess","fill"]
@@ -103,7 +106,10 @@ function dpScorer(cfg) {
       return v === undefined ? BLOSUM62["X"]["X"] : v;
     };
   }
-  return function (x, y) { return x === y ? cfg.match : cfg.mismatch; };
+  return function (x, y) {
+    return cfg.pairScores?.[x + y] ?? cfg.pairScores?.[y + x] ??
+      (x === y ? cfg.match : cfg.mismatch);
+  };
 }
 
 // Fills V and the pointer table. V[i][j] indexes residue i of a and j of b,
@@ -157,32 +163,32 @@ function dpStartCell(cfg, dp) {
   return [bi, bj];
 }
 
-// Walks one optimal path back from the start cell. Where several predecessors
-// tie it takes diagonal first, then up, then left: one path out of possibly
-// many, which is the honest thing to show and worth saying out loud in class.
-function dpTraceback(cfg, dp) {
+const DP_OFFSETS = { diag: [-1, -1], up: [-1, 0], left: [0, -1] };
+
+// Walk from the start cell. The pointer order supplies the default choice,
+// while the traceback view can choose a different predecessor at a tie.
+function dpTraceback(cfg, dp, choices = [], limit = Infinity) {
   let [i, j] = dpStartCell(cfg, dp);
   const path = [[i, j]];
+  const score = dp.V[i][j];
+  const moves = [];
   let A = "", B = "";
-  let guard = 0;
-  while (guard++ < 10000) {
+  while (moves.length < limit) {
     if (cfg.local && dp.V[i][j] === 0) break;
     if (i === 0 && j === 0) break;
     const p = dp.ptr[i][j];
-    let move;
-    if (i > 0 && j > 0 && p.indexOf("diag") >= 0) move = "diag";
-    else if (i > 0 && p.indexOf("up") >= 0) move = "up";
-    else if (j > 0 && p.indexOf("left") >= 0) move = "left";
-    else if (i === 0) move = "left";
-    else move = "up";
-
-    if (move === "diag") { A = cfg.a[i - 1] + A; B = cfg.b[j - 1] + B; i--; j--; }
-    else if (move === "up") { A = cfg.a[i - 1] + A; B = "-" + B; i--; }
-    else { A = "-" + A; B = cfg.b[j - 1] + B; j--; }
+    const chosen = choices[moves.length];
+    const move = p.includes(chosen) ? chosen : p[0];
+    if (!move) break;
+    const [di, dj] = DP_OFFSETS[move];
+    A = (di ? cfg.a[i - 1] : "-") + A;
+    B = (dj ? cfg.b[j - 1] : "-") + B;
+    i += di;
+    j += dj;
+    moves.push(move);
     path.push([i, j]);
   }
-  const start = dpStartCell(cfg, dp);
-  return { path: path, a: A, b: B, score: dp.V[start[0]][start[1]] };
+  return { path: path, a: A, b: B, score: score, moves: moves };
 }
 
 function dpMidline(A, B) {
@@ -227,6 +233,22 @@ function dpStyle() {
     .dpm td input:focus { outline: 2px solid #0d6efd; outline-offset: -2px; }
     .dpm .dpm-ptr { position: absolute; top: 1px; left: 3px; font-size: 0.72em; line-height: 1;
       color: rgba(0,0,0,0.55); letter-spacing: -1px; }
+    .dpm-incoming { text-align: left; }
+    .dpm-incoming table { table-layout: fixed; width: 100%; min-width: 35rem; }
+    .dpm-incoming th, .dpm-incoming td { height: 2.25em; width: auto; }
+    .dpm .dpm-index { display: block; font-size: 0.72em; opacity: 0.72; }
+    .dpm .dpm-arrow { position: absolute; z-index: 2; width: 54%; min-width: 17px; height: 7px;
+      background: #65788e; pointer-events: none;
+      clip-path: polygon(0 38%, 67% 38%, 67% 0, 100% 50%, 67% 100%, 67% 62%, 0 62%); }
+    .dpm .dpm-arrow-left { left: 0; top: 77%; transform: translate(-50%, -50%); }
+    .dpm .dpm-arrow-up { left: 23%; top: 0; transform: translate(-50%, -50%) rotate(90deg); }
+    .dpm .dpm-arrow-diag { left: 0; top: 0; transform: translate(-50%, -50%) rotate(45deg); }
+    .dpm .dpm-arrow.dpm-chosen { background: #064e3b; height: 11px; z-index: 3; }
+    .dpm td.dpm-trace-start { box-shadow: inset 0 0 0 2px #065f46; }
+    .dpm td.dpm-trace-stop { box-shadow: inset 0 0 0 2px #a34108; background: #ffe2ba; }
+    .dpm td.dpm-trace-active { outline: 2px dashed #154784; outline-offset: -4px; }
+    .dpm .dpm-trace-choice label { margin-right: .4em; font-weight: 600; }
+    .dpm .dpm-trace-choice select { max-width: 100%; }
     /* What a neighbour offers this cell: the badge sits on the neighbour, so
        the three alternatives and the winner are visible on the matrix itself
        and not only in the line of prose underneath. */
@@ -288,16 +310,22 @@ function dpArrows(p) {
 // Builds the table once; every mode then just toggles classes and text.
 function dpTable(cfg, dp, opts) {
   const table = dpEl("table");
+  function header(value, index, scope) {
+    const th = dpEl("th", null, value);
+    th.scope = scope;
+    if (cfg.columnFirst && index > 0) th.appendChild(dpEl("span", "dpm-index", String(index)));
+    return th;
+  }
   const head = dpEl("tr");
   head.appendChild(dpEl("td", "dpm-empty"));
-  head.appendChild(dpEl("th", null, "–"));
-  for (let j = 0; j < dp.m; j++) head.appendChild(dpEl("th", null, cfg.b[j]));
+  head.appendChild(header(cfg.columnFirst ? "0" : "–", 0, "col"));
+  for (let j = 0; j < dp.m; j++) head.appendChild(header(cfg.b[j], j + 1, "col"));
   table.appendChild(head);
 
   const cells = [];
   for (let i = 0; i <= dp.n; i++) {
     const tr = dpEl("tr");
-    tr.appendChild(dpEl("th", null, i === 0 ? "–" : cfg.a[i - 1]));
+    tr.appendChild(header(i === 0 ? (cfg.columnFirst ? "0" : "–") : cfg.a[i - 1], i, "row"));
     cells.push([]);
     for (let j = 0; j <= dp.m; j++) {
       const td = dpEl("td");
@@ -317,6 +345,11 @@ function dpTable(cfg, dp, opts) {
     table.appendChild(tr);
   }
   const wrap = dpEl("div", "dpm-scroll");
+  if (cfg.incomingArrows) {
+    wrap.tabIndex = 0;
+    wrap.setAttribute("role", "region");
+    wrap.setAttribute("aria-label", "Alignment score matrix");
+  }
   wrap.appendChild(table);
   return { wrap: wrap, cells: cells };
 }
@@ -324,6 +357,14 @@ function dpTable(cfg, dp, opts) {
 function dpShowValue(cfg, dp, td, i, j, withPointers) {
   td.textContent = dpNum(dp.V[i][j]);
   td.classList.remove("dpm-blank");
+  if (withPointers && cfg.incomingArrows) {
+    for (const move of dp.ptr[i][j]) {
+      const arrow = dpEl("span", "dpm-arrow dpm-arrow-" + move);
+      arrow.setAttribute("aria-hidden", "true");
+      td.appendChild(arrow);
+    }
+    return;
+  }
   if (withPointers && i > 0 && j > 0 && dp.ptr[i][j].length) {
     const s = dpEl("span", "dpm-ptr", dpArrows(dp.ptr[i][j]));
     td.appendChild(s);
@@ -346,9 +387,14 @@ function dpShowCandidates(cfg, dp, cells, i, j) {
 }
 
 function dpSettingsLine(cfg) {
-  const scheme = cfg.scoring === "blosum62"
+  let scheme = cfg.scoring === "blosum62"
     ? "BLOSUM62"
     : "match " + dpSigned(cfg.match) + ", mismatch " + dpSigned(cfg.mismatch);
+  if (cfg.scoring !== "blosum62" && cfg.pairScores) {
+    scheme += ", " + Object.entries(cfg.pairScores).map(function ([pair, score]) {
+      return pair.split("").join("–") + " " + dpNum(score);
+    }).join(", ");
+  }
   return (cfg.local ? "Smith–Waterman (local)" : "Needleman–Wunsch (global)") +
     " · " + scheme + " · gap " + dpSigned(cfg.gap);
 }
@@ -356,23 +402,29 @@ function dpSettingsLine(cfg) {
 function dpSigned(v) { return v >= 0 ? "+" + v : "−" + Math.abs(v); }
 function dpNum(v) { return v < 0 ? "−" + Math.abs(v) : String(v); }
 
+function dpCoord(cfg, row, col) {
+  return cfg.columnFirst ? col + "," + row : row + "," + col;
+}
+
 function dpRecurrence(cfg, dp, i, j) {
   const c = dpCandidates(cfg, dp, i, j);
   const parts = [
-    "V(" + (i - 1) + "," + (j - 1) + ") + s(" + cfg.a[i - 1] + "," + cfg.b[j - 1] + ") = " +
+    "V(" + dpCoord(cfg, i - 1, j - 1) + ") + s(" +
+      (cfg.columnFirst ? cfg.b[j - 1] + "," + cfg.a[i - 1] : cfg.a[i - 1] + "," + cfg.b[j - 1]) + ") = " +
       dpNum(dp.V[i - 1][j - 1]) + " + (" + dpNum(c.sub) + ") = " + dpNum(c.diag),
-    "V(" + (i - 1) + "," + j + ") + gap = " + dpNum(dp.V[i - 1][j]) + " + (" + dpNum(cfg.gap) + ") = " + dpNum(c.up),
-    "V(" + i + "," + (j - 1) + ") + gap = " + dpNum(dp.V[i][j - 1]) + " + (" + dpNum(cfg.gap) + ") = " + dpNum(c.left)
+    "V(" + dpCoord(cfg, i - 1, j) + ") + gap = " + dpNum(dp.V[i - 1][j]) + " + (" + dpNum(cfg.gap) + ") = " + dpNum(c.up),
+    "V(" + dpCoord(cfg, i, j - 1) + ") + gap = " + dpNum(dp.V[i][j - 1]) + " + (" + dpNum(cfg.gap) + ") = " + dpNum(c.left)
   ];
   if (cfg.local) parts.push("0");
-  return "V(" + i + "," + j + ") = max( " + parts.join(";  ") + " ) = " + dpNum(dp.V[i][j]);
+  return "V(" + dpCoord(cfg, i, j) + ") = max( " + parts.join(";  ") + " ) = " + dpNum(dp.V[i][j]);
 }
 
-function dpAlignmentBox(cfg, dp) {
-  const tb = dpTraceback(cfg, dp);
+function dpAlignmentBox(cfg, dp, tb = dpTraceback(cfg, dp), complete = true) {
   const box = dpEl("div", "dpm-align");
-  box.textContent = tb.a + "\n" + dpMidline(tb.a, tb.b) + "\n" + tb.b +
-    "\n\nscore " + dpNum(tb.score);
+  const [top, bottom] = cfg.columnFirst ? [tb.b, tb.a] : [tb.a, tb.b];
+  const labels = cfg.columnFirst ? ["x  ", "   ", "y  "] : ["", "", ""];
+  box.textContent = labels[0] + top + "\n" + labels[1] + dpMidline(top, bottom) + "\n" + labels[2] + bottom +
+    (complete ? "\n\nscore " + dpNum(tb.score) : "");
   return { box: box, tb: tb };
 }
 
@@ -403,12 +455,12 @@ function dpRenderStep(root, cfg, dp) {
       const td = t.cells[i][j];
       td.className = (i === 0 || j === 0) ? "dpm-border" : "";
       td.textContent = "";
-      if (i === 0 || j === 0) { dpShowValue(cfg, dp, td, i, j, false); continue; }
+      if (i === 0 || j === 0) { dpShowValue(cfg, dp, td, i, j, cfg.incomingArrows && cfg.showPointers); continue; }
       const idx = (i - 1) * dp.m + (j - 1);
       if (idx < k) dpShowValue(cfg, dp, td, i, j, cfg.showPointers);
       else td.classList.add("dpm-blank");
     }
-    if (k > 0 && k <= total) {
+    if (k > 0 && (k < total || (k === total && !cfg.viewSelect))) {
       const i = Math.floor((k - 1) / dp.m) + 1, j = ((k - 1) % dp.m) + 1;
       t.cells[i][j].classList.add("dpm-current");
       t.cells[i - 1][j - 1].classList.add("dpm-source");
@@ -417,16 +469,22 @@ function dpRenderStep(root, cfg, dp) {
       dpShowCandidates(cfg, dp, t.cells, i, j);
       say.textContent = "Each neighbour offers a value; the biggest wins. " + dpRecurrence(cfg, dp, i, j);
     } else if (k === 0) {
-      say.textContent = "The border is the cost of opening with gaps" +
-        (cfg.local ? ", which is zero in a local alignment." : ".") + " Press Next cell.";
+      say.textContent = cfg.local ? "The boundary scores start at zero. Press Next cell." :
+        "The boundary scores are the accumulated gap costs. Press Next cell.";
     }
     out.textContent = "";
     if (k === total) {
       say.textContent = "The matrix is full. The best score is in " +
         (cfg.local ? "the largest cell" : "the bottom-right cell") + ".";
-      const a = dpAlignmentBox(cfg, dp);
-      a.tb.path.forEach(function (p) { t.cells[p[0]][p[1]].classList.add("dpm-path"); });
-      out.appendChild(a.box);
+      if (cfg.viewSelect) {
+        const [i, j] = dpStartCell(cfg, dp);
+        t.cells[i][j].classList.add("dpm-trace-start");
+        say.textContent += " Choose Traceback to follow the stored arrows.";
+      } else {
+        const a = dpAlignmentBox(cfg, dp);
+        a.tb.path.forEach(function (p) { t.cells[p[0]][p[1]].classList.add("dpm-path"); });
+        out.appendChild(a.box);
+      }
     }
     back.disabled = (k === 0);
     next.disabled = (k === total);
@@ -438,6 +496,87 @@ function dpRenderStep(root, cfg, dp) {
   all.onclick = function () { draw(total); };
   slider.oninput = function () { draw(+slider.value); };
   draw(0);
+}
+
+function dpRenderTraceback(root, cfg, dp) {
+  const t = dpTable(cfg, dp, {});
+  root.appendChild(t.wrap);
+  for (let i = 0; i <= dp.n; i++) {
+    for (let j = 0; j <= dp.m; j++) dpShowValue(cfg, dp, t.cells[i][j], i, j, cfg.showPointers);
+  }
+
+  const controls = dpEl("div", "dpm-controls");
+  const back = dpEl("button", "dpm-secondary", "Back one step");
+  const next = dpEl("button", null, "Next traceback step");
+  const all = dpEl("button", "dpm-secondary", "Show full path");
+  const reset = dpEl("button", "dpm-secondary", "Reset traceback");
+  const choose = dpSelect([], "");
+  const choiceField = dpField("Tied predecessor", choose);
+  choiceField.className = "dpm-trace-choice";
+  controls.append(back, next, all, reset, choiceField);
+  root.appendChild(controls);
+  const status = dpEl("p", "dpm-say");
+  status.setAttribute("aria-live", "polite");
+  root.appendChild(status);
+  const out = dpEl("div");
+  root.appendChild(out);
+
+  let moves = [], available = [];
+  let marked = [];
+  const [si, sj] = dpStartCell(cfg, dp);
+  const where = (i, j) => "column " + j + ", row " + i;
+  const directions = { diag: "Upper left", up: "Above", left: "Left" };
+
+  function draw() {
+    for (const el of marked) el.classList.remove("dpm-path", "dpm-trace-active", "dpm-trace-stop", "dpm-chosen");
+    marked = [];
+    const tb = dpTraceback(cfg, dp, moves, moves.length);
+    tb.path.forEach(function ([i, j], step) {
+      const cell = t.cells[i][j];
+      cell.classList.add("dpm-path");
+      marked.push(cell);
+      if (step >= tb.moves.length) return;
+      const arrow = cell.querySelector(".dpm-arrow-" + tb.moves[step]);
+      if (arrow) {
+        arrow.classList.add("dpm-chosen");
+        marked.push(arrow);
+      }
+    });
+    const [i, j] = tb.path[tb.path.length - 1];
+    const score = dp.V[i][j];
+    const stop = (i === 0 && j === 0) || (cfg.local && score === 0);
+    t.cells[si][sj].classList.add("dpm-trace-start");
+    t.cells[i][j].classList.add(stop ? "dpm-trace-stop" : "dpm-trace-active");
+    available = stop ? [] : dp.ptr[i][j];
+    choose.replaceChildren(...available.map(function (move) {
+      const [di, dj] = DP_OFFSETS[move];
+      const option = dpEl("option", null, directions[move] + " · " + where(i + di, j + dj) +
+        " · score " + dpNum(dp.V[i + di][j + dj]));
+      option.value = move;
+      return option;
+    }));
+    choiceField.hidden = available.length < 2;
+    next.disabled = all.disabled = stop;
+    back.disabled = reset.disabled = moves.length === 0;
+    if (stop) {
+      status.textContent = (cfg.local ? "Reached the first zero" : "Reached the origin") + " at " + where(i, j) +
+        ". Alignment score " + dpNum(tb.score) + ".";
+    } else {
+      status.textContent = (moves.length ? "Step " + moves.length : "Start") + " at " + where(i, j) +
+        " (score " + dpNum(score) + ")." + (available.length > 1 ? " Choose a tied predecessor." : "");
+    }
+    out.replaceChildren();
+    if (moves.length) out.appendChild(dpAlignmentBox(cfg, dp, tb, stop).box);
+  }
+
+  back.onclick = function () { moves.pop(); draw(); };
+  next.onclick = function () { moves.push(choose.value || available[0]); draw(); };
+  all.onclick = function () {
+    moves = dpTraceback(cfg, dp, moves.concat(choose.value || available[0])).moves;
+    draw();
+  };
+  reset.onclick = function () { moves = []; draw(); };
+  draw();
 }
 
 function dpRenderGuess(root, cfg, dp) {
@@ -752,11 +891,12 @@ function dpSettings(cfg, redraw) {
 
 // --------------------------------------------------------------- entry point
 
-const DP_MODE_LABEL = { step: "Step through", guess: "Guess a cell", fill: "Fill it in" };
+const DP_MODE_LABEL = { step: "Step through", guess: "Guess a cell", fill: "Fill it in", traceback: "Traceback" };
 const DP_TITLES = {
   step: "Step through the matrix",
   guess: "What goes in this cell?",
-  fill: "Fill the matrix yourself"
+  fill: "Fill the matrix yourself",
+  traceback: "Follow the traceback"
 };
 
 function renderDP(containerId, config) {
@@ -767,7 +907,7 @@ function renderDP(containerId, config) {
   if (!cfg.a.length || !cfg.b.length) { container.textContent = "renderDP: both sequences must be non-empty."; return; }
 
   container.textContent = "";
-  const root = dpEl("div", "dpm");
+  const root = dpEl("div", cfg.incomingArrows ? "dpm dpm-incoming" : "dpm");
   const heading = dpEl("h4");
   const sub = dpEl("p", "dpm-sub");
   root.appendChild(heading);
@@ -779,7 +919,23 @@ function renderDP(containerId, config) {
   if (cfg.controls) root.appendChild(dpSettings(cfg, function () { draw(); }));
 
   let switcher = null;
-  if (cfg.modes && cfg.modes.length > 1) {
+  if (cfg.viewSelect || cfg.chooseAlignment) {
+    const bar = dpEl("div", "dpm-settings");
+    if (cfg.chooseAlignment) {
+      const alignment = dpSelect([["global", "Needleman–Wunsch (global)"], ["local", "Smith–Waterman (local)"]],
+        cfg.local ? "local" : "global");
+      alignment.onchange = function () { cfg.local = alignment.value === "local"; draw(); };
+      bar.appendChild(dpField("Algorithm", alignment));
+    }
+    if (cfg.viewSelect) {
+      const views = dpSelect(cfg.modes.map(function (m) {
+        return [m, m === "step" ? "Fill matrix" : DP_MODE_LABEL[m]];
+      }), cfg.mode);
+      views.onchange = function () { cfg.mode = views.value; draw(); };
+      bar.appendChild(dpField("View", views));
+    }
+    root.appendChild(bar);
+  } else if (cfg.modes && cfg.modes.length > 1) {
     switcher = dpEl("div", "dpm-modes");
     cfg.modes.forEach(function (m) {
       const b = dpEl("button", null, DP_MODE_LABEL[m] || m);
@@ -808,6 +964,7 @@ function renderDP(containerId, config) {
     body.textContent = "";
     if (cfg.mode === "guess") dpRenderGuess(body, cfg, dp);
     else if (cfg.mode === "fill") dpRenderFill(body, cfg, dp);
+    else if (cfg.mode === "traceback") dpRenderTraceback(body, cfg, dp);
     else dpRenderStep(body, cfg, dp);
   }
   draw();
